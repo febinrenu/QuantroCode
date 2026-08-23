@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4F7FB;font-family:'IBM Plex Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#2563EB;text-decoration:none}a:hover{color:#00C49A}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(100,120,150,.25);border-radius:6px;border:3px solid transparent;background-clip:content-box}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" data-screen-label="Main Dashboard" style="display:flex;min-height:100vh;min-width:1280px;background:var(--bg,#F4F7FB);color:var(--ink,#0B1B33);font-size:13px">
+
+<aside style="width:250px;min-width:250px;background:var(--sbbg,linear-gradient(180deg,#02071A 0%,#0A1C36 100%));display:flex;flex-direction:column;position:sticky;top:0;height:100vh">
+  <div style="padding:14px 14px 10px;border-bottom:1px solid rgba(255,255,255,.07)">
+    <img src="assets/quantro-lockup.png" alt="Quantro" style="width:88%;display:block;margin:2px auto 4px">
+  </div>
+  <nav style="flex:1;overflow-y:auto;padding:10px 12px 14px;display:flex;flex-direction:column;gap:3px">
+    <sc-for list="{{ navGroups }}" as="g" hint-placeholder-count="6">
+      <div style="display:flex;flex-direction:column;gap:1px">
+        <div onClick="{{ g.toggle }}" style="display:flex;align-items:center;gap:8px;padding:9px 11px 5px;color:#5E77A0;font-weight:700;font-size:9.5px;letter-spacing:1.4px;text-transform:uppercase;cursor:pointer;user-select:none" style-hover="color:#9FB4D4">
+          <span style="display:var(--en,inline)">{{ g.label }}</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif;letter-spacing:0;font-size:11px">{{ g.labelAr }}</span>
+          <svg style="{{ g.chevStyle }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="m9 6 6 6-6 6"></path></svg>
+        </div>
+        <div style="{{ g.listStyle }}">
+          <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="2">
+            <div onClick="{{ it.onClick }}" style="{{ it.rowStyle }}" style-hover="background:rgba(255,255,255,.07)">
+              <span style="{{ it.dotStyle }}"></span>
+              <span style="display:var(--en,inline)">{{ it.label }}</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">{{ it.labelAr }}</span>
+              <span style="{{ it.badgeStyle }}">{{ it.badge }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </nav>
+  <div style="margin:12px;padding:13px 14px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px">
+    <div style="width:30px;height:30px;border-radius:9px;background:rgba(57,224,184,.15);display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#39E0B8" stroke-width="2" stroke-linecap="round"><path d="M12 3 4 7v5c0 4.5 3.2 7.9 8 9 4.8-1.1 8-4.5 8-9V7l-8-4Z"></path></svg>
+    </div>
+    <div style="flex:1">
+      <div style="color:#fff;font-weight:600;font-size:11.5px"><span style="display:var(--en,inline)">System Status</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">حالة النظام</span></div>
+      <div style="color:#6C82A3;font-size:10px"><span style="display:var(--en,inline)">All systems live</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">جميع الأنظمة تعمل</span></div>
+    </div>
+    <div style="width:7px;height:7px;border-radius:50%;background:#39E0B8;box-shadow:0 0 8px #39E0B8"></div>
+  </div>
+</aside>
+
+<main style="flex:1;min-width:0;display:flex;flex-direction:column">
+  <header style="display:flex;align-items:center;gap:14px;padding:14px 26px;background:var(--card,#FFFFFF);border-bottom:1px solid var(--bd,#E4EAF3);position:sticky;top:0;z-index:5">
+    <div>
+      <div style="font-family:Sora,sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px"><span style="display:var(--en,inline)">Dashboard</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">لوحة التحكم</span></div>
+      <div style="color:var(--ink3,#8291A9);font-size:11px;margin-top:1px"><span style="display:var(--en,inline)">Welcome back, William — here's today at a glance.</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">أهلاً بعودتك، وليام — إليك ملخص اليوم.</span></div>
+    </div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:8px;background:var(--card2,#F6F9FC);border:1px solid var(--bd,#E4EAF3);border-radius:10px;padding:8px 13px;width:250px;color:var(--ink3,#8291A9)">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m16.5 16.5 4 4"></path></svg>
+      <span style="font-size:12px;display:var(--en,inline)">Search orders, products, people…</span><span style="font-size:12px;display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">ابحث عن الطلبات والمنتجات…</span>
+      <span style="margin-inline-start:auto;font-size:10px;border:1px solid var(--bd,#E4EAF3);border-radius:5px;padding:1px 6px;background:var(--card,#fff)">⌘K</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;border:1px solid var(--bd,#E4EAF3);background:var(--card2,#F6F9FC);border-radius:10px;padding:8px 12px;font-weight:600;font-size:12px;cursor:pointer">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M8 3v4M16 3v4M3 10h18"></path></svg>
+      <span style="display:var(--en,inline)">Jul 1 – Jul 31, 2026</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">١ – ٣١ يوليو ٢٠٢٦</span>
+    </div>
+    <div style="display:flex;background:var(--card2,#F6F9FC);border:1px solid var(--bd,#E4EAF3);border-radius:10px;padding:3px;gap:2px">
+      <button onClick="{{ setEn }}" style="border:none;cursor:pointer;font-family:inherit;font-weight:600;font-size:11.5px;padding:6px 11px;border-radius:8px;background:var(--tglEnBg,#FFFFFF);color:var(--tglEnC,#2563EB);box-shadow:var(--tglEnSh,0 1px 4px rgba(11,27,51,.12))">EN</button>
+      <button onClick="{{ setAr }}" style="border:none;cursor:pointer;font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:600;font-size:11.5px;padding:6px 11px;border-radius:8px;background:var(--tglArBg,transparent);color:var(--tglArC,#8291A9);box-shadow:var(--tglArSh,none)">العربية</button>
+    </div>
+    <button onClick="{{ toggleTheme }}" style="border:1px solid var(--bd,#E4EAF3);background:var(--card2,#F6F9FC);border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--ink2,#47586F);display:flex;align-items:center">
+      <svg style="display:var(--lt,block)" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"></path></svg>
+      <svg style="display:var(--dk,none)" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5 5l1.7 1.7M17.3 17.3 19 19M19 5l-1.7 1.7M6.7 17.3 5 19"></path></svg>
+    </button>
+    <div style="position:relative;border:1px solid var(--bd,#E4EAF3);background:var(--card2,#F6F9FC);border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--ink2,#47586F)">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 9a6 6 0 1 0-12 0c0 6-2.5 7-2.5 7h17S18 15 18 9ZM10 20a2.2 2.2 0 0 0 4 0"></path></svg>
+      <span style="position:absolute;top:-4px;inset-inline-end:-4px;background:#2563EB;color:#fff;font-size:9px;font-weight:700;border-radius:8px;padding:1px 5px">3</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:9px;cursor:pointer">
+      <div style="width:34px;height:34px;border-radius:10px;background:#2563EB;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">W</div>
+      <div>
+        <div style="font-weight:600;font-size:12px">William Castilo</div>
+        <div style="color:var(--ink3,#8291A9);font-size:10px"><span style="display:var(--en,inline)">Super Admin</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">مدير عام</span></div>
+      </div>
+    </div>
+  </header>
+
+  <div style="padding:22px 26px;display:flex;flex-direction:column;gap:18px">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px">
+      <div style="background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:16px;padding:16px 17px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04))">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--ink3,#8291A9);font-size:11px;font-weight:500">
+          <span style="width:26px;height:26px;border-radius:8px;background:rgba(37,99,235,.1);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .8-3 2s1.2 1.7 3 2 3 .8 3 2-1.3 2-3 2c-1.4 0-2.5-.5-3-1.5M12 6.5V8m0 8v1.5"></path></svg></span>
+          <span style="display:var(--en,inline)">Gross Revenue</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">إجمالي الإيرادات</span>
+        </div>
+        <div style="font-family:Sora,sans-serif;font-weight:800;font-size:22px;letter-spacing:-.5px;margin-top:9px">$245,750</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:5px;font-size:11px"><span style="color:#0BA47E;font-weight:700">↑ 18.6%</span><span style="color:var(--ink3,#8291A9)"><span style="display:var(--en,inline)">vs June</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">مقارنة بيونيو</span></span></div>
+        <svg viewBox="0 0 120 26" width="100%" height="26" style="margin-top:8px"><path d="M2,20 18,16 34,18 50,12 66,14 82,8 98,10 118,4" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round"></path></svg>
+      </div>
+      <div style="background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:16px;padding:16px 17px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04))">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--ink3,#8291A9);font-size:11px;font-weight:500">
+          <span style="width:26px;height:26px;border-radius:8px;background:rgba(0,196,154,.12);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#00A882" stroke-width="2" stroke-linecap="round"><path d="M3 17 9 11l4 4 8-8"></path><path d="M15 7h6v6"></path></svg></span>
+          <span style="display:var(--en,inline)">Net Profit</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">صافي الربح</span>
+        </div>
+        <div style="font-family:Sora,sans-serif;font-weight:800;font-size:22px;letter-spacing:-.5px;margin-top:9px">$73,240</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:5px;font-size:11px"><span style="color:#0BA47E;font-weight:700">↑ 22.4%</span><span style="color:var(--ink3,#8291A9)"><span style="display:var(--en,inline)">vs June</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">مقارنة بيونيو</span></span></div>
+        <svg viewBox="0 0 120 26" width="100%" height="26" style="margin-top:8px"><path d="M2,22 18,18 34,20 50,15 66,16 82,10 98,12 118,5" fill="none" stroke="#00C49A" stroke-width="2" stroke-linecap="round"></path></svg>
+      </div>
+      <div style="background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:16px;padding:16px 17px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04))">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--ink3,#8291A9);font-size:11px;font-weight:500">
+          <span style="width:26px;height:26px;border-radius:8px;background:rgba(139,92,246,.12);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4H6Z"></path><path d="M3 6h18M16 10a4 4 0 0 1-8 0"></path></svg></span>
+          <span style="display:var(--en,inline)">Orders</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">الطلبات</span>
+        </div>
+        <div style="font-family:Sora,sans-serif;font-weight:800;font-size:22px;letter-spacing:-.5px;margin-top:9px">10,250</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:5px;font-size:11px"><span style="color:#0BA47E;font-weight:700">↑ 15.3%</span><span style="color:var(--ink3,#8291A9)"><span style="display:var(--en,inline)">vs June</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">مقارنة بيونيو</span></span></div>
+        <svg viewBox="0 0 120 26" width="100%" height="26" style="margin-top:8px"><path d="M2,18 18,20 34,14 50,16 66,10 82,13 98,8 118,6" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round"></path></svg>
+      </div>
+      <div style="background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:16px;padding:16px 17px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04))">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--ink3,#8291A9);font-size:11px;font-weight:500">
+          <span style="width:26px;height:26px;border-radius:8px;background:rgba(255,159,28,.14);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#E88A00" stroke-width="2" stroke-linecap="round"><path d="M12 2 20.5 7v10L12 22 3.5 17V7L12 2Z"></path><path d="M3.5 7 12 12l8.5-5"></path></svg></span>
+          <span style="display:var(--en,inline)">Inventory Value</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">قيمة المخزون</span>
+        </div>
+        <div style="font-family:Sora,sans-serif;font-weight:800;font-size:22px;letter-spacing:-.5px;margin-top:9px">$124,560</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:5px;font-size:11px"><span style="color:#0BA47E;font-weight:700">↑ 3.6%</span><span style="color:var(--ink3,#8291A9)"><span style="display:var(--en,inline)">4 warehouses</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">٤ مستودعات</span></span></div>
+        <svg viewBox="0 0 120 26" width="100%" height="26" style="margin-top:8px"><path d="M2,14 18,15 34,12 50,14 66,11 82,12 98,9 118,8" fill="none" stroke="#E88A00" stroke-width="2" stroke-linecap="round"></path></svg>
+      </div>
+      <div style="background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:16px;padding:16px 17px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04))">
+        <div style="display:flex;align-items:center;gap:8px;color:var(--ink3,#8291A9);font-size:11px;font-weight:500">
+          <span style="width:26px;height:26px;border-radius:8px;background:rgba(225,72,72,.1);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#E14848" stroke-width="2" stroke-linecap="round"><path d="M12 3 2.5 20h19L12 3Z"></path><path d="M12 10v4m0 3v.5"></path></svg></span>
+          <span style="display:var(--en,inline)">Stock Alerts</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">تنبيهات المخزون</span>
+        </div>
+        <div style="font-family:Sora,sans-serif;font-weight:800;font-size:22px;letter-spacing:-.5px;margin-top:9px">37 <span style="font-size:12px;font-weight:600;color:var(--ink3,#8291A9)"><span style="display:var(--en,inline)">items</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">عنصر</span></span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-top:5px;font-size:11px"><span style="color:#E14848;font-weight:700">24</span><span style="color:var(--ink3,#8291A9)"><span style="display:var(--en,inline)">out of stock</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">غير متوفر</span></span></div>
+        <div style="display:flex;gap:3px;margin-top:12px"><div style="flex:24;height:5px;border-radius:3px;background:#E14848"></div><div style="flex:13;height:5px;border-radius:3px;background:#E88A00"></div><div style="flex:20;height:5px;border-radius:3px;background:var(--bd,#E4EAF3)"></div></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.9fr 1fr;gap:16px">
+      <div style="background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:16px;padding:19px 20px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04))">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div>
+            <div style="font-family:Sora,sans-serif;font-weight:700;font-size:14px"><span style="display:var(--en,inline)">Sales &amp; Profit Trends</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">اتجاهات المبيعات والأرباح</span></div>
+            <div style="color:var(--ink3,#8291A9);font-size:11px;margin-top:1px"><span style="display:var(--en,inline)">Daily performance across all branches</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">الأداء اليومي عبر جميع الفروع</span></div>
+          </div>
+          <div style="flex:1"></div>
+          <div style="display:flex;align-items:center;gap:14px;font-size:11px;color:var(--ink2,#47586F)">
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:3px;background:#2563EB"></span><span style="display:var(--en,inline)">Sales</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">المبيعات</span></span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:3px;background:#00C49A"></span><span style="display:var(--en,inline)">Profit</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">الربح</span></span>
+          </div>
+          <div style="display:flex;background:var(--card2,#F6F9FC);border:1px solid var(--bd,#E4EAF3);border-radius:9px;padding:2px;gap:2px;font-size:11px;font-weight:600">
+            <span style="padding:5px 12px;border-radius:7px;background:#2563EB;color:#fff"><span style="display:var(--en,inline)">Day</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">يوم</span></span>
+            <span style="padding:5px 12px;border-radius:7px;color:var(--ink3,#8291A9);cursor:pointer"><span style="display:var(--en,inline)">Week</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">أسبوع</span></span>
+            <span style="padding:5px 12px;border-radius:7px;color:var(--ink3,#8291A9);cursor:pointer"><span style="display:var(--en,inline)">Month</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">شهر</span></span>
+          </div>
+        </div>
+        <svg viewBox="0 0 560 190" width="100%" style="margin-top:14px;display:block;direction:ltr">
+          <defs>
+            <linearGradient id="qdA" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563EB" stop-opacity=".22"></stop><stop offset="100%" stop-color="#2563EB" stop-opacity="0"></stop></linearGradient>
+            <linearGradient id="qdB" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00C49A" stop-opacity=".18"></stop><stop offset="100%" stop-color="#00C49A" stop-opacity="0"></stop></linearGradient>
+          </defs>
+          <line x1="34" y1="18" x2="552" y2="18" stroke="var(--bd,#E4EAF3)" stroke-width="1"></line>
+          <line x1="34" y1="58" x2="552" y2="58" stroke="var(--bd,#E4EAF3)" stroke-width="1"></line>
+          <line x1="34" y1="98" x2="552" y2="98" stroke="var(--bd,#E4EAF3)" stroke-width="1"></line>
+          <line x1="34" y1="138" x2="552" y2="138" stroke="var(--bd,#E4EAF3)" stroke-width="1"></line>
+          <text x="0" y="21" font-size="9" fill="var(--ink3,#8291A9)">$90K</text><text x="0" y="61" font-size="9" fill="var(--ink3,#8291A9)">$60K</text><text x="0" y="101" font-size="9" fill="var(--ink3,#8291A9)">$30K</text><text x="0" y="141" font-size="9" fill="var(--ink3,#8291A9)">$0</text>
+          <path d="M40,120 105,100 170,108 235,78 300,86 365,52 430,60 495,34 548,24 L548,138 40,138Z" fill="url(#qdA)"></path>
+          <path d="M40,120 105,100 170,108 235,78 300,86 365,52 430,60 495,34 548,24" fill="none" stroke="#2563EB" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
+          <path d="M40,132 105,124 170,127 235,112 300,116 365,98 430,103 495,84 548,76 L548,138 40,138Z" fill="url(#qdB)"></path>
+          <path d="M40,132 105,124 170,127 235,112 300,116 365,98 430,103 495,84 548,76" fill="none" stroke="#00C49A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"></path>
+          <circle cx="365" cy="52" r="4.5" fill="#2563EB" stroke="#fff" stroke-width="2"></circle>
+          <rect x="318" y="8" width="96" height="34" rx="8" fill="#0B1B33"></rect>
+          <text x="328" y="22" font-size="9" fill="#8FA5C4">Jul 19</text>
+          <text x="328" y="35" font-size="10.5" font-weight="700" fill="#fff">$72,480 · $21,350</text>
+          <text x="34" y="158" font-size="9" fill="var(--ink3,#8291A9)">Jul 1</text><text x="120" y="158" font-size="9" fill="var(--ink3,#8291A9)">Jul 6</text><text x="205" y="158" font-size="9" fill="var(--ink3,#8291A9)">Jul 11</text><text x="290" y="158" font-size="9" fill="var(--ink3,#8291A9)">Jul 16</text><text x="375" y="158" font-size="9" fill="var(--ink3,#8291A9)">Jul 21</text><text x="460" y="158" font-size="9" fill="var(--ink3,#8291A9)">Jul 26</text><text x="532" y="158" font-size="9" fill="var(--ink3,#8291A9)">Jul 31</text>
+        </svg>
+      </div>
+      <div style="background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:16px;padding:19px 20px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04));display:flex;flex-direction:column">
+        <div style="font-family:Sora,sans-serif;font-weight:700;font-size:14px"><span style="display:var(--en,inline)">Top Selling Categories</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">أعلى الفئات مبيعاً</span></div>
+        <div style="display:flex;align-items:center;gap:18px;margin-top:16px">
+          <svg viewBox="0 0 100 100" width="118" height="118">
+            <circle cx="50" cy="50" r="38" fill="none" stroke="#2563EB" stroke-width="13" stroke-dasharray="83.6 155.2" stroke-dashoffset="0" transform="rotate(-90 50 50)"></circle>
+            <circle cx="50" cy="50" r="38" fill="none" stroke="#00C49A" stroke-width="13" stroke-dasharray="52.5 186.3" stroke-dashoffset="-83.6" transform="rotate(-90 50 50)"></circle>
+            <circle cx="50" cy="50" r="38" fill="none" stroke="#8B5CF6" stroke-width="13" stroke-dasharray="40.6 198.2" stroke-dashoffset="-136.1" transform="rotate(-90 50 50)"></circle>
+            <circle cx="50" cy="50" r="38" fill="none" stroke="#FF9F1C" stroke-width="13" stroke-dasharray="31 207.8" stroke-dashoffset="-176.7" transform="rotate(-90 50 50)"></circle>
+            <circle cx="50" cy="50" r="38" fill="none" stroke="#D4DEEC" stroke-width="13" stroke-dasharray="31.1 207.7" stroke-dashoffset="-207.7" transform="rotate(-90 50 50)"></circle>
+            <text x="50" y="47" text-anchor="middle" font-size="13" font-weight="800" font-family="Sora" fill="var(--ink,#0B1B33)">$245K</text>
+            <text x="50" y="60" text-anchor="middle" font-size="7.5" fill="var(--ink3,#8291A9)">TOTAL</text>
+          </svg>
+          <div style="flex:1;display:flex;flex-direction:column;gap:9px;font-size:11.5px">
+            <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:3px;background:#2563EB"></span><span style="color:var(--ink2,#47586F)"><span style="display:var(--en,inline)">Electronics</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">إلكترونيات</span></span><span style="margin-inline-start:auto;font-weight:700">35%</span></div>
+            <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:3px;background:#00C49A"></span><span style="color:var(--ink2,#47586F)"><span style="display:var(--en,inline)">Accessories</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">إكسسوارات</span></span><span style="margin-inline-start:auto;font-weight:700">22%</span></div>
+            <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:3px;background:#8B5CF6"></span><span style="color:var(--ink2,#47586F)"><span style="display:var(--en,inline)">Office Supplies</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">مستلزمات مكتبية</span></span><span style="margin-inline-start:auto;font-weight:700">17%</span></div>
+            <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:3px;background:#FF9F1C"></span><span style="color:var(--ink2,#47586F)"><span style="display:var(--en,inline)">Beverages</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">مشروبات</span></span><span style="margin-inline-start:auto;font-weight:700">13%</span></div>
+            <div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:3px;background:#D4DEEC"></span><span style="color:var(--ink2,#47586F)"><span style="display:var(--en,inline)">Others</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">أخرى</span></span><span style="margin-inline-start:auto;font-weight:700">13%</span></div>
+          </div>
+        </div>
+        <div style="flex:1"></div>
+        <div style="margin-top:14px;padding-top:13px;border-top:1px solid var(--bd,#E4EAF3);display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink2,#47586F)">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#00A882" stroke-width="2" stroke-linecap="round"><path d="M3 17 9 11l4 4 8-8"></path></svg>
+          <span style="display:var(--en,inline)">Electronics up 8.2% this month</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">الإلكترونيات ترتفع ٨٫٢٪ هذا الشهر</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1.9fr 1fr;gap:16px;align-items:start">
+      <div style="background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:16px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04));overflow:hidden">
+        <div style="display:flex;align-items:center;padding:17px 20px 13px">
+          <div style="font-family:Sora,sans-serif;font-weight:700;font-size:14px"><span style="display:var(--en,inline)">Recent Transactions</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">أحدث المعاملات</span></div>
+          <div style="flex:1"></div>
+          <a href="#" style="font-size:11.5px;font-weight:600"><span style="display:var(--en,inline)">View all →</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">عرض الكل ←</span></a>
+        </div>
+        <div style="display:grid;grid-template-columns:1.1fr 1.4fr 1.2fr 1fr .9fr .9fr;gap:8px;padding:8px 20px;background:var(--card2,#F6F9FC);border-top:1px solid var(--bd,#E4EAF3);border-bottom:1px solid var(--bd,#E4EAF3);font-size:10px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--ink3,#8291A9)">
+          <span><span style="display:var(--en,inline)">Invoice</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">الفاتورة</span></span>
+          <span><span style="display:var(--en,inline)">Customer</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">العميل</span></span>
+          <span><span style="display:var(--en,inline)">Warehouse</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">المستودع</span></span>
+          <span><span style="display:var(--en,inline)">Status</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">الحالة</span></span>
+          <span><span style="display:var(--en,inline)">Total</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">الإجمالي</span></span>
+          <span><span style="display:var(--en,inline)">Date</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">التاريخ</span></span>
+        </div>
+        <sc-for list="{{ txns }}" as="tx" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:1.1fr 1.4fr 1.2fr 1fr .9fr .9fr;gap:8px;padding:12px 20px;border-bottom:1px solid var(--bd,#E4EAF3);font-size:12px;align-items:center" style-hover="background:var(--tint,rgba(37,99,235,.04))">
+            <span style="font-weight:600;color:#2563EB">{{ tx.id }}</span>
+            <span style="display:flex;align-items:center;gap:8px"><span style="width:24px;height:24px;border-radius:8px;background:{{ tx.avatarBg }};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">{{ tx.initial }}</span><span style="font-weight:500">{{ tx.customer }}</span></span>
+            <span style="color:var(--ink2,#47586F)">{{ tx.warehouse }}</span>
+            <span><span style="font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:20px;background:{{ tx.stBg }};color:{{ tx.stC }}">{{ tx.status }}</span></span>
+            <span style="font-weight:700;font-family:Sora,sans-serif;font-size:11.5px">{{ tx.total }}</span>
+            <span style="color:var(--ink3,#8291A9);font-size:11px">{{ tx.date }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:16px;padding:17px 18px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04))">
+          <div style="display:flex;align-items:center">
+            <div style="font-family:Sora,sans-serif;font-weight:700;font-size:14px"><span style="display:var(--en,inline)">Quick Actions</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">إجراءات سريعة</span></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px">
+            <button style="border:none;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:9px;padding:12px 13px;border-radius:11px;background:#2563EB;color:#fff;font-weight:600;font-size:12px;box-shadow:0 8px 18px -6px rgba(37,99,235,.45)" style-hover="background:#1D53D0">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>
+              <span style="display:var(--en,inline)">New Sale</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">بيع جديد</span>
+            </button>
+            <button style="cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:9px;padding:12px 13px;border-radius:11px;background:var(--card2,#F6F9FC);border:1px solid var(--bd,#E4EAF3);color:var(--ink,#0B1B33);font-weight:600;font-size:12px" style-hover="border-color:#2563EB;color:#2563EB">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2 20.5 7v10L12 22 3.5 17V7L12 2Z"></path><path d="M12 8v8M8 12h8"></path></svg>
+              <span style="display:var(--en,inline)">Add Product</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">إضافة منتج</span>
+            </button>
+            <button style="cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:9px;padding:12px 13px;border-radius:11px;background:var(--card2,#F6F9FC);border:1px solid var(--bd,#E4EAF3);color:var(--ink,#0B1B33);font-weight:600;font-size:12px" style-hover="border-color:#2563EB;color:#2563EB">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"></rect><path d="M8 8h8M8 12h8M8 16h5"></path></svg>
+              <span style="display:var(--en,inline)">Purchase Order</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">أمر شراء</span>
+            </button>
+            <button style="cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:9px;padding:12px 13px;border-radius:11px;background:var(--card2,#F6F9FC);border:1px solid var(--bd,#E4EAF3);color:var(--ink,#0B1B33);font-weight:600;font-size:12px" style-hover="border-color:#2563EB;color:#2563EB">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 21h18M7 21V10M12 21V4M17 21v-8"></path></svg>
+              <span style="display:var(--en,inline)">Run Report</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">تشغيل تقرير</span>
+            </button>
+          </div>
+        </div>
+        <div style="background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:16px;padding:17px 18px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04))">
+          <div style="display:flex;align-items:center">
+            <div style="font-family:Sora,sans-serif;font-weight:700;font-size:14px"><span style="display:var(--en,inline)">Stock Alerts</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">تنبيهات المخزون</span></div>
+            <div style="flex:1"></div>
+            <a href="#" style="font-size:11.5px;font-weight:600"><span style="display:var(--en,inline)">View all →</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">عرض الكل ←</span></a>
+          </div>
+          <sc-for list="{{ alerts }}" as="al" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--bd,#E4EAF3)">
+              <div style="width:34px;height:34px;border-radius:10px;background:{{ al.tileBg }};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;color:{{ al.tileC }}">{{ al.abbr }}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:600;font-size:12px">{{ al.name }}</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
+                  <div style="flex:1;height:5px;border-radius:3px;background:var(--bd,#E4EAF3);overflow:hidden"><div style="width:{{ al.pct }};height:100%;border-radius:3px;background:{{ al.barC }}"></div></div>
+                  <span style="font-size:10px;font-weight:700;color:{{ al.barC }}">{{ al.pct }}</span>
+                </div>
+              </div>
+              <button style="cursor:pointer;font-family:inherit;font-size:10.5px;font-weight:600;padding:6px 11px;border-radius:8px;border:1px solid #2563EB;color:#2563EB;background:transparent" style-hover="background:#2563EB;color:#fff"><span style="display:var(--en,inline)">Reorder</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">إعادة طلب</span></button>
+            </div>
+          </sc-for>
+        </div>
+        <div style="background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:16px;padding:17px 18px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04))">
+          <div style="font-family:Sora,sans-serif;font-weight:700;font-size:14px"><span style="display:var(--en,inline)">Sales by Branch</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">المبيعات حسب الفرع</span></div>
+          <div style="display:flex;flex-direction:column;gap:11px;margin-top:13px;font-size:11.5px">
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--ink2,#47586F)"><span style="display:var(--en,inline)">Main Warehouse</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">المستودع الرئيسي</span></span><span style="font-weight:700">$98,245</span></div><div style="height:6px;border-radius:3px;background:var(--bd,#E4EAF3)"><div style="width:80%;height:100%;border-radius:3px;background:#2563EB"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--ink2,#47586F)"><span style="display:var(--en,inline)">Downtown Branch</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">فرع وسط المدينة</span></span><span style="font-weight:700">$67,812</span></div><div style="height:6px;border-radius:3px;background:var(--bd,#E4EAF3)"><div style="width:55%;height:100%;border-radius:3px;background:#2563EB"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--ink2,#47586F)"><span style="display:var(--en,inline)">Airport Branch</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">فرع المطار</span></span><span style="font-weight:700">$45,760</span></div><div style="height:6px;border-radius:3px;background:var(--bd,#E4EAF3)"><div style="width:37%;height:100%;border-radius:3px;background:#2563EB"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="color:var(--ink2,#47586F)"><span style="display:var(--en,inline)">Industrial Area</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">المنطقة الصناعية</span></span><span style="font-weight:700">$21,936</span></div><div style="height:6px;border-radius:3px;background:var(--bd,#E4EAF3)"><div style="width:18%;height:100%;border-radius:3px;background:#2563EB"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+      <div style="display:flex;align-items:center;gap:11px;background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:13px;padding:13px 16px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04));font-size:12px">
+        <span style="width:30px;height:30px;min-width:30px;border-radius:9px;background:rgba(0,196,154,.12);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#00A882" stroke-width="2" stroke-linecap="round"><path d="M3 17 9 11l4 4 8-8"></path><path d="M15 7h6v6"></path></svg></span>
+        <span style="color:var(--ink2,#47586F)"><span style="display:var(--en,inline)">Sales increased <b style="color:var(--ink,#0B1B33)">18.6%</b> vs the previous period.</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">ارتفعت المبيعات بنسبة <b style="color:var(--ink,#0B1B33)">١٨٫٦٪</b> مقارنة بالفترة السابقة.</span></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:11px;background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:13px;padding:13px 16px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04));font-size:12px">
+        <span style="width:30px;height:30px;min-width:30px;border-radius:9px;background:rgba(37,99,235,.1);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round"><path d="M12 2l2.4 6.4L21 9.6l-5 4.5 1.4 6.9-5.4-3.6L6.6 21 8 14.1l-5-4.5 6.6-1.2L12 2Z"></path></svg></span>
+        <span style="color:var(--ink2,#47586F)"><span style="display:var(--en,inline)"><b style="color:var(--ink,#0B1B33)">Electronics</b> is the top performing category this month.</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif"><b style="color:var(--ink,#0B1B33)">الإلكترونيات</b> هي الفئة الأفضل أداءً هذا الشهر.</span></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:11px;background:var(--card,#fff);border:1px solid var(--bd,#E4EAF3);border-radius:13px;padding:13px 16px;box-shadow:var(--sh,0 1px 2px rgba(11,27,51,.04));font-size:12px">
+        <span style="width:30px;height:30px;min-width:30px;border-radius:9px;background:rgba(139,92,246,.12);display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3.5 2"></path></svg></span>
+        <span style="color:var(--ink2,#47586F)"><span style="display:var(--en,inline)">Peak sales hours are between <b style="color:var(--ink,#0B1B33)">10 AM – 2 PM</b>.</span><span style="display:var(--ar,none);font-family:'IBM Plex Sans Arabic',sans-serif">ذروة المبيعات بين <b style="color:var(--ink,#0B1B33)">١٠ صباحاً و٢ ظهراً</b>.</span></span>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultTheme&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;light&quot;, &quot;dark&quot;], &quot;default&quot;: &quot;light&quot;, &quot;tsType&quot;: &quot;'light' | 'dark'&quot;, &quot;section&quot;: &quot;Defaults&quot;}, &quot;defaultLang&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;en&quot;, &quot;ar&quot;], &quot;default&quot;: &quot;en&quot;, &quot;tsType&quot;: &quot;'en' | 'ar'&quot;, &quot;section&quot;: &quot;Defaults&quot;}}">
+class Component extends DCLogic {
+  constructor(p){
+    super(p);
+    this.root = React.createRef(); this.dark = false; this.ar = false;
+    this.state = { open: { main:true, management:true, payments:true, support:true, reports:false, cms:false, kb:false, monitoring:false, settings:false }, active:'dashboard' };
+  }
+  componentDidMount(){
+    this.dark = (this.props.defaultTheme ?? 'light') === 'dark';
+    this.ar = (this.props.defaultLang ?? 'en') === 'ar';
+    this.apply();
+  }
+  componentDidUpdate(){ this.apply(); }
+  apply(){
+    const el = this.root.current; if(!el) return;
+    const d = this.dark, ar = this.ar;
+    const L = {
+      '--bg':'#F4F7FB','--card':'#FFFFFF','--card2':'#F6F9FC','--ink':'#0B1B33','--ink2':'#47586F','--ink3':'#8291A9',
+      '--bd':'#E4EAF3','--tint':'rgba(37,99,235,.04)','--sh':'0 1px 2px rgba(11,27,51,.04), 0 10px 30px -14px rgba(11,27,51,.10)',
+      '--sbbg':'linear-gradient(180deg,#02071A 0%,#0A1C36 100%)'
+    };
+    const D = {
+      '--bg':'#060D1A','--card':'#0C1728','--card2':'#111F35','--ink':'#EAF1FA','--ink2':'#B4C4D9','--ink3':'#71839E',
+      '--bd':'#1C2B45','--tint':'rgba(59,130,246,.08)','--sh':'0 1px 2px rgba(0,0,0,.35), 0 14px 34px -14px rgba(0,0,0,.5)',
+      '--sbbg':'linear-gradient(180deg,#01040D 0%,#061226 100%)'
+    };
+    const v = d ? D : L;
+    for (const k in v) el.style.setProperty(k, v[k]);
+    el.style.setProperty('--en', ar ? 'none' : 'inline');
+    el.style.setProperty('--ar', ar ? 'inline' : 'none');
+    el.style.setProperty('--lt', d ? 'none' : 'block');
+    el.style.setProperty('--dk', d ? 'block' : 'none');
+    const onBg = d ? '#1B3050' : '#FFFFFF', onC = '#2563EB', offC = d ? '#71839E' : '#8291A9';
+    el.style.setProperty('--tglEnBg', ar ? 'transparent' : onBg);
+    el.style.setProperty('--tglEnC', ar ? offC : (d ? '#6EA0FF' : onC));
+    el.style.setProperty('--tglEnSh', ar ? 'none' : '0 1px 4px rgba(11,27,51,.18)');
+    el.style.setProperty('--tglArBg', ar ? onBg : 'transparent');
+    el.style.setProperty('--tglArC', ar ? (d ? '#6EA0FF' : onC) : offC);
+    el.style.setProperty('--tglArSh', ar ? '0 1px 4px rgba(11,27,51,.18)' : 'none');
+    el.setAttribute('dir', ar ? 'rtl' : 'ltr');
+    document.body.style.background = v['--bg'];
+  }
+  buildNav(){
+    const defs = [
+      { id:'main', label:'Main', labelAr:'الرئيسية', items:[ ['dashboard','Dashboard','لوحة التحكم'] ] },
+      { id:'management', label:'Management', labelAr:'الإدارة', items:[ ['tenants','Tenants','المستأجرون'], ['plans','Plans','الخطط'], ['subscriptions','Subscriptions','الاشتراكات'], ['reminders','Reminders','التذكيرات'], ['superadmins','Super Admins','المشرفون العامون'] ] },
+      { id:'payments', label:'Payments', labelAr:'المدفوعات', items:[ ['pay-overview','Overview','نظرة عامة'], ['transactions','Transactions','المعاملات'], ['pending','Pending Payments','مدفوعات معلقة', 3], ['invoices','Invoices','الفواتير'] ] },
+      { id:'support', label:'Support', labelAr:'الدعم', items:[ ['tickets','Support Tickets','تذاكر الدعم', 5] ] },
+      { id:'reports', label:'Reports', labelAr:'التقارير', items:[ ['reports','Reports','التقارير'] ] },
+      { id:'cms', label:'CMS', labelAr:'إدارة المحتوى', items:[ ['landing','Landing Page','الصفحة الرئيسية'], ['layouts','Landing Layouts','تخطيطات الصفحة'], ['hero','Hero Section','قسم الواجهة'], ['features','Features','المميزات'], ['pricing','Pricing Section','قسم الأسعار'], ['stats','Stats / Trust Bar','شريط الإحصائيات'], ['how','How It Works','كيف يعمل'], ['testimonials','Testimonials','آراء العملاء'], ['faq','FAQ','الأسئلة الشائعة'], ['cta','CTA Section','قسم الدعوة للإجراء'], ['footer','Footer','التذييل'], ['seo','SEO Settings','إعدادات SEO'], ['privacy','Privacy Policy','سياسة الخصوصية'], ['terms','Terms & Conditions','الشروط والأحكام'], ['translations','Translations','الترجمات'] ] },
+      { id:'kb', label:'Knowledge Base', labelAr:'قاعدة المعرفة', items:[ ['kb-home','Knowledge Base','قاعدة المعرفة'], ['help','Help','المساعدة'], ['kb-how','How It Works','كيف يعمل'] ] },
+      { id:'monitoring', label:'Monitoring', labelAr:'المراقبة', items:[ ['logs','Logs & System Health','السجلات وصحة النظام'] ] },
+      { id:'settings', label:'Settings', labelAr:'الإعدادات', items:[ ['general','General Settings','الإعدادات العامة'], ['email-tpl','Email Templates','قوالب البريد'], ['mail','Mail Settings','إعدادات البريد'], ['gateways','Payment Gateways','بوابات الدفع'], ['whatsapp','WhatsApp Settings','إعدادات واتساب'] ] }
+    ];
+    return defs.map(g => {
+      const open = !!this.state.open[g.id];
+      return {
+        label: g.label, labelAr: g.labelAr,
+        toggle: () => this.setState(s => ({ open: { ...s.open, [g.id]: !s.open[g.id] } })),
+        chevStyle: { width:'11px', height:'11px', marginInlineStart:'auto', transition:'transform .15s', transform: open ? 'rotate(90deg)' : 'rotate(0deg)', opacity:.7 },
+        listStyle: { display: open ? 'flex' : 'none', flexDirection:'column', gap:'1px' },
+        items: g.items.map(([id, label, labelAr, badge]) => {
+          const active = this.state.active === id;
+          return {
+            label, labelAr, badge: badge ?? '',
+            onClick: () => this.setState({ active: id }),
+            rowStyle: { display:'flex', alignItems:'center', gap:'10px', padding:'8px 11px', borderRadius:'9px', cursor:'pointer', fontSize:'12.5px', fontWeight: active ? 600 : 500, color: active ? '#FFFFFF' : '#8FA5C4', background: active ? '#2563EB' : 'transparent', boxShadow: active ? '0 6px 16px -6px rgba(37,99,235,.6)' : 'none' },
+            dotStyle: { width:'5px', height:'5px', minWidth:'5px', borderRadius:'50%', background: active ? '#FFFFFF' : '#3E5A82' },
+            badgeStyle: { display: badge ? 'inline-flex' : 'none', marginInlineStart:'auto', background: active ? 'rgba(255,255,255,.25)' : '#2563EB', color:'#fff', fontSize:'9.5px', fontWeight:700, borderRadius:'8px', padding:'1px 6px' }
+          };
+        })
+      };
+    });
+  }
+  renderVals(){
+    const txns = [
+      { id:'INV-10248', customer:'Sara Al Amri', initial:'S', avatarBg:'#2563EB', warehouse:'Main Warehouse', status:'Paid', stBg:'rgba(0,196,154,.13)', stC:'#0BA47E', total:'$245.75', date:'Jul 31' },
+      { id:'INV-10247', customer:'Ahmed Khan', initial:'A', avatarBg:'#00A882', warehouse:'Downtown Branch', status:'Paid', stBg:'rgba(0,196,154,.13)', stC:'#0BA47E', total:'$129.00', date:'Jul 31' },
+      { id:'INV-10246', customer:'Noura Faisal', initial:'N', avatarBg:'#8B5CF6', warehouse:'Main Warehouse', status:'Pending', stBg:'rgba(255,159,28,.15)', stC:'#C77700', total:'$89.50', date:'Jul 30' },
+      { id:'INV-10245', customer:'Omar Hassan', initial:'O', avatarBg:'#E8618C', warehouse:'Airport Branch', status:'Partial', stBg:'rgba(37,99,235,.12)', stC:'#2563EB', total:'$310.30', date:'Jul 30' },
+      { id:'INV-10244', customer:'Lina Morad', initial:'L', avatarBg:'#FF9F1C', warehouse:'Main Warehouse', status:'Paid', stBg:'rgba(0,196,154,.13)', stC:'#0BA47E', total:'$75.00', date:'Jul 29' },
+      { id:'INV-10243', customer:'John Carter', initial:'J', avatarBg:'#64748B', warehouse:'Industrial Area', status:'Refunded', stBg:'rgba(225,72,72,.12)', stC:'#E14848', total:'$52.50', date:'Jul 29' }
+    ];
+    const alerts = [
+      { abbr:'WH', name:'Wireless Headphones', pct:'0%', barC:'#E14848', tileBg:'rgba(225,72,72,.1)', tileC:'#E14848' },
+      { abbr:'SW', name:'Smart Watch Series 9', pct:'8%', barC:'#E14848', tileBg:'rgba(225,72,72,.1)', tileC:'#E14848' },
+      { abbr:'NB', name:'Premium Notebook A5', pct:'18%', barC:'#E88A00', tileBg:'rgba(255,159,28,.13)', tileC:'#C77700' },
+      { abbr:'BS', name:'Bluetooth Speaker Pro', pct:'22%', barC:'#E88A00', tileBg:'rgba(255,159,28,.13)', tileC:'#C77700' }
+    ];
+    return {
+      rootRef: this.root, txns, alerts, navGroups: this.buildNav(),
+      toggleTheme: () => { this.dark = !this.dark; this.apply(); },
+      setEn: () => { this.ar = false; this.apply(); },
+      setAr: () => { this.ar = true; this.apply(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

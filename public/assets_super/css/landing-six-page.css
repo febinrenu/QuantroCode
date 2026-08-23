@@ -1,0 +1,171 @@
+/* landing-six.blade.php (Tailwind layout) */
+
+body {
+    font-family: 'Manrope', system-ui, sans-serif;
+}
+
+details > summary {
+    list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+    display: none;
+}
+
+#l6DrawerPanel {
+    transition: transform 0.3s ease-out;
+}
+
+.l6-price-tab {
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.l6-price-tab.is-active {
+    background: #0a2640;
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(10, 38, 64, 0.2);
+}
+
+.l6-price-tab:not(.is-active) {
+    background: transparent;
+    color: rgba(10, 38, 64, 0.45);
+}
+
+.l6-price-tab:not(.is-active):hover {
+    color: #0a2640;
+}
+
+/* Quantro design refresh for Tailwind landing */
+.quantro-l6 {
+    font-family: 'IBM Plex Sans', 'Manrope', system-ui, sans-serif;
+}
+.quantro-l6 h1,
+.quantro-l6 h2,
+.quantro-l6 h3,
+.quantro-l6 .font-extrabold {
+    font-family: 'Sora', 'IBM Plex Sans', system-ui, sans-serif;
+    letter-spacing: 0;
+}
+.quantro-l6 header {
+    border-bottom-color: #e9eef6;
+    background: rgba(255, 255, 255, .94);
+}
+.quantro-l6 #top {
+    min-height: 650px;
+    background:
+        radial-gradient(ellipse 44% 34% at 77% 28%, rgba(0, 196, 154, .13), transparent 62%),
+        radial-gradient(ellipse 46% 36% at 22% 22%, rgba(37, 99, 235, .10), transparent 58%),
+        linear-gradient(180deg, #f6faff 0%, #fff 100%);
+    border-bottom: 1px solid #edf2f7;
+}
+.quantro-l6 #l6-hero-title {
+    font-size: clamp(2.7rem, 5.4vw, 4.9rem);
+    line-height: 1.08;
+    color: #0b1b33;
+}
+.quantro-l6 #top p {
+    color: #47586f;
+}
+.quantro-l6 #top p.inline-flex {
+    padding: 7px 14px;
+    border: 1px solid rgba(0, 196, 154, .28);
+    border-radius: 999px;
+    background: rgba(0, 196, 154, .10);
+    color: #008a6d;
+}
+@media (min-width: 1024px) {
+    .quantro-hero-grid {
+        transform: translateX(-42px);
+    }
+}
+.quantro-l6 .bg-\[\#65CE89\] {
+    background-color: #59cf86 !important;
+}
+.quantro-l6 .hover\:bg-\[\#7ad89a\]:hover {
+    background-color: #00c49a !important;
+}
+.quantro-l6 .text-\[\#0A2640\],
+.quantro-l6 .text-\[\#0A2640\]\/70,
+.quantro-l6 .text-\[\#0A2640\]\/65,
+.quantro-l6 .text-\[\#0A2640\]\/60,
+.quantro-l6 .text-\[\#0A2640\]\/55 {
+    color: #0b1b33;
+}
+.quantro-dashboard-frame img {
+    display: block;
+}
+.quantro-window-bar {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    height: 32px;
+    padding: 0 14px;
+    border-bottom: 1px solid #e9eef6;
+    background: #f8fbff;
+}
+.quantro-window-bar span {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #d8e2ef;
+}
+.quantro-window-bar span:first-child { background: #ff6b6b; }
+.quantro-window-bar span:nth-child(2) { background: #ffd166; }
+.quantro-window-bar span:nth-child(3) { background: #00c49a; }
+.quantro-hero-chip {
+    position: absolute;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 13px;
+    border: 1px solid #e9eef6;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .94);
+    color: #0b1b33;
+    font-size: .82rem;
+    font-weight: 700;
+    box-shadow: 0 18px 34px -24px rgba(11, 27, 51, .45);
+}
+.quantro-hero-chip i {
+    color: #00a882;
+}
+.quantro-hero-chip--top {
+    top: 34px;
+    right: -8px;
+}
+.quantro-hero-chip--bottom {
+    left: -10px;
+    bottom: 42px;
+}
+.industry-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 86px;
+    padding: 16px;
+    border: 1px solid #e9eef6;
+    border-radius: 16px;
+    background: #f8fbff;
+    color: #0b1b33;
+    font-weight: 800;
+    box-shadow: 0 18px 40px -34px rgba(11, 27, 51, .4);
+}
+.industry-pill i {
+    color: #2563eb;
+    font-size: 1.25rem;
+}
+
+@media (max-width: 1023px) {
+    .quantro-l6 #top {
+        min-height: auto;
+    }
+    .quantro-l6 #l6-hero-title {
+        font-size: clamp(2.25rem, 10vw, 3.25rem);
+    }
+    .quantro-hero-chip {
+        position: static;
+        margin: 12px 6px 0 0;
+    }
+}

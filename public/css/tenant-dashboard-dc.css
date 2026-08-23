@@ -1,0 +1,1099 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
+
+body {
+  background: #f4f7fb;
+  font-family: 'IBM Plex Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Pixel-match lock for the local HTML reference at desktop scale. */
+@media (min-width: 992px) {
+  body.quantro-dashboard-route .layout-sidebar-large .main-content-wrap,
+  body.quantro-dashboard-route .layout-sidebar-large .main-content-wrap.sidenav-open,
+  body.quantro-dashboard-route .main-content-wrap,
+  body.quantro-dashboard-route .main-content,
+  body.quantro-dashboard-route .dashboard-static.dashboard-page-root {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-page-root .dashboard-header {
+    height: 64px !important;
+    min-height: 64px !important;
+    max-height: 64px !important;
+    padding: 0 32px !important;
+    overflow: visible !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-titles h2 {
+    font-size: 17px !important;
+    margin-bottom: 4px !important;
+  }
+
+  body.quantro-dashboard-route .welcome-text {
+    font-size: 11px !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-filters,
+  body.quantro-dashboard-route .dashboard-header-filters > *,
+  body.quantro-dashboard-route .dashboard-pos-btn,
+  body.quantro-dashboard-route .warehouse-filter .vs__dropdown-toggle,
+  body.quantro-dashboard-route .date-picker-header-btn,
+  body.quantro-dashboard-route .dh-lang-toggle,
+  body.quantro-dashboard-route .dh-icon-btn,
+  body.quantro-dashboard-route .dh-user {
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-pos-btn {
+    padding: 0 14px !important;
+    border-radius: 10px !important;
+  }
+
+  body.quantro-dashboard-route .dh-lang-btn {
+    height: 26px !important;
+    line-height: 26px !important;
+  }
+
+  body.quantro-dashboard-route .dh-icon-btn {
+    width: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+  }
+
+  body.quantro-dashboard-route .dh-user {
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-avatar,
+  body.quantro-dashboard-route .dh-user-avatar > *,
+  body.quantro-dashboard-route .dh-user-avatar img {
+    width: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-avatar {
+    flex: 0 0 34px !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-meta strong {
+    font-size: 12px !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-meta span {
+    font-size: 10px !important;
+  }
+}
+
+/* Root desktop Dashboard header lock: matches Quantro Tenant Dashboard reference. */
+@media (min-width: 992px) {
+  body.quantro-dashboard-route .dashboard-page-root .dashboard-header {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+    gap: 16px !important;
+    height: 82px !important;
+    min-height: 82px !important;
+    max-height: 82px !important;
+    margin: 0 !important;
+    padding: 0 32px !important;
+    overflow: visible !important;
+    background: #fff !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e4eaf3 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-titles {
+    flex: 0 1 420px !important;
+    min-width: 280px !important;
+    max-width: 430px !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-titles h2 {
+    margin: 0 0 6px !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+  }
+
+  body.quantro-dashboard-route .welcome-text {
+    margin: 0 !important;
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-filters {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    width: auto !important;
+    max-width: calc(100% - 430px) !important;
+    height: 42px !important;
+    max-height: 42px !important;
+    overflow: visible !important;
+    direction: ltr !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-filters > * {
+    flex: 0 0 auto !important;
+    max-height: 42px !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-pos-btn,
+  body.quantro-dashboard-route .warehouse-filter .vs__dropdown-toggle,
+  body.quantro-dashboard-route .date-picker-header-btn,
+  body.quantro-dashboard-route .dh-lang-toggle,
+  body.quantro-dashboard-route .dh-icon-btn,
+  body.quantro-dashboard-route .dh-user {
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-pos-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 0 18px !important;
+    border-radius: 11px !important;
+    color: #fff !important;
+    white-space: nowrap !important;
+  }
+
+  body.quantro-dashboard-route .warehouse-filter {
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+  }
+
+  body.quantro-dashboard-route .date-range-filter {
+    width: 202px !important;
+    min-width: 202px !important;
+    max-width: 202px !important;
+  }
+
+  body.quantro-dashboard-route .dh-lang-toggle {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+  }
+
+  body.quantro-dashboard-route .dh-icon-btn {
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    padding: 0 !important;
+  }
+
+  body.quantro-dashboard-route .dh-user {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 180px !important;
+    min-width: 160px !important;
+    max-width: 180px !important;
+    overflow: hidden !important;
+    direction: ltr !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-avatar,
+  body.quantro-dashboard-route .dh-user-avatar > *,
+  body.quantro-dashboard-route .dh-user-avatar img {
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-avatar {
+    flex: 0 0 42px !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-avatar img {
+    display: block !important;
+    object-fit: cover !important;
+    border-radius: inherit !important;
+    transform: none !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-meta strong {
+    max-width: 120px !important;
+    overflow: hidden !important;
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-meta span {
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+}
+
+/* Absolute last desktop header lock: visual match to the provided local HTML. */
+@media (min-width: 992px) {
+  body.quantro-dashboard-route .layout-sidebar-large .main-content-wrap,
+  body.quantro-dashboard-route .layout-sidebar-large .main-content-wrap.sidenav-open,
+  body.quantro-dashboard-route .main-content-wrap,
+  body.quantro-dashboard-route .main-content,
+  body.quantro-dashboard-route .dashboard-static.dashboard-page-root {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-page-root .dashboard-header {
+    height: 64px !important;
+    min-height: 64px !important;
+    max-height: 64px !important;
+    padding: 0 32px !important;
+    overflow: visible !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-titles h2 {
+    font-size: 17px !important;
+    margin-bottom: 4px !important;
+  }
+
+  body.quantro-dashboard-route .welcome-text {
+    font-size: 11px !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-filters,
+  body.quantro-dashboard-route .dashboard-header-filters > *,
+  body.quantro-dashboard-route .dashboard-pos-btn,
+  body.quantro-dashboard-route .warehouse-filter .vs__dropdown-toggle,
+  body.quantro-dashboard-route .date-picker-header-btn,
+  body.quantro-dashboard-route .dh-lang-toggle,
+  body.quantro-dashboard-route .dh-icon-btn,
+  body.quantro-dashboard-route .dh-user {
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-pos-btn {
+    padding: 0 14px !important;
+    border-radius: 10px !important;
+  }
+
+  body.quantro-dashboard-route .dh-lang-btn {
+    height: 26px !important;
+    line-height: 26px !important;
+  }
+
+  body.quantro-dashboard-route .dh-icon-btn {
+    width: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+  }
+
+  body.quantro-dashboard-route .dh-user {
+    width: 150px !important;
+    min-width: 150px !important;
+    max-width: 150px !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-avatar,
+  body.quantro-dashboard-route .dh-user-avatar > *,
+  body.quantro-dashboard-route .dh-user-avatar img {
+    width: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-avatar {
+    flex: 0 0 34px !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-meta strong {
+    font-size: 12px !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-meta span {
+    font-size: 10px !important;
+  }
+}
+
+.main-content-wrap,
+.main-content,
+.app-admin-wrap-layout-2 {
+  background: #f4f7fb !important;
+}
+
+.vertical-sidebar-wrapper,
+body.dark-theme .vertical-sidebar-wrapper {
+  background: linear-gradient(180deg, #02071a 0%, #0a1c36 100%) !important;
+  box-shadow: 2px 0 18px rgba(0, 0, 0, 0.28) !important;
+}
+
+.vertical-sidebar-wrapper .vertical-sidebar-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+
+.vertical-sidebar-wrapper .company-name,
+body.dark-theme .vertical-sidebar-wrapper .company-name {
+  color: #fff !important;
+  font-family: 'Sora', 'IBM Plex Sans', sans-serif !important;
+  font-weight: 700 !important;
+}
+
+.vertical-sidebar-wrapper .nav-link,
+.vertical-sidebar-wrapper .submenu-link,
+.vertical-sidebar-wrapper .nested-link,
+body.dark-theme .vertical-sidebar-wrapper .nav-link,
+body.dark-theme .vertical-sidebar-wrapper .submenu-link,
+body.dark-theme .vertical-sidebar-wrapper .nested-link {
+  color: #8fa5c4 !important;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif !important;
+}
+
+.vertical-sidebar-wrapper .nav-link .nav-icon,
+.vertical-sidebar-wrapper .submenu-icon,
+.vertical-sidebar-wrapper .submenu-arrow {
+  color: #6e86ac !important;
+}
+
+.vertical-sidebar-wrapper .nav-link:hover,
+.vertical-sidebar-wrapper .submenu-link:hover,
+.vertical-sidebar-wrapper .nested-link:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #dce7f7 !important;
+}
+
+.vertical-sidebar-wrapper .nav-item.active > .nav-link,
+.vertical-sidebar-wrapper .nav-link.router-link-active,
+body.dark-theme .vertical-sidebar-wrapper .nav-item.active > .nav-link {
+  background: #2563eb !important;
+  color: #fff !important;
+  box-shadow: 0 6px 16px -6px rgba(37, 99, 235, 0.6) !important;
+}
+
+.vertical-sidebar-wrapper .nav-item.active > .nav-link .nav-icon,
+.vertical-sidebar-wrapper .nav-link.router-link-active .nav-icon,
+.vertical-sidebar-wrapper .nav-item.active > .nav-link .submenu-arrow {
+  color: #fff !important;
+}
+
+.vertical-sidebar-wrapper .submenu,
+body.dark-theme .vertical-sidebar-wrapper .submenu {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  box-shadow: none !important;
+}
+
+.vertical-top-nav,
+body.dark-theme .vertical-top-nav {
+  background: #fff !important;
+  border-bottom: 1px solid #e4eaf3 !important;
+  box-shadow: 0 8px 24px -22px rgba(11, 27, 51, 0.35) !important;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif !important;
+}
+
+.vertical-top-nav .nav-right .btn.btn-primary,
+body.dark-theme .vertical-top-nav .nav-right .btn.btn-primary {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 18px -6px rgba(37, 99, 235, 0.45) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+}
+
+.vertical-top-nav .nav-icon-btn,
+.vertical-top-nav .dropdown-toggle-no-caret,
+.vertical-top-nav button.dropdown-toggle-no-caret,
+body.dark-theme .vertical-top-nav .nav-icon-btn,
+body.dark-theme .vertical-top-nav .dropdown-toggle-no-caret,
+body.dark-theme .vertical-top-nav button.dropdown-toggle-no-caret {
+  background: #f6f9fc !important;
+  border: 1px solid #e4eaf3 !important;
+  border-radius: 10px !important;
+  color: #47586f !important;
+}
+
+.vertical-top-nav .nav-icon-btn:hover,
+.vertical-top-nav .dropdown-toggle-no-caret:hover,
+.vertical-top-nav button.dropdown-toggle-no-caret:hover {
+  background: #eef4fb !important;
+  border-color: #bfdbfe !important;
+  color: #2563eb !important;
+}
+
+body.quantro-dashboard-route .layout-sidebar-large .main-header,
+body.quantro-dashboard-route .tenant-dashboard-layout .main-header {
+  height: 82px !important;
+  min-height: 82px !important;
+  max-height: 82px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  overflow: visible !important;
+}
+
+body.quantro-dashboard-route .layout-sidebar-large .main-header .btn-primary,
+body.quantro-dashboard-route .layout-sidebar-large .main-header .tenant-header-chip,
+body.quantro-dashboard-route .layout-sidebar-large .main-header .nav-icon-btn,
+body.quantro-dashboard-route .layout-sidebar-large .main-header .dropdown-toggle-no-caret,
+body.quantro-dashboard-route .layout-sidebar-large .main-header .user-dropdown-toggle {
+  height: 42px !important;
+  max-height: 42px !important;
+}
+
+body.quantro-dashboard-route .layout-sidebar-large .main-header .tenant-user-toggle,
+body.quantro-dashboard-route .layout-sidebar-large .main-header .user-avatar {
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+}
+
+body.quantro-dashboard-route .layout-sidebar-large .main-header .user-avatar {
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+}
+
+body.quantro-dashboard-route .layout-sidebar-large .main-header .user-avatar img {
+  width: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  max-height: 30px !important;
+  object-fit: cover !important;
+}
+
+/* Quantro dashboard source-of-truth header: remove the legacy top bar layer. */
+@media (min-width: 992px) {
+  body.quantro-dashboard-route .layout-sidebar-large > .main-header {
+    display: none !important;
+  }
+
+  body.quantro-dashboard-route .layout-sidebar-large .main-content-wrap,
+  body.quantro-dashboard-route .layout-sidebar-large .main-content-wrap.sidenav-open {
+    width: calc(100% - 250px) !important;
+    margin-left: 250px !important;
+    margin-top: 0 !important;
+    padding: 0 !important;
+    float: none !important;
+    background: #f4f7fb !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-static.quantro-dashboard {
+    padding: 0 0 28px !important;
+    background: #f4f7fb !important;
+  }
+
+  body.quantro-dashboard-route .quantro-header {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 14px !important;
+    min-height: 82px !important;
+    height: 82px !important;
+    padding: 0 32px !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e4eaf3 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 5 !important;
+  }
+
+  body.quantro-dashboard-route .quantro-header-left {
+    flex: 0 0 360px !important;
+    min-width: 260px !important;
+  }
+
+  body.quantro-dashboard-route .quantro-header-left h2 {
+    margin: 0 !important;
+    font-size: 22px !important;
+    line-height: 1.1 !important;
+  }
+
+  body.quantro-dashboard-route .quantro-welcome-text {
+    margin: 4px 0 0 !important;
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+  }
+
+  body.quantro-dashboard-route .quantro-header-right {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex: 1 1 auto !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+  }
+
+  body.quantro-dashboard-route .quantro-search {
+    width: 350px !important;
+    max-width: 28vw !important;
+    min-width: 250px !important;
+    height: 44px !important;
+    box-sizing: border-box !important;
+  }
+
+  body.quantro-dashboard-route .quantro-date-chip,
+  body.quantro-dashboard-route .quantro-lang-toggle,
+  body.quantro-dashboard-route .quantro-icon-btn,
+  body.quantro-dashboard-route .quantro-user {
+    height: 44px !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+  }
+
+  body.quantro-dashboard-route .quantro-icon-btn {
+    width: 44px !important;
+    min-width: 44px !important;
+    padding: 0 !important;
+  }
+
+  body.quantro-dashboard-route .quantro-user {
+    min-width: 154px !important;
+    max-width: 178px !important;
+    overflow: hidden !important;
+  }
+
+  body.quantro-dashboard-route .quantro-content {
+    padding: 28px 32px 0 !important;
+  }
+}
+
+.dashboard-page-root {
+  --q-bg: #f4f7fb;
+  --q-card: #fff;
+  --q-card2: #f6f9fc;
+  --q-ink: #0b1b33;
+  --q-ink2: #47586f;
+  --q-ink3: #8291a9;
+  --q-bd: #e4eaf3;
+  --q-blue: #2563eb;
+  --q-green: #00a882;
+  --q-orange: #e88a00;
+  --q-purple: #8b5cf6;
+  --q-red: #e14848;
+  color: var(--q-ink) !important;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif !important;
+}
+
+.dashboard-page-root .dashboard-header {
+  background: #fff !important;
+  border: 1px solid var(--q-bd) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 2px rgba(11, 27, 51, 0.04), 0 10px 30px -14px rgba(11, 27, 51, 0.1) !important;
+  padding: 1rem 1.1rem !important;
+}
+
+.dashboard-page-root .dashboard-header h2,
+.dashboard-page-root .dashboard-header .text-dark {
+  color: var(--q-ink) !important;
+  font-family: 'Sora', 'IBM Plex Sans', sans-serif !important;
+  font-size: 1.1rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.3px !important;
+}
+
+.dashboard-page-root .welcome-text {
+  color: var(--q-ink3) !important;
+  font-size: 0.78rem !important;
+}
+
+.dashboard-page-root .warehouse-filter .vs__dropdown-toggle,
+.dashboard-page-root .date-picker-header-btn {
+  background: var(--q-card2) !important;
+  border: 1px solid var(--q-bd) !important;
+  border-radius: 10px !important;
+  color: var(--q-ink2) !important;
+  font-weight: 700 !important;
+}
+
+.dashboard-page-root .stat-card {
+  align-items: center !important;
+  background: var(--q-card) !important;
+  border: 1px solid var(--q-bd) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 2px rgba(11, 27, 51, 0.04), 0 10px 30px -14px rgba(11, 27, 51, 0.1) !important;
+  color: var(--q-ink) !important;
+  display: flex !important;
+  gap: 0.9rem !important;
+  min-height: 112px !important;
+  padding: 1.15rem 1.15rem !important;
+  text-decoration: none !important;
+}
+
+.dashboard-page-root .stat-card:hover {
+  border-color: rgba(37, 99, 235, 0.35) !important;
+  box-shadow: 0 10px 26px -12px rgba(37, 99, 235, 0.35) !important;
+  transform: translateY(-2px) !important;
+}
+
+.dashboard-page-root .stat-card-icon {
+  border-radius: 12px !important;
+  flex: 0 0 48px !important;
+  height: 48px !important;
+  margin: 0 !important;
+  width: 48px !important;
+}
+
+.dashboard-page-root .sales-card .stat-card-icon,
+.dashboard-page-root .invoices-card .stat-card-icon {
+  background: rgba(37, 99, 235, 0.12) !important;
+  color: var(--q-blue) !important;
+}
+
+.dashboard-page-root .purchases-card .stat-card-icon,
+.dashboard-page-root .profit-card .stat-card-icon {
+  background: rgba(0, 168, 130, 0.14) !important;
+  color: var(--q-green) !important;
+}
+
+.dashboard-page-root .returns-card .stat-card-icon,
+.dashboard-page-root .sales-due-card .stat-card-icon {
+  background: rgba(139, 92, 246, 0.14) !important;
+  color: var(--q-purple) !important;
+}
+
+.dashboard-page-root .revenue-card .stat-card-icon,
+.dashboard-page-root .purchase-due-card .stat-card-icon {
+  background: rgba(232, 138, 0, 0.14) !important;
+  color: var(--q-orange) !important;
+}
+
+.dashboard-page-root .stat-card-label {
+  color: var(--q-ink3) !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  margin: 0 0 0.25rem !important;
+  text-transform: none !important;
+}
+
+.dashboard-page-root .stat-card-value {
+  color: var(--q-ink) !important;
+  font-family: 'Sora', 'IBM Plex Sans', sans-serif !important;
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.4px !important;
+  margin: 0 !important;
+}
+
+.dashboard-page-root .chart-card,
+.dashboard-page-root .info-card,
+.dashboard-page-root .table-card {
+  background: var(--q-card) !important;
+  border: 1px solid var(--q-bd) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 2px rgba(11, 27, 51, 0.04), 0 10px 30px -14px rgba(11, 27, 51, 0.1) !important;
+}
+
+.dashboard-page-root .chart-card-header,
+.dashboard-page-root .info-card-header,
+.dashboard-page-root .table-card-header {
+  border-bottom: 1px solid var(--q-bd) !important;
+}
+
+.dashboard-page-root .chart-card-title,
+.dashboard-page-root .info-card-title,
+.dashboard-page-root .table-card-title {
+  color: var(--q-ink) !important;
+  font-family: 'Sora', 'IBM Plex Sans', sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: 800 !important;
+}
+
+.dashboard-page-root .info-card-item-label {
+  color: var(--q-ink2) !important;
+}
+
+.dashboard-page-root .info-card-item-value {
+  color: var(--q-ink) !important;
+  font-family: 'Sora', 'IBM Plex Sans', sans-serif !important;
+}
+
+.dashboard-page-root .stock-value-item {
+  background: var(--q-card2) !important;
+  border: 1px solid var(--q-bd) !important;
+  border-radius: 11px !important;
+}
+
+@media (max-width: 767px) {
+  .dashboard-page-root .dashboard-header {
+    padding: 0.9rem !important;
+  }
+
+  .dashboard-page-root .stat-card {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    min-height: 132px !important;
+  }
+}
+
+/* Dashboard desktop header final lock: keep this after tenant dashboard styles. */
+@media (min-width: 992px) {
+  body.quantro-dashboard-route .dashboard-page-root .dashboard-header {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    height: 64px !important;
+    min-height: 64px !important;
+    max-height: 64px !important;
+    margin: 0 !important;
+    padding: 10px 26px !important;
+    overflow: hidden !important;
+    background: #fff !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e4eaf3 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-page-root .dashboard-header.mb-4 {
+    margin-bottom: 0 !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-titles {
+    flex: 0 1 390px !important;
+    min-width: 260px !important;
+    max-width: 430px !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-titles h2 {
+    margin: 0 0 4px !important;
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+  }
+
+  body.quantro-dashboard-route .welcome-text {
+    margin: 0 !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-filters {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    width: auto !important;
+    max-width: calc(100% - 430px) !important;
+    height: 40px !important;
+    max-height: 40px !important;
+    overflow: visible !important;
+    direction: ltr !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-filters > * {
+    flex: 0 0 auto !important;
+    max-height: 40px !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-pos-btn,
+  body.quantro-dashboard-route .warehouse-filter .vs__dropdown-toggle,
+  body.quantro-dashboard-route .date-picker-header-btn,
+  body.quantro-dashboard-route .dh-lang-toggle,
+  body.quantro-dashboard-route .dh-icon-btn,
+  body.quantro-dashboard-route .dh-user {
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-pos-btn {
+    width: auto !important;
+    padding: 0 16px !important;
+  }
+
+  body.quantro-dashboard-route .warehouse-filter {
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+  }
+
+  body.quantro-dashboard-route .date-range-filter {
+    width: 202px !important;
+    min-width: 202px !important;
+    max-width: 202px !important;
+  }
+
+  body.quantro-dashboard-route .dh-lang-toggle {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+  }
+
+  body.quantro-dashboard-route .dh-icon-btn {
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    padding: 0 !important;
+  }
+
+  body.quantro-dashboard-route .dh-user {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    width: 178px !important;
+    min-width: 160px !important;
+    max-width: 178px !important;
+    overflow: hidden !important;
+    direction: ltr !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-avatar,
+  body.quantro-dashboard-route .dh-user-avatar > *,
+  body.quantro-dashboard-route .dh-user-avatar img {
+    width: 34px !important;
+    min-width: 34px !important;
+    max-width: 34px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 34px !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-avatar {
+    display: inline-flex !important;
+    flex: 0 0 34px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+    border-radius: 10px !important;
+    aspect-ratio: 1 / 1 !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-avatar img {
+    display: block !important;
+    object-fit: cover !important;
+    border-radius: inherit !important;
+    transform: none !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-meta {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    min-width: 0 !important;
+    text-align: left !important;
+    direction: ltr !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-meta strong {
+    max-width: 120px !important;
+    overflow: hidden !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-meta span {
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+  }
+}
+
+/* Final source-of-truth desktop Dashboard header lock. */
+@media (min-width: 992px) {
+  body.quantro-dashboard-route .dashboard-page-root .dashboard-header {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+    gap: 16px !important;
+    height: 82px !important;
+    min-height: 82px !important;
+    max-height: 82px !important;
+    margin: 0 !important;
+    padding: 0 32px !important;
+    overflow: visible !important;
+    background: #fff !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e4eaf3 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-page-root .dashboard-header.mb-4 {
+    margin-bottom: 0 !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-titles {
+    flex: 0 1 420px !important;
+    min-width: 280px !important;
+    max-width: 430px !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-titles h2 {
+    margin: 0 0 6px !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+  }
+
+  body.quantro-dashboard-route .welcome-text {
+    margin: 0 !important;
+    font-size: 13px !important;
+    line-height: 1.35 !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-filters {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    width: auto !important;
+    max-width: calc(100% - 430px) !important;
+    height: 42px !important;
+    max-height: 42px !important;
+    overflow: visible !important;
+    direction: ltr !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-header-filters > * {
+    flex: 0 0 auto !important;
+    max-height: 42px !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-pos-btn,
+  body.quantro-dashboard-route .warehouse-filter .vs__dropdown-toggle,
+  body.quantro-dashboard-route .date-picker-header-btn,
+  body.quantro-dashboard-route .dh-lang-toggle,
+  body.quantro-dashboard-route .dh-icon-btn,
+  body.quantro-dashboard-route .dh-user {
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+  }
+
+  body.quantro-dashboard-route .dashboard-pos-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 0 18px !important;
+    border-radius: 11px !important;
+    color: #fff !important;
+    white-space: nowrap !important;
+  }
+
+  body.quantro-dashboard-route .warehouse-filter {
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+  }
+
+  body.quantro-dashboard-route .date-range-filter {
+    width: 202px !important;
+    min-width: 202px !important;
+    max-width: 202px !important;
+  }
+
+  body.quantro-dashboard-route .dh-lang-toggle {
+    width: 120px !important;
+    min-width: 120px !important;
+    max-width: 120px !important;
+  }
+
+  body.quantro-dashboard-route .dh-icon-btn {
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    padding: 0 !important;
+  }
+
+  body.quantro-dashboard-route .dh-user {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 180px !important;
+    min-width: 160px !important;
+    max-width: 180px !important;
+    overflow: hidden !important;
+    direction: ltr !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-avatar,
+  body.quantro-dashboard-route .dh-user-avatar > *,
+  body.quantro-dashboard-route .dh-user-avatar img {
+    width: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-avatar {
+    display: inline-flex !important;
+    flex: 0 0 42px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-avatar img {
+    display: block !important;
+    object-fit: cover !important;
+    border-radius: inherit !important;
+    transform: none !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-meta strong {
+    max-width: 120px !important;
+    overflow: hidden !important;
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  body.quantro-dashboard-route .dh-user-meta span {
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+}
