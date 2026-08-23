@@ -24,11 +24,21 @@
         </div>
 
         <div class="quantro-header-right">
-          <!-- Search -->
-          <div class="quantro-search">
-            <lucide-icon name="search" />
-            <span>{{ isArabic ? 'ابحث عن الطلبات والمنتجات...' : 'Search orders, products, people...' }}</span>
-            <span class="quantro-search-shortcut">⌘K</span>
+          <!-- POS -->
+          <router-link
+            v-if="currentUserPermissions && currentUserPermissions.includes('Pos_view')"
+            to="/app/pos"
+            class="quantro-pos-btn"
+          >
+            <lucide-icon name="monitor" />
+            <span>{{ isArabic ? 'نقطة البيع' : 'Open POS' }}</span>
+          </router-link>
+
+          <!-- Warehouse -->
+          <div class="quantro-warehouse-chip">
+            <lucide-icon name="shield" />
+            <span>{{ selectedWarehouseLabel }}</span>
+            <lucide-icon class="quantro-chip-chevron" name="chevron-down" />
           </div>
 
           <!-- Date Range -->
@@ -82,7 +92,7 @@
             </span>
             <span class="quantro-user-meta">
               <strong>{{ currentUser && currentUser.username }}</strong>
-              <span>{{ isArabic ? 'مدير عام' : 'Super Admin' }}</span>
+              <span>{{ isArabic ? 'مدير' : 'Admin' }}</span>
             </span>
           </router-link>
         </div>
@@ -751,8 +761,8 @@ export default {
 }
 
 .quantro-header-left {
-  flex: 0 0 360px;
-  min-width: 260px;
+  flex: 1 1 360px;
+  min-width: 280px;
 }
 
 .quantro-header-left h2 {
@@ -780,36 +790,67 @@ export default {
   min-width: 0;
 }
 
-.quantro-search {
+.quantro-pos-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  background: var(--q-card2, #F6F9FC);
-  border: 1px solid var(--q-bd, #E4EAF3);
-  border-radius: 10px;
-  padding: 8px 13px;
-  color: var(--q-ink3, #8291A9);
-  font-size: 12px;
-  width: 350px;
-  max-width: 28vw;
-  min-width: 250px;
   height: 44px;
+  min-width: 138px;
+  padding: 0 20px;
+  border-radius: 12px;
+  background: #2563EB;
+  color: #FFFFFF;
+  border: 1px solid #2563EB;
+  box-shadow: 0 12px 22px -12px rgba(37, 99, 235, 0.75);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
   box-sizing: border-box;
 }
 
-.quantro-search > span:first-of-type {
-  overflow: hidden;
-  text-overflow: ellipsis;
+.quantro-pos-btn:hover {
+  background: #1D53D0;
+  border-color: #1D53D0;
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+.quantro-pos-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.quantro-warehouse-chip {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--q-card2, #F6F9FC);
+  border: 1px solid var(--q-bd, #E4EAF3);
+  border-radius: 10px;
+  padding: 0 14px;
+  color: var(--q-ink, #0B1B33);
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 190px;
+  height: 44px;
+  box-sizing: border-box;
   white-space: nowrap;
 }
 
-.quantro-search-shortcut {
+.quantro-warehouse-chip svg {
+  width: 16px;
+  height: 16px;
+  color: #2563EB;
+}
+
+.quantro-warehouse-chip .quantro-chip-chevron {
+  width: 14px;
+  height: 14px;
   margin-inline-start: auto;
-  font-size: 10px;
-  border: 1px solid var(--q-bd, #E4EAF3);
-  border-radius: 5px;
-  padding: 1px 6px;
-  background: var(--q-card, #fff);
+  color: var(--q-ink, #0B1B33);
 }
 
 .quantro-date-chip {
@@ -1545,6 +1586,7 @@ body.dark-theme .quantro-dashboard {
 }
 
 body.dark-theme .quantro-search,
+body.dark-theme .quantro-warehouse-chip,
 body.dark-theme .quantro-date-chip,
 body.dark-theme .quantro-lang-toggle,
 body.dark-theme .quantro-icon-btn {

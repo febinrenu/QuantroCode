@@ -529,8 +529,8 @@ body.quantro-dashboard-route .layout-sidebar-large .main-header .user-avatar img
   }
 
   body.quantro-dashboard-route .quantro-header-left {
-    flex: 0 0 360px !important;
-    min-width: 260px !important;
+    flex: 1 1 360px !important;
+    min-width: 280px !important;
   }
 
   body.quantro-dashboard-route .quantro-header-left h2 {
@@ -555,14 +555,61 @@ body.quantro-dashboard-route .layout-sidebar-large .main-header .user-avatar img
     min-width: 0 !important;
   }
 
-  body.quantro-dashboard-route .quantro-search {
-    width: 350px !important;
-    max-width: 28vw !important;
-    min-width: 250px !important;
+  body.quantro-dashboard-route .quantro-pos-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    min-width: 138px !important;
     height: 44px !important;
+    padding: 0 20px !important;
+    border-radius: 12px !important;
+    background: #2563eb !important;
+    border: 1px solid #2563eb !important;
+    color: #fff !important;
+    box-shadow: 0 12px 22px -12px rgba(37, 99, 235, 0.75) !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
     box-sizing: border-box !important;
+    flex-shrink: 0 !important;
   }
 
+  body.quantro-dashboard-route .quantro-warehouse-chip {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    min-width: 190px !important;
+    height: 44px !important;
+    padding: 0 14px !important;
+    border: 1px solid #e4eaf3 !important;
+    border-radius: 10px !important;
+    background: #f6f9fc !important;
+    color: #0b1b33 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+  }
+
+  body.quantro-dashboard-route .quantro-warehouse-chip svg {
+    width: 16px !important;
+    height: 16px !important;
+    color: #2563eb !important;
+  }
+
+  body.quantro-dashboard-route .quantro-warehouse-chip .quantro-chip-chevron {
+    width: 14px !important;
+    height: 14px !important;
+    margin-inline-start: auto !important;
+    color: #0b1b33 !important;
+  }
+
+  body.quantro-dashboard-route .quantro-pos-btn,
+  body.quantro-dashboard-route .quantro-warehouse-chip,
   body.quantro-dashboard-route .quantro-date-chip,
   body.quantro-dashboard-route .quantro-lang-toggle,
   body.quantro-dashboard-route .quantro-icon-btn,
