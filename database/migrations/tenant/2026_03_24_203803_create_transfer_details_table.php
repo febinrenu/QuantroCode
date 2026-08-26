@@ -16,11 +16,11 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('transfer_id')->index('transfer_id');
-            $table->integer('product_id')->index('product_id_transfers');
-            $table->integer('product_variant_id')->nullable()->index('product_variant_id_transfer');
+            $table->integer('transfer_id')->index();
+            $table->integer('product_id')->index();
+            $table->integer('product_variant_id')->nullable()->index();
             $table->decimal('cost', 15);
-            $table->integer('purchase_unit_id')->nullable()->index('unit_sale_id_transfer');
+            $table->integer('purchase_unit_id')->nullable()->index();
             $table->decimal('TaxNet', 15)->nullable();
             $table->string('tax_method', 192)->nullable()->default('1');
             $table->decimal('discount', 15)->nullable();

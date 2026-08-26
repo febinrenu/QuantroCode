@@ -26,7 +26,7 @@ return new class extends Migration
             $table->timestamp('revoked_at')->nullable();
             $table->timestamps();
 
-            $table->unique(['access_token_id'], 'user_login_sessions_access_token_unique');
+            $table->unique(['access_token_id']);
         });
     }
 

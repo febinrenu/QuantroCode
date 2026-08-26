@@ -15,8 +15,8 @@ return new class extends Migration
             $table->collation = 'utf8mb4_unicode_ci';
             $table->charset = 'utf8mb4';
 
-            $table->integer('user_id')->index('user_warehouse_user_id');
-            $table->integer('warehouse_id')->index('user_warehouse_warehouse_id');
+            $table->integer('user_id')->index();
+            $table->integer('warehouse_id')->index();
         });
     }
 

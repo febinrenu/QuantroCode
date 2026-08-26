@@ -16,12 +16,12 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('user_id')->index('user_id_quotation');
+            $table->integer('user_id')->index();
             $table->date('date');
             $table->time('time')->nullable();
             $table->string('Ref', 192);
-            $table->integer('client_id')->index('client_id_quotation');
-            $table->integer('warehouse_id')->index('warehouse_id_quotation');
+            $table->integer('client_id')->index();
+            $table->integer('warehouse_id')->index();
             $table->decimal('tax_rate', 15)->nullable()->default(0);
             $table->decimal('TaxNet', 15)->nullable()->default(0);
             $table->decimal('discount', 15)->nullable()->default(0);

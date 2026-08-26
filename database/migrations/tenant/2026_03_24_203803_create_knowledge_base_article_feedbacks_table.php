@@ -17,11 +17,11 @@ return new class extends Migration
 
             $table->bigIncrements('id');
             $table->unsignedBigInteger('knowledge_base_article_id');
-            $table->integer('user_id')->nullable()->index('kb_article_feedback_user_fk');
+            $table->integer('user_id')->nullable()->index();
             $table->boolean('helpful');
             $table->timestamps();
 
-            $table->index(['knowledge_base_article_id', 'user_id'], 'kb_article_feedback_article_user_idx');
+            $table->index(['knowledge_base_article_id', 'user_id']);
         });
     }
 

@@ -17,12 +17,12 @@ return new class extends Migration
 
             $table->integer('id', true);
             $table->date('date');
-            $table->integer('sale_id')->index('details_sale_id');
-            $table->integer('product_id')->index('sale_product_id');
-            $table->integer('product_variant_id')->nullable()->index('sale_product_variant_id');
+            $table->integer('sale_id')->index();
+            $table->integer('product_id')->index();
+            $table->integer('product_variant_id')->nullable()->index();
             $table->text('imei_number')->nullable();
             $table->decimal('price', 15);
-            $table->integer('sale_unit_id')->nullable()->index('sales_sale_unit_id');
+            $table->integer('sale_unit_id')->nullable()->index();
             $table->decimal('TaxNet', 15)->nullable();
             $table->string('tax_method', 192)->nullable()->default('1');
             $table->decimal('discount', 15)->nullable();

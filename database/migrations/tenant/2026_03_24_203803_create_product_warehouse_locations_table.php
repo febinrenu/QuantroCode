@@ -16,12 +16,12 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('product_id')->index('pwl_product_id');
-            $table->integer('warehouse_id')->index('pwl_warehouse_id');
-            $table->integer('warehouse_location_id')->nullable()->index('pwl_location_id');
+            $table->integer('product_id')->index();
+            $table->integer('warehouse_id')->index();
+            $table->integer('warehouse_location_id')->nullable()->index();
             $table->timestamps(6);
 
-            $table->unique(['product_id', 'warehouse_id'], 'pwl_product_wh_unique');
+            $table->unique(['product_id', 'warehouse_id']);
         });
     }
 

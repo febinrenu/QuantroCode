@@ -3077,10 +3077,10 @@ export default {
      Modern Add Product page
      ----------------------------------------------------------- */
   .product-create-page {
-    --pc-primary: #6366f1;
-    --pc-primary-strong: #4f46e5;
-    --pc-primary-soft: #eef2ff;
-    --pc-accent: #8b5cf6;
+    --pc-primary: var(--primary-color, #2563EB);
+    --pc-primary-strong: var(--primary-color-darker, #1D53D0);
+    --pc-primary-soft: var(--primary-color-soft, #eef2ff);
+    --pc-accent: #06B6D4;
     --pc-success: #10b981;
     --pc-warn: #f59e0b;
     --pc-danger: #ef4444;
@@ -4452,8 +4452,8 @@ export default {
     border-color: #2a2a2a;
   }
   body.dark-theme .product-create-page .image-upload-wrapper:hover {
-    border-color: #8b5cf6;
-    background: rgba(139, 92, 246, 0.08);
+    border-color: var(--pc-accent, #06B6D4);
+    background: rgba(6, 182, 212, 0.08);
   }
 
   body.dark-theme .product-create-page .product-gallery-dropzone {
@@ -4461,9 +4461,9 @@ export default {
     background: linear-gradient(180deg, #1a1a1a 0%, #202020 100%);
   }
   body.dark-theme .product-create-page .product-gallery-dropzone:hover {
-    border-color: #8b5cf6;
-    background: rgba(139, 92, 246, 0.08);
-    box-shadow: 0 2px 12px rgba(139, 92, 246, 0.18);
+    border-color: var(--pc-accent, #06B6D4);
+    background: rgba(6, 182, 212, 0.08);
+    box-shadow: 0 2px 12px rgba(6, 182, 212, 0.18);
   }
   body.dark-theme .product-create-page .product-gallery-dropzone-title {
     color: #d8d8d8;
@@ -4559,12 +4559,12 @@ export default {
 
   body.dark-theme .product-create-page .modern-input-group .btn-icon-scan,
   body.dark-theme .product-create-page .modern-input-group .btn-icon-gen {
-    background: rgba(139, 92, 246, 0.12);
-    color: #a78bfa;
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--pc-primary, #2563EB);
   }
   body.dark-theme .product-create-page .modern-input-group .btn-icon-scan:hover,
   body.dark-theme .product-create-page .modern-input-group .btn-icon-gen:hover {
-    background: #6366f1;
+    background: var(--pc-primary, #2563EB);
     color: #fff;
   }
 

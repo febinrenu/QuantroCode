@@ -17,8 +17,8 @@ return new class extends Migration
 
             $table->integer('id', true);
             $table->string('title', 192);
-            $table->integer('project_id')->index('tasks_project_id');
-            $table->integer('company_id')->index('tasks_company_id');
+            $table->integer('project_id')->index();
+            $table->integer('company_id')->index();
             $table->date('start_date');
             $table->date('end_date');
             $table->string('estimated_hour', 192)->nullable();

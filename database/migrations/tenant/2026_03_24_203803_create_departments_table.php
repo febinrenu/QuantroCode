@@ -17,8 +17,8 @@ return new class extends Migration
 
             $table->integer('id', true);
             $table->string('department');
-            $table->integer('company_id')->index('department_company_id');
-            $table->integer('department_head')->nullable()->index('department_department_head');
+            $table->integer('company_id')->index();
+            $table->integer('department_head')->nullable()->index();
             $table->timestamps(6);
             $table->softDeletes();
         });

@@ -1119,6 +1119,14 @@ const baseRoutes = [
 
             // Sales Return
             {
+                path: "/app/sales_return/list",
+                redirect: "/app/sale_return/list"
+            },
+            {
+                path: "/app/sales_return",
+                redirect: "/app/sale_return/list"
+            },
+            {
                 path: "/app/sale_return",
                 component: () =>
                     import(

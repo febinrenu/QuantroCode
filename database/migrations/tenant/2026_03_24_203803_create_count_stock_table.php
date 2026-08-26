@@ -16,10 +16,10 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('user_id')->index('count_stock_user_id');
+            $table->integer('user_id')->index();
             $table->date('date');
-            $table->integer('warehouse_id')->index('count_stock_warehouse_id');
-            $table->integer('category_id')->nullable()->index('count_stock_category_id');
+            $table->integer('warehouse_id')->index();
+            $table->integer('category_id')->nullable()->index();
             $table->string('file_stock', 192);
             $table->timestamps(6);
             $table->softDeletes();

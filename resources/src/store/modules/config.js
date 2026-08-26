@@ -341,6 +341,101 @@ export function applyPrimaryColor(color) {
     .dashboard-page-root .bg-primary,
     .dashboard-static .bg-primary { background-color: ${color} !important; color: #fff !important; }
 
+    /* Quantro dashboard header: sync all blue header accents with selected primary color. */
+    body.quantro-dashboard-route .dashboard-page-root.quantro-dashboard .quantro-pos-btn,
+    body.quantro-dashboard-route .dashboard-page-root.quantro-dashboard .quantro-user-avatar,
+    body.quantro-dashboard-route .dashboard-page-root.quantro-dashboard .quantro-bell-badge {
+      background: ${color} !important;
+      background-color: ${color} !important;
+      border-color: ${color} !important;
+      color: #fff !important;
+    }
+    body.quantro-dashboard-route .dashboard-page-root.quantro-dashboard .quantro-pos-btn:hover {
+      background: ${darker} !important;
+      background-color: ${darker} !important;
+      border-color: ${darker} !important;
+      color: #fff !important;
+    }
+    body.quantro-dashboard-route .dashboard-page-root.quantro-dashboard .quantro-pos-btn svg,
+    body.quantro-dashboard-route .dashboard-page-root.quantro-dashboard .quantro-pos-btn span {
+      color: #fff !important;
+      stroke: currentColor !important;
+    }
+    body.quantro-dashboard-route .dashboard-page-root.quantro-dashboard .quantro-warehouse-chip svg,
+    body.quantro-dashboard-route .dashboard-page-root.quantro-dashboard .quantro-date-chip svg,
+    body.quantro-dashboard-route .dashboard-page-root.quantro-dashboard .quantro-lang-btn.active,
+    body.quantro-dashboard-route .dashboard-page-root.quantro-dashboard .quantro-icon-btn:hover {
+      color: ${color} !important;
+      border-color: ${color} !important;
+    }
+    body.quantro-dashboard-route .dashboard-page-root.quantro-dashboard .quantro-icon-btn:hover {
+      box-shadow: 0 0 0 3px ${soft} !important;
+    }
+
+    /* Quantro POS: sync the POS blue/purple accents with selected primary color. */
+    body .pos-codecanyon.pos-codecanyon .pos-shell-category-chip.active,
+    body .pos-codecanyon.pos-codecanyon .pos-reference-payments-grid > button.active,
+    body .pos-codecanyon.pos-codecanyon .pos-shell-pay-btn,
+    body .pos-codecanyon.pos-codecanyon .pos-shell-mobile-pay-btn {
+      background: ${color} !important;
+      background-color: ${color} !important;
+      border-color: ${color} !important;
+      color: #fff !important;
+      box-shadow: 0 10px 22px -12px ${rgbaFromHex(color, 0.75)} !important;
+    }
+    body .pos-codecanyon.pos-codecanyon .pos-shell-category-chip.active *,
+    body .pos-codecanyon.pos-codecanyon .pos-reference-payments-grid > button.active *,
+    body .pos-codecanyon.pos-codecanyon .pos-shell-pay-btn *,
+    body .pos-codecanyon.pos-codecanyon .pos-shell-mobile-pay-btn * {
+      color: #fff !important;
+      stroke: currentColor !important;
+    }
+    body .pos-codecanyon.pos-codecanyon .pos-shell-add-btn,
+    body .pos-codecanyon.pos-codecanyon .pos-shell-search-row > button.pos-shell-action-btn,
+    body .pos-codecanyon.pos-codecanyon .pos-cart-header-total-value,
+    body .pos-codecanyon.pos-codecanyon .pos-reference-language > button.active,
+    body .pos-codecanyon.pos-codecanyon .pos-reference-payments-grid > button svg,
+    body .pos-codecanyon.pos-codecanyon .pos-shell-product-card > div[style*="margin: -10px"] span,
+    body .pos-codecanyon.pos-codecanyon .pos-shell-product-card > div[style*="font-size: 14px"],
+    body .pos-codecanyon.pos-codecanyon .pos-shell-products-scroll [style*="--primary-color"],
+    body .pos-codecanyon.pos-codecanyon .pos-shell-cart-scroll [style*="--primary-color"],
+    body .pos-codecanyon.pos-codecanyon .pos-shell-totals [style*="--primary-color"] {
+      color: ${color} !important;
+      border-color: ${color} !important;
+    }
+    body .pos-codecanyon.pos-codecanyon .pos-cart-header-icon,
+    body .pos-codecanyon.pos-codecanyon .pos-shell-cart-row > div:first-child,
+    body .pos-codecanyon.pos-codecanyon [style*="#f0ecfb"],
+    body .pos-codecanyon.pos-codecanyon [style*="#f5f3fd"] {
+      background: ${soft} !important;
+      background-color: ${soft} !important;
+      color: ${color} !important;
+    }
+    body .pos-codecanyon.pos-codecanyon .pos-reference-bell > span,
+    body .pos-codecanyon.pos-codecanyon .pos-cart-header-title::after,
+    body .pos-codecanyon.pos-codecanyon .pos-shell-pagination button[style*="--primary-color"],
+    body .pos-codecanyon.pos-codecanyon [style*="background: 'var(--primary-color"],
+    body .pos-codecanyon.pos-codecanyon [style*="background: var(--primary-color"],
+    body .pos-codecanyon.pos-codecanyon [style*="background:var(--primary-color"] {
+      background: ${color} !important;
+      background-color: ${color} !important;
+      border-color: ${color} !important;
+      color: #fff !important;
+    }
+    body .pos-codecanyon.pos-codecanyon .pos-shell-cart-row > div:first-child,
+    body .pos-codecanyon.pos-codecanyon .pos-cart-header-icon {
+      background: ${soft} !important;
+      background-color: ${soft} !important;
+      color: ${color} !important;
+    }
+    body .pos-codecanyon.pos-codecanyon .pos-shell-pay-btn:hover,
+    body .pos-codecanyon.pos-codecanyon .pos-shell-mobile-pay-btn:hover,
+    body .pos-codecanyon.pos-codecanyon .pos-shell-category-chip.active:hover {
+      background: ${darker} !important;
+      background-color: ${darker} !important;
+      border-color: ${darker} !important;
+    }
+
     /* ============ MISC ACCENTS ============ */
     ::selection { background: ${color}; color: #fff; }
     .breadcrumb-item.active { color: ${color}; }

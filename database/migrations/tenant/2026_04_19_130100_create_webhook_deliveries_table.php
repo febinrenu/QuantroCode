@@ -24,10 +24,10 @@ return new class extends Migration
                 $table->timestamp('next_attempt_at')->nullable();
                 $table->timestamps();
 
-                $table->index('webhook_id');
-                $table->index('status');
-                $table->index('event');
-                $table->index('created_at');
+                $table->index();
+                $table->index();
+                $table->index();
+                $table->index();
 
                 $table->foreign('webhook_id')
                     ->references('id')->on('webhooks')

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->bigIncrements('id');
-            $table->integer('user_id')->nullable()->index('quick_books_tokens_user_id_foreign');
+            $table->integer('user_id')->nullable()->index();
             $table->string('realm_id')->index();
             $table->string('environment')->default('Development');
             $table->longText('access_token');

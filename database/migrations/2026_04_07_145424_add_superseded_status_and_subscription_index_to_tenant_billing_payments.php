@@ -46,7 +46,7 @@ return new class extends Migration
 
         // Add composite index for fast (subscription, status) lookups.
         Schema::connection('central')->table('tenant_billing_payments', function (Blueprint $table) {
-            $table->index(['tenant_subscription_id', 'status'], 'tbp_sub_status_idx');
+            $table->index(['tenant_subscription_id', 'status']);
         });
     }
 

@@ -13,8 +13,8 @@
     >
       <div>
         <div class="quantro-sidebar-brand">
-          <router-link to="/app/dashboard">
-            <img src="/images/super/landing-design/quantro/quantro-lockup.png?v=quantro-horizontal-0822" alt="Quantro">
+          <router-link to="/app/dashboard" class="quantro-sidebar-brand-mark" title="Quantro">
+            <img src="/images/super/landing-design/quantro/quantro-q-mark.png?v=quantro-q-mark-1" alt="Quantro">
           </router-link>
         </div>
         <ul class="navigation-left">
@@ -2753,6 +2753,15 @@ body.quantro-dashboard-route .layout-sidebar-large .sidebar-left {
   height: 100vh !important;
 }
 
+/* The icon-rail sidebar normally starts below the global top bar
+   ($topbar-height, 80px). That bar is hidden on the dashboard route, so
+   the rail must start at the very top instead of leaving an empty gap. */
+.tenant-dashboard-layout:not(.vertical-layout) .sidebar-left,
+.tenant-dashboard-layout:not(.vertical-layout) .sidebar-left-secondary {
+  top: 0 !important;
+  height: 100vh !important;
+}
+
 body.quantro-dashboard-route .layout-sidebar-large .sidebar-left .navigation-left {
   width: 250px !important;
   text-align: left !important;
@@ -2769,30 +2778,39 @@ body.quantro-dashboard-route .layout-sidebar-large .main-content-wrap.sidenav-op
   background: #F4F7FB !important;
 }
 
+/* Narrow icon-rail layout: constrain the brand header to the rail width
+   (120px) so it can't stretch .sidebar-left wider than its icon column —
+   that overflow used to paint over the secondary flyout menu's text. */
+/* Height matches .quantro-header (84px) so the sidebar's header row and
+   the main content header's row share the same bottom edge. */
 .quantro-sidebar-brand {
-  height: 120px;
+  width: 120px;
+  height: 84px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 28px 20px;
+  padding: 0 10px;
   box-sizing: border-box;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  overflow: hidden;
 }
 
-.quantro-sidebar-brand a {
+/* Compact rail shows just the "Q" mark, pre-cropped out of the full
+   wordmark image at build time (see quantro-q-mark.png) — the wordmark
+   itself is designed for the wide 250px sidebar and would overflow this
+   120px rail, and cropping it live via CSS background-size softened it. */
+.quantro-sidebar-brand-mark {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  width: 44px;
+  height: 44px;
+  text-decoration: none;
 }
 
-.quantro-sidebar-brand img {
-  width: 235px;
-  max-width: 100%;
-  max-height: 76px;
-  object-fit: contain;
+.quantro-sidebar-brand-mark img {
+  width: 44px;
+  height: 44px;
   display: block;
-  margin: 0 auto;
 }
 [dir="rtl"] .layout-sidebar-large .sidebar-left,
 [dir="rtl"] .layout-sidebar-large .sidebar-left-secondary {
@@ -2800,13 +2818,44 @@ body.quantro-dashboard-route .layout-sidebar-large .main-content-wrap.sidenav-op
   border-left: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Primary rail items */
+/* Primary rail items — rounded pills with a small decorative gradient
+   "dash" centered in the gap between them, instead of a plain hairline. */
 .layout-sidebar-large .navigation-left .nav-item {
   color: #8FA5C4 !important;
-  border-bottom: 0 !important;
+  width: auto !important;
   border-radius: 10px;
-  margin-bottom: 0.25rem;
+  margin: 0 8px 14px;
+  position: relative;
+  overflow: hidden;
   transition: background 0.15s ease, color 0.15s ease;
+}
+
+.layout-sidebar-large .navigation-left .nav-item:last-child {
+  margin-bottom: 0;
+}
+
+.layout-sidebar-large .navigation-left .nav-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  pointer-events: none;
+}
+
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item:not(:last-child)::after {
+  background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.28), transparent);
+}
+
+/* Don't draw the dash where it would touch the highlighted active item —
+   its solid color block is separation enough on its own. */
+.layout-sidebar-large .navigation-left .nav-item.active::after,
+.layout-sidebar-large .navigation-left .nav-item:has(+ .nav-item.active)::after {
+  display: none !important;
 }
 
 body.quantro-dashboard-route .layout-sidebar-large .navigation-left .nav-item .nav-item-hold {
@@ -2845,11 +2894,11 @@ body.quantro-dashboard-route .layout-sidebar-large .navigation-left .nav-item .n
 }
 /* Active item — blue highlight */
 .layout-sidebar-large .navigation-left .nav-item.active {
-  background: #2563EB !important;
+  background: var(--primary-color, #2563EB) !important;
   box-shadow: 0 12px 24px -18px rgba(37, 99, 235, 0.85);
 }
 [dir="rtl"] .layout-sidebar-large .navigation-left .nav-item.active {
-  box-shadow: inset -3px 0 0 #2563EB;
+  box-shadow: inset -3px 0 0 var(--primary-color, #2563EB);
 }
 .layout-sidebar-large .navigation-left .nav-item.active .nav-item-hold,
 .layout-sidebar-large .navigation-left .nav-item.active .nav-text,
@@ -2885,4 +2934,205 @@ body.quantro-dashboard-route .layout-sidebar-large .navigation-left .nav-item .n
   background: rgba(0, 0, 0, 0.22) !important;
 }
 
+/* Light mode keeps the same structure, but replaces only the dark sidebar skin. */
+body:not(.dark-theme) .layout-sidebar-large .sidebar-left,
+body:not(.dark-theme) .layout-sidebar-large .sidebar-left-secondary {
+  background: #FFFFFF !important;
+  border-right: 1px solid #E2E8F0 !important;
+  box-shadow: 8px 0 28px rgba(15, 23, 42, 0.07) !important;
+}
+
+body:not(.dark-theme) [dir="rtl"] .layout-sidebar-large .sidebar-left,
+body:not(.dark-theme) [dir="rtl"] .layout-sidebar-large .sidebar-left-secondary,
+[dir="rtl"] body:not(.dark-theme) .layout-sidebar-large .sidebar-left,
+[dir="rtl"] body:not(.dark-theme) .layout-sidebar-large .sidebar-left-secondary {
+  border-right: none !important;
+  border-left: 1px solid #E2E8F0 !important;
+}
+
+body:not(.dark-theme) .quantro-sidebar-brand {
+  border-bottom: 1px solid #E2E8F0 !important;
+}
+
+body:not(.dark-theme) .layout-sidebar-large .sidebar-left .navigation-left,
+body:not(.dark-theme) .layout-sidebar-large .sidebar-left-secondary .childNav,
+body:not(.dark-theme) .layout-sidebar-large .sidebar-left-secondary li.nav-item > div > .childNav {
+  background: #FFFFFF !important;
+}
+
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item {
+  color: #64748B !important;
+  background: transparent !important;
+}
+
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item .nav-item-hold,
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item .nav-item-hold a,
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item .nav-text,
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item .nav-icon {
+  color: #64748B !important;
+}
+
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item:hover {
+  background: #EFF6FF !important;
+}
+
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item:hover .nav-item-hold,
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item:hover .nav-text,
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item:hover .nav-icon {
+  color: var(--primary-color, #2563EB) !important;
+}
+
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item.active {
+  background: var(--primary-color, #2563EB) !important;
+  box-shadow: 0 12px 24px -18px rgba(37, 99, 235, 0.85) !important;
+}
+
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item.active .nav-item-hold,
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item.active .nav-text,
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item.active .nav-icon,
+body:not(.dark-theme) .layout-sidebar-large .navigation-left .nav-item.active .nav-item-hold a {
+  color: #FFFFFF !important;
+}
+
+body:not(.dark-theme) .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a {
+  color: #64748B !important;
+  background: transparent !important;
+}
+
+body:not(.dark-theme) .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon {
+  color: #64748B !important;
+}
+
+body:not(.dark-theme) .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a:hover,
+body:not(.dark-theme) .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a.open,
+body:not(.dark-theme) .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a.router-link-active {
+  color: var(--primary-color, #2563EB) !important;
+  background: #EFF6FF !important;
+}
+
+body:not(.dark-theme) .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a:hover .nav-icon,
+body:not(.dark-theme) .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a.open .nav-icon,
+body:not(.dark-theme) .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a.router-link-active .nav-icon {
+  color: var(--primary-color, #2563EB) !important;
+}
+
+/* Per-section icon colors (resting state — hover/active rules below still win).
+   Prefixed with "body" so specificity beats the generic
+   "body:not(.dark-theme) ... .nav-icon" muted-color rule above. */
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-chart-column { color: #2563EB !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-credit-card { color: #7C3AED !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-life-buoy { color: #F59E0B !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-shopping-bag { color: #EC4899 !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-users { color: #06B6D4 !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-shield-check { color: #10B981 !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-library-big { color: #6366F1 !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-map-pin { color: #EF4444 !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-receipt { color: #F97316 !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-shopping-cart { color: #3B82F6 !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-chevron-right,
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-chevron-left,
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-arrow-left { color: #64748B !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-shopping-basket { color: #14B8A6 !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-library { color: #D97706 !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-calendar-days { color: #0EA5E9 !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-megaphone { color: #D946EF !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-wallet { color: #059669 !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-dollar-sign { color: #65A30D !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-wrench { color: #EA580C !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-settings { color: #64748B !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-archive { color: #78716C !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-clipboard-list { color: #2563EB !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-check { color: #16A34A !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-book { color: #9333EA !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-database-zap { color: #7C3AED !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-lightbulb { color: #EAB308 !important; }
+body .layout-sidebar-large .navigation-left .nav-item .nav-icon.lucide-trending-up { color: #16A34A !important; }
+
+body .layout-sidebar-large .navigation-left .nav-item.active .nav-icon,
+body .layout-sidebar-large .navigation-left .nav-item:hover .nav-icon {
+  color: #FFFFFF !important;
+}
+
+/* Flyout submenu icon colors (resting state — hover/active rules above still win) */
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-store { color: #EC4899 !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-settings,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-settings-2 { color: #64748B !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-receipt,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-receipt-text { color: #F97316 !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-check,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-check-check { color: #16A34A !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-wallet,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-banknote,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-dollar-sign { color: #059669 !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-users,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-user,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-user-minus,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-id-card { color: #06B6D4 !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-message-square,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-message-circle,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-mail { color: #D946EF !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-ticket { color: #EA580C !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-clock,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-timer,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-hourglass,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-calendar,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-calendar-check,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-calendar-days,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-bell,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-bell-ring { color: #F59E0B !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-building { color: #D97706 !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-tag,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-bookmark,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-quote,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-star { color: #14B8A6 !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-files,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-file-text,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-file-plus,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-copy,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-folder,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-package { color: #6366F1 !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-credit-card,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-database,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-database-backup,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-database-zap,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-key,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-lock,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-shield { color: #7C3AED !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-shield-check,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-heart-pulse,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-heart { color: #10B981 !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-map-pin,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-x { color: #EF4444 !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-shopping-cart,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-scan-barcode,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-barcode { color: #3B82F6 !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-shopping-bag { color: #EC4899 !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-wrench,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-chef-hat,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-calculator { color: #EA580C !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-trending-up,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-pie-chart,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-bar-chart,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-bar-chart-3,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-layout-dashboard { color: #2563EB !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-briefcase-business,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-layers,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-app-window,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-monitor-up { color: #78716C !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-download,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-file-up,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-pencil,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-camera,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-atom,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-plus { color: #9333EA !important; }
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-arrow-left,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-arrow-up-circle,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-history,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a .nav-icon.lucide-cloud { color: #0EA5E9 !important; }
+
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a:hover .nav-icon,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a.open .nav-icon,
+body .layout-sidebar-large .sidebar-left-secondary .childNav li.nav-item a.router-link-active .nav-icon {
+  color: var(--primary-color, #2563EB) !important;
+}
 </style>

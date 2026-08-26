@@ -17,7 +17,7 @@ class CreateCategoryProductAndProductSubcategoryTables extends Migration
                 $table->integer('category_id');
                 $table->timestamps();
 
-                $table->unique(['product_id', 'category_id'], 'category_product_product_category_unique');
+                $table->unique(['product_id', 'category_id']);
 
                 $table->foreign('product_id', 'category_product_product_id_foreign')
                     ->references('id')
@@ -41,7 +41,7 @@ class CreateCategoryProductAndProductSubcategoryTables extends Migration
                 $table->integer('sub_category_id');
                 $table->timestamps();
 
-                $table->unique(['product_id', 'sub_category_id'], 'product_subcategory_product_sub_unique');
+                $table->unique(['product_id', 'sub_category_id']);
 
                 $table->foreign('product_id', 'product_subcategory_product_id_foreign')
                     ->references('id')

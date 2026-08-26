@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedInteger('sort_order')->default(0);
             $table->timestamps();
 
-            $table->unique(['knowledge_base_article_group_id', 'slug'], 'kb_articles_group_slug_unique');
+            $table->unique(['knowledge_base_article_group_id', 'slug']);
         });
     }
 

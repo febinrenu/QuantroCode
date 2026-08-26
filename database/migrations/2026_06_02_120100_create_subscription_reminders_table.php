@@ -36,10 +36,7 @@ return new class extends Migration
             $table->timestamp('sent_at')->nullable();
             $table->timestamps();
 
-            $table->unique(
-                ['tenant_subscription_id', 'type', 'channel', 'offset_days', 'reference_date'],
-                'sub_reminder_idempotency'
-            );
+            $table->unique(['tenant_subscription_id', 'type', 'channel', 'offset_days', 'reference_date']);
         });
     }
 

@@ -60,9 +60,9 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index(['purpose', 'status']);
-            $table->index('property_category_id');
-            $table->index('featured');
-            $table->index('city');
+            $table->index();
+            $table->index();
+            $table->index();
         });
     }
 

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->bigIncrements('id');
-            $table->integer('client_id')->index('portal_clients_client_id_foreign');
+            $table->integer('client_id')->index();
             $table->string('email', 192)->unique();
             $table->string('password')->nullable();
             $table->boolean('status')->default(false)->comment('0=disabled, 1=active');

@@ -16,8 +16,8 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->string('email')->index('email');
-            $table->string('token')->index('token');
+            $table->string('email')->index();
+            $table->string('token')->index();
             $table->timestamps(6);
         });
     }

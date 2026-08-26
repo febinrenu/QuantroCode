@@ -41,7 +41,7 @@ return new class extends Migration
 
             $table->index('product_serial_id', 'psm_serial_idx');
             $table->index('serial_number', 'psm_serial_number_idx');
-            $table->index(['reference_type', 'reference_id'], 'psm_reference_idx');
+            $table->index(['reference_type', 'reference_id']);
             $table->index('action', 'psm_action_idx');
         });
     }

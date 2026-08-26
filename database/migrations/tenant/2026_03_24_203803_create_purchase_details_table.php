@@ -17,14 +17,14 @@ return new class extends Migration
 
             $table->integer('id', true);
             $table->decimal('cost', 15);
-            $table->integer('purchase_unit_id')->nullable()->index('purchase_unit_id_purchase');
+            $table->integer('purchase_unit_id')->nullable()->index();
             $table->decimal('TaxNet', 15)->nullable()->default(0);
             $table->string('tax_method', 192)->nullable()->default('1');
             $table->decimal('discount', 15)->nullable()->default(0);
             $table->string('discount_method', 192)->nullable()->default('1');
-            $table->integer('purchase_id')->index('purchase_id');
-            $table->integer('product_id')->index('product_id');
-            $table->integer('product_variant_id')->nullable()->index('purchase_product_variant_id');
+            $table->integer('purchase_id')->index();
+            $table->integer('product_id')->index();
+            $table->integer('product_variant_id')->nullable()->index();
             $table->text('imei_number')->nullable();
             $table->decimal('total', 15);
             $table->decimal('quantity', 12, 3);

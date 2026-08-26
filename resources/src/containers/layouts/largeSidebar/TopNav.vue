@@ -2,8 +2,7 @@
   <div class="main-header">
     <div class="logo">
        <router-link to="/app/dashboard">
-        <img v-if="currentUser && currentUser.logo" :src="$imgUrl('settings', currentUser.logo)" alt width="60" height="60">
-        <img v-else :src="$imgUrl('settings', 'logo-default.png')" alt width="60" height="60">
+        <img src="/images/super/landing-design/quantro/quantro-h-logo.png?v=quantro-h-logo-sidebar-light-0823" alt="Quantro" style="width: auto; height: 40px; max-width: 200px; object-fit: contain;">
        </router-link>
     </div>
 
@@ -314,6 +313,21 @@ body:not(.dark-theme) .layout-sidebar-large .main-header {
   box-shadow: 0 8px 28px -24px rgba(11, 27, 51, 0.55) !important;
 }
 
+/* The full wordmark is wider than the 120px icon-rail column this box was
+   sized for — let it grow to fit instead of clipping. */
+.layout-sidebar-large .main-header .logo {
+  width: auto !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.layout-sidebar-large .main-header .logo img {
+  width: auto !important;
+  height: 40px !important;
+  max-width: 200px !important;
+}
+
 body:not(.dark-theme) .layout-sidebar-large .main-header .menu-toggle div {
   background: #071832 !important;
   height: 2px !important;
@@ -419,7 +433,7 @@ body.quantro-dashboard-route .layout-sidebar-large .main-header .user-dropdown-t
 .main-header button.dropdown-toggle-no-caret:focus,
 .main-header button.dropdown-toggle-no-caret:active {
   background: #f9fafb !important;
-  color: #2563eb !important;
+  color: var(--primary-color, #2563EB) !important;
   border-color: #bfd0f8 !important;
   box-shadow: none !important;
   outline: none !important;
@@ -448,7 +462,7 @@ body.dark-theme .main-header button.dropdown-toggle-no-caret:hover,
 body.dark-theme .main-header button.dropdown-toggle-no-caret:focus,
 body.dark-theme .main-header button.dropdown-toggle-no-caret:active {
   background: #2d2d44 !important;
-  border-color: #2563EB !important;
+  border-color: var(--primary-color, #2563EB) !important;
   color: #fff !important;
 }
 
@@ -533,7 +547,7 @@ body.dark-theme .main-header .dropdown-menu {
 .tenant-header-chip .lucide-icon {
   width: 17px;
   height: 17px;
-  color: #2563EB;
+  color: var(--primary-color, #2563EB);
 }
 
 .tenant-header-chip .tenant-chip-chevron {
@@ -557,9 +571,9 @@ body.dark-theme .main-header .dropdown-menu {
   gap: 6px;
   padding: 8px 16px;
   border-radius: 10px;
-  background: #2563eb;
+  background: var(--primary-color, #2563EB);
   color: #ffffff;
-  border: 1px solid #2563eb;
+  border: 1px solid var(--primary-color, #2563EB);
   transition: all 0.3s;
   box-shadow: none;
 }
@@ -569,9 +583,9 @@ body.dark-theme .main-header .dropdown-menu {
 .btn-primary:active,
 .btn-primary:not(:disabled):not(.disabled):active,
 .btn-primary:not(:disabled):not(.disabled).active {
-  background: #1d4ed8 !important;
+  background: var(--primary-color-darker, #1d4ed8) !important;
   color: #ffffff !important;
-  border-color: #1d4ed8 !important;
+  border-color: var(--primary-color-darker, #1d4ed8) !important;
   box-shadow: none !important;
   outline: none !important;
 }
@@ -619,7 +633,7 @@ body.dark-theme .main-header .dropdown-menu {
 .tenant-lang-stack button:first-child {
   width: 47px;
   background: #FFFFFF;
-  color: #2563EB;
+  color: var(--primary-color, #2563EB);
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
 }
 
@@ -648,7 +662,7 @@ body.dark-theme .main-header .dropdown-menu {
 
 .nav-icon-btn:hover {
   background: #f9fafb;
-  color: #2563eb;
+  color: var(--primary-color, #2563EB);
   border-color: #bfd0f8;
 }
 
@@ -709,7 +723,7 @@ body.dark-theme .main-header .dropdown-menu {
   cursor: pointer;
   transition: all 0.3s;
   border-radius: 12px;
-  background: #2563EB;
+  background: var(--primary-color, #2563EB);
   padding: 0;
 }
 
@@ -838,13 +852,13 @@ body.dark-theme .main-header .dropdown-menu {
 }
 
 .notif-content a {
-  color: #2563EB;
+  color: var(--primary-color, #2563EB);
   text-decoration: none;
   display: block;
 }
 
 .notif-content a:hover {
-  color: #1D4ED8;
+  color: var(--primary-color-darker, #1d4ed8);
 }
 
 .user-dropdown-menu {
@@ -868,7 +882,7 @@ body.dark-theme .main-header .dropdown-menu {
 
 .dropdown-item:hover {
   background: #f5f5f5;
-  color: #2563EB;
+  color: var(--primary-color, #2563EB);
 }
 
 /* Dark Mode */
@@ -884,7 +898,7 @@ body.dark-theme .btn-primary:hover,
 body.dark-theme .btn-primary:focus,
 body.dark-theme .btn-primary:active {
   background: #2d2d44 !important;
-  border-color: #2563EB !important;
+  border-color: var(--primary-color, #2563EB) !important;
   color: #fff !important;
   box-shadow: none !important;
 }
@@ -958,7 +972,7 @@ body.dark-theme .dropdown-item:hover {
     justify-content: center;
     gap: 0;
     background: #fff;
-    color: #2563EB;
+    color: var(--primary-color, #2563EB);
     border: 1px solid #e5e7eb;
   }
 
@@ -966,8 +980,8 @@ body.dark-theme .dropdown-item:hover {
   .nav-right .btn.btn-primary:focus,
   .nav-right .btn.btn-primary:active {
     background: #f9fafb;
-    color: #2563EB;
-    border-color: #2563EB;
+    color: var(--primary-color, #2563EB);
+    border-color: var(--primary-color, #2563EB);
     box-shadow: none;
   }
 
@@ -990,13 +1004,13 @@ body.dark-theme .dropdown-item:hover {
 }
 
 /* =========================================================
-   Quantro Design System — header accents → blue #2563EB
+   Quantro Design System — header accents → blue var(--primary-color, #2563EB)
    Matches "Quantro Tenant Dashboard.dc.html"
    ========================================================= */
 .nav-right .btn.btn-primary {
-  background: #2563EB !important;
+  background: var(--primary-color, #2563EB) !important;
   color: #FFFFFF !important;
-  border: 1px solid #2563EB !important;
+  border: 1px solid var(--primary-color, #2563EB) !important;
   font-weight: 600;
   box-shadow: 0 8px 18px -6px rgba(37, 99, 235, 0.45) !important;
 }
@@ -1010,11 +1024,11 @@ body.dark-theme .dropdown-item:hover {
 .nav-right .btn.btn-primary i { color: #FFFFFF !important; }
 
 .nav-icon-btn:hover {
-  color: #2563EB !important;
-  border-color: #2563EB !important;
+  color: var(--primary-color, #2563EB) !important;
+  border-color: var(--primary-color, #2563EB) !important;
 }
 .nav-right .badge.badge-primary {
-  background: #2563EB !important;
+  background: var(--primary-color, #2563EB) !important;
   color: #FFFFFF !important;
 }
 
@@ -1039,7 +1053,7 @@ body.quantro-dashboard-route .layout-sidebar-large .main-header #notif-dd .badge
   height: 20px !important;
   padding: 0 6px !important;
   border-radius: 999px !important;
-  background: #2563EB !important;
+  background: var(--primary-color, #2563EB) !important;
   color: #FFFFFF !important;
   font-size: 12px !important;
   font-weight: 800 !important;

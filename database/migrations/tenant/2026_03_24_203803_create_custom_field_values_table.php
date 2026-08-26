@@ -23,7 +23,7 @@ return new class extends Migration
             $table->timestamps(6);
             $table->softDeletes();
 
-            $table->index(['custom_field_id', 'entity_id', 'entity_type'], 'custom_field_value_lookup');
+            $table->index(['custom_field_id', 'entity_id', 'entity_type']);
         });
     }
 

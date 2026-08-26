@@ -17,11 +17,11 @@ return new class extends Migration
 
             $table->integer('id', true);
             $table->string('title');
-            $table->integer('client_id')->index('projects_client_id');
+            $table->integer('client_id')->index();
             $table->date('start_date');
             $table->date('end_date');
             $table->text('description')->nullable();
-            $table->integer('company_id')->index('projects_company_id');
+            $table->integer('company_id')->index();
             $table->string('status');
             $table->timestamps(6);
             $table->softDeletes();

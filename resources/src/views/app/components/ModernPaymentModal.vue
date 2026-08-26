@@ -1229,6 +1229,33 @@ export default {
       this.sendEmail = false;
       this.sendSMS = false;
       this.$refs.paymentModal.show();
+
+      // Preselect a payment method / start a split when opened from a quick-method button.
+      if (data.preferredMethod) {
+        this.$nextTick(() => this.applyPreferredMethod(data.preferredMethod));
+      }
+    },
+    // Match a quick-method key ('cash' | 'card' | 'wallet') to a configured payment
+    // method by name and select it on the first line; 'split' just adds a second line.
+    applyPreferredMethod(key) {
+      const line = this.paymentLines[0];
+      if (!line) return;
+      if (key === 'split') {
+        this.addPaymentLine();
+        return;
+      }
+      const nameMatchers = {
+        cash: ['cash'],
+        card: ['card', 'credit'],
+        wallet: ['wallet']
+      };
+      const needles = nameMatchers[key];
+      if (!needles) return;
+      const list = this.resolvedPaymentMethods || [];
+      const found = list.find(m => m && m.name && needles.some(n => m.name.toLowerCase().includes(n)));
+      if (found) {
+        this.changePaymentMethod(line, found);
+      }
     }
   }
 };

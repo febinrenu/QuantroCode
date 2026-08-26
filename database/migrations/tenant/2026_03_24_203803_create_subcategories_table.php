@@ -22,7 +22,7 @@ return new class extends Migration
             $table->boolean('status')->default(true);
             $table->timestamps();
 
-            $table->unique(['category_id', 'name'], 'subcategories_cat_name_unique');
+            $table->unique(['category_id', 'name']);
         });
     }
 

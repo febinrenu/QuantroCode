@@ -23,8 +23,8 @@ return new class extends Migration
                 $table->timestamps();
                 $table->softDeletes();
 
-                $table->index('is_active');
-                $table->index('user_id');
+                $table->index();
+                $table->index();
             });
         }
     }

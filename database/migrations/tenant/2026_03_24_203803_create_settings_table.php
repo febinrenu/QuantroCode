@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->integer('id', true);
             $table->string('email');
-            $table->integer('currency_id')->nullable()->index('currency_id');
+            $table->integer('currency_id')->nullable()->index();
             $table->string('CompanyName');
             $table->string('company_name_ar')->nullable();
             $table->string('CompanyPhone');
@@ -30,8 +30,8 @@ return new class extends Migration
             $table->string('invoice_format', 20)->default('thermal');
             $table->string('footer', 192)->default('Stocky - Ultimate Inventory With POS');
             $table->string('developed_by', 192)->default('Stocky');
-            $table->integer('client_id')->nullable()->index('client_id');
-            $table->integer('warehouse_id')->nullable()->index('warehouse_id');
+            $table->integer('client_id')->nullable()->index();
+            $table->integer('warehouse_id')->nullable()->index();
             $table->unsignedBigInteger('default_account_id')->nullable();
             $table->unsignedBigInteger('default_payment_method_id')->nullable();
             $table->string('default_language', 192)->default('en');

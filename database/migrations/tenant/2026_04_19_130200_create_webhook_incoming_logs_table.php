@@ -22,9 +22,9 @@ return new class extends Migration
                 $table->timestamp('processed_at')->nullable();
                 $table->timestamps();
 
-                $table->index('source');
-                $table->index('status');
-                $table->index('created_at');
+                $table->index();
+                $table->index();
+                $table->index();
             });
         }
     }

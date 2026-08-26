@@ -1,0 +1,108 @@
+
+  Dropping all tables ................... 14.73ms DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table .............. 11.54ms DONE
+
+   INFO  Running migrations.  
+
+  2016_06_01_000001_create_oauth_auth_codes_table  8.04ms DONE
+  2016_06_01_000002_create_oauth_access_tokens_table  13.78ms DONE
+  2016_06_01_000003_create_oauth_refresh_tokens_table  10.34ms DONE
+  2016_06_01_000004_create_oauth_clients_table  9.73ms DONE
+  2016_06_01_000005_create_oauth_personal_access_clients_table  4.41ms DONE
+  2021_03_08_020247_create_password_resets_table  10.07ms DONE
+  2021_03_08_020247_create_users_table ... 3.27ms DONE
+  2026_03_06_100000_create_tenants_table . 5.27ms DONE
+  2026_03_06_100001_create_domains_table  25.52ms DONE
+  2026_03_06_100002_create_plans_table ... 6.52ms DONE
+  2026_03_06_100003_create_tenant_subscriptions_table  4.34ms DONE
+  2026_03_06_100004_create_tenant_billing_payments_table  4.27ms DONE
+  2026_03_06_100005_add_status_to_tenants_table  5.77ms DONE
+  2026_03_06_200000_create_central_users_table  8.29ms DONE
+  2026_03_07_100001_create_landing_hero_table  3.31ms DONE
+  2026_03_07_100002_create_landing_features_table  9.83ms DONE
+  2026_03_07_100003_create_landing_pricing_table  4.07ms DONE
+  2026_03_07_100004_create_landing_testimonials_table  2.62ms DONE
+  2026_03_07_100005_create_landing_faqs_table  2.63ms DONE
+  2026_03_07_100006_create_landing_cta_table  2.57ms DONE
+  2026_03_07_100007_create_landing_footer_table  2.74ms DONE
+  2026_03_07_100008_create_landing_seo_table  2.95ms DONE
+  2026_03_08_100001_extend_tenant_billing_payments_table  35.39ms DONE
+  2026_03_08_100002_create_payment_gateway_settings_table  4.10ms DONE
+  2026_03_08_100004_add_subscription_billing_fields  11.34ms DONE
+  2026_03_11_100000_create_pending_registrations_table  6.24ms DONE
+  2026_03_11_200000_add_trial_fields_to_plans_table  4.29ms DONE
+  2026_03_15_000001_add_cancelled_at_to_tenant_subscriptions  2.09ms DONE
+  2026_03_18_100000_create_email_templates_table  4.66ms DONE
+  2026_03_18_100001_create_mail_settings_table  2.77ms DONE
+  2026_03_18_200000_seed_plan_ended_email_template  0.05ms DONE
+  2026_03_18_300000_create_central_password_resets_table  5.05ms DONE
+  2026_03_18_400000_create_general_settings_table  2.43ms DONE
+  2026_03_19_100000_add_currency_code_to_general_settings_table  2.45ms DONE
+  2026_03_19_100001_add_currency_symbol_to_general_settings_table  3.72ms DONE
+  2026_03_19_200000_add_multi_currency_support  28.47ms DONE
+  2026_03_20_100000_add_hosting_mode_to_general_settings_table  2.61ms DONE
+  2026_03_20_200000_seed_tenant_email_templates  0.06ms DONE
+  2026_03_23_022316_add_avatar_to_central_users_table  2.71ms DONE
+  2026_03_27_011156_add_role_and_permissions_to_central_users_table  5.31ms DONE
+  2026_03_27_012845_create_central_kb_tables  12.31ms DONE
+  2026_03_27_100000_create_central_languages_table  4.70ms DONE
+  2026_03_27_100001_add_translations_to_landing_tables  28.06ms DONE
+  2026_03_27_144001_add_is_private_to_plans_table  2.74ms DONE
+  2026_03_27_152052_create_email_template_translations_table  4.26ms DONE
+  2026_03_28_100001_create_landing_stats_table  2.89ms DONE
+  2026_03_29_100001_add_last_activity_at_to_tenants_table  2.54ms DONE
+  2026_03_29_100002_add_show_admin_login_to_landing_footer_table  2.92ms DONE
+  2026_04_04_100001_create_landing_privacy_policy_table  2.09ms DONE
+  2026_04_05_100001_create_landing_how_it_works_table  19.50ms DONE
+  2026_04_05_200000_add_offline_payment_support  12.16ms DONE
+  2026_04_06_100000_add_landing_template_to_general_settings_table  6.09ms DONE
+  2026_04_07_040229_create_cache_table ... 6.57ms DONE
+  2026_04_07_145424_add_superseded_status_and_subscription_index_to_tenant_billing_payments  5.06ms DONE
+  2026_04_08_100000_add_show_customizer_button_to_general_settings_table  3.62ms DONE
+  2026_04_18_100000_create_custom_domains_table  13.97ms DONE
+  2026_04_18_200000_add_show_site_name_to_general_settings_table  7.23ms DONE
+  2026_04_18_210000_add_dashboard_footer_text_to_general_settings_table  5.81ms DONE
+  2026_04_18_220000_create_system_logs_table  29.77ms DONE
+  2026_06_02_100000_add_tenant_defaults_to_general_settings_table  41.84ms DONE
+  2026_06_02_110000_add_reserved_subdomains_to_general_settings_table  3.78ms DONE
+  2026_06_02_120000_add_subscription_reminder_settings_to_general_settings_table  20.00ms DONE
+  2026_06_02_120100_create_subscription_reminders_table  11.28ms DONE
+  2026_06_02_130000_add_central_sms_settings_to_general_settings_table  13.37ms DONE
+  2026_06_02_130000_add_demo_data_enabled_to_general_settings_table  4.20ms DONE
+  2026_06_03_100000_create_support_tickets_table  20.48ms DONE
+  2026_06_03_100100_create_support_ticket_messages_table  5.72ms DONE
+  2026_06_03_100200_create_support_ticket_attachments_table  10.65ms DONE
+  2026_06_03_500000_add_whatsapp_to_general_settings_table  14.99ms DONE
+  2026_06_16_100000_add_landing_font_to_general_settings_table  10.38ms DONE
+  2026_06_16_110000_add_custom_landing_font_to_general_settings_table  8.78ms DONE
+  2026_06_16_120000_create_landing_terms_conditions_table  3.97ms DONE
+
+
+   INFO  Seeding database.  
+
+  Database\Seeders\ClientSeeder .............. RUNNING  
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[HY000]: General error: 1 no such table: clients (Connection: sqlite, SQL: insert into "clients" ("id", "name", "code", "email", "country", "city", "phone", "adresse", "tax_number", "is_royalty_eligible", "points") values (1, walk-in-customer, 1, walk-in-customer@example.com, bangladesh, dhaka, 123456780, N45 , Dhaka, ?, 1, 0))
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:824
+    820▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    821▕                 );
+    822▕             }
+    823▕ 
+  ➜ 824▕             throw new QueryException(
+    825▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    826▕             );
+    827▕         }
+    828▕     }
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:564
+      PDOException::("SQLSTATE[HY000]: General error: 1 no such table: clients")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:564
+      PDO::prepare()
+

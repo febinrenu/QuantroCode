@@ -49,8 +49,8 @@ return new class extends Migration
             $table->timestamps(6);
 
             $table->unique('serial_number', 'ps_serial_number_uq');
-            $table->index(['product_id', 'warehouse_id', 'status'], 'ps_product_warehouse_status_idx');
-            $table->index(['product_id', 'product_variant_id', 'warehouse_id', 'status'], 'ps_pvws_idx');
+            $table->index(['product_id', 'warehouse_id', 'status']);
+            $table->index(['product_id', 'product_variant_id', 'warehouse_id', 'status']);
             $table->index('status', 'ps_status_idx');
             $table->index('purchase_id', 'ps_purchase_idx');
             $table->index('sale_id', 'ps_sale_idx');

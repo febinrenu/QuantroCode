@@ -16,7 +16,7 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('employee_id')->index('employee_accounts_employee_id');
+            $table->integer('employee_id')->index();
             $table->string('bank_name', 192);
             $table->string('bank_branch', 192);
             $table->string('account_no', 192);

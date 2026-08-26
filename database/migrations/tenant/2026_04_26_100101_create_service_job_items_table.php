@@ -28,9 +28,9 @@ return new class extends Migration
             $table->timestamps();
             $table->timestamp('deleted_at')->nullable();
 
-            $table->index('service_job_id');
-            $table->index('product_id');
-            $table->index('type');
+            $table->index();
+            $table->index();
+            $table->index();
         });
     }
 

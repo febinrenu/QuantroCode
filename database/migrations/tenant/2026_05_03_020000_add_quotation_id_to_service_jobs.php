@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::table('service_jobs', function (Blueprint $table) {
             if (! Schema::hasColumn('service_jobs', 'quotation_id')) {
                 $table->unsignedBigInteger('quotation_id')->nullable()->after('parent_job_id');
-                $table->index('quotation_id');
+                $table->index();
             }
         });
     }

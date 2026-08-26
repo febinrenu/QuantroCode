@@ -17,8 +17,8 @@ return new class extends Migration
 
             $table->integer('id', true);
             $table->string('Ref', 192)->nullable();
-            $table->integer('customer_id')->index('bookings_customer_id');
-            $table->integer('product_id')->nullable()->index('bookings_product_id');
+            $table->integer('customer_id')->index();
+            $table->integer('product_id')->nullable()->index();
             $table->decimal('price', 10)->nullable();
             $table->date('booking_date');
             $table->time('booking_time');

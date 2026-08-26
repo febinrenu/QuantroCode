@@ -16,8 +16,8 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('product_id')->index('combined_products_product_id');
-            $table->integer('combined_product_id')->index('combined_products_combined_product_id');
+            $table->integer('product_id')->index();
+            $table->integer('combined_product_id')->index();
             $table->float('quantity');
             $table->timestamps(6);
         });

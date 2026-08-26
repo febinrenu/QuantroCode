@@ -2387,10 +2387,10 @@ export default {
      Add Product page; both use the .product-create-page namespace).
      ----------------------------------------------------------- */
   .product-create-page {
-    --pc-primary: #6366f1;
-    --pc-primary-strong: #4f46e5;
-    --pc-primary-soft: #eef2ff;
-    --pc-accent: #8b5cf6;
+    --pc-primary: var(--primary-color, #2563EB);
+    --pc-primary-strong: var(--primary-color-darker, #1D53D0);
+    --pc-primary-soft: var(--primary-color-soft, #eef2ff);
+    --pc-accent: #06B6D4;
     --pc-success: #10b981;
     --pc-warn: #f59e0b;
     --pc-danger: #ef4444;
@@ -3636,10 +3636,10 @@ export default {
      that hard-code hex values instead of using the vars.
      ----------------------------------------------------------- */
   .dark-theme .product-create-page {
-    --pc-primary:        #818cf8;
-    --pc-primary-strong: #a78bfa;
-    --pc-primary-soft:   rgba(129, 140, 248, 0.16);
-    --pc-accent:         #c4b5fd;
+    --pc-primary:        #60A5FA;
+    --pc-primary-strong: #93C5FD;
+    --pc-primary-soft:   rgba(96, 165, 250, 0.16);
+    --pc-accent:         #22D3EE;
     --pc-success:        #34d399;
     --pc-warn:           #fbbf24;
     --pc-danger:         #f87171;

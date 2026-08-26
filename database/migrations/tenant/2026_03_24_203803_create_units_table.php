@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('id', true);
             $table->string('name', 192);
             $table->string('ShortName', 192);
-            $table->integer('base_unit')->nullable()->index('base_unit');
+            $table->integer('base_unit')->nullable()->index();
             $table->char('operator', 192)->nullable()->default('*');
             $table->float('operator_value')->nullable()->default(1);
             $table->timestamps(6);

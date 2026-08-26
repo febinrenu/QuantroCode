@@ -16,8 +16,8 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('from_account_id')->index('from_account_id');
-            $table->integer('to_account_id')->index('to_account_id');
+            $table->integer('from_account_id')->index();
+            $table->integer('to_account_id')->index();
             $table->date('date');
             $table->decimal('amount', 15);
             $table->timestamps(6);

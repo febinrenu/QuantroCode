@@ -16,14 +16,14 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('warehouse_id')->index('warehouse_locations_warehouse_id');
+            $table->integer('warehouse_id')->index();
             $table->string('code', 64);
             $table->string('name', 192)->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps(6);
             $table->softDeletes();
 
-            $table->unique(['warehouse_id', 'code'], 'warehouse_locations_wh_code_unique');
+            $table->unique(['warehouse_id', 'code']);
         });
     }
 

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('Ref', 192)->unique();
             $table->decimal('amount', 14, 4)->default(0);
             $table->date('paid_at');
-            $table->integer('payment_method_id')->nullable()->index('commission_receipts_payment_method_id_foreign');
+            $table->integer('payment_method_id')->nullable()->index();
             $table->text('notes')->nullable();
             $table->timestamps();
             $table->softDeletes();

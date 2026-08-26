@@ -15,8 +15,8 @@ return new class extends Migration
             $table->collation = 'utf8mb4_unicode_ci';
             $table->charset = 'utf8mb4';
 
-            $table->integer('employee_id')->index('employee_task_employee_id');
-            $table->integer('task_id')->index('employee_task_task_id');
+            $table->integer('employee_id')->index();
+            $table->integer('task_id')->index();
         });
     }
 

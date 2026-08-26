@@ -16,7 +16,7 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('company_id')->index('office_shift_company_id');
+            $table->integer('company_id')->index();
             $table->string('name');
             $table->string('monday_in')->nullable();
             $table->string('monday_out')->nullable();

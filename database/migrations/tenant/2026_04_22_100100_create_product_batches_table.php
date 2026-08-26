@@ -39,15 +39,12 @@ class CreateProductBatchesTable extends Migration
             $table->timestamps(6);
             $table->softDeletes();
 
-            $table->index(['product_id', 'warehouse_id'], 'pb_product_warehouse_idx');
-            $table->index(['product_id', 'expiry_date'], 'pb_product_expiry_idx');
-            $table->index(['warehouse_id', 'expiry_date'], 'pb_warehouse_expiry_idx');
+            $table->index(['product_id', 'warehouse_id']);
+            $table->index(['product_id', 'expiry_date']);
+            $table->index(['warehouse_id', 'expiry_date']);
             $table->index('status', 'pb_status_idx');
             $table->index('batch_no', 'pb_batch_no_idx');
-            $table->unique(
-                ['product_id', 'product_variant_id', 'warehouse_id', 'batch_no'],
-                'pb_product_variant_warehouse_batch_uq'
-            );
+            $table->unique(['product_id', 'product_variant_id', 'warehouse_id', 'batch_no']);
         });
     }
 

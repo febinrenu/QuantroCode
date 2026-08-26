@@ -16,14 +16,14 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('user_id')->index('factures_sale_return_user_id');
+            $table->integer('user_id')->index();
             $table->date('date');
             $table->string('Ref', 192);
-            $table->integer('sale_return_id')->index('factures_sale_return');
-            $table->integer('account_id')->nullable()->index('payment_sale_returns_account_id');
+            $table->integer('sale_return_id')->index();
+            $table->integer('account_id')->nullable()->index();
             $table->decimal('montant', 15);
             $table->decimal('change', 15)->default(0);
-            $table->integer('payment_method_id')->nullable()->index('payment_sale_returns_payment_method_id_foreign');
+            $table->integer('payment_method_id')->nullable()->index();
             $table->text('notes')->nullable();
             $table->timestamps(6);
             $table->softDeletes();

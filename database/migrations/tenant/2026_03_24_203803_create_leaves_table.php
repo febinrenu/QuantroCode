@@ -16,10 +16,10 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('employee_id')->index('leave_employee_id');
-            $table->integer('company_id')->index('leave_company_id');
-            $table->integer('department_id')->index('leave_department_id');
-            $table->integer('leave_type_id')->index('leave_leave_type_id');
+            $table->integer('employee_id')->index();
+            $table->integer('company_id')->index();
+            $table->integer('department_id')->index();
+            $table->integer('leave_type_id')->index();
             $table->date('start_date');
             $table->date('end_date');
             $table->string('days', 192);

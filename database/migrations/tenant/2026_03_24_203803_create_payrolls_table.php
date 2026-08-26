@@ -16,13 +16,13 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('user_id')->index('payrolls_user_id');
+            $table->integer('user_id')->index();
             $table->string('Ref', 192);
             $table->date('date');
-            $table->integer('employee_id')->index('payrolls_employee_id');
-            $table->integer('account_id')->nullable()->index('payrolls_account_id');
+            $table->integer('employee_id')->index();
+            $table->integer('account_id')->nullable()->index();
             $table->float('amount');
-            $table->integer('payment_method_id')->nullable()->index('payrolls_payment_method_id_foreign');
+            $table->integer('payment_method_id')->nullable()->index();
             $table->string('payment_status', 192);
             $table->timestamps(6);
             $table->softDeletes();

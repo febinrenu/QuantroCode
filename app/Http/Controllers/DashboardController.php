@@ -15,22 +15,44 @@ use App\Models\Role;
 use App\Models\Sale;
 use App\Models\SaleDetail;
 use App\Models\SaleReturn;
+use App\Models\User;
 use App\Models\UserWarehouse;
 use App\Models\Warehouse;
 use App\Traits\CalculatesCogsAndAverageCost;
 use Carbon\Carbon;
-use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     use CalculatesCogsAndAverageCost;
+
+    private function excludeDemoReference($query, $column = 'Ref')
+    {
+        return $query->where(function ($q) use ($column) {
+            $q->whereNull($column)
+              ->orWhere($column, 'not like', '%DEMO%');
+        });
+    }
+
+    private function excludeDemoProduct($query, $codeColumn = 'products.code', $nameColumn = 'products.name')
+    {
+        return $query->where(function ($q) use ($codeColumn) {
+            $q->whereNull($codeColumn)
+              ->orWhere($codeColumn, 'not like', '%DEMO%');
+        })->where(function ($q) use ($nameColumn) {
+            $q->whereNull($nameColumn)
+              ->orWhere($nameColumn, 'not like', '%DEMO%');
+        });
+    }
+
     // ----------------- dashboard_data -----------------------\\
 
     public function dashboard_data(Request $request)
     {
-        $user_auth = auth()->user();
+        /** @var User $user_auth */
+        $user_auth = Auth::user();
         if ($user_auth->is_all_warehouses) {
             $array_warehouses_id = Warehouse::where('deleted_at', '=', null)->pluck('id')->toArray();
             $warehouses = Warehouse::where('deleted_at', '=', null)->get(['id', 'name']);
@@ -51,8 +73,8 @@ class DashboardController extends Controller
 
         // Payment Sent & Received chart: also use header date range + warehouse filter
         $Payment_chart = $this->Payment_chart($warehouse_id, $array_warehouses_id, $request->from, $request->to);
-        $TopCustomers = $this->TopCustomers($warehouse_id, $array_warehouses_id);
-        $Top_Products_Year = $this->Top_Products_Year($warehouse_id, $array_warehouses_id);
+        $TopCustomers = $this->TopCustomers($warehouse_id, $array_warehouses_id, $request->from, $request->to);
+        $Top_Products_Year = $this->Top_Products_Year($warehouse_id, $array_warehouses_id, $request->from, $request->to);
         
         // Stat cards and Sales by Payment: Use date range + warehouse filter
         $report_dashboard = $this->report_dashboard($request, $warehouse_id, $array_warehouses_id);
@@ -60,6 +82,7 @@ class DashboardController extends Controller
         
         // Stock Value: Only warehouse filter (no date range)
         $stock_value = $this->StockValue($warehouse_id, $array_warehouses_id);
+        $stock_summary = $this->StockSummary($warehouse_id, $array_warehouses_id);
 
         return response()->json([
             'warehouses' => $warehouses,
@@ -71,6 +94,7 @@ class DashboardController extends Controller
             'report_dashboard' => $report_dashboard,
             'sales_by_payment' => $sales_by_payment,
             'stock_value' => $stock_value,
+            'stock_summary' => $stock_summary,
         ]);
 
     }
@@ -79,6 +103,7 @@ class DashboardController extends Controller
 
     public function SalesChart($warehouse_id, $array_warehouses_id, $from = null, $to = null)
     {
+        /** @var User $user */
         $user = Auth::user();
         // New way: Check user's record_view field (user-level boolean)
         // Backward compatibility: If record_view is null, fall back to role permission check
@@ -112,9 +137,12 @@ class DashboardController extends Controller
         // Get the sales counts within the same window used for the dashboard filter
         $sales = Sale::whereBetween('date', [$start->toDateString(), $end->toDateString()])
             ->where('deleted_at', '=', null)
+            ->where(function ($query) {
+                $this->excludeDemoReference($query);
+            })
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
@@ -124,12 +152,10 @@ class DashboardController extends Controller
                     return $query->whereIn('warehouse_id', $array_warehouses_id);
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->selectRaw("DATE_FORMAT(date,'%Y-%m-%d') as date, SUM(GrandTotal) AS count")
+            ->groupByRaw("DATE_FORMAT(date,'%Y-%m-%d')")
             ->orderBy('date', 'asc')
-            ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
-                DB::raw('SUM(GrandTotal) AS count'),
-            ])
+            ->get()
             ->pluck('count', 'date');
 
         // Merge the two collections;
@@ -151,6 +177,7 @@ class DashboardController extends Controller
     public function PurchasesChart($warehouse_id, $array_warehouses_id, $from = null, $to = null)
     {
 
+        /** @var User $user */
         $user = Auth::user();
         // New way: Check user's record_view field (user-level boolean)
         // Backward compatibility: If record_view is null, fall back to role permission check
@@ -184,9 +211,12 @@ class DashboardController extends Controller
         // Get the purchases counts within the same window used for the dashboard filter
         $purchases = Purchase::whereBetween('date', [$start->toDateString(), $end->toDateString()])
             ->where('deleted_at', '=', null)
+            ->where(function ($query) {
+                $this->excludeDemoReference($query);
+            })
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
@@ -196,12 +226,10 @@ class DashboardController extends Controller
                     return $query->whereIn('warehouse_id', $array_warehouses_id);
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->selectRaw("DATE_FORMAT(date,'%Y-%m-%d') as date, SUM(GrandTotal) AS count")
+            ->groupByRaw("DATE_FORMAT(date,'%Y-%m-%d')")
             ->orderBy('date', 'asc')
-            ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
-                DB::raw('SUM(GrandTotal) AS count'),
-            ])
+            ->get()
             ->pluck('count', 'date');
 
         // Merge the two collections;
@@ -220,8 +248,9 @@ class DashboardController extends Controller
 
     // -------------------- Get Top 5 Customers -------------\\
 
-    public function TopCustomers($warehouse_id, $array_warehouses_id)
+    public function TopCustomers($warehouse_id, $array_warehouses_id, $from = null, $to = null)
     {
+        /** @var User $user */
         $user = Auth::user();
         // New way: Check user's record_view field (user-level boolean)
         // Backward compatibility: If record_view is null, fall back to role permission check
@@ -234,13 +263,22 @@ class DashboardController extends Controller
                 ->toArray();
         }
 
-        $data = Sale::whereBetween('date', [
-            Carbon::now()->startOfMonth(),
-            Carbon::now()->endOfMonth(),
-        ])->where('sales.deleted_at', '=', null)
+        if (! empty($from) && ! empty($to)) {
+            $start = Carbon::parse($from)->startOfDay();
+            $end = Carbon::parse($to)->endOfDay();
+        } else {
+            $start = Carbon::now()->startOfMonth();
+            $end = Carbon::now()->endOfMonth();
+        }
+
+        $data = Sale::whereBetween('date', [$start->toDateString(), $end->toDateString()])
+            ->where('sales.deleted_at', '=', null)
+            ->where(function ($query) {
+                $this->excludeDemoReference($query, 'sales.Ref');
+            })
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('sales.user_id', '=', Auth::user()->id);
+                    return $query->where('sales.user_id', '=', Auth::id());
                 }
             })
 
@@ -253,9 +291,13 @@ class DashboardController extends Controller
             })
 
             ->join('clients', 'sales.client_id', '=', 'clients.id')
-            ->select(DB::raw('clients.name'), DB::raw('count(*) as value'))
+            ->select(
+                DB::raw('clients.name'),
+                DB::raw('count(*) as orders'),
+                DB::raw('COALESCE(SUM(sales.GrandTotal),0) as amount')
+            )
             ->groupBy('clients.name')
-            ->orderBy('value', 'desc')
+            ->orderBy('amount', 'desc')
             ->take(5)
             ->get();
 
@@ -264,9 +306,10 @@ class DashboardController extends Controller
 
     // -------------------- Get Top 5 Products This YEAR -------------\\
 
-    public function Top_Products_Year($warehouse_id, $array_warehouses_id)
+    public function Top_Products_Year($warehouse_id, $array_warehouses_id, $from = null, $to = null)
     {
 
+        /** @var User $user */
         $user = Auth::user();
         // New way: Check user's record_view field (user-level boolean)
         // Backward compatibility: If record_view is null, fall back to role permission check
@@ -279,15 +322,26 @@ class DashboardController extends Controller
                 ->toArray();
         }
 
+        if (! empty($from) && ! empty($to)) {
+            $start = Carbon::parse($from)->startOfDay();
+            $end = Carbon::parse($to)->endOfDay();
+        } else {
+            $start = Carbon::now()->startOfYear();
+            $end = Carbon::now()->endOfYear();
+        }
+
         $products = SaleDetail::join('sales', 'sale_details.sale_id', '=', 'sales.id')
             ->join('products', 'sale_details.product_id', '=', 'products.id')
-            ->whereBetween('sale_details.date', [
-                Carbon::now()->startOfYear(),
-                Carbon::now()->endOfYear(),
-            ])
+            ->whereBetween('sale_details.date', [$start->toDateString(), $end->toDateString()])
+            ->where(function ($query) {
+                $this->excludeDemoReference($query, 'sales.Ref');
+            })
+            ->where(function ($query) {
+                $this->excludeDemoProduct($query);
+            })
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('sales.user_id', '=', Auth::user()->id);
+                    return $query->where('sales.user_id', '=', Auth::id());
                 }
             })
 
@@ -312,25 +366,32 @@ class DashboardController extends Controller
 
     // -------------------- General Report dashboard -------------\\
 
-    public function report_dashboard($request, $warehouse_id, $array_warehouses_id)
+    public function report_dashboard(Request $request, $warehouse_id, $array_warehouses_id)
     {
 
+        /** @var User $user */
         $user = Auth::user();
         // New way: Check user's record_view field (user-level boolean)
         // Backward compatibility: If record_view is null, fall back to role permission check
         $view_records = $user->hasRecordView();
         
 
-        // top selling product this month
+        $start = ! empty($request->from) ? Carbon::parse($request->from)->startOfDay() : Carbon::now()->startOfMonth();
+        $end = ! empty($request->to) ? Carbon::parse($request->to)->endOfDay() : Carbon::now()->endOfMonth();
+
+        // top selling product in the selected dashboard date range
         $products = SaleDetail::join('sales', 'sale_details.sale_id', '=', 'sales.id')
             ->join('products', 'sale_details.product_id', '=', 'products.id')
-            ->whereBetween('sale_details.date', [
-                Carbon::now()->startOfMonth(),
-                Carbon::now()->endOfMonth(),
-            ])
+            ->whereBetween('sale_details.date', [$start->toDateString(), $end->toDateString()])
+            ->where(function ($query) {
+                $this->excludeDemoReference($query, 'sales.Ref');
+            })
+            ->where(function ($query) {
+                $this->excludeDemoProduct($query);
+            })
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('sales.user_id', '=', Auth::user()->id);
+                    return $query->where('sales.user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
@@ -356,6 +417,9 @@ class DashboardController extends Controller
             ->where('manage_stock', true)
             ->whereRaw('qte <= stock_alert')
             ->where('product_warehouse.deleted_at', null)
+            ->where(function ($query) {
+                $this->excludeDemoProduct($query);
+            })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
                 if ($warehouse_id !== 0) {
                     return $query->where('product_warehouse.warehouse_id', $warehouse_id);
@@ -389,9 +453,12 @@ class DashboardController extends Controller
 
         $salesBase = Sale::where('deleted_at', '=', null)
             ->whereBetween('date', [$request->from, $request->to])
+            ->where(function ($query) {
+                $this->excludeDemoReference($query);
+            })
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
@@ -428,9 +495,12 @@ class DashboardController extends Controller
 
         $return_sales_total = SaleReturn::where('deleted_at', '=', null)
             ->whereBetween('date', [$request->from, $request->to])
+            ->where(function ($query) {
+                $this->excludeDemoReference($query);
+            })
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
@@ -449,9 +519,12 @@ class DashboardController extends Controller
 
         $purchasesBase = Purchase::where('deleted_at', '=', null)
             ->whereBetween('date', [$request->from, $request->to])
+            ->where(function ($query) {
+                $this->excludeDemoReference($query);
+            })
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
@@ -481,9 +554,12 @@ class DashboardController extends Controller
 
         $return_purchases_total = PurchaseReturn::where('deleted_at', '=', null)
             ->whereBetween('date', [$request->from, $request->to])
+            ->where(function ($query) {
+                $this->excludeDemoReference($query);
+            })
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
@@ -501,9 +577,12 @@ class DashboardController extends Controller
 
         $data['today_invoices'] = Sale::where('deleted_at', '=', null)
             ->whereBetween('date', [$request->from, $request->to])
+            ->where(function ($query) {
+                $this->excludeDemoReference($query);
+            })
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
@@ -523,7 +602,7 @@ class DashboardController extends Controller
             ->whereBetween('date', [$request->from, $request->to])
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
@@ -547,9 +626,12 @@ class DashboardController extends Controller
 
         // last sales
         $Sales = Sale::with('details', 'client', 'facture', 'warehouse')->where('deleted_at', '=', null)
+            ->where(function ($query) {
+                $this->excludeDemoReference($query);
+            })
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
@@ -591,6 +673,7 @@ class DashboardController extends Controller
     public function Payment_chart($warehouse_id, $array_warehouses_id, $from = null, $to = null)
     {
 
+        /** @var User $user */
         $user = Auth::user();
         // New way: Check user's record_view field (user-level boolean)
         // Backward compatibility: If record_view is null, fall back to role permission check
@@ -619,114 +702,114 @@ class DashboardController extends Controller
             ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
                 if ($warehouse_id !== 0) {
                     return $query->whereHas('sale', function ($q) use ($warehouse_id) {
                         $q->where('warehouse_id', $warehouse_id);
+                        $this->excludeDemoReference($q);
                     });
                 } else {
                     return $query->whereHas('sale', function ($q) use ($array_warehouses_id) {
                         $q->whereIn('warehouse_id', $array_warehouses_id);
+                        $this->excludeDemoReference($q);
                     });
 
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->selectRaw("DATE_FORMAT(date,'%Y-%m-%d') as date, SUM(montant) AS count")
+            ->groupByRaw("DATE_FORMAT(date,'%Y-%m-%d')")
             ->orderBy('date', 'asc')
-            ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
-                DB::raw('SUM(montant) AS count'),
-            ])
+            ->get()
             ->pluck('count', 'date');
 
         $Payment_Sale_Returns = PaymentSaleReturns::with('SaleReturn')
             ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
                 if ($warehouse_id !== 0) {
                     return $query->whereHas('SaleReturn', function ($q) use ($warehouse_id) {
                         $q->where('warehouse_id', $warehouse_id);
+                        $this->excludeDemoReference($q);
                     });
                 } else {
                     return $query->whereHas('SaleReturn', function ($q) use ($array_warehouses_id) {
                         $q->whereIn('warehouse_id', $array_warehouses_id);
+                        $this->excludeDemoReference($q);
                     });
 
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->selectRaw("DATE_FORMAT(date,'%Y-%m-%d') as date, SUM(montant) AS count")
+            ->groupByRaw("DATE_FORMAT(date,'%Y-%m-%d')")
             ->orderBy('date', 'asc')
-            ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
-                DB::raw('SUM(montant) AS count'),
-            ])
+            ->get()
             ->pluck('count', 'date');
 
         $Payment_Purchases = PaymentPurchase::with('purchase')
             ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
                 if ($warehouse_id !== 0) {
                     return $query->whereHas('purchase', function ($q) use ($warehouse_id) {
                         $q->where('warehouse_id', $warehouse_id);
+                        $this->excludeDemoReference($q);
                     });
                 } else {
                     return $query->whereHas('purchase', function ($q) use ($array_warehouses_id) {
                         $q->whereIn('warehouse_id', $array_warehouses_id);
+                        $this->excludeDemoReference($q);
                     });
 
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->selectRaw("DATE_FORMAT(date,'%Y-%m-%d') as date, SUM(montant) AS count")
+            ->groupByRaw("DATE_FORMAT(date,'%Y-%m-%d')")
             ->orderBy('date', 'asc')
-            ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
-                DB::raw('SUM(montant) AS count'),
-            ])
+            ->get()
             ->pluck('count', 'date');
 
         $Payment_Purchase_Returns = PaymentPurchaseReturns::with('PurchaseReturn')
             ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
                 if ($warehouse_id !== 0) {
                     return $query->whereHas('PurchaseReturn', function ($q) use ($warehouse_id) {
                         $q->where('warehouse_id', $warehouse_id);
+                        $this->excludeDemoReference($q);
                     });
                 } else {
                     return $query->whereHas('PurchaseReturn', function ($q) use ($array_warehouses_id) {
                         $q->whereIn('warehouse_id', $array_warehouses_id);
+                        $this->excludeDemoReference($q);
                     });
 
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->selectRaw("DATE_FORMAT(date,'%Y-%m-%d') as date, SUM(montant) AS count")
+            ->groupByRaw("DATE_FORMAT(date,'%Y-%m-%d')")
             ->orderBy('date', 'asc')
-            ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
-                DB::raw('SUM(montant) AS count'),
-            ])
+            ->get()
             ->pluck('count', 'date');
 
         $Payment_Expense = Expense::whereBetween('date', [$start->toDateString(), $end->toDateString()])
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
@@ -736,12 +819,10 @@ class DashboardController extends Controller
                     return $query->whereIn('warehouse_id', $array_warehouses_id);
                 }
             })
-            ->groupBy(DB::raw("DATE_FORMAT(date,'%Y-%m-%d')"))
+            ->selectRaw("DATE_FORMAT(date,'%Y-%m-%d') as date, SUM(amount) AS count")
+            ->groupByRaw("DATE_FORMAT(date,'%Y-%m-%d')")
             ->orderBy('date', 'asc')
-            ->get([
-                DB::raw(DB::raw("DATE_FORMAT(date,'%Y-%m-%d') as date")),
-                DB::raw('SUM(amount) AS count'),
-            ])
+            ->get()
             ->pluck('count', 'date');
 
         $paymen_recieved = $this->array_merge_numeric_values($Payment_Sale, $Payment_Purchase_Returns);
@@ -798,6 +879,7 @@ class DashboardController extends Controller
     // for the selected date range + warehouse filter.
     public function SalesByPayment($warehouse_id, $array_warehouses_id, $from = null, $to = null)
     {
+        /** @var User $user */
         $user = Auth::user();
         $view_records = $user->hasRecordView();
 
@@ -829,7 +911,7 @@ class DashboardController extends Controller
             ->whereBetween('date', [$start->toDateString(), $end->toDateString()])
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             })
             ->where(function ($query) use ($warehouse_id, $array_warehouses_id) {
@@ -837,11 +919,13 @@ class DashboardController extends Controller
                     return $query->whereHas('sale', function ($q) use ($warehouse_id) {
                         $q->where('warehouse_id', $warehouse_id)
                           ->where('deleted_at', '=', null);
+                        $this->excludeDemoReference($q);
                     });
                 } else {
                     return $query->whereHas('sale', function ($q) use ($array_warehouses_id) {
                         $q->whereIn('warehouse_id', $array_warehouses_id)
                           ->where('deleted_at', '=', null);
+                        $this->excludeDemoReference($q);
                     });
                 }
             })
@@ -875,6 +959,9 @@ class DashboardController extends Controller
 
         foreach ($result as $entry) {
             $amount = (float) $entry['amount'];
+            if ($amount <= 0) {
+                continue;
+            }
             $percentage = $total > 0 ? round(($amount / $total) * 100, 0) : 0;
             $color = $colorPalette[$index % count($colorPalette)];
 
@@ -895,6 +982,7 @@ class DashboardController extends Controller
 
     public function StockValue($warehouse_id, $array_warehouses_id)
     {
+        /** @var User $user */
         $user = Auth::user();
         $view_records = $user->hasRecordView();
 
@@ -916,6 +1004,9 @@ class DashboardController extends Controller
             ->where('product_warehouse.deleted_at', '=', null)
             ->where('products.deleted_at', '=', null)
             ->where('product_warehouse.qte', '>', 0)
+            ->where(function ($query) {
+                $this->excludeDemoProduct($query);
+            })
             ->where(function ($query) use ($warehouseFilter) {
                 $warehouseFilter($query);
             })
@@ -937,6 +1028,9 @@ class DashboardController extends Controller
             ->where('product_warehouse.deleted_at', '=', null)
             ->where('products.deleted_at', '=', null)
             ->where('product_warehouse.qte', '>', 0)
+            ->where(function ($query) {
+                $this->excludeDemoProduct($query);
+            })
             ->where(function ($query) use ($warehouseFilter) {
                 $warehouseFilter($query);
             })
@@ -958,6 +1052,9 @@ class DashboardController extends Controller
             ->where('product_warehouse.deleted_at', '=', null)
             ->where('products.deleted_at', '=', null)
             ->where('product_warehouse.qte', '>', 0)
+            ->where(function ($query) {
+                $this->excludeDemoProduct($query);
+            })
             ->where(function ($query) use ($warehouseFilter) {
                 $warehouseFilter($query);
             })
@@ -977,12 +1074,53 @@ class DashboardController extends Controller
         ];
     }
 
+    public function StockSummary($warehouse_id, $array_warehouses_id)
+    {
+        $warehouseFilter = function ($query) use ($warehouse_id, $array_warehouses_id) {
+            if ($warehouse_id !== 0) {
+                return $query->where('product_warehouse.warehouse_id', $warehouse_id);
+            }
+
+            return $query->whereIn('product_warehouse.warehouse_id', $array_warehouses_id);
+        };
+
+        $skuCount = product_warehouse::join('products', 'product_warehouse.product_id', '=', 'products.id')
+            ->where('product_warehouse.deleted_at', '=', null)
+            ->where('products.deleted_at', '=', null)
+            ->where(function ($query) {
+                $this->excludeDemoProduct($query);
+            })
+            ->where(function ($query) use ($warehouseFilter) {
+                $warehouseFilter($query);
+            })
+            ->distinct()
+            ->count(DB::raw("CONCAT(product_warehouse.product_id, '-', COALESCE(product_warehouse.product_variant_id, 0))"));
+
+        $warehouseCount = product_warehouse::join('products', 'product_warehouse.product_id', '=', 'products.id')
+            ->where('product_warehouse.deleted_at', '=', null)
+            ->where('products.deleted_at', '=', null)
+            ->where(function ($query) {
+                $this->excludeDemoProduct($query);
+            })
+            ->where(function ($query) use ($warehouseFilter) {
+                $warehouseFilter($query);
+            })
+            ->distinct('product_warehouse.warehouse_id')
+            ->count('product_warehouse.warehouse_id');
+
+        return [
+            'sku_count' => (int) $skuCount,
+            'warehouse_count' => (int) $warehouseCount,
+        ];
+    }
+
     /**
      * Real-time sales counter: today's count, total, last sale, hourly breakdown,
      * recent sales, top products, payment-status split and yesterday's total for trend.
      */
     public function real_time_sales_counter_data(Request $request)
     {
+        /** @var User $user */
         $user = Auth::user();
         $role = $user->roles()->first();
         if (!$role || !$role->inRole('real_time_sales_counter')) {
@@ -1007,6 +1145,9 @@ class DashboardController extends Controller
 
         $applyScope = function ($query) use ($view_records, $warehouse_id, $array_warehouses_id) {
             $query->where('sales.deleted_at', null)
+                ->where(function ($q) {
+                    $this->excludeDemoReference($q, 'sales.Ref');
+                })
                 ->where(function ($q) use ($view_records) {
                     if (!$view_records) {
                         $q->where('sales.user_id', Auth::id());
@@ -1113,6 +1254,9 @@ class DashboardController extends Controller
         if ($todaySaleIds->isNotEmpty()) {
             $topProducts = SaleDetail::leftJoin('products', 'sale_details.product_id', '=', 'products.id')
                 ->whereIn('sale_details.sale_id', $todaySaleIds)
+                ->where(function ($query) {
+                    $this->excludeDemoProduct($query);
+                })
                 ->select(
                     'products.id as product_id',
                     'products.name as product_name',
@@ -1190,4 +1334,3 @@ class DashboardController extends Controller
         ]);
     }
 }
-

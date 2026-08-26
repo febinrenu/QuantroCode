@@ -17,10 +17,10 @@
           <div class="card-body">
             <div class="layout-options">
               <label class="layout-option" :class="{ active: getSidebarLayout === 'horizontal' }">
-                <input 
-                  type="radio" 
-                  name="sidebar-layout" 
-                  value="horizontal" 
+                <input
+                  type="radio"
+                  name="sidebar-layout"
+                  value="horizontal"
                   @change="changeSidebarLayout('horizontal')"
                   :checked="getSidebarLayout === 'horizontal'"
                 />

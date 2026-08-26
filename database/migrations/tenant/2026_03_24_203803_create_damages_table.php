@@ -16,10 +16,10 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('user_id')->index('user_id_damage');
+            $table->integer('user_id')->index();
             $table->date('date');
             $table->string('Ref', 192);
-            $table->integer('warehouse_id')->index('warehouse_id_damage');
+            $table->integer('warehouse_id')->index();
             $table->decimal('items', 15)->nullable()->default(0);
             $table->text('notes')->nullable();
             $table->time('time')->nullable();

@@ -16,8 +16,8 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('collection_id')->index('collection_product_collection_id_foreign');
-            $table->integer('product_id')->index('product_id');
+            $table->unsignedBigInteger('collection_id')->index();
+            $table->integer('product_id')->index();
             $table->integer('sort_order')->default(0);
             $table->boolean('pinned')->default(false);
             $table->timestamps();

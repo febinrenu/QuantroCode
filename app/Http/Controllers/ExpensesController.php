@@ -12,27 +12,28 @@ use App\Models\UserWarehouse;
 use App\Models\Warehouse;
 use App\utils\helpers;
 use Carbon\Carbon;
-use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ExpensesController extends BaseController
 {
     // -------------- Show All  Expenses -----------\\
 
-    public function index(request $request)
+    public function index(Request $request)
     {
         $this->authorizeForUser($request->user('api'), 'view', Expense::class);
 
         // How many items do you want to display.
         $perPage = $request->limit;
-        $pageStart = \Request::get('page', 1);
+        $pageStart = $request->get('page', 1);
         // Start displaying items from this number;
         $offSet = ($pageStart * $perPage) - $perPage;
         $order = $request->SortField;
         $dir = strtolower((string) $request->input('SortType')) === 'asc' ? 'asc' : 'desc';
         $helpers = new helpers;
+        /** @var User $user */
         $user = Auth::user();
         $is_all_warehouses = $user->is_all_warehouses;
         // If the user is restricted, fetch their assigned warehouse IDs once and reuse below.
@@ -54,12 +55,12 @@ class ExpensesController extends BaseController
             ->where('deleted_at', '=', null)
             ->where(function ($query) use ($view_records) {
                 if (! $view_records) {
-                    return $query->where('user_id', '=', Auth::user()->id);
+                    return $query->where('user_id', '=', Auth::id());
                 }
             });
 
             if (! $is_all_warehouses) {
-                $Sales->whereIn('warehouse_id', $warehouse_ids);
+                $Expenses->whereIn('warehouse_id', $warehouse_ids);
             }
 
         // Multiple Filter
@@ -127,7 +128,8 @@ class ExpensesController extends BaseController
         $payment_methods = PaymentMethod::where('deleted_at', '=', null)->get(['id', 'name']);
 
         // get warehouses assigned to user
-        $user_auth = auth()->user();
+        /** @var User $user_auth */
+        $user_auth = Auth::user();
         if ($user_auth->is_all_warehouses) {
             $warehouses = Warehouse::where('deleted_at', '=', null)->get(['id', 'name']);
         } else {
@@ -152,8 +154,8 @@ class ExpensesController extends BaseController
     {
         $this->authorizeForUser($request->user('api'), 'create', Expense::class);
 
-        \DB::transaction(function () use ($request) {
-            request()->validate([
+        DB::transaction(function () use ($request) {
+            $request->validate([
                 'expense.date' => 'required',
                 'expense.warehouse_id' => 'required',
                 'expense.category_id' => 'required',
@@ -163,7 +165,7 @@ class ExpensesController extends BaseController
             ]);
 
             Expense::create([
-                'user_id' => Auth::user()->id,
+                'user_id' => Auth::id(),
                 'date' => $request['expense']['date'],
                 'Ref' => $this->getNumberOrder(),
                 'payment_method_id' => $request['expense']['payment_method_id'],
@@ -188,9 +190,9 @@ class ExpensesController extends BaseController
     }
 
     // ------------- Get Expense Documents ----------\\
-    public function getDocuments($expenseId)
+    public function getDocuments(Request $request, $expenseId)
     {
-        $this->authorizeForUser(request()->user('api'), 'view', Expense::class);
+        $this->authorizeForUser($request->user('api'), 'view', Expense::class);
 
         $expense = Expense::findOrFail($expenseId);
 
@@ -261,9 +263,9 @@ class ExpensesController extends BaseController
     }
 
     // ------------- Download Expense Document ----------\\
-    public function downloadDocument($documentId)
+    public function downloadDocument(Request $request, $documentId)
     {
-        $this->authorizeForUser(request()->user('api'), 'view', Expense::class);
+        $this->authorizeForUser($request->user('api'), 'view', Expense::class);
 
         $document = DB::table('expense_documents')
             ->where('id', $documentId)
@@ -291,9 +293,9 @@ class ExpensesController extends BaseController
     }
 
     // ------------- Delete Expense Document ----------\\
-    public function deleteDocument($documentId)
+    public function deleteDocument(Request $request, $documentId)
     {
-        $this->authorizeForUser(request()->user('api'), 'delete', Expense::class);
+        $this->authorizeForUser($request->user('api'), 'delete', Expense::class);
 
         $document = DB::table('expense_documents')
             ->where('id', $documentId)
@@ -338,7 +340,8 @@ class ExpensesController extends BaseController
     {
 
         $this->authorizeForUser($request->user('api'), 'update', Expense::class);
-        \DB::transaction(function () use ($request, $id) {
+        DB::transaction(function () use ($request, $id) {
+            /** @var User $user */
             $user = Auth::user();
             // New way: Check user's record_view field (user-level boolean)
             // Backward compatibility: If record_view is null, fall back to role permission check
@@ -351,7 +354,7 @@ class ExpensesController extends BaseController
                 $this->authorizeForUser($request->user('api'), 'check_record', $expense);
             }
 
-            request()->validate([
+            $request->validate([
                 'expense.date' => 'required',
                 'expense.warehouse_id' => 'required',
                 'expense.category_id' => 'required',
@@ -395,6 +398,7 @@ class ExpensesController extends BaseController
     public function destroy(Request $request, $id)
     {
         $this->authorizeForUser($request->user('api'), 'delete', Expense::class);
+        /** @var User $user */
         $user = Auth::user();
         // New way: Check user's record_view field (user-level boolean)
         // Backward compatibility: If record_view is null, fall back to role permission check
@@ -430,6 +434,7 @@ class ExpensesController extends BaseController
     {
         $this->authorizeForUser($request->user('api'), 'delete', Expense::class);
         $selectedIds = $request->selectedIds;
+        /** @var User $user */
         $user = Auth::user();
         // New way: Check user's record_view field (user-level boolean)
         // Backward compatibility: If record_view is null, fall back to role permission check
@@ -489,7 +494,8 @@ class ExpensesController extends BaseController
         $this->authorizeForUser($request->user('api'), 'create', Expense::class);
 
         // get warehouses assigned to user
-        $user_auth = auth()->user();
+        /** @var User $user_auth */
+        $user_auth = Auth::user();
         if ($user_auth->is_all_warehouses) {
             $warehouses = Warehouse::where('deleted_at', '=', null)->get(['id', 'name']);
         } else {
@@ -515,6 +521,7 @@ class ExpensesController extends BaseController
     {
 
         $this->authorizeForUser($request->user('api'), 'update', Expense::class);
+        /** @var User $user */
         $user = Auth::user();
         // New way: Check user's record_view field (user-level boolean)
         // Backward compatibility: If record_view is null, fall back to role permission check
@@ -569,7 +576,8 @@ class ExpensesController extends BaseController
         $data['payment_method_id'] = $Expense->payment_method_id;
 
         // get warehouses assigned to user
-        $user_auth = auth()->user();
+        /** @var User $user_auth */
+        $user_auth = Auth::user();
         if ($user_auth->is_all_warehouses) {
             $warehouses = Warehouse::where('deleted_at', '=', null)->get(['id', 'name']);
         } else {

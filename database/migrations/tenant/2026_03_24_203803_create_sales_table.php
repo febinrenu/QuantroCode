@@ -20,15 +20,15 @@ return new class extends Migration
             $table->unsignedBigInteger('woocommerce_order_id')->nullable();
             $table->string('woocommerce_order_number', 64)->nullable();
             $table->string('woocommerce_order_status', 32)->nullable();
-            $table->integer('user_id')->index('user_id_sales');
+            $table->integer('user_id')->index();
             $table->unsignedInteger('sales_agent_id')->nullable()->index();
             $table->date('date');
             $table->time('time')->nullable();
             $table->string('Ref', 192);
             $table->boolean('is_pos')->nullable()->default(false);
-            $table->integer('client_id')->index('sale_client_id');
-            $table->integer('warehouse_id')->index('warehouse_id_sale');
-            $table->integer('subscription_id')->nullable()->index('subscription_id');
+            $table->integer('client_id')->index();
+            $table->integer('warehouse_id')->index();
+            $table->integer('subscription_id')->nullable()->index();
             $table->decimal('tax_rate', 15)->nullable()->default(0);
             $table->decimal('TaxNet', 15)->nullable()->default(0);
             $table->decimal('discount', 15)->nullable()->default(0);
@@ -50,7 +50,7 @@ return new class extends Migration
             $table->timestamps(6);
             $table->softDeletes();
 
-            $table->unique(['woocommerce_order_id', 'deleted_at'], 'sales_woo_order_id_deleted_at_unique');
+            $table->unique(['woocommerce_order_id', 'deleted_at']);
         });
     }
 

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="pos-codecanyon" style="display: flex; flex-direction: column; height: 100vh; background: #f7f7fb; color: #1f1f2c; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; overflow: hidden;">
 
     <!-- ============================================================
@@ -18,13 +18,7 @@
 
       <!-- Brand block -->
       <div class="pos-shell-brand-block" style="display: flex; align-items: center; gap: 10px; padding-right: 12px; border-right: 1px solid #e6e6ec; height: 32px;">
-        <div style="width: 36px; height: 36px; border-radius: 8px; background: transparent; display: grid; place-items: center; color: #1f1f2c; font-weight: 700; font-size: 13px; font-family: 'JetBrains Mono', monospace; overflow: hidden; flex-shrink: 0;">
-          <img src="/images/super/landing-design/quantro/quantro-q.png" alt="Q" class="pos-shell-brand-logo" />
-        </div>
-        <div class="pos-shell-brand-wordmark">
-          <div class="pos-shell-brand-title">QUANTRO</div>
-          <div class="pos-shell-brand-subtitle">ENTERPRISE POS</div>
-        </div>
+        <img src="/images/super/landing-design/quantro/quantro-h-logo.png?v=quantro-h-logo-0823" alt="Quantro Enterprise POS" class="pos-shell-brand-logo" />
       </div>
 
       <!-- Register status (text + OPEN/CLOSED pill) — sibling so it can wrap on its own row on mobile -->
@@ -157,7 +151,7 @@
       </div>
 
       <!-- Spacer pushes the action cluster to the far right, like the reference. -->
-      <div style="flex: 1;"></div>
+      <div style="flex: 1 1 0; min-width: 0;"></div>
 
       <div class="pos-reference-actions">
         <button
@@ -208,7 +202,7 @@
         </button>
         <div class="pos-reference-language">
           <button type="button" class="active" @click="SetLocal('en')">EN</button>
-          <button type="button" @click="SetLocal('ar')">العربية</button>
+          <button type="button" @click="SetLocal('ar')">&#1575;&#1604;&#1593;&#1585;&#1576;&#1610;&#1577;</button>
         </div>
         <button
           type="button"
@@ -241,7 +235,7 @@
 
         <!-- Mobile-only cart header (visual label, matches mockup) -->
         <div class="pos-shell-mobile-cart-header">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: #6f53d9;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--primary-color, #6f53d9);">
             <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/>
           </svg>
           <span class="pos-shell-mobile-cart-title">{{ $t('pos.Cart') || 'Cart' }} ({{ details.length }} {{ $t('pos.items') || 'items' }})</span>
@@ -257,7 +251,7 @@
                 <lucide-icon name="shopping-cart" />
               </span>
               <div class="pos-cart-header-text">
-                <div class="pos-cart-header-title">{{ $t('Current_Cart') || 'Current Cart' }}</div>
+                <div class="pos-cart-header-title">{{ $t('Current_Cart') || 'Current Cart' }}<span class="pos-cart-count-badge">{{ details.length }}</span></div>
                 <div class="pos-cart-header-sub">
                   {{ details.length }} {{ details.length === 1 ? ($t('item') || 'item') : ($t('items') || 'items') }}
                 </div>
@@ -293,10 +287,10 @@
           </div>
 
           <!-- Cart items list — 3-col grid: thumb | details | actions/total -->
-          <div v-else style="display: flex; flex-direction: column;">
+          <transition-group v-else name="cart-row" tag="div" style="display: flex; flex-direction: column;">
             <div
               v-for="(item, index) in details"
-              :key="index"
+              :key="item.detail_id"
               class="pos-shell-cart-row"
               style="display: grid; grid-template-columns: 32px 1fr auto; gap: 8px; padding: 6px 8px; border-radius: 8px; margin-bottom: 2px; transition: background 120ms ease;">
 
@@ -339,9 +333,9 @@
                 <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
                   <!-- qty stepper -->
                   <div style="display: inline-flex; align-items: center; border: 1px solid #e6e6ec; border-radius: 5px; height: 24px; background: #ffffff; flex-shrink: 0;">
-                    <button @click="decrement(item, item.detail_id)" :title="$t('pos.Decrease')" style="width: 22px; height: 22px; background: transparent; border: 0; color: #54546a; font-size: 14px; cursor: pointer; padding: 0;">−</button>
+                    <button class="pos-qty-btn" @click="decrement(item, item.detail_id)" :title="$t('pos.Decrease')" style="width: 22px; height: 22px; background: transparent; border: 0; color: #54546a; font-size: 14px; cursor: pointer; padding: 0;">−</button>
                     <input v-model.number="item.quantity" type="text" @change="Verified_Qty(item, item.detail_id)" style="width: 32px; height: 100%; border: 0; text-align: center; font-size: 12px; font-family: 'JetBrains Mono', monospace; background: transparent; color: #1f1f2c; outline: none; padding: 0;" />
-                    <button @click="increment(item.detail_id)" :title="$t('pos.Increase')" style="width: 22px; height: 22px; background: transparent; border: 0; color: #54546a; font-size: 14px; cursor: pointer; padding: 0;">+</button>
+                    <button class="pos-qty-btn" @click="increment(item.detail_id)" :title="$t('pos.Increase')" style="width: 22px; height: 22px; background: transparent; border: 0; color: #54546a; font-size: 14px; cursor: pointer; padding: 0;">+</button>
                   </div>
                   <!-- × unit price (darker + larger so the per-unit math reads at a glance) -->
                   <span style="font-size: 12px; color: #54546a; font-weight: 500; font-family: 'JetBrains Mono', monospace; white-space: nowrap;">× {{ formatPriceWithCurrentCurrency(item.Total_price, 2) }}</span>
@@ -363,6 +357,7 @@
                   <button
                     v-if="currentUserPermissions && currentUserPermissions.includes('edit_product_sale')"
                     type="button"
+                    class="pos-line-edit-btn"
                     @mousedown.prevent
                     @click="Modal_Updat_Detail(item)"
                     :title="$t('pos.Edit')"
@@ -373,6 +368,7 @@
                   </button>
                   <button
                     type="button"
+                    class="pos-line-remove-btn"
                     @mousedown.prevent
                     @click="delete_Product_Detail(item.detail_id)"
                     :title="$t('pos.Remove')"
@@ -398,7 +394,7 @@
                       <template v-if="(item.batches || []).length">· {{ formatNumber(batch_total_qty(item), 2) }} / {{ formatNumber(Number(item.quantity) || 0, 2) }}</template>
                     </span>
                   </div>
-                  <button type="button" @click="add_batch_to_detail(item)" style="height: 24px; padding: 0 8px; background: #f5f3fd; color: #6f53d9; border: 0; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;">+ {{ $t('Add') || 'Add' }}</button>
+                  <button type="button" @click="add_batch_to_detail(item)" style="height: 24px; padding: 0 8px; background: #f5f3fd; color: var(--primary-color, #6f53d9); border: 0; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;">+ {{ $t('Add') || 'Add' }}</button>
                 </div>
                 <div v-if="item.batches_loading" style="font-size: 11px; color: #8d8da0; padding: 4px 0;">{{ $t('Loading') || 'Loading...' }}</div>
                 <div v-else-if="!(item.available_batches && item.available_batches.length)" style="font-size: 11px; color: #d64545; padding: 4px 0;">{{ $t('No_Batches_Available') || 'No available batches for this product in the selected warehouse' }}</div>
@@ -440,7 +436,7 @@
                 />
               </div>
             </div>
-          </div>
+          </transition-group>
         </div>
 
         <!-- Totals / charges -->
@@ -479,7 +475,7 @@
               <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: #54546a;">
                 <lucide-icon name="check" v-if="pointsConverted" />
                 <span>{{ $t('Available_Points') }}</span>
-                <span style="font-size: 14px; font-weight: 700; color: #6f53d9; font-family: 'JetBrains Mono', monospace; margin-left: 4px;">{{ selectedClientPoints }}</span>
+                <span style="font-size: 14px; font-weight: 700; color: var(--primary-color, #6f53d9); font-family: 'JetBrains Mono', monospace; margin-left: 4px;">{{ selectedClientPoints }}</span>
               </div>
               <div v-if="discount_from_points > 0" style="font-size: 10px; color: #1e7a44; margin-top: 2px;">✅ {{ $t('Discount') }} {{ discount_from_points }} {{ currentUser.currency }} {{ $t('pos.will_be_applied') }}</div>
             </div>
@@ -500,9 +496,31 @@
               <button
                 :disabled="selectedClientPoints === 0"
                 @click="convertPointsToDiscount"
-                :style="{ height: '28px', padding: '0 10px', background: pointsConverted ? '#2fae5e' : '#6f53d9', color: '#fff', border: 0, borderRadius: '6px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }">
+                :style="{ height: '28px', padding: '0 10px', background: pointsConverted ? '#2fae5e' : 'var(--primary-color, #6f53d9)', color: '#fff', border: 0, borderRadius: '6px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px' }">
                 <template v-if="!pointsConverted"><lucide-icon name="banknote" /> {{ $t('Convert') }}</template>
                 <template v-else><lucide-icon name="check" /> {{ $t('Unconverted') }}</template>
+              </button>
+            </div>
+          </div>
+
+          <div class="pos-reference-payments">
+            <div class="pos-reference-payments-label">{{ $t('Payment_Method') || 'Payment Method' }}</div>
+            <div class="pos-reference-payments-grid">
+              <button type="button" :class="{ active: quickPaymentMethod === 'cash' }" @click="selectQuickPaymentMethod('cash')">
+                <lucide-icon name="banknote" />
+                <span>{{ $t('Cash') || 'Cash' }}</span>
+              </button>
+              <button type="button" :class="{ active: quickPaymentMethod === 'card' }" @click="selectQuickPaymentMethod('card')">
+                <lucide-icon name="credit-card" />
+                <span>{{ $t('Card') || 'Card' }}</span>
+              </button>
+              <button type="button" :class="{ active: quickPaymentMethod === 'wallet' }" @click="selectQuickPaymentMethod('wallet')">
+                <lucide-icon name="wallet" />
+                <span>{{ $t('Wallet') || 'Wallet' }}</span>
+              </button>
+              <button type="button" :class="{ active: quickPaymentMethod === 'split' }" @click="selectQuickPaymentMethod('split')">
+                <lucide-icon name="arrow-right-left" />
+                <span>{{ $t('Split') || 'Split' }}</span>
               </button>
             </div>
           </div>
@@ -577,14 +595,28 @@
             </svg>
             <span>{{ $t('Scan') }}</span>
           </button>
-          <button type="button" class="pos-reference-sort-btn" :title="$t('Sort') || 'Sort'">
-            <span>{{ $t('Sort') || 'Sort' }}</span>
-            <strong>{{ $t('Popular') || 'Popular' }}</strong>
-            <lucide-icon name="chevron-down" />
-          </button>
-          <button type="button" class="pos-reference-filter-btn" :title="$t('Filters') || 'Filters'">
-            <lucide-icon name="list-filter" />
-            <strong>{{ $t('Filters') || 'Filters' }}</strong>
+          <div style="position: relative;">
+            <button type="button" class="pos-reference-sort-btn" title="Sort" @click="showProductSortMenu = !showProductSortMenu">
+              <span>Sort</span>
+              <strong>{{ productSortLabel(productSortBy) }}</strong>
+              <lucide-icon name="chevron-down" />
+            </button>
+            <div v-if="showProductSortMenu" @click="showProductSortMenu = false" style="position: fixed; inset: 0; z-index: 19;"></div>
+            <div v-if="showProductSortMenu" @click.stop style="position: absolute; top: calc(100% + 4px); right: 0; z-index: 20; min-width: 170px; background: #ffffff; border: 1px solid #e6e6ec; border-radius: 10px; box-shadow: 0 8px 24px rgba(20,20,40,0.08); padding: 4px;">
+              <button
+                v-for="opt in ['popular', 'name_asc', 'name_desc', 'price_asc', 'price_desc']"
+                :key="opt"
+                type="button"
+                @click="setProductSort(opt)"
+                :style="{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 10px', fontSize: '13px', border: 0, borderRadius: '6px', background: productSortBy === opt ? '#f0ecfb' : 'transparent', color: productSortBy === opt ? 'var(--primary-color, #6f53d9)' : '#1f1f2c', cursor: 'pointer', fontWeight: productSortBy === opt ? 600 : 400 }">
+                {{ productSortLabel(opt) }}
+              </button>
+            </div>
+          </div>
+          <button type="button" class="pos-reference-filter-btn" :class="{ active: hasActiveProductFilters }" title="Filters" @click="catDrawerOpen = true">
+            <lucide-icon name="filter" />
+            <strong>Filters</strong>
+            <span v-if="hasActiveProductFilters" style="display:inline-flex; align-items:center; justify-content:center; min-width:16px; height:16px; border-radius:99px; background: var(--primary-color, #6f53d9); color:#fff; font-size:10px; font-weight:700; margin-left:2px;">{{ activeProductFilterCount }}</span>
           </button>
         </div>
 
@@ -685,10 +717,10 @@
 
               <!-- Price + plus button row -->
               <div style="display: flex; align-items: center; justify-content: space-between;">
-                <div style="font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: #6f53d9; letter-spacing: -0.01em;">{{ formatPriceWithCurrentCurrency(product.Net_price, 2) }}</div>
+                <div style="font-size: 14px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--primary-color, #6f53d9); letter-spacing: -0.01em;">{{ formatPriceWithCurrentCurrency(product.Net_price, 2) }}</div>
                 <span
                   class="pos-shell-add-btn"
-                  :style="{ width: '24px', height: '24px', background: '#f0ecfb', color: '#6f53d9', borderRadius: '6px', display: 'grid', placeItems: 'center', opacity: (!isOversellingAllowed && product.product_type !== 'is_service' && product.qte_sale <= 0) ? 0.4 : 1 }">
+                  :style="{ width: '24px', height: '24px', background: '#f0ecfb', color: 'var(--primary-color, #6f53d9)', borderRadius: '6px', display: 'grid', placeItems: 'center', opacity: (!isOversellingAllowed && product.product_type !== 'is_service' && product.qte_sale <= 0) ? 0.4 : 1 }">
                   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="width: 14px; height: 14px;">
                     <path d="M10 4v12M4 10h12"/>
                   </svg>
@@ -730,7 +762,7 @@
               :disabled="item === '…'"
               @click="onProductPageItemClick(item)"
               :title="item === '…' ? '' : `${$t('pos.Go_to_page')} ${item}`"
-              :style="{ width: '28px', height: '28px', borderRadius: '6px', border: item === '…' ? 0 : '1px solid #e6e6ec', background: item === product_currentPage ? '#6f53d9' : (item === '…' ? 'transparent' : '#ffffff'), color: item === product_currentPage ? '#fff' : '#54546a', fontSize: '12px', cursor: item === '…' ? 'default' : 'pointer', fontWeight: item === product_currentPage ? 600 : 400, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0 }">
+              :style="{ width: '28px', height: '28px', borderRadius: '6px', border: item === '…' ? 0 : '1px solid #e6e6ec', background: item === product_currentPage ? 'var(--primary-color, #6f53d9)' : (item === '…' ? 'transparent' : '#ffffff'), color: item === product_currentPage ? '#fff' : '#54546a', fontSize: '12px', cursor: item === '…' ? 'default' : 'pointer', fontWeight: item === product_currentPage ? 600 : 400, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: 0 }">
               {{ item }}
             </button>
           </div>
@@ -748,7 +780,7 @@
     <!-- ============================================================
          BOTTOM PAY BAR
          ============================================================ -->
-    <div v-if="productsReady" class="pos-shell-pay-bar" style="display: flex; background: rgb(255, 255, 255); align-items: center; gap: 8px; padding: 8px 16px 8px 20px; flex-shrink: 0; flex-grow: 0; border-top: 1px solid rgb(230, 230, 236);">
+    <div v-if="productsReady" class="pos-shell-pay-bar" style="display: flex; background: rgb(255, 255, 255); align-items: center; gap: 10px; padding: 10px 16px 10px 20px; flex-shrink: 0; flex-grow: 0; border-top: 1px solid rgb(230, 230, 236);">
 
       <!-- Online indicator -->
       <div :style="{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 500, color: isOnline ? '#1e7a44' : '#a83232' }" :title="offlineStatusTitle">
@@ -760,7 +792,7 @@
       <div style="width: 1px; height: 24px; background: #e6e6ec; margin: 0 8px;"></div>
 
       <!-- Action buttons -->
-      <router-link v-if="isOnline" to="/app/dashboard" :title="$t('pos.Home')" class="pos-shell-action-btn" style="height: 36px; padding: 0 14px; background: transparent; color: #1f1f2c; border: 1px solid #e6e6ec; border-radius: 8px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; transition: all 120ms ease;">
+      <router-link v-if="isOnline" to="/app/dashboard" :title="$t('pos.Home')" class="pos-shell-action-btn" style="height: 40px; padding: 0 16px; background: transparent; color: #1f1f2c; border: 1px solid #e6e6ec; border-radius: 10px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; transition: all 120ms ease;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
           <path d="M3 11l9-8 9 8"></path>
           <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"></path>
@@ -768,7 +800,7 @@
         <span>{{ $t('pos.Home') }}</span>
       </router-link>
 
-      <button v-if="isOnline" @click="Reset_Pos" :title="$t('pos.Clear_all_items')" class="pos-shell-action-btn" style="height: 36px; padding: 0 14px; background: transparent; color: #1f1f2c; border: 1px solid #e6e6ec; border-radius: 8px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 120ms ease;">
+      <button v-if="isOnline" @click="Reset_Pos" :title="$t('pos.Clear_all_items')" class="pos-shell-action-btn" style="height: 40px; padding: 0 16px; background: transparent; color: #1f1f2c; border: 1px solid #e6e6ec; border-radius: 10px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 120ms ease;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
           <path d="M1 4v6h6"></path>
           <path d="M23 20v-6h-6"></path>
@@ -778,7 +810,7 @@
         <span>{{ $t('pos.Reset') }}</span>
       </button>
 
-      <button v-if="isOnline" @click="Show_Draft_Sales" :title="$t('pos.Drafts_list')" class="pos-shell-action-btn" style="height: 36px; padding: 0 14px; background: transparent; color: #1f1f2c; border: 1px solid #e6e6ec; border-radius: 8px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 120ms ease;">
+      <button v-if="isOnline" @click="Show_Draft_Sales" :title="$t('pos.Drafts_list')" class="pos-shell-action-btn" style="height: 40px; padding: 0 16px; background: transparent; color: #1f1f2c; border: 1px solid #e6e6ec; border-radius: 10px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 120ms ease;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
           <rect x="3" y="4" width="18" height="14" rx="2" ry="2"></rect>
           <path d="M7 8h10M7 12h8"></path>
@@ -793,7 +825,7 @@
         :disabled="DraftProcessing"
         :title="$t('pos.Hold_this_sale')"
         class="pos-shell-action-btn"
-        style="height: 36px; padding: 0 14px; background: transparent; color: #1f1f2c; border: 1px solid #e6e6ec; border-radius: 8px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 120ms ease;">
+        style="height: 40px; padding: 0 16px; background: transparent; color: #1f1f2c; border: 1px solid #e6e6ec; border-radius: 10px; font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 120ms ease;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
           <circle cx="12" cy="12" r="10"></circle>
           <path d="M10 9v6"></path>
@@ -804,10 +836,18 @@
 
       <div style="flex: 1;"></div>
 
+      <!-- Cart items count -->
+      <div style="display: flex; align-items: center; gap: 6px; margin-right: 18px; color: #8d8da0; font-size: 12px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 15px; height: 15px;">
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/>
+        </svg>
+        <span>{{ details.length }} {{ details.length === 1 ? 'Item' : 'Items' }} in current cart</span>
+      </div>
+
       <!-- Total payable -->
       <div style="display: flex; flex-direction: column; align-items: flex-end; text-align: right; margin-right: 12px;">
         <span style="font-size: 10px; color: #8d8da0; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">{{ $t('pos.Total_Payable') }}</span>
-        <span style="font-size: 20px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: #1f1f2c; letter-spacing: -0.01em;">{{ formatPriceWithCurrentCurrency(GrandTotal, 2) }}</span>
+        <span :key="GrandTotal" class="pos-total-value" style="font-size: 20px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: #1f1f2c; letter-spacing: -0.01em;">{{ formatPriceWithCurrentCurrency(GrandTotal, 2) }}</span>
       </div>
 
       <!-- Pay now -->
@@ -816,9 +856,10 @@
         :disabled="paymentProcessing || details.length === 0 || payNowBatchGate.blocked"
         :title="payNowBatchGate.blocked ? payNowBatchGate.reason : $t('pos.Complete_and_process_payment')"
         class="pos-shell-pay-btn"
-        :style="{ height: '48px', padding: '0 28px', background: '#6f53d9', color: '#fff', border: 0, borderRadius: '10px', fontSize: '15px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '10px', cursor: (paymentProcessing || details.length === 0 || payNowBatchGate.blocked) ? 'not-allowed' : 'pointer', opacity: (paymentProcessing || details.length === 0 || payNowBatchGate.blocked) ? 0.5 : 1, boxShadow: '0 4px 14px rgba(111,83,217,0.32)', transition: 'all 120ms ease' }">
-        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 18px; height: 18px;">
-          <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"></path>
+        :style="{ height: '44px', padding: '0 26px', background: 'var(--primary-color, #6f53d9)', color: '#fff', border: 0, borderRadius: '999px', fontSize: '14px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '9px', cursor: (paymentProcessing || details.length === 0 || payNowBatchGate.blocked) ? 'not-allowed' : 'pointer', opacity: (paymentProcessing || details.length === 0 || payNowBatchGate.blocked) ? 0.5 : 1, boxShadow: '0 4px 14px var(--primary-color-soft, rgba(111,83,217,0.32))', transition: 'all 120ms ease' }">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 17px; height: 17px;">
+          <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+          <line x1="2" x2="22" y1="10" y2="10"></line>
         </svg>
         <span>{{ paymentProcessing ? $t('pos.Processing') : $t('pos.Pay_Now') }}</span>
       </button>
@@ -1094,9 +1135,8 @@
                   </tr>
                 </thead>
 
-                <tbody>
-                  <template v-for="payment_pos in payments">
-                    <tr :key="'pay-' + payment_pos.id">
+                <tbody v-for="payment_pos in payments" :key="'pay-' + payment_pos.id">
+                    <tr>
                       <td style="text-align: left;" colspan="1">{{payment_pos.payment_method?payment_pos.payment_method.name:'---'}}</td>
                       <td style="text-align: center;" colspan="2">
                         {{ formatPriceDisplay(payment_pos.montant ,2) }}
@@ -1110,7 +1150,6 @@
                         {{$t('Payment_note')}}: {{payment_pos.notes}}
                       </td>
                     </tr>
-                  </template>
                 </tbody>
               </table>
 
@@ -1178,9 +1217,8 @@
                     <th style="text-align:right">{{$t('Total')}}</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <template v-for="detail_invoice in invoice_pos.details">
-                    <tr :key="'l2-item-' + detail_invoice.detail_id">
+                <tbody v-for="detail_invoice in invoice_pos.details" :key="'l2-item-' + detail_invoice.detail_id">
+                    <tr>
                       <td>
                         {{detail_invoice.name}}
                         <br v-show="detail_invoice.is_imei && detail_invoice.imei_number !==null">
@@ -1206,7 +1244,6 @@
                         {{$t('Discount')}}: -{{ formatPriceDisplay(Number(detail_invoice.DiscountNet) * Number(detail_invoice.quantity), 2) }}
                       </td>
                     </tr>
-                  </template>
                 </tbody>
               </table>
 
@@ -1281,9 +1318,8 @@
                     <th style="text-align: right;" colspan="1">{{$t('Change')}}:</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <template v-for="payment_pos in payments">
-                    <tr :key="'pay2-' + payment_pos.id">
+                <tbody v-for="payment_pos in payments" :key="'pay2-' + payment_pos.id">
+                    <tr>
                       <td style="text-align: left;" colspan="1">{{payment_pos.payment_method?payment_pos.payment_method.name:'---'}}</td>
                       <td style="text-align: center;" colspan="2">
                         {{formatNumber(payment_pos.montant ,2)}}
@@ -1297,7 +1333,6 @@
                         {{$t('Payment_note')}}: {{payment_pos.notes}}
                       </td>
                     </tr>
-                  </template>
                 </tbody>
               </table>
 
@@ -1450,9 +1485,8 @@
                   </tr>
                 </thead>
 
-                <tbody>
-                  <template v-for="payment_pos in payments">
-                    <tr :key="'pay3-' + payment_pos.id">
+                <tbody v-for="payment_pos in payments" :key="'pay3-' + payment_pos.id">
+                    <tr>
                       <td style="text-align: left;" colspan="1">{{payment_pos.payment_method?payment_pos.payment_method.name:'---'}}</td>
                       <td style="text-align: center;" colspan="2">
                         {{formatNumber(payment_pos.montant ,2)}}
@@ -1466,7 +1500,6 @@
                         {{$t('Payment_note')}}: {{payment_pos.notes}}
                       </td>
                     </tr>
-                  </template>
                 </tbody>
               </table>
 
@@ -1651,9 +1684,8 @@
                     <th style="text-align:right;" colspan="1">Change / الباقي:</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <template v-for="payment_pos in payments">
-                    <tr :key="'pay4-' + payment_pos.id">
+                <tbody v-for="payment_pos in payments" :key="'pay4-' + payment_pos.id">
+                    <tr>
                       <td style="text-align:left;" colspan="1">{{payment_pos.payment_method?payment_pos.payment_method.name:'---'}}</td>
                       <td style="text-align:center;" colspan="2">{{ formatPriceDisplay(payment_pos.montant ,2) }}</td>
                       <td style="text-align:right;" colspan="1">{{ formatPriceDisplay(payment_pos.change ,2) }}</td>
@@ -1663,7 +1695,6 @@
                         {{$t('Payment_note')}} / ملاحظة الدفع: {{payment_pos.notes}}
                       </td>
                     </tr>
-                  </template>
                 </tbody>
               </table>
 
@@ -1794,14 +1825,12 @@
                     <th>{{$t('Change')}}</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <template v-for="payment_pos in payments">
-                    <tr :key="'pay5-' + payment_pos.id">
+                <tbody v-for="payment_pos in payments" :key="'pay5-' + payment_pos.id">
+                    <tr>
                       <td>{{payment_pos.payment_method?payment_pos.payment_method.name:'---'}}</td>
                       <td>{{ formatPriceDisplay(payment_pos.montant, 2) }}</td>
                       <td>{{ formatPriceDisplay(payment_pos.change, 2) }}</td>
                     </tr>
-                  </template>
                 </tbody>
               </table>
 
@@ -3173,6 +3202,7 @@ export default {
       },
 
       client_name:'',
+      quickPaymentMethod: 'cash',
       paymentLines: [
         { 
           // only the first line shows Received Amount
@@ -3249,8 +3279,11 @@ export default {
       custDrawerSearch: "",
       product_currentPage: 1,
       paginated_Products: [],
-      product_perPage: 10,
+      product_perPage: 12,
       product_totalRows: 0,
+      productSortBy: 'popular',
+      showProductSortMenu: false,
+      productsOriginalOrder: [],
       productsLoading: false,
       paginated_Brands: "",
       brand_currentPage: 1,
@@ -3436,6 +3469,16 @@ export default {
     // Static list of POS keyboard shortcuts used by the help modal.
     posShortcutsList() {
       return POS_SHORTCUTS;
+    },
+
+    activeProductFilterCount() {
+      let n = 0;
+      if (this.category_id) n++;
+      if (this.brand_id) n++;
+      return n;
+    },
+    hasActiveProductFilters() {
+      return this.activeProductFilterCount > 0;
     },
 
     // Overselling Control: when ON, all POS stock checks are bypassed and
@@ -4246,11 +4289,41 @@ export default {
         this.Product_onPageChanged(item);
       }
     },
+    productSortLabel(key) {
+      const labels = {
+        popular: 'Popular',
+        name_asc: 'Name (A-Z)',
+        name_desc: 'Name (Z-A)',
+        price_asc: 'Price (Low-High)',
+        price_desc: 'Price (High-Low)',
+      };
+      return labels[key] || labels.popular;
+    },
+    setProductSort(key) {
+      this.productSortBy = key;
+      this.showProductSortMenu = false;
+      const list = Array.isArray(this.productsOriginalOrder) ? this.productsOriginalOrder.slice() : (Array.isArray(this.products) ? this.products.slice() : []);
+      if (key === 'name_asc') {
+        list.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+      } else if (key === 'name_desc') {
+        list.sort((a, b) => String(b.name || '').localeCompare(String(a.name || '')));
+      } else if (key === 'price_asc') {
+        list.sort((a, b) => (Number(a.Net_price) || 0) - (Number(b.Net_price) || 0));
+      } else if (key === 'price_desc') {
+        list.sort((a, b) => (Number(b.Net_price) || 0) - (Number(a.Net_price) || 0));
+      }
+      // 'popular' keeps the order returned by the backend.
+      this.products = list;
+      this.product_currentPage = 1;
+      this.Product_paginatePerPage();
+    },
     paginate_products(pageSize, pageNumber) {
+      const safePageSize = Math.max(1, Number(pageSize) || 12);
+      const safePageNumber = Math.max(0, Number(pageNumber) || 0);
       const itemsToParse = Array.isArray(this.products) ? this.products : [];
       this.paginated_Products = itemsToParse.slice(
-        pageNumber * pageSize,
-        (pageNumber + 1) * pageSize
+        safePageNumber * safePageSize,
+        (safePageNumber + 1) * safePageSize
       );
     },
     Product_onPageChanged(page) {
@@ -6039,6 +6112,8 @@ export default {
           // Always show real backend stock in online mode;
           // only apply shadow stock adjustments when we are offline.
           this.products = rawProducts.map(p => ({ ...p }));
+          this.productsOriginalOrder = rawProducts.map(p => ({ ...p }));
+          this.productSortBy = 'popular';
           // Use the same unified list for barcode scanning / quick search.
           this.products_pos = rawProducts.map(p => ({ ...p }));
           this.product_totalRows = response.data.totalRows;
@@ -7517,7 +7592,7 @@ export default {
     // Deterministic color per category id so the avatar is stable across renders
     catColor(id) {
       const palette = [
-        'linear-gradient(135deg,#6f53d9,#8a6cf0)',
+        'linear-gradient(135deg,var(--primary-color, #6f53d9),var(--primary-color-lighter, #8a6cf0))',
         'linear-gradient(135deg,#10b981,#34d399)',
         'linear-gradient(135deg,#f59e0b,#fbbf24)',
         'linear-gradient(135deg,#3b82f6,#60a5fa)',
@@ -8038,7 +8113,8 @@ export default {
             this.CalculTotal();
           }
 
-          this.product_perPage = response.data.products_per_page;
+          const requestedPerPage = Number(response.data.products_per_page);
+          this.product_perPage = requestedPerPage > 0 ? requestedPerPage : 12;
           this.languages_available = response.data.languages_available;
 
           // Hydrate company/receipt header info (also used for offline printing)
@@ -8157,7 +8233,8 @@ export default {
               }
 
               if (cached.products_per_page) {
-                this.product_perPage = cached.products_per_page;
+                const cachedPerPage = Number(cached.products_per_page);
+                this.product_perPage = cachedPerPage > 0 ? cachedPerPage : 12;
               }
               if (Array.isArray(cached.languages_available)) {
                 this.languages_available = cached.languages_available;
@@ -8843,6 +8920,9 @@ export default {
         this.getProducts();
       }
     },
+    selectQuickPaymentMethod(method) {
+      this.quickPaymentMethod = method;
+    },
     openModernPaymentModal() {
       // Guard: client and warehouse must be selected
       if (!this.selectedClientId) {
@@ -8878,7 +8958,8 @@ export default {
       this.$refs.modernPaymentModal.openModal({
         amountDue: this.GrandTotal,
         reference: this.sale.Ref || "POS-" + new Date().getTime(),
-        notes: this.selectedClientId ? `Payment for Customer #${this.selectedClientId}` : 'POS Payment'
+        notes: this.selectedClientId ? `Payment for Customer #${this.selectedClientId}` : 'POS Payment',
+        preferredMethod: this.quickPaymentMethod
       });
     },
 
@@ -9127,7 +9208,7 @@ export default {
    Scoped to .pos-codecanyon so they don't leak.
    ============================================ */
 .pos-codecanyon {
-  --accent: #6f53d9;
+  --accent: var(--primary-color, #6f53d9);
   --accent-soft: #ece9fb;
   --accent-tint: #f5f3fd;
   --accent-shadow: rgba(111, 83, 217, 0.32);
@@ -10881,7 +10962,7 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background:
     radial-gradient(1200px 200px at -10% -40%, rgba(255,255,255,0.18), transparent 60%),
     radial-gradient(900px 220px at 110% 0%, rgba(255,255,255,0.14), transparent 55%),
-    linear-gradient(135deg, #6f53d9 0%, #8a6cf0 45%, #b58cff 100%);
+    linear-gradient(135deg, var(--primary-color, #6f53d9) 0%, var(--primary-color-lighter, #8a6cf0) 45%, var(--primary-color-lighter, #b58cff) 100%);
   color: #fff;
   overflow: hidden;
 }
@@ -11044,8 +11125,8 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-weight: 700;
   color: $color-text-primary;
   letter-spacing: 0.1px;
-  i { font-size: 15px; color: #6f53d9; }
-  svg { width: 15px; height: 15px; color: #6f53d9; }
+  i { font-size: 15px; color: var(--primary-color, #6f53d9); }
+  svg { width: 15px; height: 15px; color: var(--primary-color, #6f53d9); }
 }
 .ts-section-sub {
   font-size: 12px;
@@ -11083,8 +11164,8 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(111,83,217,0.12), rgba(138,108,240,0.12));
-  color: #6f53d9;
+  background: linear-gradient(135deg, var(--primary-color-soft, rgba(111,83,217,0.12)), var(--primary-color-soft, rgba(138,108,240,0.12)));
+  color: var(--primary-color, #6f53d9);
   i { font-size: 18px; }
   svg { width: 18px; height: 18px; }
 }
@@ -11120,7 +11201,7 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .ts-method-bar {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #6f53d9, #8a6cf0, #b58cff);
+  background: linear-gradient(90deg, var(--primary-color, #6f53d9), var(--primary-color-lighter, #8a6cf0), var(--primary-color-lighter, #b58cff));
   transition: width 400ms cubic-bezier(.4, 0, .2, 1);
   min-width: 2%;
 }
@@ -11140,7 +11221,7 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   align-items: center;
   justify-content: center;
   background: rgba(111, 83, 217, 0.08);
-  color: #6f53d9;
+  color: var(--primary-color, #6f53d9);
   i { font-size: 24px; }
   svg { width: 24px; height: 24px; }
 }
@@ -11177,7 +11258,7 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background:
     radial-gradient(1200px 200px at -10% -40%, rgba(255,255,255,0.18), transparent 60%),
     radial-gradient(900px 220px at 110% 0%, rgba(255,255,255,0.14), transparent 55%),
-    linear-gradient(135deg, #6f53d9 0%, #8a6cf0 45%, #b58cff 100%);
+    linear-gradient(135deg, var(--primary-color, #6f53d9) 0%, var(--primary-color-lighter, #8a6cf0) 45%, var(--primary-color-lighter, #b58cff) 100%);
   color: #fff;
   overflow: hidden;
 }
@@ -11261,15 +11342,15 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: 12px;
   letter-spacing: 0.1px;
   text-transform: uppercase;
-  i { font-size: 15px; color: #6f53d9; }
-  svg { width: 15px; height: 15px; color: #6f53d9; }
+  i { font-size: 15px; color: var(--primary-color, #6f53d9); }
+  svg { width: 15px; height: 15px; color: var(--primary-color, #6f53d9); }
 }
 
 .ps-help-banner {
   font-size: 12px;
   color: $color-text-tertiary;
-  background: rgba(111,83,217,0.06);
-  border: 1px solid rgba(111,83,217,0.15);
+  background: var(--primary-color-soft, rgba(111,83,217,0.06));
+  border: 1px solid var(--primary-color-soft, rgba(111,83,217,0.15));
   border-radius: 10px;
   padding: 10px 12px;
   margin-bottom: 12px;
@@ -11300,8 +11381,8 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin: 0;
 }
 .ps-toggle:hover {
-  border-color: rgba(111,83,217,0.35);
-  box-shadow: 0 4px 14px -8px rgba(111,83,217,0.45);
+  border-color: var(--primary-color-soft, rgba(111,83,217,0.35));
+  box-shadow: 0 4px 14px -8px var(--primary-color-soft, rgba(111,83,217,0.45));
   transform: translateY(-1px);
 }
 .ps-toggle-info { min-width: 0; flex: 1 1 auto; }
@@ -11353,13 +11434,13 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transition: transform 200ms cubic-bezier(.4,0,.2,1);
 }
 .ps-switch input:checked + .ps-switch-slider {
-  background: linear-gradient(135deg, #6f53d9, #8a6cf0);
+  background: linear-gradient(135deg, var(--primary-color, #6f53d9), var(--primary-color-lighter, #8a6cf0));
 }
 .ps-switch input:checked + .ps-switch-slider::before {
   transform: translateX(18px);
 }
 .ps-switch input:focus-visible + .ps-switch-slider {
-  outline: 2px solid rgba(111,83,217,0.45);
+  outline: 2px solid var(--primary-color-soft, rgba(111,83,217,0.45));
   outline-offset: 2px;
 }
 
@@ -11385,8 +11466,8 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 ::v-deep(.ps-input:focus) {
-  border-color: #6f53d9;
-  box-shadow: 0 0 0 3px rgba(111,83,217,0.15);
+  border-color: var(--primary-color, #6f53d9);
+  box-shadow: 0 0 0 3px var(--primary-color-soft, rgba(111,83,217,0.15));
 }
 
 /* Footer */
@@ -11423,11 +11504,11 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 .ps-btn-primary {
-  background: linear-gradient(135deg, #6f53d9, #8a6cf0);
+  background: linear-gradient(135deg, var(--primary-color, #6f53d9), var(--primary-color-lighter, #8a6cf0));
   color: #fff;
   &:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 6px 16px -6px rgba(111,83,217,0.6);
+    box-shadow: 0 6px 16px -6px var(--primary-color-soft, rgba(111,83,217,0.6));
   }
 }
 
@@ -11458,8 +11539,8 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     width: 22px;
     height: 22px;
     border-radius: 7px;
-    background: linear-gradient(135deg, rgba(111,83,217,0.12), rgba(138,108,240,0.12));
-    color: #6f53d9;
+    background: linear-gradient(135deg, var(--primary-color-soft, rgba(111,83,217,0.12)), var(--primary-color-soft, rgba(138,108,240,0.12)));
+    color: var(--primary-color, #6f53d9);
     flex: 0 0 22px;
     i { font-size: 12px; }
     svg { width: 13px; height: 13px; }
@@ -11497,12 +11578,12 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     &:hover { background: #f3f3f9; color: $color-text-primary; }
   }
   &:hover {
-    border-color: rgba(111,83,217,0.35);
-    box-shadow: 0 2px 8px -4px rgba(111,83,217,0.35);
+    border-color: var(--primary-color-soft, rgba(111,83,217,0.35));
+    box-shadow: 0 2px 8px -4px var(--primary-color-soft, rgba(111,83,217,0.35));
   }
   &.is-active {
-    background: linear-gradient(135deg, rgba(111,83,217,0.08), rgba(138,108,240,0.08));
-    .pos-cat-trigger-label { color: #6f53d9; font-weight: 600; }
+    background: linear-gradient(135deg, var(--primary-color-soft, rgba(111,83,217,0.08)), var(--primary-color-soft, rgba(138,108,240,0.08)));
+    .pos-cat-trigger-label { color: var(--primary-color, #6f53d9); font-weight: 600; }
   }
 }
 
@@ -11552,7 +11633,7 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   gap: 12px;
   background:
     radial-gradient(900px 200px at -10% -40%, rgba(255,255,255,0.18), transparent 60%),
-    linear-gradient(135deg, #6f53d9 0%, #8a6cf0 50%, #b58cff 100%);
+    linear-gradient(135deg, var(--primary-color, #6f53d9) 0%, var(--primary-color-lighter, #8a6cf0) 50%, var(--primary-color-lighter, #b58cff) 100%);
   color: #fff;
   position: relative;
 }
@@ -11646,9 +11727,9 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     &::placeholder { color: $color-text-tertiary; }
     &:focus {
       outline: none;
-      border-color: #6f53d9;
+      border-color: var(--primary-color, #6f53d9);
       background: #fff;
-      box-shadow: 0 0 0 3px rgba(111,83,217,0.15);
+      box-shadow: 0 0 0 3px var(--primary-color-soft, rgba(111,83,217,0.15));
     }
   }
 }
@@ -11701,9 +11782,9 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-color: #ececf3;
   }
   &.active {
-    background: linear-gradient(135deg, rgba(111,83,217,0.08), rgba(138,108,240,0.08));
-    border-color: rgba(111,83,217,0.35);
-    .cat-drawer-item-name { color: #6f53d9; font-weight: 700; }
+    background: linear-gradient(135deg, var(--primary-color-soft, rgba(111,83,217,0.08)), var(--primary-color-soft, rgba(138,108,240,0.08)));
+    border-color: var(--primary-color-soft, rgba(111,83,217,0.35));
+    .cat-drawer-item-name { color: var(--primary-color, #6f53d9); font-weight: 700; }
   }
 }
 .cat-drawer-item-icon {
@@ -11716,12 +11797,12 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-size: 14px;
   font-weight: 700;
   color: #fff;
-  background: linear-gradient(135deg, #6f53d9, #8a6cf0);
+  background: linear-gradient(135deg, var(--primary-color, #6f53d9), var(--primary-color-lighter, #8a6cf0));
   flex: 0 0 36px;
   letter-spacing: 0.2px;
   &.all {
-    background: linear-gradient(135deg, rgba(111,83,217,0.12), rgba(138,108,240,0.12));
-    color: #6f53d9;
+    background: linear-gradient(135deg, var(--primary-color-soft, rgba(111,83,217,0.12)), var(--primary-color-soft, rgba(138,108,240,0.12)));
+    color: var(--primary-color, #6f53d9);
     i { font-size: 16px; }
     svg { width: 16px; height: 16px; }
   }
@@ -11737,7 +11818,7 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-overflow: ellipsis;
 }
 .cat-drawer-item-check {
-  color: #6f53d9;
+  color: var(--primary-color, #6f53d9);
   flex: 0 0 auto;
   i { font-size: 16px; }
   svg { width: 16px; height: 16px; }
@@ -11756,8 +11837,8 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(111,83,217,0.06);
-  color: #6f53d9;
+  background: var(--primary-color-soft, rgba(111,83,217,0.06));
+  color: var(--primary-color, #6f53d9);
   margin-bottom: 8px;
   i { font-size: 20px; }
   svg { width: 20px; height: 20px; }
@@ -14394,4895 +14475,145 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-/* ============================================================================
-   ============================================================================
-   REFINED CLASSIC OVERRIDES
-   These rules win by source order over earlier ones in this scoped block.
-   They reskin the visible POS shell to match POS.html (Inter font, purple
-   accent, white surfaces, slim toolbar, pill chips, big primary pay button).
-   Modal-specific styles further up are intentionally untouched.
-   ============================================================================
-   ============================================================================ */
+</style>
 
-.pos-codecanyon {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
 
-/* ---------- Top toolbar (desktop) ---------- */
-.pos-codecanyon .pos-header {
-  min-height: 56px;
-  padding: 8px 16px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
-  box-shadow: none;
-  gap: 10px;
-  align-items: center;
-}
-
-.pos-codecanyon .pos-header .header-left {
-  padding-right: 12px;
-  border-right: 1px solid var(--line);
-  height: 36px;
-  display: flex;
-  align-items: center;
-}
-
-.pos-codecanyon .pos-header .brand {
-  gap: 10px;
-}
-
-.pos-codecanyon .pos-header .brand .brand-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--accent);
-  color: #fff;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: 0.02em;
-  box-shadow: 0 2px 6px var(--accent-shadow);
-}
-
-.pos-codecanyon .pos-header .brand .brand-icon img {
-  border-radius: 8px !important;
-}
-
-/* Register status: keep functional buttons, restyle */
-.pos-codecanyon .pos-header .register-status,
-.pos-codecanyon .pos-header-mobile .register-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0;
-  background: transparent;
-  border: 0;
-  height: 36px;
-}
-
-.pos-codecanyon .register-toggle-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 7px;
-  background: var(--soft);
-  border: 1px solid var(--line);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  cursor: pointer;
-  padding: 0;
-}
-
-.pos-codecanyon .register-toggle-btn,
-.pos-codecanyon .register-toggle-btn.btn,
-.pos-codecanyon .register-toggle-btn.btn-secondary {
-  height: 28px;
-  padding: 0 10px;
-  font-size: 12px;
-  font-weight: 500;
-  background: var(--surface);
-  color: var(--ink-2);
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  box-shadow: none;
-}
-
-.pos-codecanyon .register-toggle-btn:hover {
-  background: var(--soft);
-  color: var(--ink);
-}
-
-.pos-codecanyon .register-status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  font-family: var(--font-mono);
-  text-transform: uppercase;
-}
-
-.pos-codecanyon .register-status-pill.is-open {
-  background: var(--success-soft);
-  color: #1e7a44;
-}
-
-.pos-codecanyon .register-status-pill.is-closed {
-  background: #fdecec;
-  color: #a83232;
-}
-
-.pos-codecanyon .register-status-pill .dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 99px;
-  background: currentColor;
-}
-
-/* v-select pills in header (warehouse / category / brand / customer) */
-.pos-codecanyon .pos-header .warehouse-select,
-.pos-codecanyon .pos-header .category-select-header,
-.pos-codecanyon .pos-header .brand-select-header,
-.pos-codecanyon .pos-header .customer-select-header {
-  min-width: 140px;
-  max-width: 200px;
-}
-
-.pos-codecanyon .pos-header ::v-deep(.warehouse-select .vs__dropdown-toggle),
-.pos-codecanyon .pos-header ::v-deep(.category-select-header .vs__dropdown-toggle),
-.pos-codecanyon .pos-header ::v-deep(.brand-select-header .vs__dropdown-toggle),
-.pos-codecanyon .pos-header ::v-deep(.customer-select-header .vs__dropdown-toggle) {
-  height: 32px;
-  min-height: 32px;
-  padding: 0 8px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  box-shadow: none;
-  font-size: 12px;
-}
-
-.pos-codecanyon .pos-header ::v-deep(.vs__placeholder),
-.pos-codecanyon .pos-header ::v-deep(.vs__selected) {
-  font-size: 12px;
-  color: var(--ink-2);
-}
-
-.pos-codecanyon .pos-header ::v-deep(.vs__open-indicator) {
-  fill: var(--ink-3);
-  scale: 0.8;
-}
-
-.pos-codecanyon ::v-deep(.vs__dropdown-menu) {
-  min-width: 0;
-}
-
-/* Header icon buttons (32×32 squared) */
-.pos-codecanyon .pos-header .action-btn-icon,
-.pos-codecanyon .pos-header-mobile .action-btn-icon {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--ink-2);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  box-shadow: none;
-  transition: all 120ms ease;
-}
-
-.pos-codecanyon .pos-header .action-btn-icon:hover,
-.pos-codecanyon .pos-header-mobile .action-btn-icon:hover {
-  background: var(--soft);
-  color: var(--ink);
-  border-color: var(--line-strong);
-}
-
-.pos-codecanyon .pos-header .action-btn-icon i,
-.pos-codecanyon .pos-header-mobile .action-btn-icon i {
-  font-size: 15px;
-}
-
-/* Offline status badge dot */
-.pos-codecanyon .btn-offline-status .offline-badge {
-  background: var(--danger);
-  color: #fff;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  border-radius: 99px;
-  padding: 1px 5px;
-  position: absolute;
-  top: -4px;
-  right: -4px;
-}
-
-/* User avatar */
-.pos-codecanyon ::v-deep(.user-profile) {
-  width: 32px;
-  height: 32px;
-  border-radius: 99px;
-  background: linear-gradient(135deg, var(--accent), #b65cd6);
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 13px;
-  object-fit: cover;
-}
-
-/* Quick add customer button accent */
-.pos-codecanyon .btn-new-customer {
-  background: var(--accent-tint) !important;
-  color: var(--accent) !important;
-  border-color: var(--accent-soft) !important;
-}
-
-/* ---------- Mobile top bar ---------- */
-@media (max-width: 480px) {
-  .pos-codecanyon .pos-header { display: none; }
-  .pos-codecanyon .pos-header-mobile {
-    display: block;
-    background: var(--surface);
-    border-bottom: 1px solid var(--line);
-    padding: 8px 12px;
-  }
-  .pos-codecanyon .pos-header-mobile .mobile-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-  .pos-codecanyon .pos-header-mobile .mobile-row:last-child { margin-bottom: 0; }
-  .pos-codecanyon .pos-header-mobile .mobile-top {
-    justify-content: space-between;
-  }
-  .pos-codecanyon .pos-header-mobile .top-icons {
-    display: inline-flex;
-    gap: 6px;
-  }
-}
-
-/* ---------- Main split (cart left | products right) ---------- */
-.pos-codecanyon .pos-container {
-  display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 0;
-  flex: 1;
-  min-height: 0;
-  background: var(--bg);
-  padding: 0;
-  overflow: hidden;
-}
-
-.pos-codecanyon .pos-column-left {
-  display: flex;
-  flex-direction: column;
-  border-right: 1px solid var(--line);
-  background: var(--surface);
-  min-height: 0;
-  padding: 0;
-}
-
-.pos-codecanyon .card-unified-checkout {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  background: var(--surface);
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  height: 100%;
-  min-height: 0;
-}
-
-.pos-codecanyon .card-unified-checkout .card-header {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--line);
-  background: var(--surface);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 0;
-}
-
-.pos-codecanyon .card-unified-checkout .card-header h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink);
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-
-.pos-codecanyon .card-unified-checkout .badge-count {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 8px;
-  background: var(--accent-tint);
-  color: var(--accent);
-  border-radius: 99px;
-  border: 0;
-}
-
-/* Cart list */
-.pos-codecanyon .cart-section {
-  overflow-y: auto;
-  padding: 8px;
-  background: var(--surface);
-  min-height: 0;
-}
-
-.pos-codecanyon .cart-items-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pos-codecanyon .cart-item-card {
-  background: transparent;
-  border: 0;
-  border-radius: 10px;
-  padding: 10px;
-  margin: 0;
-  box-shadow: none;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-areas:
-    "name actions"
-    "sku  actions"
-    "qty  price"
-    "batches batches";
-  gap: 4px 10px;
-  transition: background 120ms ease;
-}
-
-.pos-codecanyon .cart-item-card:hover { background: var(--soft); }
-
-.pos-codecanyon .cart-item-card .item-header {
-  grid-area: name;
-  display: contents;
-}
-
-.pos-codecanyon .cart-item-card .item-name {
-  grid-area: name;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink);
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.3;
-}
-
-.pos-codecanyon .cart-item-card .item-sku {
-  grid-area: sku;
-  font-size: 10px;
-  color: var(--ink-3);
-  font-family: var(--font-mono);
-  margin: 0;
-  letter-spacing: 0.02em;
-}
-
-.pos-codecanyon .cart-item-card .edit-btn,
-.pos-codecanyon .cart-item-card .remove-btn {
-  grid-area: actions;
-  width: 22px;
-  height: 22px;
-  background: transparent;
-  border: 0;
-  color: var(--ink-3);
-  padding: 0;
-  border-radius: 5px;
-  align-self: start;
-  justify-self: end;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.pos-codecanyon .cart-item-card .edit-btn:hover { color: var(--accent); background: var(--accent-tint); }
-.pos-codecanyon .cart-item-card .remove-btn:hover { color: var(--danger); background: #fdecec; }
-.pos-codecanyon .cart-item-card .edit-btn svg,
-.pos-codecanyon .cart-item-card .remove-btn svg { width: 13px; height: 13px; }
-
-/* Stack edit + remove vertically */
-.pos-codecanyon .cart-item-card .edit-btn { transform: translateY(0); }
-.pos-codecanyon .cart-item-card .remove-btn { transform: translateY(26px); }
-
-.pos-codecanyon .cart-item-card .item-qty-section { grid-area: qty; }
-
-.pos-codecanyon .cart-item-card .qty-controller {
-  display: inline-flex;
-  align-items: center;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  height: 26px;
-  background: var(--surface);
-}
-
-.pos-codecanyon .cart-item-card .qty-btn {
-  width: 24px;
-  height: 24px;
-  background: transparent;
-  border: 0;
-  color: var(--ink-2);
-  font-size: 14px;
-  cursor: pointer;
-  padding: 0;
-}
-.pos-codecanyon .cart-item-card .qty-btn:hover { color: var(--accent); }
-
-.pos-codecanyon .cart-item-card .qty-input {
-  width: 36px;
-  height: 100%;
-  border: 0;
-  text-align: center;
-  font-size: 12px;
-  font-family: var(--font-mono);
-  background: transparent;
-  color: var(--ink);
-  outline: none;
-  padding: 0;
-}
-
-.pos-codecanyon .cart-item-card .item-price {
-  grid-area: price;
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-end;
-  gap: 4px;
-}
-
-.pos-codecanyon .cart-item-card .item-amount {
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-mono);
-  color: var(--ink);
-}
-
-.pos-codecanyon .cart-item-card .pos-price-select {
-  height: 22px;
-  padding: 0 4px;
-  font-size: 10px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: var(--surface);
-  color: var(--ink-2);
-  width: auto;
-  min-width: 80px;
-}
-
-.pos-codecanyon .cart-item-card .item-subtotal {
-  font-size: 10px;
-  color: var(--ink-3);
-}
-
-.pos-codecanyon .cart-item-card .subtotal-value {
-  font-family: var(--font-mono);
-  color: var(--ink-2);
-  font-weight: 500;
-}
-
-.pos-codecanyon .cart-item-card .item-batches-panel {
-  grid-area: batches;
-  margin-top: 6px;
-  padding: 8px;
-  background: var(--soft);
-  border-radius: 8px;
-  border: 0;
-}
-
-.pos-codecanyon .cart-item-card .item-batches-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-
-.pos-codecanyon .cart-item-card .item-batches-title {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--ink-2);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.pos-codecanyon .cart-item-card .item-batches-count {
-  font-size: 10px;
-  color: var(--ink-3);
-  font-family: var(--font-mono);
-  font-weight: 400;
-  margin-left: 4px;
-}
-
-.pos-codecanyon .cart-item-card .item-batches-add-btn {
-  height: 24px;
-  padding: 0 8px;
-  background: var(--accent-tint);
-  color: var(--accent);
-  border: 0;
-  border-radius: 5px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* Empty cart */
-.pos-codecanyon .empty-state {
-  padding: 32px 16px;
-  text-align: center;
-  color: var(--ink-3);
-}
-.pos-codecanyon .empty-state svg {
-  width: 32px;
-  height: 32px;
-  opacity: 0.3;
-  margin-bottom: 8px;
-}
-.pos-codecanyon .empty-state p {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink-2);
-  margin: 0 0 4px 0;
-}
-.pos-codecanyon .empty-state .empty-hint {
-  font-size: 11px;
-  color: var(--ink-3);
-}
-
-/* Summary section */
-.pos-codecanyon .summary-section {
-  padding: 12px 16px;
-  border-top: 1px solid var(--line);
-  background: var(--bg);
-}
-
-.pos-codecanyon .charges-section { margin-bottom: 10px; }
-
-.pos-codecanyon .charges-inline {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
-}
-
-.pos-codecanyon .charges-inline .charge-col label {
-  display: block;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--ink-3);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.pos-codecanyon .charges-inline .charge-input-group {
-  display: flex;
-  align-items: center;
-  height: 28px;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: var(--surface);
-  overflow: hidden;
-}
-
-.pos-codecanyon .charges-inline .flat-input {
-  flex: 1;
-  border: 0;
-  height: 100%;
-  padding: 0 8px;
-  background: transparent;
-  font-size: 12px;
-  font-family: var(--font-mono);
-  color: var(--ink);
-  outline: none;
-  width: 100%;
-  min-width: 0;
-}
-
-.pos-codecanyon .charges-inline .input-suffix,
-.pos-codecanyon .charges-inline .discount-type-toggle {
-  padding: 0 8px;
-  height: 100%;
-  display: inline-flex;
-  align-items: center;
-  font-size: 11px;
-  color: var(--ink-3);
-  font-family: var(--font-mono);
-  background: transparent;
-  border: 0;
-  border-left: 1px solid var(--line);
-  cursor: default;
-}
-
-.pos-codecanyon .charges-inline .discount-type-toggle {
-  cursor: pointer;
-  color: var(--accent);
-  font-weight: 600;
-}
-
-/* Points convert row */
-.pos-codecanyon .points-convert-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px;
-  background: var(--accent-tint);
-  border-radius: 8px;
-  margin-top: 10px;
-}
-.pos-codecanyon .points-convert-row .points-header { font-size: 11px; color: var(--ink-2); }
-.pos-codecanyon .points-convert-row .points-value { font-size: 14px; font-weight: 700; color: var(--accent); font-family: var(--font-mono); }
-.pos-codecanyon .points-convert-row .convert-btn {
-  height: 28px;
-  padding: 0 10px;
-  background: var(--accent);
-  color: #fff;
-  border: 0;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-}
-.pos-codecanyon .points-convert-row .convert-btn.converted { background: var(--success); }
-
-/* Totals */
-.pos-codecanyon .summary-totals {
-  margin-top: 4px;
-}
-
-.pos-codecanyon .summary-totals .total-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
-  font-size: 12px;
-}
-
-.pos-codecanyon .summary-totals .total-label {
-  color: var(--ink-2);
-  font-weight: 400;
-}
-
-.pos-codecanyon .summary-totals .total-value {
-  color: var(--ink);
-  font-family: var(--font-mono);
-  font-weight: 500;
-}
-
-.pos-codecanyon .summary-totals .discount-row { color: var(--ink-3); }
-.pos-codecanyon .summary-totals .discount-value { color: var(--danger); }
-
-.pos-codecanyon .summary-totals .summary-divider {
-  height: 1px;
-  background: var(--line);
-  margin: 8px 0;
-}
-
-.pos-codecanyon .summary-totals .grand-total {
-  padding-top: 4px;
-}
-.pos-codecanyon .summary-totals .grand-total .total-label {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  font-weight: 700;
-}
-.pos-codecanyon .summary-totals .grand-total .total-value,
-.pos-codecanyon .summary-totals .grand-total .gradient-text {
-  font-size: 18px;
-  font-weight: 700;
-  font-family: var(--font-mono);
-  color: var(--ink);
-  background: none;
-  -webkit-text-fill-color: initial;
-}
-
-/* ---------- Products card (right) ---------- */
-.pos-codecanyon .card-products {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  background: var(--surface);
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  height: 100%;
-  min-height: 0;
-}
-
-.pos-codecanyon .card-products .card-header {
-  padding: 14px 20px 8px;
-  border-bottom: 1px solid var(--line);
-  background: var(--surface);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.pos-codecanyon .card-products .card-header > h3 { display: none; }
-
-.pos-codecanyon .card-products .products-search-wrapper {
-  flex: 1;
-  width: auto;
-}
-
-.pos-codecanyon .card-products .search-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  height: 44px;
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
-}
-
-.pos-codecanyon .card-products .search-wrapper:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-tint);
-}
-
-.pos-codecanyon .card-products .search-wrapper .search-icon {
-  position: absolute;
-  left: 14px;
-  width: 18px;
-  height: 18px;
-  color: var(--ink-3);
-  pointer-events: none;
-}
-
-.pos-codecanyon .card-products .search-wrapper .search-input {
-  flex: 1;
-  height: 100%;
-  padding: 0 80px 0 42px;
-  background: transparent;
-  border: 0;
-  font-size: 14px;
-  color: var(--ink);
-  outline: none;
-}
-
-.pos-codecanyon .search-kbd-hint {
-  position: absolute;
-  right: 56px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 500;
-  padding: 2px 6px;
-  background: var(--soft);
-  color: var(--ink-3);
-  border-radius: 4px;
-  border: 1px solid var(--line);
-  pointer-events: none;
-}
-
-.pos-codecanyon .card-products .search-wrapper > .action-btn-icon {
-  position: absolute;
-  right: 6px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 32px !important;
-  height: 32px !important;
-  border-radius: 7px;
-  background: var(--soft);
-  border: 1px solid var(--line);
-  color: var(--ink-2);
-}
-
-.pos-codecanyon .card-products .pos-autocomplete-results {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  right: 0;
-  margin: 0;
-  padding: 4px;
-  list-style: none;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(20, 20, 40, 0.08);
-  max-height: 280px;
-  overflow: auto;
-  z-index: 10;
-}
-
-.pos-codecanyon .card-products .pos-autocomplete-item {
-  padding: 8px 12px;
-  font-size: 13px;
-  color: var(--ink);
-  cursor: pointer;
-  border-radius: 6px;
-}
-.pos-codecanyon .card-products .pos-autocomplete-item:hover {
-  background: var(--accent-tint);
-  color: var(--accent);
-}
-
-/* Mobile category/brand filter row inside card-products */
-.pos-codecanyon .card-products-mobile-filters {
-  display: none;
-  gap: 8px;
-  padding: 0 20px 8px;
-  width: 100%;
-}
-@media (max-width: 768px) {
-  .pos-codecanyon .card-products .card-header { flex-wrap: wrap; }
-  .pos-codecanyon .card-products-mobile-filters {
-    display: flex;
-  }
-  .pos-codecanyon .card-products-mobile-filters > * { flex: 1; }
-}
-
-/* Products container + grid */
-.pos-codecanyon .products-container {
-  overflow-y: auto;
-  padding: 16px 20px;
-  background: var(--surface);
-  min-height: 0;
-}
-
-.pos-codecanyon .products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
-}
-
-@media (max-width: 1280px) {
-  .pos-codecanyon .products-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
-}
-
-.pos-codecanyon .product-card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 10px;
-  text-align: left;
-  cursor: pointer;
-  position: relative;
-  transition: all 120ms ease;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  box-shadow: none;
-}
-
-.pos-codecanyon .product-card:hover {
-  border-color: var(--accent);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(20, 20, 40, 0.06);
-}
-
-.pos-codecanyon .product-card .product-image-wrapper {
-  position: relative;
-  aspect-ratio: 1 / 1;
-  border-radius: 8px;
-  overflow: hidden;
-  background: var(--soft);
-  display: grid;
-  place-items: center;
-}
-
-.pos-codecanyon .product-card .product-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.pos-codecanyon .product-card .product-image-placeholder {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 22px;
-  color: rgba(31, 31, 44, 0.45);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.pos-codecanyon .product-card .discount-badge {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  background: var(--danger);
-  color: #fff;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 99px;
-  letter-spacing: 0.02em;
-}
-
-.pos-codecanyon .product-card .product-details {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pos-codecanyon .product-card .product-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink);
-  margin: 0;
-  line-height: 1.25;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.pos-codecanyon .product-card .product-brand {
-  font-size: 10px;
-  font-family: var(--font-mono);
-  color: var(--ink-3);
-  margin: 0;
-  letter-spacing: 0.02em;
-}
-
-.pos-codecanyon .product-card .product-stock {
-  font-size: 10px;
-  color: var(--ink-3);
-  margin: 2px 0 0;
-  font-family: var(--font-mono);
-}
-
-.pos-codecanyon .product-card .product-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 6px;
-}
-
-.pos-codecanyon .product-card .product-price {
-  font-size: 14px;
-  font-weight: 700;
-  font-family: var(--font-mono);
-  color: var(--accent);
-  letter-spacing: -0.01em;
-}
-
-.pos-codecanyon .product-card .add-to-cart-btn {
-  width: 26px;
-  height: 26px;
-  background: var(--accent-tint);
-  color: var(--accent);
-  border: 0;
-  border-radius: 7px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  transition: all 120ms ease;
-}
-.pos-codecanyon .product-card .add-to-cart-btn:hover {
-  background: var(--accent);
-  color: #fff;
-}
-.pos-codecanyon .product-card .add-to-cart-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-.pos-codecanyon .product-card .add-to-cart-btn svg {
-  width: 16px;
-  height: 16px;
-}
-
-/* Pagination footer */
-.pos-codecanyon .pagination-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  border-top: 1px solid var(--line);
-  background: var(--surface);
-  font-size: 12px;
-  color: var(--ink-3);
-  gap: 12px;
-}
-
-.pos-codecanyon .pagination-footer .pagination-btn,
-.pos-codecanyon .pagination-footer .pagination-dot {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--ink-2);
-  font-size: 12px;
-  font-family: var(--font-sans);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-.pos-codecanyon .pagination-footer .pagination-btn:hover:not(:disabled),
-.pos-codecanyon .pagination-footer .pagination-dot:hover:not(:disabled) {
-  background: var(--soft);
-  color: var(--ink);
-}
-.pos-codecanyon .pagination-footer .pagination-dot.active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-  font-weight: 600;
-}
-.pos-codecanyon .pagination-footer .pagination-dot.ellipsis {
-  border: 0;
-  background: transparent;
-  cursor: default;
-}
-.pos-codecanyon .pagination-footer .pagination-dots {
-  display: inline-flex;
-  gap: 4px;
-}
-.pos-codecanyon .pagination-footer .pagination-info {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 11px;
-  color: var(--ink-3);
-}
-.pos-codecanyon .pagination-footer .page-number {
-  font-family: var(--font-mono);
-  color: var(--ink-2);
-}
-
-/* ---------- Bottom action / pay bar ---------- */
-.pos-codecanyon .pos-footer-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px 8px 20px;
-  background: var(--surface);
-  border-top: 1px solid var(--line);
-  box-shadow: none;
-  min-height: 64px;
-  position: static;
-}
-
-.pos-codecanyon .footer-status-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #1e7a44;
-  padding: 0;
-  background: transparent;
-  border: 0;
-}
-
-.pos-codecanyon .footer-status-indicator::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: 99px;
-  background: var(--success);
-  display: inline-block;
-}
-
-.pos-codecanyon .footer-status-indicator svg { display: none; }
-
-.pos-codecanyon .footer-status-indicator.is-offline {
-  color: #a83232;
-}
-.pos-codecanyon .footer-status-indicator.is-offline::before {
-  background: var(--danger);
-}
-
-.pos-codecanyon .pos-footer-bar::before {
-  content: "";
-  width: 1px;
-  height: 24px;
-  background: var(--line);
-  margin: 0 4px 0 8px;
-}
-
-.pos-codecanyon .footer-main-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-}
-
-.pos-codecanyon .pos-footer-bar .action-btn,
-.pos-codecanyon .pos-footer-bar .action-btn-secondary,
-.pos-codecanyon .pos-footer-bar a.action-btn {
-  height: 36px;
-  padding: 0 14px;
-  background: transparent;
-  color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 120ms ease;
-  box-shadow: none;
-}
-
-.pos-codecanyon .pos-footer-bar .action-btn:hover:not(:disabled),
-.pos-codecanyon .pos-footer-bar .action-btn-secondary:hover {
-  background: var(--soft);
-  border-color: var(--line-strong);
-}
-
-.pos-codecanyon .pos-footer-bar .action-btn svg {
-  width: 16px;
-  height: 16px;
-}
-
-.pos-codecanyon .footer-space { flex: 1; }
-
-.pos-codecanyon .total-payable-section {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  text-align: right;
-  margin-right: 12px;
-  gap: 0;
-}
-
-.pos-codecanyon .total-payable-section .payable-label {
-  font-size: 10px;
-  color: var(--ink-3);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.pos-codecanyon .total-payable-section .payable-amount {
-  font-size: 20px;
-  font-weight: 700;
-  font-family: var(--font-mono);
-  color: var(--ink);
-  letter-spacing: -0.01em;
-}
-
-/* Big primary Pay button */
-.pos-codecanyon .pos-footer-bar .action-btn-primary {
-  height: 48px;
-  padding: 0 28px;
-  background: var(--accent);
-  color: #fff;
-  border: 0;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  box-shadow: 0 4px 14px var(--accent-shadow);
-  transition: all 120ms ease;
-}
-
-.pos-codecanyon .pos-footer-bar .action-btn-primary:hover:not(:disabled) {
-  filter: brightness(1.05);
-  box-shadow: 0 6px 18px var(--accent-shadow);
-}
-
-.pos-codecanyon .pos-footer-bar .action-btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.pos-codecanyon .pos-footer-bar .action-btn-primary svg {
-  width: 18px;
-  height: 18px;
-  fill: #fff;
-}
-
-/* ---------- Loader gate ---------- */
-.pos-codecanyon .pos-gate-loader {
-  flex: 1;
-  display: grid;
-  place-items: center;
-  background: var(--bg);
-}
-
-/* ---------- Responsive: collapse to single column ---------- */
-@media (max-width: 1024px) {
-  .pos-codecanyon .pos-container {
-    grid-template-columns: 1fr;
-  }
-  .pos-codecanyon .pos-column-left {
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
-    max-height: 50vh;
-  }
-}
-
-@media (max-width: 768px) {
-  .pos-codecanyon .pos-footer-bar {
-    flex-wrap: wrap;
-    padding: 8px 12px;
-    min-height: auto;
-  }
-  .pos-codecanyon .total-payable-section {
-    margin-right: 0;
-    align-items: flex-start;
-    text-align: left;
-  }
-  .pos-codecanyon .pos-footer-bar .action-btn-primary {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-/* Subtle scrollbar in this scope */
-.pos-codecanyon .cart-section::-webkit-scrollbar,
-.pos-codecanyon .products-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-.pos-codecanyon .cart-section::-webkit-scrollbar-thumb,
-.pos-codecanyon .products-container::-webkit-scrollbar-thumb {
-  background: var(--line-strong);
-  border-radius: 4px;
-}
-
-
-/* ============================================================================
-   POS_NEW shell — interaction states + v-select deep overrides
-   The visual layout itself is delivered via inline styles in <template>;
-   this block adds only what cannot be expressed inline:
-   pseudo-classes (:hover/:focus), placeholder, deep v-select skin,
-   media queries.
-   ============================================================================ */
-
-/* Kill default focus outlines on every interactive element inside the POS shell
-   (buttons, links, inputs, selects, b-dropdown toggles, v-select internals).
-   Search input keeps its custom accent ring rule defined further down. */
-.pos-codecanyon button:focus,
-.pos-codecanyon button:focus-visible,
-.pos-codecanyon a:focus,
-.pos-codecanyon a:focus-visible,
-.pos-codecanyon input:focus,
-.pos-codecanyon select:focus,
-.pos-codecanyon textarea:focus,
-.pos-codecanyon [role="button"]:focus,
-.pos-codecanyon .btn:focus,
-.pos-codecanyon .btn.focus,
-.pos-codecanyon .dropdown-toggle:focus,
-.pos-codecanyon .b-dropdown:focus,
-.pos-codecanyon .b-dropdown .btn:focus,
-.pos-codecanyon ::v-deep(.vs__dropdown-toggle:focus),
-.pos-codecanyon ::v-deep(.vs__search:focus) {
-  outline: 0 !important;
-  outline-offset: 0 !important;
-  -webkit-tap-highlight-color: transparent;
-  box-shadow: none !important;
-}
-/* Keep the search input's purple ring from the .pos-shell-search-input:focus rule below */
-.pos-codecanyon .pos-shell-search-input:focus {
-  box-shadow: 0 0 0 3px #f5f3fd !important;
-}
-
-/* Base style for icon buttons — applied to both regular <button>s and to
-   b-dropdown toggle buttons via toggle-class (where inline styles can't reach). */
-.pos-codecanyon .pos-shell-icon-btn,
-.pos-codecanyon button.pos-shell-icon-btn,
-.pos-codecanyon a.pos-shell-icon-btn {
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px;
-  border-radius: 8px !important;
-  border: 1px solid #e6e6ec !important;
-  background: #ffffff !important;
-  color: #54546a !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0 !important;
-  cursor: pointer;
-  transition: all 120ms ease;
-  box-shadow: none !important;
-  line-height: 1;
-}
-.pos-codecanyon .pos-shell-icon-btn i,
-.pos-codecanyon .pos-shell-icon-btn svg {
-  font-size: 15px;
-  line-height: 1;
-}
-.pos-codecanyon .pos-shell-icon-btn:hover {
-  background: #f3f3f7 !important;
-  color: #1f1f2c !important;
-  border-color: #d8d8e0 !important;
-}
-/* ===== Calculator widget ===== */
-.pos-calc { padding: 2px; }
-.pos-calc-display {
-  background: #1f1f2c;
-  color: #fff;
-  border-radius: 10px;
-  padding: 14px 16px;
-  margin-bottom: 12px;
-  text-align: right;
-  overflow: hidden;
-}
-.pos-calc-expr {
-  min-height: 18px;
-  font-size: 13px;
-  color: #b6b6c6;
-  font-family: 'JetBrains Mono', monospace;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.pos-calc-result {
-  font-size: 30px;
-  font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.pos-calc-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-}
-.pos-calc-key {
-  height: 52px;
-  border: 1px solid #e6e6ec;
-  background: #ffffff;
-  color: #1f1f2c;
-  border-radius: 10px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 120ms ease;
-}
-.pos-calc-key:hover { background: #f3f3f7; border-color: #d8d8e0; }
-.pos-calc-key:active { transform: translateY(1px); }
-.pos-calc-key-fn { background: #f5f5f8; color: #54546a; }
-.pos-calc-key-op { background: #f5f3fd; color: #6f53d9; border-color: #ece9fb; }
-.pos-calc-key-op:hover { background: #ece9fb; }
-.pos-calc-key-zero { grid-column: span 2; }
-.pos-calc-key-eq { background: #6f53d9; color: #fff; border-color: #6f53d9; }
-.pos-calc-key-eq:hover { background: #5e44c4; border-color: #5e44c4; }
-/* When the icon button is the toggle of a b-dropdown, the wrapper is .dropdown.
-   Make sure the dropdown wrapper doesn't add unwanted spacing. */
-.pos-codecanyon .dropdown > .pos-shell-icon-btn {
-  display: inline-flex !important;
-}
-/* Dropdown menus opened from icon-button toggles — clean white panel with our palette */
-.pos-codecanyon .pos-shell-dropdown-menu,
-.pos-codecanyon .pos-shell-dropdown-menu.dropdown-menu {
-  background: #ffffff !important;
-  border: 1px solid #e6e6ec !important;
-  border-radius: 10px !important;
-  box-shadow: 0 8px 24px rgba(20, 20, 40, 0.08) !important;
-  padding: 0 !important;
-  margin-top: 4px !important;
-}
-
-.pos-codecanyon .pos-shell-action-btn:hover:not(:disabled) {
-  background: #f3f3f7 !important;
-  border-color: #d8d8e0 !important;
-}
-.pos-codecanyon .pos-shell-action-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pos-codecanyon .pos-shell-pay-btn:hover:not(:disabled) {
-  filter: brightness(1.05);
-  box-shadow: 0 6px 18px rgba(111, 83, 217, 0.45) !important;
-}
-
-.pos-codecanyon .pos-shell-product-card:hover {
-  border-color: #6f53d9 !important;
-  box-shadow: 0 4px 12px rgba(20, 20, 40, 0.06);
-}
-
-.pos-codecanyon .pos-shell-cart-row:hover {
-  background: #f3f3f7;
-}
-
-.pos-codecanyon .pos-shell-add-btn:hover:not(:disabled) {
-  background: #6f53d9 !important;
-  color: #ffffff !important;
-}
-.pos-codecanyon .pos-shell-add-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.pos-codecanyon .pos-shell-search-input:focus {
-  border-color: #6f53d9 !important;
-  box-shadow: 0 0 0 3px #f5f3fd;
-}
-.pos-codecanyon .pos-shell-search-input::placeholder {
-  color: #8d8da0;
-}
-
-.pos-codecanyon .pos-shell-autocomplete-item:hover {
-  background: #f5f3fd;
-  color: #6f53d9;
-}
-
-/* Header v-select skin (deep into vue-select internals) */
-.pos-codecanyon .pos-shell-header ::v-deep(.pos-shell-select .vs__dropdown-toggle) {
-  height: 32px;
-  min-height: 32px;
-  padding: 0 8px;
-  background: #ffffff;
-  border: 1px solid #e6e6ec;
-  border-radius: 7px;
-  box-shadow: none;
-  font-size: 12px;
-}
-.pos-codecanyon .pos-shell-header ::v-deep(.pos-shell-select .vs__selected-options) {
-  padding: 0;
-}
-.pos-codecanyon .pos-shell-header ::v-deep(.pos-shell-select .vs__placeholder),
-.pos-codecanyon .pos-shell-header ::v-deep(.pos-shell-select .vs__selected) {
-  font-size: 12px;
-  color: #54546a;
-  margin: 0;
-}
-.pos-codecanyon .pos-shell-header ::v-deep(.pos-shell-select .vs__search) {
-  font-size: 12px;
-  color: #1f1f2c;
-  margin: 0;
-  padding: 0;
-}
-.pos-codecanyon .pos-shell-header ::v-deep(.pos-shell-select .vs__open-indicator),
-.pos-codecanyon .pos-shell-header ::v-deep(.pos-shell-select .vs__clear) {
-  fill: #8d8da0;
-  scale: 0.8;
-}
-
-/* Hide caret arrows on dropdowns inside our header */
-.pos-codecanyon .dropdown-toggle-no-caret::after { display: none !important; }
-
-/* Smaller scrollbars in this scope */
-.pos-codecanyon .pos-shell-cart-scroll::-webkit-scrollbar,
-.pos-codecanyon .pos-shell-products-scroll::-webkit-scrollbar,
-.pos-codecanyon .pos-shell-main section ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-.pos-codecanyon .pos-shell-cart-scroll::-webkit-scrollbar-thumb,
-.pos-codecanyon .pos-shell-products-scroll::-webkit-scrollbar-thumb,
-.pos-codecanyon .pos-shell-main section ::-webkit-scrollbar-thumb {
-  background: #d8d8e0;
-  border-radius: 4px;
-}
-
-/* Fullscreen mode hardening — when the browser Fullscreen API promotes
-   .pos-codecanyon (or any ancestor) to :fullscreen, pin the layout to
-   the viewport so the header/footer never push off-screen and the inner
-   .pos-shell-products-scroll / .pos-shell-cart-scroll regions handle
-   overflow. Desktop / tablet-landscape only — on phones (≤768px) the
-   layout uses page-level scrolling, and forcing overflow:hidden here
-   would freeze the page after entering fullscreen via the in-app
-   button (the html element gets :fullscreen and inherits this chain). */
-@media (min-width: 769px) {
-  .pos-codecanyon:fullscreen,
-  .pos-codecanyon:-webkit-full-screen {
-    width: 100% !important;
-    height: 100% !important;
-    max-height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: hidden !important;
-  }
-  :fullscreen .pos-codecanyon,
-  :-webkit-full-screen .pos-codecanyon {
-    width: 100% !important;
-    height: 100% !important;
-    max-height: 100vh !important;
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: hidden !important;
-  }
-  .pos-codecanyon:fullscreen .pos-shell-header,
-  :fullscreen .pos-codecanyon .pos-shell-header,
-  .pos-codecanyon:-webkit-full-screen .pos-shell-header {
-    flex: 0 0 52px;
-  }
-  .pos-codecanyon:fullscreen .pos-shell-main,
-  :fullscreen .pos-codecanyon .pos-shell-main,
-  .pos-codecanyon:-webkit-full-screen .pos-shell-main {
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-  }
-}
-/* Scroll regions: always need overflow:auto so they remain scrollable */
-.pos-codecanyon .pos-shell-products-scroll,
-.pos-codecanyon .pos-shell-cart-scroll {
-  overflow-y: auto;
-  min-height: 0;
-}
-
-/* ============================================================
-   Defensive base — fixed widths/heights moved off inline styles
-   → into classes so media queries don't have to !important-fight
-   inline styles. Box-sizing/overflow defenses live in the mobile
-   block (below) so they don't perturb the desktop layout.
-   ============================================================ */
-
-/* Cart aside default width (overridden for ≤1024px below) */
-.pos-codecanyon .pos-shell-cart-aside {
-  flex: 0 0 50%;
-  width: 50%;
-}
-
-/* ============================================================
-   Cart sticky header (inside .pos-shell-cart-scroll)
-   ============================================================ */
-.pos-codecanyon .pos-cart-header {
-  position: sticky;
-  top: -8px; /* compensate for the parent's 8px padding so it docks flush */
-  margin: -8px -8px 8px -8px; /* span the full scroll width edge-to-edge */
-  padding: 10px 12px;
-  z-index: 5;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  background:
-    linear-gradient(180deg, #ffffff 0%, #fafafe 100%);
-  border-bottom: 1px solid #ececf3;
-  box-shadow: 0 4px 8px -6px rgba(20, 20, 40, 0.08);
-}
-.pos-codecanyon .pos-cart-header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-.pos-codecanyon .pos-cart-header-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 34px;
-  background: linear-gradient(135deg, rgba(111,83,217,0.12), rgba(138,108,240,0.12));
-  color: #6f53d9;
-  i { font-size: 16px; }
-  svg { width: 16px; height: 16px; }
-}
-.pos-codecanyon .pos-cart-header-text {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  line-height: 1.2;
-}
-.pos-codecanyon .pos-cart-header-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: #1f1f2c;
-  letter-spacing: -0.1px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.pos-codecanyon .pos-cart-header-sub {
-  font-size: 11px;
-  font-weight: 500;
-  color: #8d8da0;
-  margin-top: 1px;
-}
-
-.pos-codecanyon .pos-cart-header-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 0 0 auto;
-}
-.pos-codecanyon .pos-cart-header-total {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  line-height: 1.2;
-}
-.pos-codecanyon .pos-cart-header-total-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: #8d8da0;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-.pos-codecanyon .pos-cart-header-total-value {
-  font-size: 14px;
-  font-weight: 800;
-  color: #1f1f2c;
-  font-feature-settings: "tnum";
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.2px;
-  white-space: nowrap;
-  margin-top: 1px;
-}
-
-.pos-codecanyon .pos-cart-header-clear-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid #fbe3e3;
-  background: #fff5f5;
-  color: #d64545;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  flex: 0 0 34px;
-  transition: background 150ms ease, border-color 150ms ease, transform 150ms ease, color 150ms ease;
-  i { font-size: 15px; }
-  svg { width: 15px; height: 15px; }
-}
-.pos-codecanyon .pos-cart-header-clear-btn:hover:not(.is-disabled):not(:disabled) {
-  background: #d64545;
-  color: #fff;
-  border-color: #d64545;
-  transform: scale(1.05);
-}
-.pos-codecanyon .pos-cart-header-clear-btn.is-disabled,
-.pos-codecanyon .pos-cart-header-clear-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background: #f7f7fb;
-  border-color: #ececf3;
-  color: #b0b0c0;
-}
-
-/* Mobile-cart-header (the existing simple label) is now redundant — the new
-   sticky header replaces it on every breakpoint. */
-.pos-codecanyon .pos-shell-mobile-cart-header {
-  display: none !important;
-}
-
-/* Header default height (relaxes on mobile via media query → height:auto) */
-.pos-codecanyon .pos-shell-header {
-  min-height: 52px;
-  height: 52px;
-}
-
-/* Pay bar default height (relaxes on mobile via media query → height:auto) */
-.pos-codecanyon .pos-shell-pay-bar {
-  min-height: 55px;
-  height: 55px;
-}
-
-/* Header-row min-width safety on the header's inner items */
-.pos-codecanyon .pos-shell-header > * { min-width: 0; }
-
-/* Products grid — responsive column count */
-.pos-codecanyon .pos-shell-products-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-auto-rows: max-content;
-  gap: 5px;
-}
-
-/* ============================================================
-   Responsive breakpoints
-   - >1280px       : desktop, 5 product columns, side-by-side
-   - 1025-1280     : desktop side-by-side, 4 product columns
-   - 481-1024      : tablet + mobile — mockup-style layout (page
-                     scrolls vertically, bottom tab bar, mobile
-                     cart label + pay button, 3 product cols)
-   - 361-480       : small mobile — 2 cols, condensed
-   - <=360         : tiny phones — single column products
-   ============================================================ */
-@media (max-width: 1280px) {
-  .pos-codecanyon .pos-shell-products-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-/* ===== Tablet + mobile share the same mockup-style layout (≤1024px) ===== */
-@media (max-width: 1024px) {
-  /* --- Container --- */
-  .pos-codecanyon { font-size: 13px; }
-
-  /* --- Top header: wraps to multiple rows, dividers hidden --- */
-  .pos-codecanyon .pos-shell-header {
-    flex-wrap: wrap;
-    height: auto !important;
-    min-height: 52px !important;
-    padding: 6px 10px !important;
-    row-gap: 6px;
-    column-gap: 6px !important;
-  }
-  .pos-codecanyon .pos-shell-header > div[style*="width: 1px"] {
-    display: none !important;
-  }
-  .pos-codecanyon .pos-shell-header > div[style*="flex: 1"] {
-    display: none !important;
-  }
-  .pos-codecanyon .pos-shell-header .pos-shell-select {
-    min-width: 0 !important;
-    max-width: none !important;
-    flex: 1 1 140px;
-  }
-  /* Brand block — tighter, no right border so it doesn't look orphaned */
-  .pos-codecanyon .pos-shell-header > div:first-child {
-    padding-right: 6px !important;
-    border-right: 0 !important;
-    gap: 6px !important;
-  }
-
-  /* --- Cart aside --- */
-  .pos-codecanyon .pos-shell-cart-aside,
-  .pos-codecanyon .pos-shell-main > aside {
-    max-height: 42vh;
-  }
-  .pos-codecanyon .pos-shell-cart-scroll {
-    padding: 6px !important;
-  }
-
-  /* --- Cart row: tighter, allow inner row to wrap --- */
-  .pos-codecanyon .pos-shell-cart-row {
-    grid-template-columns: 28px 1fr auto !important;
-    gap: 6px !important;
-    padding: 6px !important;
-  }
-  /* Inner "qty + price + price-type" row wraps when narrow */
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(2) > div:last-child {
-    flex-wrap: wrap !important;
-    row-gap: 4px;
-  }
-  /* Bigger touch target on qty stepper */
-  .pos-codecanyon .pos-shell-cart-row .pos-qty-stepper,
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(2) > div:last-child > div:first-child {
-    height: 28px !important;
-  }
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(2) > div:last-child > div:first-child > button {
-    width: 26px !important;
-    height: 26px !important;
-    font-size: 15px !important;
-  }
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(2) > div:last-child > div:first-child > input {
-    width: 36px !important;
-    font-size: 12px !important;
-  }
-  /* Edit/remove buttons bigger touch target */
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(3) button {
-    padding: 6px !important;
-  }
-
-  /* --- Totals/charges block --- */
-  .pos-codecanyon .pos-shell-totals {
-    padding: 8px !important;
-  }
-
-  /* --- Search row --- */
-  .pos-codecanyon .pos-shell-search-row {
-    padding: 6px 8px !important;
-  }
-  .pos-codecanyon .pos-shell-search-input {
-    height: 38px !important;
-    font-size: 13px !important;
-  }
-  /* Scanner button shows icon only at this size */
-  .pos-codecanyon .pos-shell-search-row > button > span {
-    display: none !important;
-  }
-  .pos-codecanyon .pos-shell-search-row > button {
-    width: 38px !important;
-    height: 38px !important;
-    padding: 0 !important;
-    justify-content: center !important;
-    flex-shrink: 0 !important;
-  }
-
-  /* --- Products grid: 3 cols --- */
-  .pos-codecanyon .pos-shell-products-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
-  }
-  .pos-codecanyon .pos-shell-product-card {
-    padding: 6px !important;
-  }
-  /* Image wrapper's negative margin must match card padding — otherwise the
-     image extends past the border and clips it. Override to -6px to match. */
-  .pos-codecanyon .pos-shell-product-card > div:first-of-type {
-    margin: -6px -6px 6px !important;
-  }
-
-  /* --- Pay bar: action buttons compact, Pay-Now full width --- */
-  .pos-codecanyon .pos-shell-action-btn {
-    height: 36px !important;
-    padding: 0 10px !important;
-    font-size: 12px !important;
-  }
-  .pos-codecanyon .pos-shell-pay-btn {
-    flex: 1 1 100% !important;
-    justify-content: center;
-    height: 44px !important;
-    padding: 0 16px !important;
-    font-size: 14px !important;
-  }
-  /* Total Payable: align left, full row */
-  .pos-codecanyon .pos-shell-pay-bar > div[style*="align-items: flex-end"] {
-    align-items: flex-start !important;
-    text-align: left !important;
-    margin-right: 0 !important;
-    flex: 1 1 100% !important;
-  }
-}
-
-/* ===== Small mobile (≤480px) ===== */
-@media (max-width: 480px) {
-  /* --- Header: keep brand label + register pill visible (matches mobile mockup) --- */
-  .pos-codecanyon .pos-shell-header > div:first-child {
-    padding-right: 4px !important;
-    border-right: 0 !important;
-  }
-
-  /* --- Cart aside: roomier (the cart is the primary surface) --- */
-  .pos-codecanyon .pos-shell-cart-aside,
-  .pos-codecanyon .pos-shell-main > aside {
-    max-height: 48vh;
-  }
-
-  /* --- Cart row internals: minimal --- */
-  .pos-codecanyon .pos-shell-cart-row {
-    grid-template-columns: 26px 1fr auto !important;
-    gap: 4px !important;
-    padding: 4px !important;
-  }
-  .pos-codecanyon .pos-shell-cart-row > div:first-child {
-    width: 26px !important;
-    height: 26px !important;
-    font-size: 9px !important;
-  }
-  /* Hide the SKU code on tiny screens to keep name readable */
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(2) > div:first-child > span {
-    display: none !important;
-  }
-
-  /* --- Charges row stacks 2 cols on tiny screens (3 was too cramped) --- */
-  .pos-codecanyon .pos-shell-charges-row {
-    grid-template-columns: 1fr 1fr !important;
-  }
-  .pos-codecanyon .pos-shell-charges-row > label:nth-child(3) {
-    grid-column: 1 / -1;
-  }
-
-  /* --- Search row & scanner --- */
-  .pos-codecanyon .pos-shell-search-row {
-    padding: 4px 6px !important;
-  }
-
-  /* --- Products: 2 cols, smaller image zone --- */
-  .pos-codecanyon .pos-shell-products-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
-  }
-  .pos-codecanyon .pos-shell-product-card {
-    padding: 5px !important;
-    border-radius: 8px !important;
-  }
-  .pos-codecanyon .pos-shell-product-card > div:first-of-type {
-    margin: -5px -5px 6px !important;
-  }
-  /* Match the image's top-corner rounding to the card's border-radius (8px)
-     so the image doesn't poke past the card corners on small phones. */
-  .pos-codecanyon .pos-shell-product-card > div:first-of-type > div {
-    border-radius: 8px 8px 0 0 !important;
-  }
-
-  /* --- Pay bar: action buttons icon-only --- */
-  .pos-codecanyon .pos-shell-action-btn span:not(.spinner) {
-    display: none !important;
-  }
-  .pos-codecanyon .pos-shell-action-btn {
-    width: 38px !important;
-    height: 38px !important;
-    padding: 0 !important;
-    justify-content: center;
-    flex: 0 0 auto !important;
-  }
-  /* Pay Now stays full width and prominent */
-  .pos-codecanyon .pos-shell-pay-btn {
-    flex: 1 1 100% !important;
-    height: 48px !important;
-    font-size: 15px !important;
-  }
-  /* Hide the "Online/Offline · Synced" trailing text — keep just the dot + status */
-  .pos-codecanyon .pos-shell-pay-bar > div:first-child > span:nth-child(2) > span[style*="opacity: 0.7"] {
-    display: none !important;
-  }
-}
-
-/* ===== Tiny phones (≤360px) ===== */
-@media (max-width: 360px) {
-  /* Charges stack 1 column when even 2 columns is too tight */
-  .pos-codecanyon .pos-shell-charges-row {
-    grid-template-columns: 1fr !important;
-  }
-  .pos-codecanyon .pos-shell-charges-row > label:nth-child(3) {
-    grid-column: auto;
-  }
-  /* Single-column products on the smallest devices for legibility */
-  .pos-codecanyon .pos-shell-products-grid {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* ===== Touch-friendly: bump min hit-area on interactive controls
-       (matches Android/iOS "comfortable" target ≥32-40px) ===== */
-@media (hover: none) and (pointer: coarse) {
-  .pos-codecanyon .pos-shell-product-card,
-  .pos-codecanyon .pos-shell-action-btn,
-  .pos-codecanyon .pos-shell-pay-btn,
-  .pos-codecanyon .pos-shell-icon-btn {
-    -webkit-tap-highlight-color: rgba(111, 83, 217, 0.15);
-  }
-}
-
-/* ============================================================
-   MOBILE-ONLY ELEMENTS (hidden on desktop)
-   These are rendered always in the template but only display ≤768px.
-   ============================================================ */
-.pos-codecanyon .pos-shell-mobile-cart-header,
-.pos-codecanyon .pos-shell-mobile-pay-btn,
-.pos-codecanyon .pos-shell-mobile-pagination-dots,
-.pos-codecanyon .pos-shell-mobile-tabbar {
-  display: none;
-}
-
-/* ============================================================
-   PHONE LAYOUT (≤768px)
-   This block restyles the page to match the target mobile mockup:
-     - Simplified top header (brand + 3 icons; selectors below it)
-     - Search row + category chips strip
-     - Products grid (3 cols) + pagination dots
-     - Cart aside drops BELOW products, with collapse toggle and
-       its own Pay Now button
-     - Desktop bottom pay bar hidden, replaced by bottom tab bar
-   ============================================================ */
-@media (max-width: 768px) {
-  /* --- Defensive base (mobile-only — keeps desktop unchanged) --- */
-  .pos-codecanyon,
-  .pos-codecanyon * {
-    box-sizing: border-box;
-  }
-  /* Let the WHOLE page scroll vertically on mobile (instead of trying to
-     squeeze products + cart + header + tab bar into 100vh which collapses
-     the products grid to 0). The fixed tab bar handles padding-bottom. */
-  .pos-codecanyon {
-    height: auto !important;
-    min-height: 100vh;
-    max-width: 100vw;
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
-
-  /* --- Show mobile-only elements --- */
-  .pos-codecanyon .pos-shell-mobile-cart-header,
-  .pos-codecanyon .pos-shell-mobile-pay-btn,
-  .pos-codecanyon .pos-shell-mobile-tabbar {
-    display: flex;
-  }
-  .pos-codecanyon .pos-shell-mobile-pagination-dots {
-    display: flex;
-  }
-
-  /* --- Reorder: products section first, cart aside second --- */
-  /* Main is no longer flex:1 inside a fixed-vh root — it grows naturally. */
-  .pos-codecanyon .pos-shell-main {
-    flex-direction: column !important;
-    flex: 0 0 auto !important;
-    overflow: visible !important;
-    min-height: 0;
-  }
-  .pos-codecanyon .pos-shell-section,
-  .pos-codecanyon .pos-shell-main > section {
-    order: 1;
-    flex: 0 0 auto !important;
-    min-height: 0;
-    overflow: visible !important;
-  }
-  .pos-codecanyon .pos-shell-cart-aside,
-  .pos-codecanyon .pos-shell-main > aside {
-    order: 2;
-    flex: 0 0 auto !important;
-    width: 100% !important;
-    border-right: 0 !important;
-    border-top: 1px solid #e6e6ec;
-    border-bottom: 0;
-    max-height: none !important;
-    overflow: visible !important;
-    /* Mobile has an extra child (the cart label). */
-    grid-template-rows: auto auto auto !important;
-  }
-  /* Products scroll: natural height on mobile (page handles vertical scroll) */
-  .pos-codecanyon .pos-shell-products-scroll {
-    height: auto !important;
-    overflow: visible !important;
-  }
-  /* Cart scroll: cap at roughly 10 rows on mobile, then scroll inside the cart */
-  .pos-codecanyon .pos-shell-cart-scroll {
-    height: auto !important;
-    max-height: 560px;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch;
-  }
-  /* Section grid: 5 children but all auto-sized so each takes its content height */
-  .pos-codecanyon .pos-shell-section,
-  .pos-codecanyon .pos-shell-main > section {
-    grid-template-rows: auto auto auto auto !important;
-  }
-  /* Both products and cart are always visible on mobile (no collapsing). */
-  /* --- Bottom padding so the tab bar doesn't cover content --- */
-  .pos-codecanyon {
-    padding-bottom: 60px;
-  }
-
-  /* --- Top header: 3-row mobile layout matching the design mockup ---
-     Row 1: Brand block (50%) + Warehouse trigger (50%)
-     Row 2: Customer trigger (1fr) + small icon cluster (quick-add + settings + user)
-     Row 3: Categories trigger (50%) + Brands trigger (50%)
-     The 4th row (search) is the existing .pos-shell-search-row block. */
-  .pos-codecanyon .pos-shell-header {
-    padding: 10px 12px !important;
-    flex-wrap: wrap !important;
-    row-gap: 8px !important;
-    column-gap: 6px !important;
-    height: auto !important;
-    align-items: stretch !important;
-  }
-
-  /* Hide dividers + spacer + fullscreen + legacy settings link */
-  .pos-codecanyon .pos-shell-header > a[title*="Settings"],
-  .pos-codecanyon .pos-shell-header > a[title*="POS"],
-  .pos-codecanyon .pos-shell-header > button[title*="Fullscreen"],
-  .pos-codecanyon .pos-shell-header > div[style*="width: 1px"],
-  .pos-codecanyon .pos-shell-header > div[style*="flex: 1"] {
-    display: none !important;
-  }
-
-  /* ---- Row 1: Logo + today's-sales + sync/offline + POS settings + user-dd ---- */
-  .pos-codecanyon .pos-shell-header > div:first-child {
-    order: 1 !important;
-    flex: 0 0 auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    border-right: 0 !important;
-    padding-right: 0 !important;
-    gap: 8px !important;
-    height: 44px !important;
-    margin-right: auto !important;
-  }
-  /* Today's sales — visible on mobile */
-  .pos-codecanyon .pos-shell-header > button[title*="Today"] {
-    order: 2 !important;
-    flex: 0 0 auto !important;
-    display: inline-flex !important;
-  }
-  /* Calculator — visible on mobile, sits beside Today's sales */
-  .pos-codecanyon .pos-shell-header > button.pos-shell-calc-btn {
-    order: 2 !important;
-    flex: 0 0 auto !important;
-    display: inline-flex !important;
-  }
-  /* Product return — visible on mobile, sits right beside Today's sales */
-  .pos-codecanyon .pos-shell-header > button.pos-shell-return-btn {
-    order: 2 !important;
-    flex: 0 0 auto !important;
-    display: inline-flex !important;
-  }
-  /* Sync / offline — visible on mobile */
-  .pos-codecanyon .pos-shell-header > button[title*="Sync"],
-  .pos-codecanyon .pos-shell-header > button[title*="Offline"] {
-    order: 3 !important;
-    flex: 0 0 auto !important;
-    display: inline-flex !important;
-  }
-  /* Languages dropdown */
-  .pos-codecanyon .pos-shell-header > #lang-dd {
-    order: 4 !important;
-    flex: 0 0 32px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    align-self: center !important;
-    width: 32px !important;
-    height: 32px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  /* Display screen dropdown */
-  .pos-codecanyon .pos-shell-header > #display-screen-dd {
-    order: 5 !important;
-    flex: 0 0 32px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    align-self: center !important;
-    width: 32px !important;
-    height: 32px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  /* Inner b-dropdown toggle button — kill leftover padding/margin/border from bootstrap */
-  .pos-codecanyon .pos-shell-header > #lang-dd > button,
-  .pos-codecanyon .pos-shell-header > #display-screen-dd > button,
-  .pos-codecanyon .pos-shell-header > .pos-shell-user-dd-wrapper button {
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 32px !important;
-    height: 32px !important;
-    line-height: 1 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border: 0 !important;
-    background: transparent !important;
-  }
-  /* POS settings */
-  .pos-codecanyon .pos-shell-header > .pos-shell-settings-btn {
-    order: 6 !important;
-    flex: 0 0 32px !important;
-    width: 32px !important;
-    height: 32px !important;
-    padding: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    align-self: center !important;
-  }
-  /* User dropdown — rightmost on row 1 */
-  .pos-codecanyon .pos-shell-header > .pos-shell-user-dd-wrapper {
-    order: 7 !important;
-    flex: 0 0 32px !important;
-    width: 32px !important;
-    height: 32px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    align-self: center !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  /* All icon-buttons in header — force exact 32x32 with centered content */
-  .pos-codecanyon .pos-shell-header > button.pos-shell-icon-btn,
-  .pos-codecanyon .pos-shell-header > a.pos-shell-icon-btn {
-    width: 32px !important;
-    height: 32px !important;
-    padding: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    align-self: center !important;
-    line-height: 1 !important;
-  }
-  /* SVG/icons inside header buttons — neutral line-height so they center cleanly */
-  .pos-codecanyon .pos-shell-header svg,
-  .pos-codecanyon .pos-shell-header i {
-    vertical-align: middle !important;
-  }
-  /* Re-hide fullscreen button — earlier .pos-shell-icon-btn rule with display:inline-flex
-     would otherwise override the hide rule (later rule wins on tie). Hide it last. */
-  .pos-codecanyon .pos-shell-header > button[title*="Fullscreen"] {
-    display: none !important;
-  }
-
-  /* ---- Row 2: Register status (full width, below the icons) ---- */
-  .pos-codecanyon .pos-shell-header > .pos-shell-register-status {
-    order: 8 !important;
-    flex: 1 1 100% !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    height: auto !important;
-    padding: 4px 0 !important;
-  }
-
-  /* ---- Row 3: Customer (full width, left) + Quick-add (right) ---- */
-  .pos-codecanyon .pos-shell-header > .pos-cust-trigger {
-    order: 9 !important;
-    flex: 1 1 auto !important;
-    width: auto !important;
-    min-width: 0 !important;
-    max-width: none !important;
-  }
-  .pos-codecanyon .pos-shell-header > button[title*="Quick"] {
-    order: 10 !important;
-    flex: 0 0 auto !important;
-  }
-
-  /* ---- Row 4: Warehouse (alone, full width) ---- */
-  .pos-codecanyon .pos-shell-header > .pos-wh-trigger {
-    order: 11 !important;
-    flex: 1 1 100% !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-  }
-
-  /* ---- Row 5: Categories + Brands (50/50) ---- */
-  .pos-codecanyon .pos-shell-header > .pos-cat-trigger:not(.pos-brand-trigger) {
-    order: 12 !important;
-    flex: 1 1 calc(50% - 3px) !important;
-    min-width: 0 !important;
-    max-width: none !important;
-  }
-  .pos-codecanyon .pos-shell-header > .pos-cat-trigger.pos-brand-trigger {
-    order: 13 !important;
-    flex: 1 1 calc(50% - 3px) !important;
-    min-width: 0 !important;
-    max-width: none !important;
-  }
-
-  /* Legacy v-select fallback (if any remain) */
-  .pos-codecanyon .pos-shell-header .pos-shell-select {
-    min-width: 0 !important;
-    max-width: none !important;
-    flex: 1 1 calc(50% - 3px);
-  }
-
-  /* All triggers match the 32px icon-button height for visual consistency */
-  .pos-codecanyon .pos-shell-header > .pos-cat-trigger,
-  .pos-codecanyon .pos-shell-header > .pos-wh-trigger,
-  .pos-codecanyon .pos-shell-header > .pos-cust-trigger {
-    height: 32px !important;
-  }
-  /* Inner icon chips shrink to fit cleanly inside 32px rows */
-  .pos-codecanyon .pos-shell-header > .pos-cust-trigger .pos-cust-trigger-avatar,
-  .pos-codecanyon .pos-shell-header > .pos-wh-trigger .pos-wh-trigger-icon,
-  .pos-codecanyon .pos-shell-header > .pos-cat-trigger .pos-cat-trigger-icon {
-    width: 24px !important;
-    height: 24px !important;
-    flex: 0 0 24px !important;
-  }
-  /* Brand block matches the row height too */
-  .pos-codecanyon .pos-shell-header > div:first-child {
-    height: 44px !important;
-  }
-
-  /* --- Search row: tighten --- */
-  .pos-codecanyon .pos-shell-search-row {
-    padding: 8px 12px !important;
-    background: #ffffff;
-  }
-  .pos-codecanyon .pos-shell-search-input {
-    height: 40px !important;
-    font-size: 13px !important;
-    border-radius: 10px !important;
-  }
-  /* Scanner button → square icon-only */
-  .pos-codecanyon .pos-shell-search-row > button {
-    width: 40px !important;
-    height: 40px !important;
-    padding: 0 !important;
-    flex-shrink: 0 !important;
-    justify-content: center !important;
-    border-radius: 10px !important;
-  }
-  .pos-codecanyon .pos-shell-search-row > button > span {
-    display: none !important;
-  }
-
-  /* --- Products grid: 3 cols --- */
-  .pos-codecanyon .pos-shell-products-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-    padding: 8px 10px 12px;
-  }
-  /* Hide stock quantity on product cards on mobile (mockup shows SKU only) */
-  .pos-codecanyon .pos-shell-products-grid .pos-shell-card-stock {
-    display: none;
-  }
-  /* Card retains its inline padding/border-radius — don't fight inline styles
-     here because the image wrapper uses negative margins keyed to the card's
-     padding (margin: -10px -10px 8px). Overriding card padding without also
-     touching the image margin produces overlap or gaps. */
-
-  /* --- Mobile pagination dots --- */
-  .pos-codecanyon .pos-shell-mobile-pagination-dots {
-    justify-content: center;
-    gap: 6px;
-    padding: 8px 0 12px;
-    background: transparent;
-  }
-  .pos-codecanyon .pos-shell-mobile-page-dot {
-    width: 8px;
-    height: 8px;
-    padding: 0;
-    border: 0;
-    border-radius: 99px;
-    background: #d9d9e5;
-    cursor: pointer;
-    transition: all 160ms ease;
-  }
-  .pos-codecanyon .pos-shell-mobile-page-dot-active {
-    width: 10px;
-    height: 10px;
-    background: #6f53d9;
-  }
-  /* Hide the desktop pagination on mobile */
-  .pos-codecanyon .pos-shell-pagination {
-    display: none !important;
-  }
-
-  /* --- Cart label header (visual only, no collapse) --- */
-  .pos-codecanyon .pos-shell-mobile-cart-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    height: 40px;
-    padding: 0 14px;
-    background: #f7f7fb;
-    border-bottom: 1px solid #e6e6ec;
-  }
-  .pos-codecanyon .pos-shell-mobile-cart-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1f1f2c;
-  }
-
-  /* --- Cart row: tighter on mobile + circle thumb (matches mockup) --- */
-  .pos-codecanyon .pos-shell-cart-scroll {
-    padding: 4px 8px !important;
-  }
-  .pos-codecanyon .pos-shell-cart-row {
-    grid-template-columns: 32px 1fr auto !important;
-    gap: 10px !important;
-    padding: 8px !important;
-    border-bottom: 1px solid #f3f3f7;
-    border-radius: 0 !important;
-  }
-  .pos-codecanyon .pos-shell-cart-row > div:first-child {
-    border-radius: 99px !important;
-    background-color: #f5f3fd !important;
-    color: #6f53d9 !important;
-  }
-  /* Stack name + SKU vertically on mobile (SKU below the name) */
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(2) > div:first-child {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 0 !important;
-  }
-  /* Hide price-type select (mockup omits — desktop only) */
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(2) > div:last-child > select {
-    display: none !important;
-  }
-  /* Right column: edit/remove icons stay top, line total stays bottom (column layout) */
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(3) {
-    flex-direction: column !important;
-    align-items: flex-end !important;
-    justify-content: space-between !important;
-    gap: 4px !important;
-  }
-
-  /* --- Totals/charges block tighter --- */
-  .pos-codecanyon .pos-shell-totals {
-    padding: 10px 12px !important;
-  }
-  /* Charges row keeps 3 cols on mobile (Tax | Discount | Shipping) */
-  .pos-codecanyon .pos-shell-charges-row {
-    grid-template-columns: 1fr 1fr 1fr !important;
-    gap: 8px !important;
-  }
-
-  /* --- Mobile Pay Now button (inside cart, full-width purple) --- */
-  .pos-codecanyon .pos-shell-mobile-pay-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    width: calc(100% - 16px);
-    margin: 8px;
-    height: 48px;
-    padding: 0 18px;
-    background: #6f53d9;
-    color: #ffffff;
-    border: 0;
-    border-radius: 12px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba(111, 83, 217, 0.32);
-    transition: all 120ms ease;
-  }
-  .pos-codecanyon .pos-shell-mobile-pay-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  .pos-codecanyon .pos-shell-mobile-pay-btn-amount {
-    margin-left: auto;
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  /* --- Hide the desktop bottom pay bar on mobile (replaced by tab bar + cart pay btn) --- */
-  .pos-codecanyon .pos-shell-pay-bar {
-    display: none !important;
-  }
-
-  /* --- Mobile bottom tab bar (fixed) --- */
-  .pos-codecanyon .pos-shell-mobile-tabbar {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 50;
-    display: flex;
-    align-items: stretch;
-    justify-content: space-around;
-    height: 60px;
-    background: #ffffff;
-    border-top: 1px solid #e6e6ec;
-    box-shadow: 0 -2px 12px rgba(20, 20, 40, 0.04);
-    padding: 4px 0 max(4px, env(safe-area-inset-bottom));
-  }
-  .pos-codecanyon .pos-shell-mobile-tabbar > * {
-    flex: 1 1 0;
-  }
-  .pos-codecanyon .pos-shell-mobile-tab {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: #8d8da0;
-    font-size: 11px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    -webkit-tap-highlight-color: rgba(111, 83, 217, 0.18);
-    touch-action: manipulation;
-  }
-  .pos-codecanyon .pos-shell-mobile-tab > * {
-    pointer-events: none;
-  }
-  .pos-codecanyon .pos-shell-mobile-tab:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-  .pos-codecanyon .pos-shell-mobile-tab-active {
-    color: #6f53d9;
-  }
-  .pos-codecanyon .pos-shell-mobile-tab-icon-wrap {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .pos-codecanyon .pos-shell-mobile-tab-badge {
-    position: absolute;
-    top: -4px;
-    right: -8px;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 4px;
-    background: #6f53d9;
-    color: #ffffff;
-    font-size: 10px;
-    font-weight: 700;
-    border-radius: 99px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  /* "More" b-dropdown trigger — strip default button styles */
-  .pos-codecanyon .pos-shell-mobile-tabbar ::v-deep(.pos-shell-mobile-tab-toggle) {
-    width: 100% !important;
-    height: 100% !important;
-    padding: 0 !important;
-    background: transparent !important;
-    border: 0 !important;
-    color: #8d8da0 !important;
-  }
-  .pos-codecanyon .pos-shell-mobile-tabbar ::v-deep(.pos-shell-mobile-tab-toggle:focus),
-  .pos-codecanyon .pos-shell-mobile-tabbar ::v-deep(.pos-shell-mobile-tab-toggle:hover) {
-    background: transparent !important;
-    box-shadow: none !important;
-  }
-}
-
-/* Mobile charges-row tweaks (declared after the ≤768px block to win the
-   cascade — addresses two issues at Mobile M (375px) and Mobile L (425px)). */
-@media (max-width: 768px) {
-  /* The ≤480px rule above gives shipping `grid-column: 1 / -1`, which
-     makes it span the whole row underneath tax + discount. Reset it so
-     all three sit side-by-side in the 3 equal columns. */
-  .pos-codecanyon .pos-shell-charges-row > label:nth-child(3) {
-    grid-column: auto !important;
-  }
-  /* Shipping's currency prefix (e.g. "MAD", "USD") is wider than tax's
-     "%" / discount's "%" — trim its font + padding so all three input
-     areas are visually matched. */
-  .pos-codecanyon .pos-shell-charges-row > label:nth-child(3) > div > span {
-    padding-left: 4px !important;
-    padding-right: 0 !important;
-    font-size: 10px !important;
-    flex: 0 0 auto;
-  }
-}
-
-/* ===== Small phones (≤480px): keep mockup layout but tighter ===== */
-@media (max-width: 480px) {
-  .pos-codecanyon .pos-shell-products-grid {
-    gap: 6px;
-    padding: 6px 8px 10px;
-  }
-}
-
-/* ===== Tablet (481–1024px): warehouse + customer share a row 50/50,
-   categories + brands share a row 50/50, like the design mockup.
-   Declared LAST so it wins the cascade over the ≤768px mobile rules.
-   Uses high order numbers (50–53) so they don't collide with the mobile
-   orders 1–13 already on the icon buttons / register-status. ===== */
-@media (min-width: 481px) and (max-width: 1024px) {
-  .pos-codecanyon .pos-shell-header {
-    flex-wrap: wrap !important;
-    row-gap: 8px !important;
-    column-gap: 6px !important;
-  }
-  /* Hide spacer + dividers so the row layout doesn't break */
-  .pos-codecanyon .pos-shell-header > div[style*="flex: 1"],
-  .pos-codecanyon .pos-shell-header > div[style*="width: 1px"] {
-    display: none !important;
-  }
-  /* Hide the standalone quick-add button on tablet — it would land on its
-     own awkward row. The customer drawer's own "Quick add" button still
-     covers this action. */
-  .pos-codecanyon .pos-shell-header > button[title*="Quick"] {
-    display: none !important;
-  }
-  /* Warehouse — 50% of its row */
-  .pos-codecanyon .pos-shell-header > .pos-wh-trigger {
-    flex: 1 1 calc(50% - 4px) !important;
-    width: calc(50% - 4px) !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    order: 50 !important;
-  }
-  /* Customer — 50% of its row, paired with warehouse */
-  .pos-codecanyon .pos-shell-header > .pos-cust-trigger {
-    flex: 1 1 calc(50% - 4px) !important;
-    width: calc(50% - 4px) !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    order: 51 !important;
-  }
-  /* Categories — 50% of its row */
-  .pos-codecanyon .pos-shell-header > .pos-cat-trigger:not(.pos-brand-trigger) {
-    flex: 1 1 calc(50% - 4px) !important;
-    width: calc(50% - 4px) !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    order: 52 !important;
-  }
-  /* Brands — 50% of its row, paired with categories */
-  .pos-codecanyon .pos-shell-header > .pos-cat-trigger.pos-brand-trigger {
-    flex: 1 1 calc(50% - 4px) !important;
-    width: calc(50% - 4px) !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    order: 53 !important;
-  }
-}
-
-/* ===== Quantro POS exact-look override (desktop reference) ===== */
+<style>
+/* QUANTRO POS REFERENCE LAYER - single desktop override layer for /app/pos. */
 @media (min-width: 1025px) {
-  .pos-codecanyon {
+  body .pos-codecanyon.pos-codecanyon {
+    height: 100vh !important;
     min-width: 1280px !important;
+    overflow: hidden !important;
     background: #f0f4fa !important;
     color: #0b1b33 !important;
     font-family: 'IBM Plex Sans', 'Inter', system-ui, sans-serif !important;
-  }
-
-  .pos-codecanyon .pos-shell-header {
-    min-height: 82px !important;
-    padding: 10px 20px !important;
-    gap: 12px !important;
-    background: #ffffff !important;
-    border-bottom: 1px solid #e4eaf3 !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-block {
-    height: 48px !important;
-    min-width: 240px !important;
-    border-right: 0 !important;
-    padding-right: 8px !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-title {
-    font-family: 'Sora', 'IBM Plex Sans', sans-serif;
-    font-weight: 800;
-    font-size: 20px;
-    line-height: 1;
-    letter-spacing: 2px;
-    color: #061833;
-  }
-
-  .pos-codecanyon .pos-shell-brand-subtitle {
-    margin-top: 6px;
-    font-size: 8px;
-    letter-spacing: 3px;
-    color: #00a882;
-    font-weight: 800;
-  }
-
-  .pos-codecanyon .pos-shell-register-status,
-  .pos-codecanyon .pos-wh-trigger,
-  .pos-codecanyon .pos-cat-trigger,
-  .pos-codecanyon .pos-cust-trigger {
-    min-height: 52px !important;
-    border: 1px solid #e4eaf3 !important;
-    background: #f6f9fc !important;
-    border-radius: 14px !important;
-    padding: 8px 14px !important;
-    box-shadow: none !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger,
-  .pos-codecanyon .pos-cat-trigger,
-  .pos-codecanyon .pos-cust-trigger {
-    min-width: 190px !important;
-  }
-
-  .pos-codecanyon .pos-shell-icon-btn,
-  .pos-codecanyon .pos-shell-header .dropdown > button,
-  .pos-codecanyon .pos-shell-header [role="button"] + button {
-    width: 46px !important;
-    height: 46px !important;
-    border-radius: 11px !important;
-    border-color: #e4eaf3 !important;
-    background: #f6f9fc !important;
-    color: #47586f !important;
-  }
-
-  .pos-codecanyon .pos-shell-main {
-    gap: 16px !important;
-    padding: 18px 20px !important;
-    background: #f0f4fa !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-aside {
-    width: 540px !important;
-    flex: 0 0 540px !important;
-    border: 1px solid #e4eaf3 !important;
-    border-radius: 18px !important;
-    background: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(11, 27, 51, 0.04) !important;
-    overflow: hidden !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-scroll {
-    padding: 18px 16px 0 !important;
-  }
-
-  .pos-codecanyon .pos-cart-header {
-    padding: 0 4px 16px !important;
-    border-bottom: 0 !important;
-  }
-
-  .pos-codecanyon .pos-cart-header-icon,
-  .pos-codecanyon .pos-wh-trigger-icon,
-  .pos-codecanyon .pos-cust-trigger-avatar {
-    width: 44px !important;
-    height: 44px !important;
-    border-radius: 12px !important;
-    background: #eef4ff !important;
-    color: #2563eb !important;
-  }
-
-  .pos-codecanyon .pos-cart-header-title {
-    font-size: 20px !important;
-    font-weight: 800 !important;
-    color: #061833 !important;
-  }
-
-  .pos-codecanyon .pos-cart-header-total-value,
-  .pos-codecanyon .pos-shell-pay-bar span[style*="font-size: 20px"] {
-    color: #2563eb !important;
-    font-size: 24px !important;
-    font-weight: 800 !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-row {
-    min-height: 80px !important;
-    margin-bottom: 10px !important;
-    padding: 12px 14px !important;
-    border: 1px solid #e4eaf3 !important;
-    border-radius: 14px !important;
-    background: #ffffff !important;
-    grid-template-columns: 54px 1fr auto !important;
-  }
-
-  .pos-codecanyon .pos-shell-totals {
-    border-top: 1px solid #e4eaf3 !important;
-    background: #ffffff !important;
-    padding: 14px 20px 16px !important;
-  }
-
-  .pos-codecanyon .pos-shell-section {
-    background: transparent !important;
-    gap: 14px !important;
-  }
-
-  .pos-codecanyon .pos-shell-search-row {
-    padding: 0 !important;
-    gap: 14px !important;
-  }
-
-  .pos-codecanyon .pos-shell-search-input {
-    height: 64px !important;
-    border-radius: 14px !important;
-    border-color: #e4eaf3 !important;
-    background: #ffffff !important;
-    font-size: 15px !important;
-    padding-left: 52px !important;
-  }
-
-  .pos-codecanyon .pos-shell-search-row .pos-shell-action-btn {
-    width: 50px !important;
-    height: 50px !important;
-    padding: 0 !important;
-    border-radius: 12px !important;
-    background: #ffffff !important;
-    color: #2563eb !important;
-  }
-
-  .pos-codecanyon .pos-shell-search-row .pos-shell-action-btn span {
-    display: none !important;
-  }
-
-  .pos-codecanyon .pos-shell-category-strip {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 10px;
-    padding: 2px 0 0;
-    overflow-x: auto;
-  }
-
-  .pos-codecanyon .pos-shell-category-chip {
-    height: 42px;
-    padding: 0 22px;
-    border: 1px solid #e4eaf3;
-    border-radius: 22px;
-    background: #ffffff;
-    color: #24415f;
-    font-weight: 800;
-    font-size: 14px;
-    white-space: nowrap;
-    cursor: pointer;
-  }
-
-  .pos-codecanyon .pos-shell-category-chip.active {
-    background: #2563eb;
-    border-color: #2563eb;
-    color: #ffffff;
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
-  }
-
-  .pos-codecanyon .pos-shell-products-scroll {
-    padding: 0 !important;
-  }
-
-  .pos-codecanyon .pos-shell-products-grid {
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(230px, 1fr)) !important;
-    gap: 16px !important;
-  }
-
-  .pos-codecanyon .pos-shell-product-card {
-    min-height: 252px !important;
-    border-radius: 16px !important;
-    border-color: #e4eaf3 !important;
-    padding: 15px !important;
-    box-shadow: 0 2px 8px rgba(11, 27, 51, 0.04) !important;
-  }
-
-  .pos-codecanyon .pos-shell-product-card > div[style*="margin: -10px"] {
-    margin: 0 0 12px !important;
-  }
-
-  .pos-codecanyon .pos-shell-product-card > div[style*="margin: -10px"] > div {
-    height: 108px !important;
-    border-radius: 10px !important;
-    background: #eaf0fb !important;
-  }
-
-  .pos-codecanyon .pos-shell-product-card div[style*="font-size: 13px"] {
-    font-size: 16px !important;
-    font-weight: 800 !important;
-    color: #061833 !important;
-  }
-
-  .pos-codecanyon .pos-shell-product-card div[style*="font-size: 14px"][style*="font-weight: 700"] {
-    color: #2563eb !important;
-    font-size: 22px !important;
-    font-weight: 800 !important;
-  }
-
-  .pos-codecanyon .pos-shell-add-btn {
-    width: 54px !important;
-    height: 54px !important;
-    border: 1.5px solid #2563eb !important;
-    border-radius: 14px !important;
-    background: #ffffff !important;
-    color: #2563eb !important;
-  }
-
-  .pos-codecanyon .pos-shell-pagination {
-    min-height: 62px !important;
-    border-top: 0 !important;
-    background: transparent !important;
-    padding: 0 !important;
-  }
-
-  .pos-codecanyon .pos-shell-pagination button {
-    width: 44px !important;
-    height: 44px !important;
-    border-radius: 12px !important;
-  }
-
-  .pos-codecanyon .pos-shell-pay-bar {
-    min-height: 92px !important;
-    padding: 14px 20px !important;
-    border-top: 1px solid #e4eaf3 !important;
-    background: #ffffff !important;
-  }
-
-  .pos-codecanyon .pos-shell-pay-bar .pos-shell-action-btn {
-    height: 52px !important;
-    min-width: 120px !important;
-    border-radius: 14px !important;
-    background: #f6f9fc !important;
-    border-color: #e4eaf3 !important;
-    color: #061833 !important;
-    font-weight: 800 !important;
-  }
-
-  .pos-codecanyon .pos-shell-pay-btn,
-  .pos-codecanyon .pos-shell-mobile-pay-btn {
-    height: 62px !important;
-    min-width: 198px !important;
-    border-radius: 16px !important;
-    background: #2563eb !important;
-    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.24) !important;
-    font-size: 18px !important;
-    font-weight: 800 !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-block > div:first-child {
-    background: radial-gradient(circle at 38% 35%, #08d5ff 0 16%, #2563eb 17% 38%, #071a35 39% 58%, transparent 59%),
-                linear-gradient(135deg, #dff9ff, #185cff 45%, #061833) !important;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.28);
-    color: transparent !important;
-  }
-
-  .pos-codecanyon .pos-shell-register-status > div:first-child {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: #0ba47e;
-    box-shadow: 0 0 8px rgba(11, 164, 126, .8);
-    font-size: 0 !important;
-    flex: 0 0 auto;
-  }
-
-  .pos-codecanyon .pos-shell-register-status > button {
-    display: none !important;
-  }
-
-  .pos-codecanyon .pos-shell-register-status::after {
-    content: "Register 01\A Online";
-    white-space: pre;
-    color: #061833;
-    font-size: 12px;
-    line-height: 1.35;
-    font-weight: 800;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-label,
-  .pos-codecanyon .pos-cat-trigger-label,
-  .pos-codecanyon .pos-cust-trigger-label {
     font-size: 13px !important;
-    font-weight: 800 !important;
-    color: #061833 !important;
   }
 
-  .pos-codecanyon .pos-wh-trigger-eyebrow,
-  .pos-codecanyon .pos-cust-trigger-eyebrow {
-    color: #8291a9 !important;
-    font-size: 9px !important;
-    letter-spacing: 1.1px !important;
-    text-transform: uppercase !important;
-    font-weight: 800 !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-aside {
-    max-width: 540px !important;
-  }
-
-  .pos-codecanyon .pos-cart-header-sub::before {
-    content: "Register 01 · Walk-in Customer";
-    font-size: 12px;
-    color: #7b8ca8;
-  }
-
-  .pos-codecanyon .pos-cart-header-sub {
-    font-size: 0 !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-row > div:first-child {
-    width: 52px !important;
-    height: 52px !important;
-    border-radius: 12px !important;
-    background: #eef4ff !important;
-    color: #2563eb !important;
-    font-size: 14px !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-row select,
-  .pos-codecanyon .pos-shell-cart-row span[style*="Total_price"],
-  .pos-codecanyon .pos-shell-cart-row div[style*="border: 1px solid #e6e6ec"] {
-    display: none !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(2) {
-    gap: 3px !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(2) > div:first-child {
-    font-size: 15px !important;
-    font-weight: 800 !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(3) {
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 22px !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(3) > div:last-child {
-    font-size: 18px !important;
-    color: #061833 !important;
-    font-weight: 800 !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(3)::before {
-    content: "−  1  +";
-    white-space: pre;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 112px;
-    height: 38px;
-    border-radius: 10px;
-    color: #061833;
-    font-weight: 800;
-    letter-spacing: 10px;
-  }
-
-  .pos-codecanyon .pos-shell-totals::before {
-    content: "DISCOUNT %\A%   10\A\A TAX %\A%    5";
-    white-space: pre;
-    float: left;
-    width: 45%;
-    color: #061833;
-    font-weight: 800;
-    line-height: 1.65;
-  }
-
-  .pos-codecanyon .pos-shell-totals > div:first-child {
-    display: none !important;
-  }
-
-  .pos-codecanyon .pos-shell-totals > div:nth-child(2) {
-    margin-left: 48% !important;
-  }
-
-  .pos-codecanyon .pos-shell-totals > div:nth-child(2)::after {
-    content: "Total                                    $232.23";
-    display: block;
-    margin-top: 12px;
-    padding-top: 10px;
-    border-top: 1px solid #e4eaf3;
-    color: #2563eb;
-    font-size: 20px;
-    font-weight: 900;
-  }
-
-  .pos-codecanyon .pos-shell-products-grid .pos-shell-product-card:nth-child(3n) > div:first-of-type > div,
-  .pos-codecanyon .pos-shell-products-grid .pos-shell-product-card:nth-child(5n) > div:first-of-type > div {
-    background: #dff7f1 !important;
-  }
-
-  .pos-codecanyon .pos-shell-products-grid .pos-shell-product-card:nth-child(6n) > div:first-of-type > div,
-  .pos-codecanyon .pos-shell-products-grid .pos-shell-product-card:nth-child(7n) > div:first-of-type > div {
-    background: #f0eafa !important;
-  }
-
-  .pos-codecanyon .pos-shell-products-grid .pos-shell-product-card span[style*="position: absolute; inset: 0"] {
-    font-size: 28px !important;
-    color: #2563eb !important;
-    flex-direction: column;
-  }
-
-  .pos-codecanyon .pos-shell-products-grid .pos-shell-product-card span[style*="position: absolute; inset: 0"]::after {
-    content: "ELECTRONICS";
-    display: block;
-    margin-top: 8px;
-    color: #5f8cf8;
-    font-size: 11px;
-    letter-spacing: 2px;
-    font-weight: 900;
-  }
-
-  .pos-codecanyon .pos-shell-pay-bar > div:first-child,
-  .pos-codecanyon .pos-shell-pay-bar > div:nth-child(2) {
-    display: none !important;
-  }
-
-  .pos-codecanyon .pos-shell-pay-bar::before {
-    content: "";
-    flex: 1;
-  }
-
-  .pos-codecanyon .pos-shell-pay-bar .pos-shell-pay-btn {
-    opacity: 1 !important;
-  }
-
-  /* Data must stay real: neutralize earlier visual-only pseudo content. */
-  .pos-codecanyon .pos-shell-register-status::after,
-  .pos-codecanyon .pos-cart-header-sub::before,
-  .pos-codecanyon .pos-shell-cart-row > div:nth-child(3)::before,
-  .pos-codecanyon .pos-shell-totals::before,
-  .pos-codecanyon .pos-shell-totals > div:nth-child(2)::after,
-  .pos-codecanyon .pos-shell-products-grid .pos-shell-product-card span[style*="position: absolute; inset: 0"]::after {
-    content: none !important;
-    display: none !important;
-  }
-
-  .pos-codecanyon .pos-cart-header-sub {
-    font-size: 12px !important;
-    color: #7b8ca8 !important;
-  }
-
-  .pos-codecanyon .pos-shell-totals > div:first-child {
-    display: grid !important;
-  }
-
-  .pos-codecanyon .pos-shell-totals > div:nth-child(2) {
-    margin-left: 0 !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-row div[style*="border: 1px solid #e6e6ec"] {
-    display: inline-flex !important;
-    width: auto !important;
-    height: 38px !important;
-    border-color: #e4eaf3 !important;
-    border-radius: 10px !important;
-    background: #f6f9fc !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-row div[style*="border: 1px solid #e6e6ec"] button {
-    width: 38px !important;
-    height: 36px !important;
-    color: #061833 !important;
-    font-weight: 900 !important;
-  }
-
-  .pos-codecanyon .pos-shell-cart-row div[style*="border: 1px solid #e6e6ec"] input {
-    width: 34px !important;
-    color: #061833 !important;
-    font-weight: 900 !important;
-  }
-
-  .pos-codecanyon .pos-shell-register-status > div:first-child {
-    width: auto !important;
-    height: auto !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    font-size: 12px !important;
-    color: #061833 !important;
-    font-weight: 800 !important;
-    white-space: nowrap !important;
-  }
-
-  .pos-codecanyon .pos-shell-register-status > div:first-child::before {
-    content: "";
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    margin-right: 10px;
-    border-radius: 999px;
-    background: #0ba47e;
-    box-shadow: 0 0 8px rgba(11, 164, 126, .8);
-    vertical-align: middle;
-  }
-
-  .pos-codecanyon .pos-shell-register-status > button {
-    display: inline-flex !important;
-    background: transparent !important;
-    padding: 0 !important;
-    color: #0ba47e !important;
-    text-transform: none !important;
-    font-size: 10px !important;
-  }
-
-  /* ===== Header exact pass: matches Quantro POS.dc.html header ===== */
-  .pos-codecanyon .pos-shell-header {
-    height: 82px !important;
-    min-height: 82px !important;
-    max-height: 82px !important;
-    padding: 12px 20px !important;
-    gap: 12px !important;
-    background: #ffffff !important;
-    border-bottom: 1px solid #e4eaf3 !important;
-    box-shadow: none !important;
-    overflow: hidden !important;
-  }
-
-  .pos-codecanyon .pos-header-menu-btn {
-    width: 46px !important;
-    height: 46px !important;
-    min-width: 46px !important;
-    border: 1px solid #dde7f3 !important;
-    border-radius: 12px !important;
-    background: #f6f9fc !important;
-    color: #24415f !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
-    cursor: pointer !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-block {
-    width: 184px !important;
-    min-width: 184px !important;
-    height: 46px !important;
-    padding: 0 !important;
-    margin: 0 8px 0 0 !important;
-    border: 0 !important;
-    gap: 12px !important;
-    flex: 0 0 184px !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-block > div:first-child {
-    width: 43px !important;
-    height: 43px !important;
-    min-width: 43px !important;
-    border-radius: 12px !important;
-    background:
-      radial-gradient(circle at 39% 34%, #1fe6ff 0 10%, transparent 11%),
-      radial-gradient(circle at 42% 42%, #0d1429 0 29%, transparent 30%),
-      conic-gradient(from 210deg, #122150, #2563eb, #00d5ff, #122150) !important;
-    box-shadow:
-      inset 0 0 0 5px rgba(6, 24, 51, .96),
-      inset 0 0 0 9px rgba(37, 99, 235, .72),
-      0 5px 10px rgba(37, 99, 235, .28) !important;
-    color: transparent !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-block > div:first-child span {
-    display: none !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-title {
-    font-family: 'Sora', 'IBM Plex Sans', Arial, sans-serif !important;
-    font-size: 21px !important;
-    line-height: 21px !important;
-    font-weight: 800 !important;
-    letter-spacing: 2.4px !important;
-    color: #061833 !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-subtitle {
-    margin-top: 5px !important;
-    font-size: 8px !important;
-    line-height: 8px !important;
-    letter-spacing: 3.2px !important;
-    color: #00a882 !important;
-    font-weight: 900 !important;
-  }
-
-  .pos-codecanyon .pos-shell-register-status,
-  .pos-codecanyon .pos-wh-trigger,
-  .pos-codecanyon .pos-cat-trigger,
-  .pos-codecanyon .pos-cust-trigger {
-    height: 52px !important;
-    min-height: 52px !important;
-    max-height: 52px !important;
-    border: 1px solid #dde7f3 !important;
-    background: #f6f9fc !important;
-    border-radius: 14px !important;
-    padding: 7px 13px !important;
-    box-shadow: none !important;
-    color: #061833 !important;
-    flex: 0 0 auto !important;
-  }
-
-  .pos-codecanyon .pos-shell-register-status {
-    width: 132px !important;
-    min-width: 132px !important;
-    font-family: inherit !important;
-    cursor: pointer !important;
-    appearance: none !important;
-  }
-
-  .pos-codecanyon .pos-register-dot {
-    width: 10px !important;
-    height: 10px !important;
-    min-width: 10px !important;
-    border-radius: 999px !important;
-    background: #00a882 !important;
-    box-shadow: 0 0 8px rgba(0, 168, 130, .65) !important;
-  }
-
-  .pos-codecanyon .pos-register-copy {
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header {
+    height: 68px !important;
+    min-height: 68px !important;
+    max-height: 68px !important;
     display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    min-width: 0 !important;
-    text-align: left !important;
-  }
-
-  .pos-codecanyon .pos-register-title {
-    font-size: 12px !important;
-    line-height: 16px !important;
-    font-weight: 800 !important;
-    color: #061833 !important;
-    white-space: nowrap !important;
-  }
-
-  .pos-codecanyon .pos-register-state {
-    font-size: 10px !important;
-    line-height: 13px !important;
-    font-weight: 800 !important;
-    color: #00a882 !important;
-    white-space: nowrap !important;
-  }
-
-  .pos-codecanyon .pos-register-legacy-state,
-  .pos-codecanyon .pos-shell-register-status > div:first-child,
-  .pos-codecanyon .pos-shell-register-status > button {
-    display: none !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger {
-    width: 216px !important;
-    min-width: 216px !important;
-  }
-
-  .pos-codecanyon .pos-cat-trigger:not(.pos-brand-trigger) {
-    width: 198px !important;
-    min-width: 198px !important;
-  }
-
-  .pos-codecanyon .pos-cat-trigger.pos-brand-trigger {
-    display: none !important;
-  }
-
-  .pos-codecanyon .pos-cust-trigger {
-    width: 224px !important;
-    min-width: 224px !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-icon,
-  .pos-codecanyon .pos-cat-trigger-icon,
-  .pos-codecanyon .pos-cust-trigger-avatar {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    border-radius: 10px !important;
-    display: inline-flex !important;
     align-items: center !important;
-    justify-content: center !important;
-    box-shadow: none !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-icon,
-  .pos-codecanyon .pos-cust-trigger-avatar {
-    background: #eaf1ff !important;
-    color: #2563eb !important;
-  }
-
-  .pos-codecanyon .pos-cat-trigger-icon {
-    background: #dff7f1 !important;
-    color: #00a882 !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-icon svg,
-  .pos-codecanyon .pos-cat-trigger-icon svg,
-  .pos-codecanyon .pos-cust-trigger-avatar svg {
-    width: 16px !important;
-    height: 16px !important;
-    stroke-width: 2.2 !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-body,
-  .pos-codecanyon .pos-cat-trigger-body,
-  .pos-codecanyon .pos-cust-trigger-body {
-    min-width: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    gap: 2px !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-eyebrow,
-  .pos-codecanyon .pos-cat-trigger-eyebrow,
-  .pos-codecanyon .pos-cust-trigger-eyebrow {
-    display: block !important;
-    font-size: 9px !important;
-    line-height: 11px !important;
-    letter-spacing: 1.4px !important;
-    color: #8291a9 !important;
-    font-weight: 900 !important;
-    text-transform: uppercase !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-label,
-  .pos-codecanyon .pos-cat-trigger-label,
-  .pos-codecanyon .pos-cust-trigger-label {
-    display: block !important;
-    max-width: 132px !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    font-size: 13px !important;
-    line-height: 16px !important;
-    font-weight: 800 !important;
-    color: #061833 !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-caret,
-  .pos-codecanyon .pos-cat-trigger-caret,
-  .pos-codecanyon .pos-cust-trigger-caret {
-    width: 13px !important;
-    height: 13px !important;
-    margin-left: auto !important;
-    color: #8291a9 !important;
-    stroke: #8291a9 !important;
-  }
-
-  .pos-codecanyon .pos-shell-header > div[style*="flex: 1"] {
-    flex: 1 1 auto !important;
-    min-width: 12px !important;
-  }
-
-  .pos-codecanyon .pos-shell-header > div[style*="width: 1px"] {
-    display: none !important;
-  }
-
-  .pos-codecanyon .pos-shell-icon-btn,
-  .pos-codecanyon .pos-shell-header .dropdown-toggle > span,
-  .pos-codecanyon .pos-shell-header .dropdown > button,
-  .pos-codecanyon .pos-shell-header .btn,
-  .pos-codecanyon .pos-shell-header [title="Display"],
-  .pos-codecanyon .pos-shell-header [title="Languages"] {
-    width: 46px !important;
-    height: 46px !important;
-    min-width: 46px !important;
-    border: 1px solid #dde7f3 !important;
-    border-radius: 12px !important;
-    background: #f6f9fc !important;
-    color: #24415f !important;
-    box-shadow: none !important;
-  }
-
-  .pos-codecanyon .pos-shell-header svg {
-    stroke-width: 2.1 !important;
-  }
-}
-
-</style>
-
-<style>
-/* LAST OVERRIDE: exact desktop POS reference geometry. This block must stay last. */
-@media (min-width: 1025px) {
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-main.pos-shell-main {
-    padding: 18px 20px 14px !important;
-    gap: 18px !important;
-    background: #f0f4fa !important;
-    border: 0 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-main.pos-shell-main > aside.pos-shell-cart-aside.pos-shell-cart-aside {
-    flex: 0 0 540px !important;
-    width: 540px !important;
-    min-width: 540px !important;
-    max-width: 540px !important;
-    border: 1px solid #dfe7f2 !important;
-    border-radius: 18px !important;
-    background: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(11, 27, 51, .04) !important;
-    overflow: hidden !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon section.pos-shell-section.pos-shell-section {
-    background: transparent !important;
-    grid-template-rows: auto auto 1fr auto !important;
-    border: 0 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon section.pos-shell-section.pos-shell-section > .pos-shell-search-row.pos-shell-search-row {
-    display: grid !important;
-    grid-template-columns: minmax(520px, 1fr) 54px 150px 110px !important;
-    gap: 14px !important;
-    padding: 0 !important;
-    margin: 0 0 16px !important;
-    align-items: center !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-search-wrap.pos-shell-search-wrap {
-    min-width: 0 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon input.pos-shell-search-input.pos-shell-search-input {
-    height: 64px !important;
-    border-radius: 14px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #ffffff !important;
-    padding-left: 52px !important;
-    font-size: 15px !important;
-    color: #0b1b33 !important;
-    box-shadow: none !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-search-row.pos-shell-search-row > button.pos-shell-action-btn.pos-shell-action-btn {
-    width: 54px !important;
-    min-width: 54px !important;
-    height: 62px !important;
-    min-height: 62px !important;
-    padding: 0 !important;
-    border-radius: 14px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #ffffff !important;
-    color: #2563eb !important;
-    justify-content: center !important;
-    box-shadow: none !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-search-row.pos-shell-search-row > button.pos-shell-action-btn.pos-shell-action-btn span {
-    display: none !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-sort-btn.pos-reference-sort-btn,
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-filter-btn.pos-reference-filter-btn {
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    height: 48px !important;
-    min-height: 48px !important;
-    border: 1px solid #dfe7f2 !important;
-    border-radius: 14px !important;
-    background: #ffffff !important;
-    color: #0b1b33 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    padding: 0 16px !important;
-    font-family: 'IBM Plex Sans', system-ui, sans-serif !important;
-    font-size: 14px !important;
-    line-height: 1 !important;
-    box-shadow: none !important;
-    cursor: pointer !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-sort-btn.pos-reference-sort-btn span {
-    display: inline !important;
-    color: #8291a9 !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-sort-btn.pos-reference-sort-btn strong,
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-filter-btn.pos-reference-filter-btn strong {
-    display: inline !important;
-    font-weight: 800 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-sort-btn.pos-reference-sort-btn svg,
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-filter-btn.pos-reference-filter-btn svg {
-    width: 16px !important;
-    height: 16px !important;
-    stroke-width: 2 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-category-strip.pos-shell-category-strip {
-    padding: 0 !important;
-    margin: 0 0 14px !important;
     gap: 10px !important;
-    background: transparent !important;
-    border: 0 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-category-chip.pos-shell-category-chip {
-    height: 42px !important;
-    min-width: 126px !important;
-    padding: 0 22px !important;
-    border-radius: 22px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #ffffff !important;
-    color: #23405f !important;
-    font-size: 14px !important;
-    font-weight: 800 !important;
-    box-shadow: none !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-category-chip.pos-shell-category-chip.active {
-    background: #2563eb !important;
-    border-color: #2563eb !important;
-    color: #ffffff !important;
-    box-shadow: 0 6px 14px rgba(37, 99, 235, .22) !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-products-scroll.pos-shell-products-scroll {
-    padding: 0 !important;
-    background: transparent !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar {
-    min-height: 116px !important;
-    padding: 22px 20px !important;
-    border-top: 1px solid #e4eaf3 !important;
-    background: #ffffff !important;
-    gap: 12px !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar > div:first-child,
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar > div:nth-child(2) {
-    display: none !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar .pos-shell-action-btn.pos-shell-action-btn {
-    height: 52px !important;
-    min-width: 120px !important;
-    border-radius: 14px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #f6f9fc !important;
-    color: #0b1b33 !important;
-    font-size: 15px !important;
-    font-weight: 800 !important;
-    padding: 0 24px !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar .pos-shell-pay-btn.pos-shell-pay-btn {
-    height: 62px !important;
-    min-width: 200px !important;
-    border-radius: 16px !important;
-    background: #2563eb !important;
-    box-shadow: none !important;
-    font-size: 18px !important;
-    font-weight: 800 !important;
-  }
-}
-</style>
-
-<style>
-/* TRUE LAST OVERRIDE: keep this block at EOF so the reference POS geometry wins. */
-@media (min-width: 1025px) {
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-main.pos-shell-main {
-    padding: 18px 20px 14px !important;
-    gap: 18px !important;
-    background: #f0f4fa !important;
-    border: 0 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-main.pos-shell-main > aside.pos-shell-cart-aside.pos-shell-cart-aside {
-    flex: 0 0 540px !important;
-    width: 540px !important;
-    min-width: 540px !important;
-    max-width: 540px !important;
-    border: 1px solid #dfe7f2 !important;
-    border-radius: 18px !important;
-    background: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(11, 27, 51, .04) !important;
-    overflow: hidden !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon section.pos-shell-section.pos-shell-section {
-    background: transparent !important;
-    grid-template-rows: auto auto 1fr auto !important;
-    border: 0 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon section.pos-shell-section.pos-shell-section > .pos-shell-search-row.pos-shell-search-row {
-    display: grid !important;
-    grid-template-columns: minmax(520px, 1fr) 54px 150px 110px !important;
-    gap: 14px !important;
-    padding: 0 !important;
-    margin: 0 0 16px !important;
-    align-items: center !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon input.pos-shell-search-input.pos-shell-search-input {
-    height: 64px !important;
-    border-radius: 14px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #ffffff !important;
-    padding-left: 52px !important;
-    font-size: 15px !important;
-    color: #0b1b33 !important;
-    box-shadow: none !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-search-row.pos-shell-search-row > button.pos-shell-action-btn.pos-shell-action-btn {
-    width: 54px !important;
-    min-width: 54px !important;
-    height: 62px !important;
-    min-height: 62px !important;
-    padding: 0 !important;
-    border-radius: 14px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #ffffff !important;
-    color: #2563eb !important;
-    justify-content: center !important;
-    box-shadow: none !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-search-row.pos-shell-search-row > button.pos-shell-action-btn.pos-shell-action-btn span {
-    display: none !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-sort-btn.pos-reference-sort-btn,
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-filter-btn.pos-reference-filter-btn {
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    height: 48px !important;
-    min-height: 48px !important;
-    border: 1px solid #dfe7f2 !important;
-    border-radius: 14px !important;
-    background: #ffffff !important;
-    color: #0b1b33 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    padding: 0 16px !important;
-    font-family: 'IBM Plex Sans', system-ui, sans-serif !important;
-    font-size: 14px !important;
-    line-height: 1 !important;
-    box-shadow: none !important;
-    cursor: pointer !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-sort-btn.pos-reference-sort-btn span {
-    display: inline !important;
-    color: #8291a9 !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-sort-btn.pos-reference-sort-btn strong,
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-filter-btn.pos-reference-filter-btn strong {
-    display: inline !important;
-    font-weight: 800 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-sort-btn.pos-reference-sort-btn svg,
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-filter-btn.pos-reference-filter-btn svg {
-    width: 16px !important;
-    height: 16px !important;
-    stroke-width: 2 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-category-strip.pos-shell-category-strip {
-    padding: 0 !important;
-    margin: 0 0 14px !important;
-    gap: 10px !important;
-    background: transparent !important;
-    border: 0 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-category-chip.pos-shell-category-chip {
-    height: 42px !important;
-    min-width: 126px !important;
-    padding: 0 22px !important;
-    border-radius: 22px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #ffffff !important;
-    color: #23405f !important;
-    font-size: 14px !important;
-    font-weight: 800 !important;
-    box-shadow: none !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-category-chip.pos-shell-category-chip.active {
-    background: #2563eb !important;
-    border-color: #2563eb !important;
-    color: #ffffff !important;
-    box-shadow: 0 6px 14px rgba(37, 99, 235, .22) !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-products-scroll.pos-shell-products-scroll {
-    padding: 0 !important;
-    background: transparent !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar {
-    min-height: 116px !important;
-    padding: 22px 20px !important;
-    border-top: 1px solid #e4eaf3 !important;
-    background: #ffffff !important;
-    gap: 12px !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar > div:first-child,
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar > div:nth-child(2) {
-    display: none !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar .pos-shell-action-btn.pos-shell-action-btn {
-    height: 52px !important;
-    min-width: 120px !important;
-    border-radius: 14px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #f6f9fc !important;
-    color: #0b1b33 !important;
-    font-size: 15px !important;
-    font-weight: 800 !important;
-    padding: 0 24px !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar .pos-shell-pay-btn.pos-shell-pay-btn {
-    height: 62px !important;
-    min-width: 200px !important;
-    border-radius: 16px !important;
-    background: #2563eb !important;
-    box-shadow: none !important;
-    font-size: 18px !important;
-    font-weight: 800 !important;
-  }
-}
-</style>
-
-<style>
-/* Final POS reference lock: mirrors Quantro POS.dc.html desktop geometry without seeding demo data. */
-@media (min-width: 1025px) {
-  body #app .pos-codecanyon.pos-codecanyon {
-    min-width: 1280px !important;
-    height: 100vh !important;
-    background: #f0f4fa !important;
-    color: #0b1b33 !important;
-    font-family: 'IBM Plex Sans', system-ui, sans-serif !important;
-    overflow: hidden !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header {
-    height: 82px !important;
-    min-height: 82px !important;
-    max-height: 82px !important;
-    padding: 16px 20px !important;
-    gap: 12px !important;
-    background: #ffffff !important;
-    border-bottom: 1px solid #e4eaf3 !important;
-    overflow: hidden !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-main {
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-    padding: 20px !important;
-    gap: 18px !important;
-    background: #f0f4fa !important;
-    border: 0 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-cart-aside {
-    width: 540px !important;
-    min-width: 540px !important;
-    max-width: 540px !important;
-    height: 100% !important;
-    border: 1px solid #dfe7f2 !important;
-    border-radius: 18px !important;
-    background: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(11, 27, 51, .04) !important;
-    overflow: hidden !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-cart-scroll {
-    padding: 16px 14px 0 !important;
-    background: #ffffff !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-cart-header {
-    height: 64px !important;
-    padding: 0 !important;
-    margin: 0 0 8px !important;
-    border: 0 !important;
-    background: transparent !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-cart-header-icon {
-    width: 44px !important;
-    height: 44px !important;
-    border-radius: 12px !important;
-    background: #edf3ff !important;
-    color: #2563eb !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-cart-header-title {
-    font-size: 22px !important;
-    line-height: 26px !important;
-    font-weight: 800 !important;
-    color: #061833 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-cart-header-sub {
-    font-size: 12px !important;
-    line-height: 16px !important;
-    color: #73839a !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-cart-header-total-label {
-    font-size: 10px !important;
-    letter-spacing: .9px !important;
-    color: #8291a9 !important;
-    text-transform: uppercase !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-cart-header-total-value {
-    font-size: 28px !important;
-    line-height: 30px !important;
-    color: #2563eb !important;
-    font-weight: 800 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-cart-header-clear-btn {
-    width: 44px !important;
-    height: 44px !important;
-    border-radius: 12px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #f6f9fc !important;
-    color: #ef4444 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-section {
-    background: transparent !important;
-    border: 0 !important;
-    overflow: hidden !important;
-    grid-template-rows: auto auto 1fr auto !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-search-row {
-    display: grid !important;
-    grid-template-columns: minmax(420px, 1fr) 54px 150px 110px !important;
-    gap: 14px !important;
-    padding: 0 !important;
-    margin: 0 0 16px !important;
-    align-items: center !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-search-input {
-    height: 64px !important;
-    border-radius: 14px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #ffffff !important;
-    padding-left: 52px !important;
-    font-size: 15px !important;
-    color: #0b1b33 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-search-row .pos-shell-action-btn {
-    width: 54px !important;
-    height: 48px !important;
-    padding: 0 !important;
-    border-radius: 14px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #ffffff !important;
-    color: #2563eb !important;
-    justify-content: center !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-search-row .pos-shell-action-btn span {
-    display: none !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-reference-sort-btn,
-  body #app .pos-codecanyon.pos-codecanyon .pos-reference-filter-btn {
-    height: 48px !important;
-    border: 1px solid #dfe7f2 !important;
-    border-radius: 14px !important;
-    background: #ffffff !important;
-    color: #0b1b33 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    gap: 8px !important;
-    padding: 0 16px !important;
-    font-size: 14px !important;
-    line-height: 1 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-reference-sort-btn span {
-    color: #8291a9 !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-reference-sort-btn strong,
-  body #app .pos-codecanyon.pos-codecanyon .pos-reference-filter-btn strong {
-    font-weight: 800 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-reference-sort-btn svg,
-  body #app .pos-codecanyon.pos-codecanyon .pos-reference-filter-btn svg {
-    width: 16px !important;
-    height: 16px !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-category-strip {
-    padding: 0 !important;
-    margin: 0 0 14px !important;
-    gap: 10px !important;
-    background: transparent !important;
-    border: 0 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-category-chip {
-    height: 42px !important;
-    min-width: 126px !important;
-    padding: 0 22px !important;
-    border-radius: 22px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #ffffff !important;
-    color: #23405f !important;
-    font-size: 14px !important;
-    font-weight: 800 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-category-chip.active {
-    background: #2563eb !important;
-    border-color: #2563eb !important;
-    color: #ffffff !important;
-    box-shadow: 0 6px 14px rgba(37, 99, 235, .22) !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-products-scroll {
-    padding: 0 !important;
-    background: transparent !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-products-grid {
-    grid-template-columns: repeat(4, minmax(220px, 1fr)) !important;
-    gap: 16px !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-product-card {
-    min-height: 252px !important;
-    border-radius: 16px !important;
-    border: 1px solid #dfe7f2 !important;
-    padding: 16px !important;
-    box-shadow: 0 2px 8px rgba(11, 27, 51, .05) !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-product-card > div[style*="margin: -10px"] {
-    margin: 0 0 12px !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-product-card > div[style*="margin: -10px"] > div {
-    height: 108px !important;
-    border-radius: 10px !important;
-    background-color: #eaf1ff !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-add-btn {
-    width: 56px !important;
-    height: 56px !important;
-    border-radius: 14px !important;
-    border: 1.5px solid #2563eb !important;
-    background: #ffffff !important;
-    color: #2563eb !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-totals {
-    padding: 14px 16px 16px !important;
-    background: #ffffff !important;
-    border-top: 1px solid #dfe7f2 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-pay-bar {
-    min-height: 116px !important;
-    padding: 22px 20px !important;
-    border-top: 1px solid #e4eaf3 !important;
-    background: #ffffff !important;
-    gap: 12px !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-pay-bar > div:first-child,
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-pay-bar > div:nth-child(2) {
-    display: none !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-pay-bar .pos-shell-action-btn {
-    height: 52px !important;
-    min-width: 120px !important;
-    border-radius: 14px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #f6f9fc !important;
-    color: #0b1b33 !important;
-    font-size: 15px !important;
-    font-weight: 800 !important;
-    padding: 0 24px !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-pay-btn {
-    height: 62px !important;
-    min-width: 200px !important;
-    border-radius: 16px !important;
-    background: #2563eb !important;
-    box-shadow: none !important;
-    font-size: 18px !important;
-    font-weight: 800 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-pagination {
-    min-height: 58px !important;
-    padding: 8px 0 0 !important;
-    border: 0 !important;
-    background: transparent !important;
-  }
-}
-</style>
-
-<!-- Non-scoped block: targets html/body/#app which Vue's scoped CSS cannot reach.
-     Util.toggleFullScreen() requests fullscreen on document.documentElement (the
-     <html> element), so the :fullscreen pseudo-class lands there. Without these
-     rules the browser's default :fullscreen { background: black } shows through
-     and the document chain (html → body → #app → .pos-codecanyon) doesn't
-     guarantee 100% height, leaving the layout misaligned in fullscreen. -->
-<style>
-/* Quantro POS header reference match. Keep this unscoped and late so it wins
-   over older POS overrides in this file. */
-@media (min-width: 1025px) {
-  .pos-codecanyon {
-    min-width: 1280px !important;
-    background: #f0f4fa !important;
-    color: #0b1b33 !important;
-    font-family: 'IBM Plex Sans', system-ui, sans-serif !important;
-    font-size: 13px !important;
-  }
-
-  .pos-codecanyon > .pos-shell-header {
-    height: 64px !important;
-    min-height: 64px !important;
-    max-height: 64px !important;
     padding: 10px 16px !important;
-    gap: 10px !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
     background: #ffffff !important;
     border-bottom: 1px solid #e4eaf3 !important;
     box-shadow: none !important;
     overflow: hidden !important;
+    flex-wrap: nowrap !important;
   }
 
-  .pos-codecanyon > .pos-shell-header * {
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header * {
     box-sizing: border-box !important;
   }
 
-  .pos-codecanyon .pos-header-menu-btn,
-  .pos-codecanyon .pos-reference-icon-btn {
-    width: 38px !important;
-    height: 38px !important;
-    min-width: 38px !important;
-    min-height: 38px !important;
-    padding: 10px !important;
-    border: 1px solid #e4eaf3 !important;
-    border-radius: 10px !important;
-    background: #f6f9fc !important;
-    color: #47586f !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: none !important;
-    cursor: pointer !important;
-    line-height: 1 !important;
-  }
-
-  .pos-codecanyon .pos-header-menu-btn:hover,
-  .pos-codecanyon .pos-reference-icon-btn:hover {
-    border-color: #2563eb !important;
-    color: #2563eb !important;
-  }
-
-  .pos-codecanyon .pos-header-menu-btn svg,
-  .pos-codecanyon .pos-reference-icon-btn svg {
-    width: 16px !important;
-    height: 16px !important;
-    display: block !important;
-    stroke-width: 2 !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-block {
-    flex: 0 0 auto !important;
-    width: auto !important;
-    min-width: 0 !important;
-    height: 36px !important;
-    padding: 0 !important;
-    margin: 0 6px 0 0 !important;
-    border: 0 !important;
-    gap: 9px !important;
-    align-items: center !important;
-    overflow: visible !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-block > div:first-child {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    overflow: visible !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-logo {
-    width: 36px !important;
-    height: 36px !important;
-    display: block !important;
-    object-fit: contain !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-wordmark {
-    min-width: 0 !important;
-    line-height: 1 !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-title {
-    font-family: 'Sora', 'IBM Plex Sans', sans-serif !important;
-    font-weight: 800 !important;
-    font-size: 14.5px !important;
-    line-height: 15px !important;
-    letter-spacing: 1.2px !important;
-    color: #061833 !important;
-    margin: 0 !important;
-  }
-
-  .pos-codecanyon .pos-shell-brand-subtitle {
-    margin-top: 5px !important;
-    font-size: 8px !important;
-    line-height: 8px !important;
-    letter-spacing: 2px !important;
-    color: #00a882 !important;
-    font-weight: 700 !important;
-  }
-
-  .pos-codecanyon .pos-shell-register-status {
-    width: 108px !important;
-    min-width: 108px !important;
-    height: 42px !important;
-    min-height: 42px !important;
-    max-height: 42px !important;
-    padding: 8px 13px !important;
-    gap: 8px !important;
-    border: 1px solid #e4eaf3 !important;
-    border-radius: 11px !important;
-    background: #f6f9fc !important;
-    color: #061833 !important;
-    box-shadow: none !important;
-    appearance: none !important;
-  }
-
-  .pos-codecanyon .pos-register-dot {
-    width: 8px !important;
-    height: 8px !important;
-    min-width: 8px !important;
-    border-radius: 999px !important;
-    background: #0ba47e !important;
-    box-shadow: 0 0 6px rgba(11, 164, 126, .8) !important;
-  }
-
-  .pos-codecanyon .pos-register-copy {
-    min-width: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    text-align: left !important;
-  }
-
-  .pos-codecanyon .pos-register-title {
-    font-weight: 700 !important;
-    font-size: 11.5px !important;
-    line-height: 14px !important;
-    color: #061833 !important;
-    white-space: nowrap !important;
-  }
-
-  .pos-codecanyon .pos-register-state {
-    font-size: 9.5px !important;
-    line-height: 12px !important;
-    color: #0ba47e !important;
-    font-weight: 600 !important;
-    white-space: nowrap !important;
-  }
-
-  .pos-codecanyon .pos-register-legacy-state,
-  .pos-codecanyon .pos-shell-register-status > div:first-child,
-  .pos-codecanyon .pos-shell-register-status > button {
-    display: none !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger,
-  .pos-codecanyon .pos-cat-trigger,
-  .pos-codecanyon .pos-cust-trigger {
-    height: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
-    padding: 7px 12px !important;
-    gap: 9px !important;
-    border: 1px solid #e4eaf3 !important;
-    border-radius: 11px !important;
-    background: #f6f9fc !important;
-    color: #061833 !important;
-    box-shadow: none !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    flex: 0 0 auto !important;
-    cursor: pointer !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger:hover,
-  .pos-codecanyon .pos-cat-trigger:hover,
-  .pos-codecanyon .pos-cust-trigger:hover {
-    border-color: #2563eb !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger {
-    width: 172px !important;
-    min-width: 172px !important;
-  }
-
-  .pos-codecanyon .pos-cat-trigger:not(.pos-brand-trigger) {
-    width: 158px !important;
-    min-width: 158px !important;
-  }
-
-  .pos-codecanyon .pos-cat-trigger.pos-brand-trigger {
-    display: none !important;
-  }
-
-  .pos-codecanyon .pos-cust-trigger {
-    width: 180px !important;
-    min-width: 180px !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-icon,
-  .pos-codecanyon .pos-cat-trigger-icon,
-  .pos-codecanyon .pos-cust-trigger-avatar {
-    width: 28px !important;
-    height: 28px !important;
-    min-width: 28px !important;
-    border-radius: 8px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    box-shadow: none !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-icon,
-  .pos-codecanyon .pos-cust-trigger-avatar {
-    background: rgba(37, 99, 235, .1) !important;
-    color: #2563eb !important;
-  }
-
-  .pos-codecanyon .pos-cat-trigger-icon {
-    background: rgba(0, 196, 154, .12) !important;
-    color: #00a882 !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-icon svg,
-  .pos-codecanyon .pos-cat-trigger-icon svg,
-  .pos-codecanyon .pos-cust-trigger-avatar svg {
-    width: 14px !important;
-    height: 14px !important;
-    stroke-width: 2 !important;
-  }
-
-  .pos-codecanyon .pos-cust-trigger-avatar span {
-    font-size: 12px !important;
-    line-height: 1 !important;
-    font-weight: 700 !important;
-    color: #2563eb !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-body,
-  .pos-codecanyon .pos-cat-trigger-body,
-  .pos-codecanyon .pos-cust-trigger-body {
-    min-width: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important;
-    gap: 2px !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-eyebrow,
-  .pos-codecanyon .pos-cat-trigger-eyebrow,
-  .pos-codecanyon .pos-cust-trigger-eyebrow {
-    display: block !important;
-    font-size: 9px !important;
-    line-height: 10px !important;
-    letter-spacing: .8px !important;
-    color: #8291a9 !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-label,
-  .pos-codecanyon .pos-cat-trigger-label,
-  .pos-codecanyon .pos-cust-trigger-label {
-    display: block !important;
-    max-width: 105px !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-    font-weight: 600 !important;
-    font-size: 11.5px !important;
-    line-height: 14px !important;
-    color: #061833 !important;
-  }
-
-  .pos-codecanyon .pos-cust-trigger-label {
-    max-width: 112px !important;
-  }
-
-  .pos-codecanyon .pos-wh-trigger-caret,
-  .pos-codecanyon .pos-cat-trigger-caret,
-  .pos-codecanyon .pos-cust-trigger-caret {
-    width: 12px !important;
-    height: 12px !important;
-    min-width: 12px !important;
-    margin-left: auto !important;
-    color: #8291a9 !important;
-    stroke: #8291a9 !important;
-    stroke-width: 2.4 !important;
-  }
-
-  .pos-codecanyon .pos-shell-header > div[style*="flex: 1"] {
-    flex: 1 1 auto !important;
-    min-width: 10px !important;
-  }
-
-  .pos-codecanyon .pos-reference-actions {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    flex: 0 0 auto !important;
-  }
-
-  .pos-codecanyon .pos-reference-bell {
-    position: relative !important;
-  }
-
-  .pos-codecanyon .pos-reference-bell > span {
-    position: absolute !important;
-    top: -4px !important;
-    right: -4px !important;
-    min-width: 17px !important;
-    height: 15px !important;
-    padding: 1px 5px !important;
-    border-radius: 8px !important;
-    background: #2563eb !important;
-    color: #ffffff !important;
-    font-size: 9px !important;
-    line-height: 13px !important;
-    font-weight: 700 !important;
-  }
-
-  .pos-codecanyon .pos-reference-language {
-    height: 38px !important;
-    min-width: 116px !important;
-    padding: 3px !important;
-    gap: 2px !important;
-    border: 1px solid #e4eaf3 !important;
-    border-radius: 10px !important;
-    background: #f6f9fc !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    box-shadow: none !important;
-  }
-
-  .pos-codecanyon .pos-reference-language button {
-    height: 30px !important;
-    min-width: 45px !important;
-    padding: 7px 11px !important;
-    border: 0 !important;
-    border-radius: 8px !important;
-    background: transparent !important;
-    color: #8291a9 !important;
-    font-family: 'IBM Plex Sans', system-ui, sans-serif !important;
-    font-size: 11.5px !important;
-    line-height: 14px !important;
-    font-weight: 600 !important;
-    box-shadow: none !important;
-    cursor: pointer !important;
-  }
-
-  .pos-codecanyon .pos-reference-language button.active {
-    background: #ffffff !important;
-    color: #2563eb !important;
-    box-shadow: 0 1px 4px rgba(11, 27, 51, .12) !important;
-  }
-}
-
-/* ============================================
-   POS Receipt — QR codes row (ZATCA + Invoice URL)
-   `flex-wrap: nowrap` forces the two blocks to stay inline even inside
-   the narrow size="sm" modal; QRs are 100px so 2 × 100 + 10 gap = 210px
-   comfortably fits a ~280px content column.
-   ============================================ */
-#invoice-POS .receipt-qr-row {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  justify-content: center !important;
-  align-items: flex-start !important;
-  gap: 10px !important;
-  width: 100%;
-}
-#invoice-POS .receipt-qr-block {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 0 0 auto;
-  width: 100px;
-  margin: 0;
-}
-#invoice-POS .receipt-qr-title {
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  text-align: center;
-  margin: 0 0 4px;
-  line-height: 1.2;
-  display: block;
-  width: 100%;
-}
-/* The QR mount: same layout box for both ZATCA and Invoice so they align identically. */
-#invoice-POS .receipt-qr-canvas {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100px;
-  height: 100px;
-  margin: 0 auto;
-}
-/* qrcode.js' CDN build emits a <canvas> + an <img>; the local minimal
-   vendor build only emits a <canvas>. Our render code (ensureQrImg) makes
-   sure an <img> always exists by converting canvas → toDataURL when
-   needed, then we show only the <img>. The <img>'s data URL survives
-   `innerHTML` cloning into the print popup (canvas pixel data does not). */
-#invoice-POS .receipt-qr-canvas img {
-  display: block !important;
-  margin: 0 auto !important;
-  width: 100px !important;
-  height: 100px !important;
-  max-width: 100px !important;
-}
-#invoice-POS .receipt-qr-canvas canvas,
-#invoice-POS .receipt-qr-canvas table {
-  display: none !important;
-}
-
-/* The html / body / #app / .pos-codecanyon chain pinned to 100vh +
-   overflow:hidden — desktop / tablet-landscape only. On phones (≤768px)
-   the POS layout (header + products + cart + tab bar) is taller than
-   100vh and needs the page itself to scroll; freezing the chain here
-   broke scroll after entering fullscreen via the in-app button.
-
-   Every selector below is qualified with `html.pos-active` so these
-   POS-only fullscreen overrides do not fire on dashboard / settings /
-   any other route — otherwise the topnav fullscreen button there would
-   hide the topnav+sidebar and zero the main-content-wrap padding,
-   shifting the footer. The class is added in mounted() above and
-   removed in beforeDestroy(). */
-@media (min-width: 769px) {
-  html.pos-active:fullscreen,
-  html.pos-active:-webkit-full-screen,
-  html.pos-active:-moz-full-screen,
-  html.pos-active:-ms-fullscreen {
-    width: 100% !important;
-    height: 100% !important;
-    overflow: hidden !important;
-  }
-  html.pos-active:fullscreen body,
-  html.pos-active:-webkit-full-screen body,
-  html.pos-active:-moz-full-screen body,
-  html.pos-active:-ms-fullscreen body {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-  }
-  html.pos-active:fullscreen #app,
-  html.pos-active:fullscreen .main-content-wrap,
-  html.pos-active:fullscreen .app-admin-wrap-layout-1,
-  html.pos-active:fullscreen .app-admin-wrap,
-  html.pos-active:fullscreen .main-content {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 100% !important;
-    max-height: 100vh !important;
-    overflow: hidden !important;
-  }
-  /* Pin the POS root to 100vh (NOT 100% of main-content-wrap) — <main>
-     has no explicit height in the global layout, so 100% would resolve
-     to 0 and leave the pay bar / products scroll without a viewport
-     anchor. 100vh forces the POS shell to own the entire screen so the
-     freed space (after the topnav/sidebar/app-footer hide below) goes
-     to .pos-shell-products-scroll, not to a gap below Pay Now. */
-  html.pos-active:fullscreen .pos-codecanyon {
-    width: 100% !important;
-    height: 100vh !important;
-    min-height: 100vh !important;
-    max-height: 100vh !important;
-    overflow: hidden !important;
-  }
-}
-
-/* Background color for the fullscreen viewport applies on all sizes —
-   without it the browser default :fullscreen { background: black }
-   shows through (especially around the rounded layout edges). */
-html.pos-active:fullscreen,
-html.pos-active:-webkit-full-screen,
-html.pos-active:-moz-full-screen,
-html.pos-active:-ms-fullscreen {
-  background: #f7f7fb !important;
-}
-html.pos-active:fullscreen body,
-html.pos-active:-webkit-full-screen body,
-html.pos-active:-moz-full-screen body,
-html.pos-active:-ms-fullscreen body {
-  margin: 0 !important;
-  padding: 0 !important;
-  background: #f7f7fb !important;
-}
-
-/* In fullscreen, also hide the global app sidebar / topnav / footer
-   so the POS owns the screen. Hiding .footer_wrap (and the flex-grow-1
-   spacer the layout puts between router-view and the footer) is what
-   keeps the area below Pay Now from showing the global copyright bar
-   and pushing layout — the freed space then goes to
-   .pos-shell-products-scroll inside the POS shell. */
-html.pos-active:fullscreen .side-content-wrap,
-html.pos-active:fullscreen .main-header,
-html.pos-active:fullscreen .layout-sidebar-large .main-header,
-html.pos-active:fullscreen .layout-sidebar-large .side-content-wrap,
-html.pos-active:fullscreen .main-content-wrap > .footer_wrap,
-html.pos-active:fullscreen .main-content-wrap > .flex-grow-1 {
-  display: none !important;
-}
-html.pos-active:fullscreen .main-content-wrap,
-html.pos-active:fullscreen .layout-sidebar-large .main-content-wrap {
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100% !important;
-  max-width: 100% !important;
-}
-
-/* ============================================
-   Today Sales modal — wrapper overrides
-   (Bootstrap-vue teleports the modal to body, outside the scoped
-   style scope. Wrapper-level styling lives here unscoped.)
-   ============================================ */
-.ts-modal-modern .modal-dialog {
-  max-width: 640px;
-}
-.ts-modal-modern .modal-content {
-  border: 0;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 24px 60px -20px rgba(31, 31, 44, 0.35),
-              0 8px 24px -8px rgba(31, 31, 44, 0.18);
-}
-.ts-modal-modern .modal-body,
-.ts-modal-modern .ts-modal-body-wrap {
-  padding: 0 !important;
-  background: #f7f7fb;
-}
-
-/* ============================================
-   POS Settings modal — wrapper overrides
-   ============================================ */
-.ps-modal-modern .modal-dialog {
-  max-width: 720px;
-}
-.ps-modal-modern .modal-content {
-  border: 0;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 24px 60px -20px rgba(31, 31, 44, 0.35),
-              0 8px 24px -8px rgba(31, 31, 44, 0.18);
-}
-.ps-modal-modern .modal-body,
-.ps-modal-modern .ps-modal-body-wrap {
-  padding: 0 !important;
-  background: #ffffff;
-}
-
-/* ============================================
-   Clear-cart confirmation modal — opened by ESC
-   shortcut. Bootstrap-vue teleports the modal
-   outside the scoped style scope so the wrapper
-   styling lives here unscoped.
-   ============================================ */
-.pos-confirm-clear-modal .modal-dialog {
-  max-width: 420px;
-}
-.pos-confirm-clear-modal .modal-content {
-  border: 0;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 24px 60px -20px rgba(31, 31, 44, 0.35),
-              0 8px 24px -8px rgba(31, 31, 44, 0.18);
-}
-.pos-confirm-clear-body {
-  padding: 24px !important;
-  background: #ffffff;
-}
-.pos-confirm-clear {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-.pos-confirm-clear-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: #fef2f2;
-  color: #d64545;
-  display: grid;
-  place-items: center;
-  margin-bottom: 16px;
-}
-.pos-confirm-clear-icon i,
-.pos-confirm-clear-icon svg {
-  width: 28px;
-  height: 28px;
-}
-.pos-confirm-clear-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1f1f2c;
-  margin: 0 0 6px;
-  line-height: 1.35;
-}
-.pos-confirm-clear-msg {
-  font-size: 13px;
-  color: #54546a;
-  margin: 0 0 20px;
-  line-height: 1.5;
-}
-.pos-confirm-clear-actions {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-}
-.pos-confirm-btn {
-  flex: 1;
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: all 120ms ease;
-  font-family: inherit;
-}
-.pos-confirm-btn i,
-.pos-confirm-btn svg {
-  width: 15px;
-  height: 15px;
-}
-.pos-confirm-btn-secondary {
-  background: #ffffff;
-  color: #1f1f2c;
-  border: 1px solid #e6e6ec;
-}
-.pos-confirm-btn-secondary:hover {
-  background: #f5f3fd;
-  color: #6f53d9;
-  border-color: #6f53d9;
-}
-.pos-confirm-btn-danger {
-  background: #d64545;
-  color: #ffffff;
-  border: 1px solid #d64545;
-}
-.pos-confirm-btn-danger:hover {
-  background: #b83838;
-  border-color: #b83838;
-}
-
-/* Final desktop header lock: beats the older scoped !important rules above. */
-@media (min-width: 1025px) {
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header {
-    height: 64px !important;
-    min-height: 64px !important;
-    max-height: 64px !important;
-    padding: 10px 16px !important;
-    gap: 10px !important;
-    align-items: center !important;
-    flex-wrap: nowrap !important;
-    background: #ffffff !important;
-    border-bottom: 1px solid #e4eaf3 !important;
-    box-shadow: none !important;
-    overflow: hidden !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-header-menu-btn.pos-header-menu-btn,
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-reference-actions.pos-reference-actions > .pos-reference-icon-btn.pos-reference-icon-btn {
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-header-menu-btn.pos-header-menu-btn,
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-reference-actions.pos-reference-actions > .pos-reference-icon-btn.pos-reference-icon-btn {
     width: 38px !important;
     height: 38px !important;
     min-width: 38px !important;
     max-width: 38px !important;
     min-height: 38px !important;
     max-height: 38px !important;
+    flex: 0 0 38px !important;
     padding: 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     border: 1px solid #e4eaf3 !important;
     border-radius: 10px !important;
     background: #f6f9fc !important;
     color: #47586f !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    line-height: 1 !important;
     box-shadow: none !important;
+    line-height: 1 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header svg {
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header svg {
     width: 16px !important;
     height: 16px !important;
     stroke-width: 2 !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-shell-brand-block.pos-shell-brand-block {
-    width: 178px !important;
-    min-width: 178px !important;
-    max-width: 178px !important;
-    height: 36px !important;
-    min-height: 36px !important;
-    max-height: 36px !important;
-    padding: 0 !important;
-    margin: 0 6px 0 0 !important;
-    gap: 9px !important;
-    border: 0 !important;
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-shell-brand-block.pos-shell-brand-block {
+    width: 206px !important;
+    min-width: 206px !important;
+    max-width: 206px !important;
+    height: 38px !important;
     display: inline-flex !important;
     align-items: center !important;
-    flex: 0 0 178px !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    margin: 0 6px 0 0 !important;
+    border: 0 !important;
+    flex: 0 0 206px !important;
+    overflow: visible !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-shell-brand-block.pos-shell-brand-block > div:first-child {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    max-width: 36px !important;
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-shell-brand-logo.pos-shell-brand-logo {
+    width: 198px !important;
+    height: 38px !important;
+    min-width: 198px !important;
+    max-width: 198px !important;
     min-height: 36px !important;
-    max-height: 36px !important;
+    max-height: 38px !important;
     border: 0 !important;
     border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
-    overflow: visible !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-shell-brand-logo.pos-shell-brand-logo {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    max-width: 36px !important;
-    min-height: 36px !important;
-    max-height: 36px !important;
     object-fit: contain !important;
+    object-position: left center !important;
     display: block !important;
+    opacity: 1 !important;
+    filter: none !important;
+    mix-blend-mode: normal !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-shell-brand-title.pos-shell-brand-title {
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-shell-brand-wordmark.pos-shell-brand-wordmark {
+    display: none !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    min-width: 0 !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-shell-brand-title.pos-shell-brand-title {
+    margin: 0 !important;
+    color: #061833 !important;
     font-family: 'Sora', 'IBM Plex Sans', sans-serif !important;
     font-size: 14.5px !important;
+    font-weight: 800 !important;
     line-height: 15px !important;
     letter-spacing: 1.2px !important;
-    font-weight: 800 !important;
-    color: #061833 !important;
-    margin: 0 !important;
+    white-space: nowrap !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-shell-brand-subtitle.pos-shell-brand-subtitle {
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-shell-brand-subtitle.pos-shell-brand-subtitle {
     margin-top: 5px !important;
+    color: #00a882 !important;
     font-size: 8px !important;
+    font-weight: 700 !important;
     line-height: 8px !important;
     letter-spacing: 2px !important;
-    font-weight: 700 !important;
-    color: #00a882 !important;
+    white-space: nowrap !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-shell-register-status.pos-shell-register-status {
-    width: 132px !important;
-    min-width: 132px !important;
-    max-width: 132px !important;
-    height: 42px !important;
-    min-height: 42px !important;
-    max-height: 42px !important;
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-shell-register-status.pos-shell-register-status {
+    width: auto !important;
+    min-width: 124px !important;
+    max-width: none !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
     padding: 8px 13px !important;
     gap: 8px !important;
-    border: 1px solid #e4eaf3 !important;
-    border-radius: 11px !important;
-    background: #f6f9fc !important;
-    box-shadow: none !important;
-    flex: 0 0 132px !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-register-dot.pos-register-dot {
-    width: 8px !important;
-    height: 8px !important;
-    min-width: 8px !important;
-    max-width: 8px !important;
-    min-height: 8px !important;
-    max-height: 8px !important;
-    background: #0ba47e !important;
-    box-shadow: 0 0 6px rgba(11, 164, 126, .8) !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-register-title.pos-register-title {
-    font-size: 11.5px !important;
-    line-height: 14px !important;
-    font-weight: 700 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-register-state.pos-register-state {
-    font-size: 9.5px !important;
-    line-height: 12px !important;
-    font-weight: 600 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-wh-trigger.pos-wh-trigger,
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-cat-trigger.pos-cat-trigger,
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-cust-trigger.pos-cust-trigger {
-    height: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
-    padding: 7px 12px !important;
-    gap: 9px !important;
+    display: inline-flex !important;
+    align-items: center !important;
     border: 1px solid #e4eaf3 !important;
     border-radius: 11px !important;
     background: #f6f9fc !important;
@@ -19290,31 +14621,58 @@ html.pos-active:fullscreen .layout-sidebar-large .main-content-wrap {
     flex: 0 0 auto !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-wh-trigger.pos-wh-trigger {
-    width: 216px !important;
-    min-width: 216px !important;
-    max-width: 216px !important;
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-register-dot.pos-register-dot {
+    width: 8px !important;
+    height: 8px !important;
+    min-width: 8px !important;
+    background: #0ba47e !important;
+    box-shadow: 0 0 6px rgba(11, 164, 126, .8) !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-cat-trigger.pos-cat-trigger:not(.pos-brand-trigger) {
-    width: 198px !important;
-    min-width: 198px !important;
-    max-width: 198px !important;
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-register-title.pos-register-title {
+    color: #061833 !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    line-height: 14px !important;
+    white-space: nowrap !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-cust-trigger.pos-cust-trigger {
-    width: 224px !important;
-    min-width: 224px !important;
-    max-width: 224px !important;
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-register-state.pos-register-state {
+    margin-top: 0 !important;
+    color: #0ba47e !important;
+    font-size: 9.5px !important;
+    font-weight: 600 !important;
+    line-height: 12px !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-brand-trigger.pos-brand-trigger {
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-wh-trigger.pos-wh-trigger,
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-cat-trigger.pos-cat-trigger,
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-cust-trigger.pos-cust-trigger {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+    padding: 7px 12px !important;
+    border: 1px solid #e4eaf3 !important;
+    border-radius: 11px !important;
+    background: #f6f9fc !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    flex: 0 0 auto !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > .pos-brand-trigger.pos-brand-trigger {
     display: none !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-wh-trigger-icon.pos-wh-trigger-icon,
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cat-trigger-icon.pos-cat-trigger-icon,
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cust-trigger-avatar.pos-cust-trigger-avatar {
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-wh-trigger-icon.pos-wh-trigger-icon,
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cat-trigger-icon.pos-cat-trigger-icon,
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cust-trigger-avatar.pos-cust-trigger-avatar {
     width: 28px !important;
     height: 28px !important;
     min-width: 28px !important;
@@ -19322,217 +14680,801 @@ html.pos-active:fullscreen .layout-sidebar-large .main-content-wrap {
     min-height: 28px !important;
     max-height: 28px !important;
     border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     box-shadow: none !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-wh-trigger-icon.pos-wh-trigger-icon svg,
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cat-trigger-icon.pos-cat-trigger-icon svg {
-    width: 14px !important;
-    height: 14px !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-wh-trigger-eyebrow.pos-wh-trigger-eyebrow,
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cat-trigger-eyebrow.pos-cat-trigger-eyebrow,
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cust-trigger-eyebrow.pos-cust-trigger-eyebrow {
-    font-size: 9px !important;
-    line-height: 10px !important;
-    letter-spacing: .8px !important;
-    font-weight: 700 !important;
-    color: #8291a9 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-wh-trigger-label.pos-wh-trigger-label,
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cat-trigger-label.pos-cat-trigger-label,
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cust-trigger-label.pos-cust-trigger-label {
-    font-size: 11.5px !important;
-    line-height: 14px !important;
-    font-weight: 600 !important;
-    color: #061833 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-wh-trigger-caret.pos-wh-trigger-caret,
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cat-trigger-caret.pos-cat-trigger-caret,
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cust-trigger-caret.pos-cust-trigger-caret {
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-wh-trigger-icon.pos-wh-trigger-icon svg,
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cat-trigger-icon.pos-cat-trigger-icon svg,
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-wh-trigger-caret.pos-wh-trigger-caret,
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cat-trigger-caret.pos-cat-trigger-caret,
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cust-trigger-caret.pos-cust-trigger-caret {
     width: 12px !important;
     height: 12px !important;
     min-width: 12px !important;
-    stroke-width: 2.4 !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-reference-actions.pos-reference-actions {
-    gap: 6px !important;
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-wh-trigger-eyebrow.pos-wh-trigger-eyebrow,
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cat-trigger-eyebrow.pos-cat-trigger-eyebrow,
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cust-trigger-eyebrow.pos-cust-trigger-eyebrow {
+    color: #8291a9 !important;
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    line-height: 10px !important;
+    letter-spacing: .8px !important;
+    text-transform: uppercase !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-wh-trigger-label.pos-wh-trigger-label,
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cat-trigger-label.pos-cat-trigger-label,
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-cust-trigger-label.pos-cust-trigger-label {
+    color: #061833 !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    line-height: 14px !important;
+    white-space: nowrap !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header > div[style*="flex: 1"] {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-reference-actions.pos-reference-actions {
     display: inline-flex !important;
     align-items: center !important;
+    gap: 6px !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    flex-wrap: nowrap !important;
+    overflow: visible !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-reference-actions.pos-reference-actions > * {
     flex: 0 0 auto !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-reference-language.pos-reference-language {
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-reference-actions.pos-reference-actions button {
+    font-family: inherit !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-reference-bell.pos-reference-bell {
+    position: relative !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-reference-bell.pos-reference-bell > span {
+    position: absolute !important;
+    top: -7px !important;
+    right: -5px !important;
+    min-width: 18px !important;
+    height: 18px !important;
+    padding: 0 5px !important;
+    border-radius: 999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--primary-color, #2563eb) !important;
+    color: #ffffff !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    line-height: 18px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-reference-language.pos-reference-language {
     height: 38px !important;
     min-height: 38px !important;
     max-height: 38px !important;
-    min-width: 116px !important;
-    padding: 3px !important;
+    display: inline-flex !important;
+    align-items: center !important;
     gap: 2px !important;
+    padding: 3px !important;
     border: 1px solid #e4eaf3 !important;
     border-radius: 10px !important;
     background: #f6f9fc !important;
     box-shadow: none !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-reference-language.pos-reference-language > button {
-    height: 30px !important;
-    min-height: 30px !important;
-    max-height: 30px !important;
-    min-width: 45px !important;
-    padding: 7px 11px !important;
-    border-radius: 8px !important;
-    font-size: 11.5px !important;
-    line-height: 14px !important;
-    font-weight: 600 !important;
-  }
-}
-</style>
-
-<style>
-/* EOF OVERRIDE: this is the active desktop POS reference geometry. */
-@media (min-width: 1025px) {
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-main.pos-shell-main {
-    padding: 18px 20px 14px !important;
-    gap: 18px !important;
-    background: #f0f4fa !important;
-    border: 0 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-main.pos-shell-main > aside.pos-shell-cart-aside.pos-shell-cart-aside {
-    flex: 0 0 540px !important;
-    width: 540px !important;
-    min-width: 540px !important;
-    max-width: 540px !important;
-    border: 1px solid #dfe7f2 !important;
-    border-radius: 18px !important;
-    background: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(11, 27, 51, .04) !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
     overflow: hidden !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon section.pos-shell-section.pos-shell-section {
-    background: transparent !important;
-    grid-template-rows: auto auto 1fr auto !important;
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-reference-language.pos-reference-language > button {
+    height: 30px !important;
+    min-height: 30px !important;
+    min-width: 45px !important;
+    padding: 7px 11px !important;
     border: 0 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon section.pos-shell-section.pos-shell-section > .pos-shell-search-row.pos-shell-search-row {
-    display: grid !important;
-    grid-template-columns: minmax(520px, 1fr) 54px 150px 110px !important;
-    gap: 14px !important;
-    padding: 0 !important;
-    margin: 0 0 16px !important;
-    align-items: center !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon input.pos-shell-search-input.pos-shell-search-input {
-    height: 64px !important;
-    border-radius: 14px !important;
-    border: 1px solid #dfe7f2 !important;
-    background: #ffffff !important;
-    padding-left: 52px !important;
-    font-size: 15px !important;
-    color: #0b1b33 !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    color: #8291a9 !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    line-height: 14px !important;
     box-shadow: none !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-search-row.pos-shell-search-row > button.pos-shell-action-btn.pos-shell-action-btn {
-    width: 54px !important;
-    min-width: 54px !important;
-    height: 62px !important;
-    min-height: 62px !important;
-    padding: 0 !important;
-    border-radius: 14px !important;
-    border: 1px solid #dfe7f2 !important;
+  body .pos-codecanyon.pos-codecanyon > nav.pos-shell-header.pos-shell-header .pos-reference-language.pos-reference-language > button.active {
     background: #ffffff !important;
-    color: #2563eb !important;
+    color: var(--primary-color, #2563eb) !important;
+    box-shadow: 0 1px 4px rgba(11, 27, 51, .12) !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > .pos-shell-main.pos-shell-main {
+    display: flex !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+    padding: 14px 16px !important;
+    background: #f0f4fa !important;
+    border: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-mobile-cart-header,
+  body .pos-codecanyon.pos-codecanyon .pos-shell-mobile-pay-btn,
+  body .pos-codecanyon.pos-codecanyon .pos-shell-mobile-pagination-dots,
+  body .pos-codecanyon.pos-codecanyon .pos-shell-mobile-tabbar {
+    display: none !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > .pos-shell-main.pos-shell-main > aside.pos-shell-cart-aside.pos-shell-cart-aside {
+    flex: 0 0 430px !important;
+    width: 430px !important;
+    min-width: 430px !important;
+    max-width: 430px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    border: 1px solid #e4eaf3 !important;
+    border-radius: 16px !important;
+    background: #ffffff !important;
+    box-shadow: 0 1px 2px rgba(11, 27, 51, .04) !important;
+    overflow: hidden !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon section.pos-shell-section.pos-shell-section {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    background: transparent !important;
+    border: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon input.pos-shell-search-input.pos-shell-search-input {
+    height: 46px !important;
+    min-height: 46px !important;
+    border: 1px solid #e4eaf3 !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    padding: 0 15px 0 44px !important;
+    font-size: 13px !important;
+    box-shadow: none !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-cart-header.pos-cart-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    padding: 14px 16px !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #e4eaf3 !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-cart-header-left.pos-cart-header-left,
+  body .pos-codecanyon.pos-codecanyon .pos-cart-header-right.pos-cart-header-right {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-cart-header-icon.pos-cart-header-icon {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border-radius: 10px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--primary-color-soft, rgba(37, 99, 235, .1)) !important;
+    color: var(--primary-color, #2563eb) !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-cart-header-title.pos-cart-header-title {
+    color: #061833 !important;
+    font-family: 'Sora', 'IBM Plex Sans', sans-serif !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    line-height: 22px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-cart-header-sub.pos-cart-header-sub,
+  body .pos-codecanyon.pos-codecanyon .pos-cart-header-total-label.pos-cart-header-total-label {
+    color: #8291a9 !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: 13px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-cart-header-total-value.pos-cart-header-total-value {
+    color: var(--primary-color, #2563eb) !important;
+    font-family: 'Sora', 'IBM Plex Sans', sans-serif !important;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    line-height: 24px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-cart-header-clear-btn.pos-cart-header-clear-btn {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    border: 1px solid #e4eaf3 !important;
+    border-radius: 10px !important;
+    background: #f6f9fc !important;
+    color: #e14848 !important;
+    display: inline-flex !important;
+    align-items: center !important;
     justify-content: center !important;
     box-shadow: none !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-search-row.pos-shell-search-row > button.pos-shell-action-btn.pos-shell-action-btn span {
+  body .pos-codecanyon.pos-codecanyon .pos-cart-count-badge.pos-cart-count-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 20px !important;
+    height: 18px !important;
+    margin-left: 7px !important;
+    padding: 0 7px !important;
+    border-radius: 999px !important;
+    background: var(--primary-color, #2563eb) !important;
+    color: #ffffff !important;
+    font-family: 'IBM Plex Sans', sans-serif !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    line-height: 18px !important;
+    vertical-align: 2px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-cart-scroll.pos-shell-cart-scroll {
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-cart-row.pos-shell-cart-row {
+    grid-template-columns: 52px minmax(0, 1fr) auto !important;
+    gap: 11px !important;
+    margin: 10px 12px 0 !important;
+    padding: 10px 12px !important;
+    border: 1px solid #e4eaf3 !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    min-height: 78px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-cart-row.pos-shell-cart-row > div:first-child {
+    width: 52px !important;
+    height: 52px !important;
+    min-width: 52px !important;
+    border-radius: 10px !important;
+    background: #eef4ff !important;
+    color: var(--primary-color, #2563eb) !important;
+    font-size: 11px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-cart-row.pos-shell-cart-row select {
     display: none !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-sort-btn.pos-reference-sort-btn,
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-filter-btn.pos-reference-filter-btn {
-    appearance: none !important;
-    -webkit-appearance: none !important;
-    height: 48px !important;
-    min-height: 48px !important;
-    border: 1px solid #dfe7f2 !important;
-    border-radius: 14px !important;
-    background: #ffffff !important;
+  body .pos-codecanyon.pos-codecanyon .pos-shell-cart-row.pos-shell-cart-row input {
+    background: transparent !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-charges-row.pos-shell-charges-row {
+    gap: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-reference-payments {
+    margin: 10px 0 12px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-reference-payments-label {
+    margin-bottom: 7px !important;
+    color: #8291a9 !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: .6px !important;
+    text-transform: uppercase !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-reference-payments-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-reference-payments-grid > button {
+    min-height: 60px !important;
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 10px 6px !important;
+    border: 1px solid #e4eaf3 !important;
+    border-radius: 12px !important;
+    background: #f6f9fc !important;
     color: #0b1b33 !important;
+    font-family: inherit !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    transition: background-color .15s ease, border-color .15s ease, transform .1s ease, box-shadow .15s ease !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-reference-payments-grid > button:hover:not(.active) {
+    border-color: var(--primary-color, #2563eb) !important;
+    background: #ffffff !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-reference-payments-grid > button:active {
+    transform: scale(.97) !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-reference-payments-grid > button svg {
+    width: 16px !important;
+    height: 16px !important;
+    color: var(--primary-color, #2563eb) !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-reference-payments-grid > button.active {
+    border-color: var(--primary-color, #2563eb) !important;
+    background: var(--primary-color, #2563eb) !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 18px -6px var(--primary-color-soft, rgba(37, 99, 235, .5)) !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-reference-payments-grid > button.active svg {
+    color: #ffffff !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-totals.pos-shell-totals {
+    padding: 12px 16px !important;
+    background: #ffffff !important;
+    border-top: 1px solid #e4eaf3 !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-search-row.pos-shell-search-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-search-wrap.pos-shell-search-wrap {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-search-row.pos-shell-search-row > button.pos-shell-action-btn.pos-shell-action-btn {
+    width: 46px !important;
+    min-width: 46px !important;
+    height: 46px !important;
+    padding: 0 !important;
+    border: 1px solid #e4eaf3 !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    color: var(--primary-color, #2563eb) !important;
+    justify-content: center !important;
+    box-shadow: none !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon button.pos-reference-sort-btn.pos-reference-sort-btn,
+  body .pos-codecanyon.pos-codecanyon button.pos-reference-filter-btn.pos-reference-filter-btn {
+    height: 46px !important;
+    min-height: 46px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     gap: 8px !important;
-    padding: 0 16px !important;
-    font-family: 'IBM Plex Sans', system-ui, sans-serif !important;
-    font-size: 14px !important;
-    line-height: 1 !important;
+    padding: 0 14px !important;
+    border: 1px solid #e4eaf3 !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    color: #0b1b33 !important;
+    font-family: inherit !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
     box-shadow: none !important;
-    cursor: pointer !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-sort-btn.pos-reference-sort-btn span {
-    display: inline !important;
+  body .pos-codecanyon.pos-codecanyon button.pos-reference-sort-btn.pos-reference-sort-btn span {
     color: #8291a9 !important;
-    font-size: 12px !important;
     font-weight: 700 !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-sort-btn.pos-reference-sort-btn strong,
-  body #app .pos-codecanyon.pos-codecanyon button.pos-reference-filter-btn.pos-reference-filter-btn strong {
-    display: inline !important;
-    font-weight: 800 !important;
-  }
-
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-category-strip.pos-shell-category-strip {
+  body .pos-codecanyon.pos-codecanyon .pos-shell-category-strip.pos-shell-category-strip {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
     padding: 0 !important;
-    margin: 0 0 14px !important;
-    gap: 10px !important;
+    margin: 0 !important;
     background: transparent !important;
     border: 0 !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-category-chip.pos-shell-category-chip {
+  body .pos-codecanyon.pos-codecanyon .pos-shell-category-chip.pos-shell-category-chip {
     height: 42px !important;
-    min-width: 126px !important;
+    min-height: 42px !important;
     padding: 0 22px !important;
-    border-radius: 22px !important;
-    border: 1px solid #dfe7f2 !important;
+    border: 1px solid #e4eaf3 !important;
+    border-radius: 999px !important;
     background: #ffffff !important;
-    color: #23405f !important;
-    font-size: 14px !important;
+    color: #0b1b33 !important;
+    font-size: 13px !important;
     font-weight: 800 !important;
     box-shadow: none !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon .pos-shell-category-chip.pos-shell-category-chip.active {
-    background: #2563eb !important;
-    border-color: #2563eb !important;
+  body .pos-codecanyon.pos-codecanyon .pos-shell-category-chip.pos-shell-category-chip.active {
+    background: var(--primary-color, #2563eb) !important;
+    border-color: var(--primary-color, #2563eb) !important;
     color: #ffffff !important;
-    box-shadow: 0 6px 14px rgba(37, 99, 235, .22) !important;
+    box-shadow: 0 10px 20px -12px var(--primary-color-soft, rgba(37, 99, 235, .7)) !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar {
-    min-height: 116px !important;
-    padding: 22px 20px !important;
-    border-top: 1px solid #e4eaf3 !important;
-    background: #ffffff !important;
+  body .pos-codecanyon.pos-codecanyon .pos-shell-products-scroll.pos-shell-products-scroll {
+    padding: 0 !important;
+    overflow: auto !important;
+    background: transparent !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-products-grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     gap: 12px !important;
   }
 
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar > div:first-child,
-  body #app .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar > div:nth-child(2) {
-    display: none !important;
+  body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card {
+    min-height: 202px !important;
+    padding: 12px !important;
+    border: 1px solid #e4eaf3 !important;
+    border-radius: 14px !important;
+    background: #ffffff !important;
+    box-shadow: 0 1px 2px rgba(11, 27, 51, .04) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card > div[style*="margin: -10px"] {
+    margin: 0 !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card > div[style*="margin: -10px"] > div {
+    height: 86px !important;
+    border-radius: 10px !important;
+    background: #e8eefb !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card:nth-child(4n+2) > div[style*="margin: -10px"] > div {
+    background: #e8eefb !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card:nth-child(4n+3) > div[style*="margin: -10px"] > div {
+    background: #ddf6f0 !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card:nth-child(4n+4) > div[style*="margin: -10px"] > div {
+    background: #e8eefb !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card:nth-child(n+5) > div[style*="margin: -10px"] > div {
+    background: #efe8fb !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card:nth-child(4n+1) > div[style*="margin: -10px"] > div {
+    background: #ddf6f0 !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card > div[style*="margin: -10px"] span {
+    color: var(--primary-color, #2563eb) !important;
+    font-family: 'Sora', 'IBM Plex Sans', sans-serif !important;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    letter-spacing: .5px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card > div:nth-last-child(3) {
+    color: #061833 !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    line-height: 17px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card > div:nth-last-child(2) {
+    margin-bottom: 4px !important;
+    color: #8291a9 !important;
+    font-size: 10.5px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card > div:last-child {
+    margin-top: auto !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-add-btn.pos-shell-add-btn {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    border: 1.5px solid var(--primary-color, #2563eb) !important;
+    border-radius: 12px !important;
+    background: transparent !important;
+    color: var(--primary-color, #2563eb) !important;
+    box-shadow: none !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon .pos-shell-pagination.pos-shell-pagination {
+    min-height: 44px !important;
+    padding: 0 !important;
+    border-top: 0 !important;
+    background: transparent !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar {
+    min-height: 76px !important;
+    padding: 12px 16px !important;
+    border-top: 1px solid #e4eaf3 !important;
+    background: #ffffff !important;
+    gap: 10px !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar .pos-shell-action-btn.pos-shell-action-btn {
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 0 18px !important;
+    border: 1px solid #e4eaf3 !important;
+    border-radius: 12px !important;
+    background: #f6f9fc !important;
+    color: #0b1b33 !important;
+    font-weight: 800 !important;
+    box-shadow: none !important;
+  }
+
+  body .pos-codecanyon.pos-codecanyon > .pos-shell-pay-bar.pos-shell-pay-bar .pos-shell-pay-btn.pos-shell-pay-btn {
+    height: 56px !important;
+    min-height: 56px !important;
+    min-width: 174px !important;
+    padding: 0 28px !important;
+    border: 0 !important;
+    border-radius: 14px !important;
+    background: var(--primary-color, #2563eb) !important;
+    color: #ffffff !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    box-shadow: 0 10px 24px -12px var(--primary-color-soft, rgba(37, 99, 235, .8)) !important;
+  }
+}
+
+/* ===== Cart row enter/leave animation (transition-group) ===== */
+.cart-row-enter-active {
+  transition: opacity .22s ease, transform .22s cubic-bezier(.34, 1.56, .64, 1);
+}
+.cart-row-leave-active {
+  transition: opacity .18s ease, transform .18s ease;
+  position: relative;
+}
+.cart-row-move {
+  transition: transform .22s ease;
+}
+.cart-row-enter {
+  opacity: 0;
+  transform: translateX(-12px) scale(.97);
+}
+.cart-row-leave-to {
+  opacity: 0;
+  transform: translateX(12px) scale(.97);
+}
+
+/* ===== Product grid: staggered fade-in on render ===== */
+@keyframes pos-card-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.pos-shell-product-card {
+  animation: pos-card-in .28s ease both;
+}
+.pos-shell-products-grid > .pos-shell-product-card:nth-child(1) { animation-delay: 0ms; }
+.pos-shell-products-grid > .pos-shell-product-card:nth-child(2) { animation-delay: 20ms; }
+.pos-shell-products-grid > .pos-shell-product-card:nth-child(3) { animation-delay: 40ms; }
+.pos-shell-products-grid > .pos-shell-product-card:nth-child(4) { animation-delay: 60ms; }
+.pos-shell-products-grid > .pos-shell-product-card:nth-child(5) { animation-delay: 80ms; }
+.pos-shell-products-grid > .pos-shell-product-card:nth-child(6) { animation-delay: 100ms; }
+.pos-shell-products-grid > .pos-shell-product-card:nth-child(7) { animation-delay: 120ms; }
+.pos-shell-products-grid > .pos-shell-product-card:nth-child(8) { animation-delay: 140ms; }
+.pos-shell-products-grid > .pos-shell-product-card:nth-child(n+9) { animation-delay: 160ms; }
+
+/* Quick "pop" feedback the moment a product is added to cart */
+@keyframes pos-add-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(.94); }
+  70% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.pos-shell-product-card:active {
+  animation: pos-add-pop .28s ease;
+}
+
+/* Total payable ticks when it changes — the :key="GrandTotal" binding
+   remounts this span on every value change, retriggering the animation. */
+@keyframes pos-total-bump {
+  0% { transform: scale(1); color: var(--primary-color, #6f53d9); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+.pos-total-value {
+  display: inline-block;
+  animation: pos-total-bump .3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart-row-enter-active,
+  .cart-row-leave-active,
+  .cart-row-move,
+  .pos-shell-product-card {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ===== Interactive polish: every clickable POS control gets hover + press feedback ===== */
+.pos-shell-action-btn,
+.pos-shell-category-chip,
+.pos-shell-product-card,
+.pos-qty-btn,
+.pos-line-edit-btn,
+.pos-line-remove-btn,
+.pos-shell-add-btn,
+.pos-shell-pagination button,
+.pos-shell-mobile-page-dot {
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease,
+              box-shadow .15s ease, transform .1s ease !important;
+}
+
+.pos-shell-action-btn:hover {
+  border-color: var(--primary-color, #6f53d9) !important;
+  color: var(--primary-color, #6f53d9) !important;
+  background: #f5f3fd !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px -8px rgba(17, 17, 34, .28) !important;
+}
+.pos-shell-action-btn:active {
+  transform: translateY(0) scale(.96);
+  box-shadow: none !important;
+}
+
+.pos-shell-category-chip:hover:not(.active) {
+  border-color: var(--primary-color, #6f53d9) !important;
+  color: var(--primary-color, #6f53d9) !important;
+}
+.pos-shell-category-chip:active {
+  transform: scale(.96);
+}
+
+.pos-shell-product-card:hover {
+  border-color: var(--primary-color, #6f53d9) !important;
+  box-shadow: 0 10px 26px -10px rgba(111, 83, 217, .28) !important;
+  transform: translateY(-2px);
+}
+.pos-shell-product-card:active {
+  transform: translateY(0) scale(.98);
+}
+
+.pos-qty-btn:hover {
+  background: #f0ecfb !important;
+  color: var(--primary-color, #6f53d9) !important;
+}
+.pos-qty-btn:active {
+  transform: scale(.88);
+}
+
+.pos-line-edit-btn:hover {
+  background: #f0ecfb !important;
+  color: var(--primary-color, #6f53d9) !important;
+}
+.pos-line-remove-btn:hover {
+  background: rgba(214, 69, 69, .1) !important;
+  color: #d64545 !important;
+}
+.pos-line-edit-btn:active,
+.pos-line-remove-btn:active {
+  transform: scale(.88);
+}
+
+.pos-shell-add-btn {
+  transition: background-color .15s ease, color .15s ease, transform .1s ease;
+}
+.pos-shell-product-card:hover .pos-shell-add-btn {
+  background: var(--primary-color, #6f53d9) !important;
+  color: #fff !important;
+}
+.pos-shell-product-card:active .pos-shell-add-btn {
+  transform: scale(.9);
+}
+
+.pos-shell-pagination button:hover:not(:disabled) {
+  border-color: var(--primary-color, #6f53d9) !important;
+  color: var(--primary-color, #6f53d9) !important;
+}
+.pos-shell-pagination button:active:not(:disabled) {
+  transform: scale(.92);
+}
+.pos-shell-pagination button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.pos-shell-mobile-page-dot:hover {
+  opacity: .8;
+}
+
+.pos-cart-header-clear-btn {
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .1s ease !important;
+}
+.pos-cart-header-clear-btn:hover {
+  background: rgba(214, 69, 69, .1) !important;
+  border-color: #d64545 !important;
+  color: #d64545 !important;
+}
+.pos-cart-header-clear-btn:active {
+  transform: scale(.92);
+}
+
+.pos-header-menu-btn,
+.pos-shell-register-status,
+.pos-wh-trigger,
+.pos-cat-trigger,
+.pos-shell-mobile-tab {
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .1s ease;
+}
+.pos-header-menu-btn:hover,
+.pos-wh-trigger:hover,
+.pos-cat-trigger:hover {
+  border-color: var(--primary-color, #6f53d9) !important;
+}
+.pos-header-menu-btn:active,
+.pos-shell-register-status:active,
+.pos-wh-trigger:active,
+.pos-cat-trigger:active {
+  transform: scale(.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pos-shell-action-btn,
+  .pos-shell-category-chip,
+  .pos-shell-product-card,
+  .pos-qty-btn,
+  .pos-line-edit-btn,
+  .pos-line-remove-btn,
+  .pos-shell-add-btn,
+  .pos-shell-pagination button {
+    transition: none !important;
+    transform: none !important;
   }
 }
 </style>
+
+

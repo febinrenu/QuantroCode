@@ -16,7 +16,7 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('client_id')->index('ecommerce_clients_client_id');
+            $table->integer('client_id')->index();
             $table->string('username', 192);
             $table->string('email', 192);
             $table->dateTime('email_verified_at')->nullable();

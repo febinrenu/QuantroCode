@@ -1,5 +1,13 @@
-﻿<template>
-  <div class="vertical-sidebar-wrapper" :class="{ 'is-mobile': isMobileOrTablet, 'collapsed': isCollapsed, 'mobile-open': mobileOpen }">
+<template>
+  <div
+    class="vertical-sidebar-wrapper"
+    :class="{
+      'is-mobile': isMobileOrTablet,
+      'collapsed': isCollapsed,
+      'mobile-open': mobileOpen,
+      'light-sidebar': isLightTheme
+    }"
+  >
     <vue-perfect-scrollbar
       ref="ps"
       :settings="{ suppressScrollX: true, wheelPropagation: false }"
@@ -10,14 +18,10 @@
         <div class="header-brand" @click="navigateToDashboard">
           <div class="sidebar-logo">
             <img 
-              v-if="currentUser && currentUser.logo" 
-              :src="$imgUrl('settings', currentUser.logo)" 
-              alt="logo" 
-              class="logo-image"
+              :src="sidebarLogoSrc"
+              alt="Quantro"
+              class="logo-image quantro-h-logo-image"
             />
-            <div v-else class="logo-placeholder">
-              {{ (currentUser && currentUser.company) ? currentUser.company[0] : 'S' }}
-            </div>
           </div>
           <div class="company-name" v-if="!isCollapsed && currentUser && !currentUser.hide_site_name">
             {{ currentUser.company || 'Stocky' }}
@@ -1927,10 +1931,21 @@ export default {
 
   computed: {
     ...mapGetters(["currentUserPermissions", "currentUser"]),
+    ...mapGetters("config", ["getThemeMode"]),
 
     planFeatures() {
       const ps = window.__planSummary;
       return (ps && ps.has_plan && ps.features) ? ps.features : {};
+    },
+
+    isLightTheme() {
+      return !(this.getThemeMode && this.getThemeMode.dark);
+    },
+
+    sidebarLogoSrc() {
+      return this.isLightTheme
+        ? "/images/super/landing-design/quantro/quantro-h-logo.png?v=quantro-h-logo-dashboard-light-0823"
+        : "/images/super/landing-design/quantro/quantro-dark-lockup.png?v=quantro-dark-lockup-0823";
     },
 
     isMobileOrTablet() {
@@ -2093,6 +2108,55 @@ export default {
   transform: translateX(0);
 }
 
+.vertical-sidebar-wrapper.light-sidebar {
+  background: #FFFFFF !important;
+  border-right: 1px solid #E2E8F0 !important;
+  box-shadow: 8px 0 28px rgba(15, 23, 42, 0.07) !important;
+}
+
+.vertical-sidebar-wrapper.light-sidebar .vertical-sidebar-header {
+  border-bottom-color: #E2E8F0 !important;
+}
+
+.vertical-sidebar-wrapper.light-sidebar .nav-link {
+  color: #64748B !important;
+}
+
+.vertical-sidebar-wrapper.light-sidebar .nav-link:hover {
+  background: #EFF6FF !important;
+  color: var(--primary-color, #2563EB) !important;
+}
+
+.vertical-sidebar-wrapper.light-sidebar .nav-item.active > .nav-link,
+.vertical-sidebar-wrapper.light-sidebar .nav-link.router-link-exact-active {
+  background: var(--primary-color, #2563EB) !important;
+  color: #FFFFFF !important;
+}
+
+.vertical-sidebar-wrapper.light-sidebar .nav-item.active > .nav-link .nav-icon,
+.vertical-sidebar-wrapper.light-sidebar .nav-link.router-link-exact-active .nav-icon {
+  color: #FFFFFF !important;
+}
+
+.vertical-sidebar-wrapper.light-sidebar .submenu {
+  background: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: none !important;
+}
+
+.vertical-sidebar-wrapper.light-sidebar .submenu-link,
+.vertical-sidebar-wrapper.light-sidebar .nested-link {
+  color: #64748B !important;
+}
+
+.vertical-sidebar-wrapper.light-sidebar .submenu-link:hover,
+.vertical-sidebar-wrapper.light-sidebar .nested-link:hover,
+.vertical-sidebar-wrapper.light-sidebar .submenu-link.router-link-active,
+.vertical-sidebar-wrapper.light-sidebar .nested-link.router-link-active {
+  background: #EFF6FF !important;
+  color: var(--primary-color, #2563EB) !important;
+}
+
 .vertical-sidebar-wrapper.collapsed {
   transform: translateX(-100%);
   width: 250px;
@@ -2108,7 +2172,7 @@ export default {
   /* key settings */
   overscroll-behavior-y: contain; /* prevent accidental body scroll when hitting limits */
   touch-action: pan-y;            /* allow smooth vertical scroll */
-  position: relative;             /* stay in layout, donâ€™t force isolation */
+  position: relative;             /* stay in layout, don’t force isolation */
   z-index: 2;
 }
 
@@ -2120,8 +2184,8 @@ export default {
 
 .vertical-sidebar.ps {
   -webkit-overflow-scrolling: touch; /* smooth on iOS */
-  overscroll-behavior: contain;      /* âœ… prevent page scroll */
-  touch-action: pan-y;               /* âœ… allow only vertical scroll gestures */
+  overscroll-behavior: contain;      /* ✅ prevent page scroll */
+  touch-action: pan-y;               /* ✅ allow only vertical scroll gestures */
 }
 
 /* Header with Logo */
@@ -2168,6 +2232,25 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+.logo-image.quantro-h-logo-image {
+  width: 230px !important;
+  max-width: 230px !important;
+  height: auto !important;
+  max-height: 82px !important;
+  object-fit: contain !important;
+  opacity: 1 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+.vertical-sidebar-wrapper.collapsed .logo-image.quantro-h-logo-image {
+  width: 40px !important;
+  max-width: 40px !important;
+  height: 40px !important;
+  object-fit: cover !important;
+  object-position: left center !important;
 }
 
 .logo-placeholder {
@@ -2221,7 +2304,7 @@ export default {
 
 .nav-item.active > .nav-link,
 .nav-link.router-link-exact-active {
-  background: #2563eb;
+  background: var(--primary-color, #2563EB);
   color: #fff;
   box-shadow: none;
 }
@@ -2240,6 +2323,37 @@ export default {
 .collapsed .nav-icon {
   margin-right: 0;
 }
+
+/* Per-section icon colors (resting state only — active/hover keep white via higher-specificity rules above) */
+.nav-icon.lucide-chart-column { color: #2563EB; }
+.nav-icon.lucide-credit-card { color: #7C3AED; }
+.nav-icon.lucide-life-buoy { color: #F59E0B; }
+.nav-icon.lucide-shopping-bag { color: #EC4899; }
+.nav-icon.lucide-users { color: #06B6D4; }
+.nav-icon.lucide-shield-check { color: #10B981; }
+.nav-icon.lucide-library-big { color: #6366F1; }
+.nav-icon.lucide-map-pin { color: #EF4444; }
+.nav-icon.lucide-receipt { color: #F97316; }
+.nav-icon.lucide-shopping-cart { color: #3B82F6; }
+.nav-icon.lucide-chevron-right,
+.nav-icon.lucide-chevron-left,
+.nav-icon.lucide-arrow-left { color: #64748B; }
+.nav-icon.lucide-shopping-basket { color: #14B8A6; }
+.nav-icon.lucide-library { color: #D97706; }
+.nav-icon.lucide-calendar-days { color: #0EA5E9; }
+.nav-icon.lucide-megaphone { color: #D946EF; }
+.nav-icon.lucide-wallet { color: #059669; }
+.nav-icon.lucide-dollar-sign { color: #65A30D; }
+.nav-icon.lucide-wrench { color: #EA580C; }
+.nav-icon.lucide-settings { color: #64748B; }
+.nav-icon.lucide-archive { color: #78716C; }
+.nav-icon.lucide-clipboard-list { color: #2563EB; }
+.nav-icon.lucide-check { color: #16A34A; }
+.nav-icon.lucide-book { color: #9333EA; }
+.nav-icon.lucide-message-square { color: #0284C7; }
+.nav-icon.lucide-database-zap { color: #7C3AED; }
+.nav-icon.lucide-lightbulb { color: #EAB308; }
+.nav-icon.lucide-trending-up { color: #16A34A; }
 
 .nav-text {
   font-size: 14px;
@@ -2324,7 +2438,8 @@ export default {
   font-size: 15px;
   min-width: 18px;
   margin-right: 10px;
-  opacity: 0.8;
+  opacity: 0.85;
+  color: var(--primary-color, #2563EB);
 }
 
 /* Nested Submenu */
@@ -2466,6 +2581,56 @@ body.dark-theme .nested-link:hover {
 body.dark-theme .nested-link.router-link-active {
   background: rgba(118, 75, 162, 0.2);
   color: #fff;
+}
+
+/* Light mode sidebar skin. Dark mode rules above stay untouched. */
+:global(body:not(.dark-theme)) .vertical-sidebar-wrapper {
+  background: #FFFFFF !important;
+  border-right: 1px solid #E2E8F0 !important;
+  box-shadow: 8px 0 28px rgba(15, 23, 42, 0.07) !important;
+}
+
+:global(body:not(.dark-theme)) .vertical-sidebar-header {
+  border-bottom: 1px solid #E2E8F0 !important;
+}
+
+:global(body:not(.dark-theme)) .nav-link {
+  color: #64748B !important;
+}
+
+:global(body:not(.dark-theme)) .nav-link:hover {
+  background: #EFF6FF !important;
+  color: var(--primary-color, #2563EB) !important;
+}
+
+:global(body:not(.dark-theme)) .nav-item.active > .nav-link,
+:global(body:not(.dark-theme)) .nav-link.router-link-exact-active {
+  background: var(--primary-color, #2563EB) !important;
+  color: #FFFFFF !important;
+}
+
+:global(body:not(.dark-theme)) .nav-item.active > .nav-link .nav-icon,
+:global(body:not(.dark-theme)) .nav-link.router-link-exact-active .nav-icon {
+  color: #FFFFFF !important;
+}
+
+:global(body:not(.dark-theme)) .submenu {
+  background: #F8FAFC !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: none !important;
+}
+
+:global(body:not(.dark-theme)) .submenu-link,
+:global(body:not(.dark-theme)) .nested-link {
+  color: #64748B !important;
+}
+
+:global(body:not(.dark-theme)) .submenu-link:hover,
+:global(body:not(.dark-theme)) .nested-link:hover,
+:global(body:not(.dark-theme)) .submenu-link.router-link-active,
+:global(body:not(.dark-theme)) .nested-link.router-link-active {
+  background: #EFF6FF !important;
+  color: var(--primary-color, #2563EB) !important;
 }
 
 /* RTL Support */

@@ -19,8 +19,8 @@ return new class extends Migration
             $table->timestamps(6);
             $table->softDeletes();
 
-            $table->index('property_id');
-            $table->index('status');
+            $table->index();
+            $table->index();
         });
     }
 

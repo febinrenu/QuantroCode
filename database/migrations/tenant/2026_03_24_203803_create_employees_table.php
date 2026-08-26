@@ -32,10 +32,10 @@ return new class extends Migration
             $table->string('document', 192)->nullable();
             $table->date('birth_date')->nullable();
             $table->date('joining_date')->nullable();
-            $table->integer('company_id')->index('employees_company_id');
-            $table->integer('department_id')->index('employees_department_id');
-            $table->integer('designation_id')->index('employees_designation_id');
-            $table->integer('office_shift_id')->index('employees_office_shift_id');
+            $table->integer('company_id')->index();
+            $table->integer('department_id')->index();
+            $table->integer('designation_id')->index();
+            $table->integer('office_shift_id')->index();
             $table->boolean('remaining_leave')->nullable()->default(false);
             $table->boolean('total_leave')->nullable()->default(false);
             $table->decimal('hourly_rate', 10)->nullable()->default(0);

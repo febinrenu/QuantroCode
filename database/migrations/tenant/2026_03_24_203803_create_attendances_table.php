@@ -16,9 +16,9 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('user_id')->index('attendances_user_id');
-            $table->integer('company_id')->index('attendances_company_id');
-            $table->integer('employee_id')->index('attendances_employee_id');
+            $table->integer('user_id')->index();
+            $table->integer('company_id')->index();
+            $table->integer('employee_id')->index();
             $table->date('date');
             $table->string('clock_in');
             $table->string('clock_in_ip', 45);

@@ -36,12 +36,12 @@ class ProvisionTenantWorkspace implements ShouldQueue
 
         $tenant = Tenant::find($this->tenantId);
 
-        if (! $tenant) {
+        if (!$tenant) {
             Log::error("ProvisionTenantWorkspace: Tenant {$this->tenantId} not found.");
             return;
         }
 
-        if ($tenant->status === 'active' && ! $this->forceReprovision) {
+        if ($tenant->status === 'active' && !$this->forceReprovision) {
             Log::info("ProvisionTenantWorkspace: Tenant {$this->tenantId} already active, skipping.");
             return;
         }
@@ -94,20 +94,21 @@ class ProvisionTenantWorkspace implements ShouldQueue
             // Wrapped because capture() already swallows errors, but we keep a belt-and-braces guard.
             try {
                 \App\Models\Central\SystemLog::capture([
-                    'tenant_id'       => $tenant->id,
-                    'type'            => \App\Models\Central\SystemLog::TYPE_PROVISIONING,
-                    'severity'        => \App\Models\Central\SystemLog::SEVERITY_CRITICAL,
-                    'message'         => 'Tenant provisioning failed: ' . $e->getMessage(),
-                    'context'         => [
+                    'tenant_id' => $tenant->id,
+                    'type' => \App\Models\Central\SystemLog::TYPE_PROVISIONING,
+                    'severity' => \App\Models\Central\SystemLog::SEVERITY_CRITICAL,
+                    'message' => 'Tenant provisioning failed: ' . $e->getMessage(),
+                    'context' => [
                         'exception' => get_class($e),
-                        'file'      => $e->getFile(),
-                        'line'      => $e->getLine(),
-                        'trace'     => collect(explode("\n", $e->getTraceAsString()))->take(15)->implode("\n"),
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine(),
+                        'trace' => collect(explode("\n", $e->getTraceAsString()))->take(15)->implode("\n"),
                     ],
                     'suggested_cause' => 'Check the database credentials, server connectivity, and tenant-side migrations. Use "Re-check" or re-run provisioning from the tenant detail page.',
-                    'source'          => 'job.provision_tenant_workspace',
+                    'source' => 'job.provision_tenant_workspace',
                 ]);
-            } catch (\Throwable $ignored) {}
+            } catch (\Throwable $ignored) {
+            }
         }
     }
 
@@ -124,20 +125,32 @@ class ProvisionTenantWorkspace implements ShouldQueue
 
         $dbName = config('tenancy.database.prefix') . $tenant->id . config('tenancy.database.suffix');
 
-        $charset   = config('database.connections.central.charset', 'utf8mb4');
+        $charset = config('database.connections.central.charset', 'utf8mb4');
         $collation = config('database.connections.central.collation', 'utf8mb4_unicode_ci');
 
-        $exists = DB::connection('central')
-            ->select("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?", [$dbName]);
+        $exists = false;
+        $driver = config('database.connections.central.driver', 'mysql');
 
+        if ($driver === 'sqlite') {
+            $dbPath = database_path($dbName . '.sqlite');
+            $exists = file_exists($dbPath);
+            if (!$exists) {
+                file_put_contents($dbPath, '');
+            }
+            $tenant->setInternal('tenancy_db_name', $dbPath);
+        } else {
+            $exists = DB::connection('central')
+                ->select("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?", [$dbName]);
+
+            $freshlyCreated = empty($exists);
+
+            DB::connection('central')->statement(
+                "CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET {$charset} COLLATE {$collation}"
+            );
+            $tenant->setInternal('tenancy_db_name', $dbName);
+        }
         $freshlyCreated = empty($exists);
 
-        DB::connection('central')->statement(
-            "CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET {$charset} COLLATE {$collation}"
-        );
-
-        // Make sure the tenant knows its database name before any run() calls
-        $tenant->setInternal('tenancy_db_name', $dbName);
         $tenant->save();
 
         // Verify the tenant can resolve its database
@@ -153,16 +166,16 @@ class ProvisionTenantWorkspace implements ShouldQueue
             Artisan::call('db:wipe', ['--force' => true]);
 
             Artisan::call('migrate', [
-                '--path'     => [database_path('migrations/tenant')],
+                '--path' => [database_path('migrations/tenant')],
                 '--realpath' => true,
-                '--force'    => true,
+                '--force' => true,
             ]);
         });
     }
 
     protected function seedDatabase(Tenant $tenant, bool $freshDb = true): bool
     {
-        if (! $freshDb) {
+        if (!$freshDb) {
             $hasData = false;
             $tenant->run(function () use (&$hasData) {
                 try {
@@ -197,7 +210,7 @@ class ProvisionTenantWorkspace implements ShouldQueue
     protected function seedDemoData(Tenant $tenant): void
     {
         try {
-            if (! \App\Models\Central\GeneralSetting::demoDataEnabled()) {
+            if (!\App\Models\Central\GeneralSetting::demoDataEnabled()) {
                 return;
             }
         } catch (\Throwable $e) {
@@ -222,10 +235,10 @@ class ProvisionTenantWorkspace implements ShouldQueue
 
     protected function createAdminUser(Tenant $tenant): void
     {
-        $email        = $tenant->admin_email ?? null;
+        $email = $tenant->admin_email ?? null;
         $passwordHash = $tenant->admin_password_hash ?? null;
 
-        if (! $email || ! $passwordHash) {
+        if (!$email || !$passwordHash) {
             Log::warning("ProvisionTenantWorkspace: No admin credentials in tenant data for {$tenant->id}.");
             return;
         }
@@ -235,20 +248,20 @@ class ProvisionTenantWorkspace implements ShouldQueue
 
             if ($user) {
                 DB::table('users')->where('id', 1)->update([
-                    'email'    => $email,
+                    'email' => $email,
                     'password' => $passwordHash,
                 ]);
             } else {
                 DB::table('users')->insert([
-                    'id'        => 1,
+                    'id' => 1,
                     'firstname' => 'Admin',
-                    'lastname'  => '',
-                    'username'  => $email,
-                    'email'     => $email,
-                    'password'  => $passwordHash,
-                    'phone'     => '',
-                    'role_id'   => 1,
-                    'statut'    => 1,
+                    'lastname' => '',
+                    'username' => $email,
+                    'email' => $email,
+                    'password' => $passwordHash,
+                    'phone' => '',
+                    'role_id' => 1,
+                    'statut' => 1,
                     'is_all_warehouses' => 1,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -266,7 +279,7 @@ class ProvisionTenantWorkspace implements ShouldQueue
             try {
                 // Run Passport migrations if not in tenant migrations
                 Artisan::call('migrate', [
-                    '--path'  => 'vendor/laravel/passport/database/migrations',
+                    '--path' => 'vendor/laravel/passport/database/migrations',
                     '--force' => true,
                 ]);
 
@@ -296,7 +309,7 @@ class ProvisionTenantWorkspace implements ShouldQueue
     {
         $companyName = $tenant->company_name ?? null;
 
-        if (! $companyName) {
+        if (!$companyName) {
             return;
         }
 
@@ -309,8 +322,8 @@ class ProvisionTenantWorkspace implements ShouldQueue
                 ]);
             } else {
                 DB::table('companies')->insert([
-                    'id'         => 1,
-                    'name'       => $companyName,
+                    'id' => 1,
+                    'name' => $companyName,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
@@ -323,7 +336,7 @@ class ProvisionTenantWorkspace implements ShouldQueue
         $source = public_path('images/tenant-default');
         $destination = public_path('images/tenants/' . $tenant->id);
 
-        if (! File::isDirectory($source)) {
+        if (!File::isDirectory($source)) {
             Log::warning("ProvisionTenantWorkspace: Default images template not found at {$source}");
             return;
         }
@@ -361,13 +374,13 @@ class ProvisionTenantWorkspace implements ShouldQueue
         }
 
         $fallback = public_path('pwa_images');
-        if (! File::isDirectory($fallback)) {
+        if (!File::isDirectory($fallback)) {
             Log::warning("ProvisionTenantWorkspace: PWA icon fallback not found at {$fallback}");
             return;
         }
 
         $destPwa = $destination . DIRECTORY_SEPARATOR . 'pwa';
-        if (! File::isDirectory($destPwa)) {
+        if (!File::isDirectory($destPwa)) {
             File::makeDirectory($destPwa, 0755, true);
         }
 
@@ -395,7 +408,7 @@ class ProvisionTenantWorkspace implements ShouldQueue
         }
 
         $settingsDir = $destination . DIRECTORY_SEPARATOR . 'settings';
-        if (! File::isDirectory($settingsDir)) {
+        if (!File::isDirectory($settingsDir)) {
             File::makeDirectory($settingsDir, 0755, true);
         }
 
@@ -432,7 +445,7 @@ class ProvisionTenantWorkspace implements ShouldQueue
         // Prefer the super-admin's configured tenant default logo; fall back to
         // the per-tenant logo just copied into the settings folder.
         $source = $settings->tenant_logo_path ? public_path($settings->tenant_logo_path) : null;
-        if (! $source || ! is_file($source)) {
+        if (!$source || !is_file($source)) {
             $copiedLogo = $destination . DIRECTORY_SEPARATOR . 'settings' . DIRECTORY_SEPARATOR . 'logo-default.png';
             $source = is_file($copiedLogo) ? $copiedLogo : null;
         }

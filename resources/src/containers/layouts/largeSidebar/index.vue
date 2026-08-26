@@ -105,8 +105,8 @@ html[dir="rtl"] .vertical-layout.vertical-collapsed main.with-vertical-sidebar {
   margin: 0 !important;
 }
 
-.tenant-dashboard-layout .main-content-wrap,
-.tenant-dashboard-layout .main-content-wrap.sidenav-open {
+.tenant-dashboard-layout.vertical-layout .main-content-wrap,
+.tenant-dashboard-layout.vertical-layout .main-content-wrap.sidenav-open {
   width: calc(100% - 250px) !important;
   margin-left: 250px !important;
   margin-top: 0 !important;
@@ -115,16 +115,35 @@ html[dir="rtl"] .vertical-layout.vertical-collapsed main.with-vertical-sidebar {
   background: #f4f7fb !important;
 }
 
+/* Horizontal (icon-rail) sidebar is only 120px wide, not 250px. */
+.tenant-dashboard-layout:not(.vertical-layout) .main-content-wrap,
+.tenant-dashboard-layout:not(.vertical-layout) .main-content-wrap.sidenav-open {
+  width: calc(100% - 120px) !important;
+  margin-left: 120px !important;
+  margin-top: 0 !important;
+  padding: 0 !important;
+  float: none !important;
+  background: #f4f7fb !important;
+}
+
 /* Desktop: the dashboard renders its own top header, so hide the global top bar */
 @media (min-width: 992px) {
-  .tenant-dashboard-layout.vertical-layout .vertical-top-nav {
+  .tenant-dashboard-layout.vertical-layout .vertical-top-nav,
+  .tenant-dashboard-layout:not(.vertical-layout) .main-header {
     display: none !important;
   }
 }
-html[dir="rtl"] .tenant-dashboard-layout .main-content-wrap,
-html[dir="rtl"] .tenant-dashboard-layout .main-content-wrap.sidenav-open {
+
+html[dir="rtl"] .tenant-dashboard-layout.vertical-layout .main-content-wrap,
+html[dir="rtl"] .tenant-dashboard-layout.vertical-layout .main-content-wrap.sidenav-open {
   margin-left: 0 !important;
   margin-right: 250px !important;
+}
+
+html[dir="rtl"] .tenant-dashboard-layout:not(.vertical-layout) .main-content-wrap,
+html[dir="rtl"] .tenant-dashboard-layout:not(.vertical-layout) .main-content-wrap.sidenav-open {
+  margin-left: 0 !important;
+  margin-right: 120px !important;
 }
 
 .tenant-dashboard-layout .main-content-wrap > .flex-grow-1,

@@ -18,13 +18,13 @@ return new class extends Migration
             $table->integer('id', true);
             $table->date('date');
             $table->string('Ref', 192);
-            $table->integer('user_id')->index('expense_user_id');
-            $table->integer('expense_category_id')->index('expense_category_id');
-            $table->integer('warehouse_id')->index('expense_warehouse_id');
-            $table->integer('account_id')->nullable()->index('expense_account_id');
+            $table->integer('user_id')->index();
+            $table->integer('expense_category_id')->index();
+            $table->integer('warehouse_id')->index();
+            $table->integer('account_id')->nullable()->index();
             $table->string('details', 192);
             $table->decimal('amount', 15);
-            $table->integer('payment_method_id')->nullable()->index('expenses_payment_method_id_foreign');
+            $table->integer('payment_method_id')->nullable()->index();
             $table->timestamps(6);
             $table->softDeletes();
         });

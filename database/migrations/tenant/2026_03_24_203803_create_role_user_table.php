@@ -16,8 +16,8 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('user_id')->index('role_user_user_id');
-            $table->integer('role_id')->index('role_user_role_id');
+            $table->integer('user_id')->index();
+            $table->integer('role_id')->index();
             $table->timestamps(6);
         });
     }

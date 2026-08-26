@@ -16,7 +16,7 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('user_id')->index('expense_category_user_id');
+            $table->integer('user_id')->index();
             $table->string('name', 192);
             $table->text('description')->nullable();
             $table->timestamps(6);

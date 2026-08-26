@@ -843,14 +843,14 @@ body.dark-theme .dropdown-item:hover {
 }
 
 /* =========================================================
-   Quantro Design System — header accents → blue #2563EB
+   Quantro Design System — header accents → blue var(--primary-color, #2563EB)
    Matches "Quantro Tenant Dashboard.dc.html"
    ========================================================= */
 .nav-right .btn.btn-primary,
 body.dark-theme .nav-right .btn.btn-primary {
-  background: #2563EB !important;
+  background: var(--primary-color, #2563EB) !important;
   color: #FFFFFF !important;
-  border: 1px solid #2563EB !important;
+  border: 1px solid var(--primary-color, #2563EB) !important;
   font-weight: 600;
   box-shadow: 0 8px 18px -6px rgba(37, 99, 235, 0.45) !important;
 }
@@ -867,11 +867,11 @@ body.dark-theme .nav-right .btn.btn-primary:active {
 .nav-right .btn.btn-primary i { color: #FFFFFF !important; }
 
 .nav-icon-btn:hover {
-  color: #2563EB !important;
-  border-color: #2563EB !important;
+  color: var(--primary-color, #2563EB) !important;
+  border-color: var(--primary-color, #2563EB) !important;
 }
 .nav-right .badge.badge-primary {
-  background: #2563EB !important;
+  background: var(--primary-color, #2563EB) !important;
   color: #FFFFFF !important;
 }
 
@@ -916,7 +916,7 @@ body.dark-theme .qtn-title-sub { color: #71839E; }
 .qtn-lang-btn--ar { font-family: 'IBM Plex Sans Arabic', sans-serif; }
 .qtn-lang-btn.active {
   background: #FFFFFF;
-  color: #2563EB;
+  color: var(--primary-color, #2563EB);
   box-shadow: 0 1px 4px rgba(11, 27, 51, 0.12);
 }
 body.dark-theme .qtn-lang-toggle { background: #111F35; border-color: #1C2B45; }

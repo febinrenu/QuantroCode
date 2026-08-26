@@ -16,11 +16,11 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('user_id')->index('user_id_adjustment');
+            $table->integer('user_id')->index();
             $table->date('date');
             $table->time('time')->nullable();
             $table->string('Ref', 192);
-            $table->integer('warehouse_id')->index('warehouse_id_adjustment');
+            $table->integer('warehouse_id')->index();
             $table->float('items')->nullable()->default(0);
             $table->text('notes')->nullable();
             $table->timestamps(6);

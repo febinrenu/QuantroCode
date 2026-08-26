@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->integer('id', true);
             $table->string('title', 192);
-            $table->integer('company_id')->index('holidays_company_id');
+            $table->integer('company_id')->index();
             $table->date('start_date');
             $table->date('end_date');
             $table->text('description')->nullable();

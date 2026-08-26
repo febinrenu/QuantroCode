@@ -16,7 +16,7 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('employee_id')->index('employee_experience_employee_id');
+            $table->integer('employee_id')->index();
             $table->string('title', 192);
             $table->string('company_name', 192);
             $table->string('location', 192)->nullable();

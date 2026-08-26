@@ -37,7 +37,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index('product_id', 'pp_product_idx');
-            $table->index(['product_id', 'is_active'], 'pp_product_active_idx');
+            $table->index(['product_id', 'is_active']);
         });
     }
 

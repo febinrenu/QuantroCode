@@ -17,10 +17,10 @@ return new class extends Migration
 
             $table->integer('id', true);
             $table->date('date');
-            $table->integer('user_id')->index('user_id');
-            $table->integer('client_id')->index('client_id');
-            $table->integer('product_id')->index('product_id');
-            $table->integer('warehouse_id')->index('warehouse_id');
+            $table->integer('user_id')->index();
+            $table->integer('client_id')->index();
+            $table->integer('product_id')->index();
+            $table->integer('warehouse_id')->index();
             $table->string('cycle_type', 192);
             $table->integer('total_cycles');
             $table->string('billing_cycle', 50);

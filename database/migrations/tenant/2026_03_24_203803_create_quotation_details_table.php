@@ -17,17 +17,17 @@ return new class extends Migration
 
             $table->integer('id', true);
             $table->decimal('price', 15);
-            $table->integer('sale_unit_id')->nullable()->index('sale_unit_id_quotation');
+            $table->integer('sale_unit_id')->nullable()->index();
             $table->decimal('TaxNet', 15)->nullable()->default(0);
             $table->string('tax_method', 192)->nullable()->default('1');
             $table->decimal('discount', 15)->nullable()->default(0);
             $table->string('discount_method', 192)->nullable()->default('1');
             $table->decimal('total', 15);
             $table->decimal('quantity', 12, 3);
-            $table->integer('product_id')->index('product_id_quotation_details');
-            $table->integer('product_variant_id')->nullable()->index('quote_product_variant_id');
+            $table->integer('product_id')->index();
+            $table->integer('product_variant_id')->nullable()->index();
             $table->text('imei_number')->nullable();
-            $table->integer('quotation_id')->index('quotation_id');
+            $table->integer('quotation_id')->index();
             $table->timestamps(6);
         });
     }

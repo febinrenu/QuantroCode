@@ -16,7 +16,7 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('product_id')->nullable()->index('product_id_variant');
+            $table->integer('product_id')->nullable()->index();
             $table->string('name', 192)->nullable();
             $table->decimal('cost', 15);
             $table->decimal('price', 15);
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->decimal('qty')->nullable()->default(0);
             $table->timestamps(6);
             $table->softDeletes();
-            $table->unsignedBigInteger('woocommerce_variation_id')->nullable()->index('pv_woocommerce_variation_id_idx');
+            $table->unsignedBigInteger('woocommerce_variation_id')->nullable()->index();
         });
     }
 

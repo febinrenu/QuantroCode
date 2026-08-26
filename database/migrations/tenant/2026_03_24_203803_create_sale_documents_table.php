@@ -16,7 +16,7 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('sale_id')->index('sale_documents_sale_id');
+            $table->integer('sale_id')->index();
             $table->string('name', 255);
             $table->string('path', 500);
             $table->bigInteger('size')->nullable();

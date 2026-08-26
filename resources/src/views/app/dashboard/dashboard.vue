@@ -15,40 +15,84 @@
       <!-- ========================================================= -->
       <!-- HEADER                                                    -->
       <!-- ========================================================= -->
-      <header class="quantro-header">
-        <div class="quantro-header-left">
+      <header
+        class="quantro-header"
+        style="height: auto !important; min-height: 0 !important; max-height: none !important; padding: 14px 26px !important; gap: 12px !important;"
+      >
+        <div
+          class="quantro-header-left"
+          style="flex: 0 1 520px !important; min-width: 260px !important; max-width: 520px !important; overflow: hidden !important;"
+        >
           <h2>{{ isArabic ? 'لوحة التحكم' : 'Dashboard' }}</h2>
-          <p class="quantro-welcome-text">
+          <p
+            class="quantro-welcome-text"
+            style="overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important;"
+          >
             {{ isArabic ? `أهلاً بعودتك، ${currentUserName} — إليك ملخص اليوم.` : `Welcome back, ${currentUserName} — here's today at a glance.` }}
           </p>
         </div>
 
-        <div class="quantro-header-right">
+        <div
+          class="quantro-header-right"
+          style="display: flex !important; align-items: center !important; justify-content: flex-end !important; flex: 0 0 auto !important; margin-left: auto !important; gap: 12px !important; flex-wrap: nowrap !important; min-width: max-content !important;"
+        >
           <!-- POS -->
           <router-link
             v-if="currentUserPermissions && currentUserPermissions.includes('Pos_view')"
             to="/app/pos"
             class="quantro-pos-btn"
+            style="display: inline-flex !important; align-items: center !important; justify-content: center !important; flex: 0 0 auto !important; width: auto !important; min-width: 0 !important; max-width: none !important; height: auto !important; min-height: 0 !important; max-height: none !important; padding: 9px 16px !important; border-radius: 10px !important; gap: 8px !important; font-size: 12px !important; font-weight: 600 !important; white-space: nowrap !important;"
           >
             <lucide-icon name="monitor" />
             <span>{{ isArabic ? 'نقطة البيع' : 'Open POS' }}</span>
           </router-link>
 
           <!-- Warehouse -->
-          <div class="quantro-warehouse-chip">
-            <lucide-icon name="shield" />
-            <span>{{ selectedWarehouseLabel }}</span>
-            <lucide-icon class="quantro-chip-chevron" name="chevron-down" />
-          </div>
+          <v-select
+            v-model="warehouse_id"
+            :reduce="option => option.value"
+            :options="warehouseOptions"
+            :clearable="false"
+            :searchable="false"
+            class="quantro-warehouse-select"
+            style="display: inline-flex !important; align-items: center !important; flex: 0 0 auto !important; width: auto !important; min-width: 0 !important; max-width: none !important; height: auto !important; min-height: 0 !important; max-height: none !important; padding: 8px 12px !important; border-radius: 10px !important; gap: 7px !important; font-size: 12px !important; font-weight: 600 !important; white-space: nowrap !important;"
+            @input="onWarehouseChange"
+          >
+            <template v-slot:selected-option="option">
+              <lucide-icon name="shield" />
+              <span>{{ option ? option.label : selectedWarehouseLabel }}</span>
+            </template>
+            <template v-slot:option="option">
+              <span>{{ option.label }}</span>
+            </template>
+          </v-select>
 
           <!-- Date Range -->
-          <div class="quantro-date-chip" @click="openDatePicker">
-            <lucide-icon name="calendar-days" />
-            <span>{{ dashboardDateRangeLabel }}</span>
-          </div>
+          <date-range-picker
+            v-model="dateRange"
+            :autoApply="true"
+            :showDropdowns="true"
+            :opens="'left'"
+            class="quantro-date-picker"
+            @update="onDateRangeUpdate"
+          >
+            <template v-slot:input>
+              <button
+                type="button"
+                class="quantro-date-chip"
+                style="display: inline-flex !important; align-items: center !important; flex: 0 0 auto !important; width: auto !important; min-width: 0 !important; max-width: none !important; height: auto !important; min-height: 0 !important; max-height: none !important; padding: 8px 12px !important; border-radius: 10px !important; gap: 7px !important; font-size: 12px !important; font-weight: 600 !important; white-space: nowrap !important;"
+              >
+                <lucide-icon name="calendar-days" />
+                <span>{{ dashboardDateRangeLabel }}</span>
+              </button>
+            </template>
+          </date-range-picker>
 
           <!-- Language Toggle -->
-          <div class="quantro-lang-toggle">
+          <div
+            class="quantro-lang-toggle"
+            style="display: inline-flex !important; align-items: center !important; flex: 0 0 auto !important; width: auto !important; min-width: 0 !important; max-width: none !important; height: auto !important; min-height: 0 !important; max-height: none !important; padding: 3px !important; border-radius: 10px !important; gap: 2px !important; white-space: nowrap !important;"
+          >
             <button 
               type="button" 
               class="quantro-lang-btn" 
@@ -64,7 +108,13 @@
           </div>
 
           <!-- Theme Toggle -->
-          <button type="button" class="quantro-icon-btn" @click="toggleDarkMode" :title="isDark ? 'Light Mode' : 'Dark Mode'">
+          <button
+            type="button"
+            class="quantro-icon-btn"
+            style="display: inline-flex !important; align-items: center !important; justify-content: center !important; flex: 0 0 auto !important; width: auto !important; min-width: 0 !important; max-width: none !important; height: auto !important; min-height: 0 !important; max-height: none !important; padding: 8px 10px !important; border-radius: 10px !important;"
+            @click="toggleDarkMode"
+            :title="isDark ? 'Light Mode' : 'Dark Mode'"
+          >
             <lucide-icon :name="isDark ? 'sun' : 'cloud-moon'" />
           </button>
 
@@ -73,22 +123,23 @@
             v-if="currentUserPermissions && currentUserPermissions.includes('Reports_quantity_alerts')"
             to="/app/reports/quantity_alerts"
             class="quantro-icon-btn quantro-bell"
+            style="display: inline-flex !important; align-items: center !important; justify-content: center !important; flex: 0 0 auto !important; width: auto !important; min-width: 0 !important; max-width: none !important; height: auto !important; min-height: 0 !important; max-height: none !important; padding: 8px 10px !important; border-radius: 10px !important;"
           >
             <lucide-icon name="bell" />
             <span v-if="notificationCount" class="quantro-bell-badge">{{ notificationCount }}</span>
           </router-link>
 
           <!-- User Profile -->
-          <router-link to="/app/profile" class="quantro-user">
-            <span class="quantro-user-avatar">
-              <img
-                v-if="currentUser && currentUser.avatar"
-                :src="$imgUrl('avatar', currentUser.avatar)"
-                alt="user"
-              />
-              <template v-else>
-                {{ (currentUser && currentUser.username) ? currentUser.username.charAt(0).toUpperCase() : 'U' }}
-              </template>
+          <router-link
+            to="/app/profile"
+            class="quantro-user"
+            style="display: inline-flex !important; align-items: center !important; flex: 0 0 auto !important; width: auto !important; min-width: 0 !important; max-width: none !important; height: auto !important; min-height: 0 !important; max-height: none !important; gap: 9px !important; white-space: nowrap !important;"
+          >
+            <span
+              class="quantro-user-avatar"
+              style="width: 34px !important; min-width: 34px !important; max-width: 34px !important; height: 34px !important; min-height: 34px !important; max-height: 34px !important; border-radius: 10px !important; background: var(--primary-color, #2563eb) !important;"
+            >
+              {{ (currentUser && currentUser.username) ? currentUser.username.charAt(0).toUpperCase() : 'U' }}
             </span>
             <span class="quantro-user-meta">
               <strong>{{ currentUser && currentUser.username }}</strong>
@@ -102,135 +153,43 @@
       <!-- CONTENT                                                   -->
       <!-- ========================================================= -->
       <div class="quantro-content">
-        <!-- KPI Cards -->
-        <div class="quantro-kpi-grid">
-          <!-- Revenue -->
-          <router-link to="/app/sales/list" class="quantro-kpi-card">
+        <div class="quantro-kpi-grid quantro-kpi-grid--reference">
+          <router-link v-for="card in referenceKpis" :key="card.key" :to="card.to" class="quantro-kpi-card quantro-kpi-card--reference">
             <div class="quantro-kpi-top">
-              <span class="quantro-kpi-icon" style="background: rgba(37, 99, 235, .1); color: #2563EB;">
-                <lucide-icon name="dollar-sign" />
+              <span class="quantro-kpi-icon" :style="{ background: card.bg, color: card.color }">
+                <lucide-icon :name="card.icon" />
               </span>
-              <span class="quantro-kpi-label">{{ isArabic ? 'إجمالي الإيرادات' : 'Gross Revenue' }}</span>
+              <span class="quantro-kpi-label">{{ card.label }}</span>
+              <span class="quantro-kpi-trend" :class="card.trendTone">{{ card.trend }}</span>
             </div>
-            <div class="quantro-kpi-value">{{ formatPriceWithSymbol(currentUser && currentUser.currency, report_today.today_sales || 0, 2) }}</div>
-            <div class="quantro-kpi-footer">
-              <span class="quantro-kpi-trend up">↑ 18.6%</span>
-              <span>{{ isArabic ? 'مقارنة بيونيو' : 'vs June' }}</span>
-            </div>
-            <svg viewBox="0 0 120 26" width="100%" height="26" style="margin-top: 8px;">
-              <path d="M2,20 18,16 34,18 50,12 66,14 82,8 98,10 118,4" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round"></path>
-            </svg>
-          </router-link>
-
-          <!-- Profit -->
-          <router-link to="/app/reports/profit_and_loss" class="quantro-kpi-card">
-            <div class="quantro-kpi-top">
-              <span class="quantro-kpi-icon" style="background: rgba(0, 196, 154, .12); color: #00A882;">
-                <lucide-icon name="trending-up" />
-              </span>
-              <span class="quantro-kpi-label">{{ isArabic ? 'صافي الربح' : 'Net Profit' }}</span>
-            </div>
-            <div class="quantro-kpi-value">{{ formatPriceWithSymbol(currentUser && currentUser.currency, report_today.today_profit || 0, 2) }}</div>
-            <div class="quantro-kpi-footer">
-              <span class="quantro-kpi-trend up">↑ 22.4%</span>
-              <span>{{ isArabic ? 'مقارنة بيونيو' : 'vs June' }}</span>
-            </div>
-            <svg viewBox="0 0 120 26" width="100%" height="26" style="margin-top: 8px;">
-              <path d="M2,22 18,18 34,20 50,15 66,16 82,10 98,12 118,5" fill="none" stroke="#00C49A" stroke-width="2" stroke-linecap="round"></path>
-            </svg>
-          </router-link>
-
-          <!-- Orders -->
-          <router-link to="/app/sales/list" class="quantro-kpi-card">
-            <div class="quantro-kpi-top">
-              <span class="quantro-kpi-icon" style="background: rgba(139, 92, 246, .12); color: #8B5CF6;">
-                <lucide-icon name="shopping-bag" />
-              </span>
-              <span class="quantro-kpi-label">{{ isArabic ? 'الطلبات' : 'Orders' }}</span>
-            </div>
-            <div class="quantro-kpi-value">{{ report_today.today_invoices ? report_today.today_invoices : 0 }}</div>
-            <div class="quantro-kpi-footer">
-              <span class="quantro-kpi-trend up">↑ 15.3%</span>
-              <span>{{ isArabic ? 'مقارنة بيونيو' : 'vs June' }}</span>
-            </div>
-            <svg viewBox="0 0 120 26" width="100%" height="26" style="margin-top: 8px;">
-              <path d="M2,18 18,20 34,14 50,16 66,10 82,13 98,8 118,6" fill="none" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round"></path>
-            </svg>
-          </router-link>
-
-          <!-- Inventory -->
-          <router-link to="/app/reports/stock_report" class="quantro-kpi-card">
-            <div class="quantro-kpi-top">
-              <span class="quantro-kpi-icon" style="background: rgba(255, 159, 28, .14); color: #E88A00;">
-                <lucide-icon name="package" />
-              </span>
-              <span class="quantro-kpi-label">{{ isArabic ? 'قيمة المخزون' : 'Inventory Value' }}</span>
-            </div>
-            <div class="quantro-kpi-value">{{ formatPriceWithSymbol(currentUser && currentUser.currency, stock_value.by_cost || 0, 2) }}</div>
-            <div class="quantro-kpi-footer">
-              <span class="quantro-kpi-trend up">↑ 3.6%</span>
-              <span>{{ isArabic ? '٤ مستودعات' : '4 warehouses' }}</span>
-            </div>
-            <svg viewBox="0 0 120 26" width="100%" height="26" style="margin-top: 8px;">
-              <path d="M2,14 18,15 34,12 50,14 66,11 82,12 98,9 118,8" fill="none" stroke="#E88A00" stroke-width="2" stroke-linecap="round"></path>
-            </svg>
-          </router-link>
-
-          <!-- Stock Alerts -->
-          <router-link to="/app/reports/quantity_alerts" class="quantro-kpi-card">
-            <div class="quantro-kpi-top">
-              <span class="quantro-kpi-icon" style="background: rgba(225, 72, 72, .1); color: #E14848;">
-                <lucide-icon name="alert-triangle" />
-              </span>
-              <span class="quantro-kpi-label">{{ isArabic ? 'تنبيهات المخزون' : 'Stock Alerts' }}</span>
-            </div>
-            <div class="quantro-kpi-value">{{ stockAlertRows.length }} <span style="font-size: 12px; font-weight: 600; color: var(--q-ink3, #8291A9);">{{ isArabic ? 'عنصر' : 'items' }}</span></div>
-            <div class="quantro-kpi-footer">
-              <span class="quantro-kpi-trend down">{{ totalStockAlertQuantity }}</span>
-              <span>{{ isArabic ? 'غير متوفر' : 'out of stock' }}</span>
-            </div>
-            <div style="display: flex; gap: 3px; margin-top: 12px;">
-              <div style="flex: 24; height: 5px; border-radius: 3px; background: #E14848;"></div>
-              <div style="flex: 13; height: 5px; border-radius: 3px; background: #E88A00;"></div>
-              <div style="flex: 20; height: 5px; border-radius: 3px; background: var(--q-bd, #E4EAF3);"></div>
+            <div class="quantro-kpi-value">{{ card.value }}</div>
+            <div class="quantro-kpi-footer quantro-kpi-footer--split">
+              <span>{{ card.footerLabel }}</span>
+              <strong :style="{ color: card.footerColor }">{{ card.footerValue }}</strong>
             </div>
           </router-link>
         </div>
 
-        <!-- Charts Row -->
-        <div class="quantro-main-grid">
-          <!-- Sales & Profit Chart -->
-          <div class="quantro-chart-card">
+        <div class="quantro-main-grid quantro-main-grid--reference">
+          <div class="quantro-chart-card quantro-chart-card--sales">
             <div class="quantro-chart-header">
               <div>
-                <h4>{{ isArabic ? 'اتجاهات المبيعات والأرباح' : 'Sales & Profit Trends' }}</h4>
-                <p>{{ isArabic ? 'الأداء اليومي عبر جميع الفروع' : 'Daily performance across all branches' }}</p>
+                <h4>{{ isArabic ? 'المبيعات والمشتريات' : 'Sales & Purchases' }}</h4>
+                <p>{{ isArabic ? 'آخر ٧ أيام' : 'Last 7 days' }}</p>
               </div>
               <div class="quantro-chart-actions">
-                <span class="quantro-legend-item">
-                  <span class="quantro-legend-dot" style="background: #2563EB;"></span>
-                  {{ isArabic ? 'المبيعات' : 'Sales' }}
-                </span>
-                <span class="quantro-legend-item">
-                  <span class="quantro-legend-dot" style="background: #00C49A;"></span>
-                  {{ isArabic ? 'الربح' : 'Profit' }}
-                </span>
-                <div class="quantro-chart-tabs">
-                  <button class="active">{{ isArabic ? 'يوم' : 'Day' }}</button>
-                  <button>{{ isArabic ? 'أسبوع' : 'Week' }}</button>
-                  <button>{{ isArabic ? 'شهر' : 'Month' }}</button>
-                </div>
+                <span class="quantro-legend-item"><span class="quantro-legend-dot" style="background:#2563EB"></span>{{ isArabic ? 'المبيعات' : 'Sales' }}</span>
+                <span class="quantro-legend-item"><span class="quantro-legend-dot" style="background:#00C49A"></span>{{ isArabic ? 'المشتريات' : 'Purchases' }}</span>
               </div>
             </div>
-            <div class="quantro-chart-body">
-              <apexchart v-if="!loading" type="bar" :height="200" :options="chartSalesOptions" :series="chartSalesSeries"></apexchart>
+            <div class="quantro-chart-body quantro-chart-body--large">
+              <apexchart v-if="!loading" type="bar" :height="270" :options="chartSalesOptions" :series="chartSalesSeries"></apexchart>
             </div>
           </div>
 
-          <!-- Top Selling Categories -->
-          <div class="quantro-chart-card">
+          <div class="quantro-chart-card quantro-products-card">
             <div class="quantro-chart-header">
-              <h4>{{ isArabic ? 'أعلى الفئات مبيعاً' : 'Top Selling Categories' }}</h4>
+              <h4>{{ isArabic ? 'أكثر المنتجات مبيعاً' : 'Top Selling Products' }}</h4>
             </div>
             <div class="quantro-top-categories">
               <div class="quantro-donut">
@@ -244,108 +203,89 @@
                 </div>
               </div>
             </div>
-            <div class="quantro-chart-footer">
-              <lucide-icon name="trending-up" style="color: #00A882;" />
-              <span>{{ isArabic ? 'الإلكترونيات ترتفع ٨٫٢٪ هذا الشهر' : 'Electronics up 8.2% this month' }}</span>
+            <div v-if="topProductInsight" class="quantro-chart-footer">
+              <lucide-icon name="trending-up" style="color:#00A882" />
+              <span>{{ topProductInsight }}</span>
             </div>
           </div>
         </div>
 
-        <!-- Bottom Grid -->
-        <div class="quantro-bottom-grid">
-          <!-- Recent Transactions -->
-          <div class="quantro-table-card">
-            <div class="quantro-table-header">
-              <h4>{{ isArabic ? 'أحدث المعاملات' : 'Recent Transactions' }}</h4>
-              <router-link to="/app/sales/list">{{ isArabic ? 'عرض الكل ←' : 'View all →' }}</router-link>
-            </div>
-            <div class="quantro-table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>{{ isArabic ? 'الفاتورة' : 'Invoice' }}</th>
-                    <th>{{ isArabic ? 'العميل' : 'Customer' }}</th>
-                    <th>{{ isArabic ? 'المستودع' : 'Warehouse' }}</th>
-                    <th>{{ isArabic ? 'الحالة' : 'Status' }}</th>
-                    <th>{{ isArabic ? 'الإجمالي' : 'Total' }}</th>
-                    <th>{{ isArabic ? 'التاريخ' : 'Date' }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="(sale, index) in recentSaleRows" :key="'rs-' + index">
-                    <td><router-link :to="'/app/sales/detail/' + (sale.id || '')">{{ sale.Ref }}</router-link></td>
-                    <td>
-                      <span class="quantro-avatar-sm" :style="{ background: sale.avatarColor || '#2563EB' }">
-                        {{ (sale.client_name || 'U').charAt(0).toUpperCase() }}
-                      </span>
-                      {{ sale.client_name }}
-                    </td>
-                    <td>{{ sale.warehouse_name || sale.warehouse || '-' }}</td>
-                    <td>
-                      <span class="quantro-status-pill" :class="'quantro-status-pill--' + sale.statusTone">
-                        {{ sale.payment_status || sale.statut || '-' }}
-                      </span>
-                    </td>
-                    <td><strong>{{ formatPriceWithSymbol(currentUser && currentUser.currency, sale.GrandTotal || 0, 2) }}</strong></td>
-                    <td>{{ sale.date || sale.created_at || '-' }}</td>
-                  </tr>
-                </tbody>
-              </table>
+        <div class="quantro-reference-grid-3">
+          <div class="quantro-panel-card">
+            <h4>{{ isArabic ? 'المبيعات حسب طريقة الدفع' : 'Sales by Payment' }}</h4>
+            <div class="quantro-payment-list">
+              <div v-for="row in paymentRows" :key="row.name" class="quantro-payment-row">
+                <div class="quantro-payment-meta">
+                  <span>{{ row.name }}</span>
+                  <strong>{{ row.amount }} · {{ row.percent }}%</strong>
+                </div>
+                <div class="quantro-payment-bar"><span :style="{ width: row.percent + '%', background: row.color }"></span></div>
+              </div>
             </div>
           </div>
 
-          <!-- Right Column -->
-          <div class="quantro-right-column">
-            <!-- Quick Actions -->
-            <div class="quantro-action-card">
-              <h4>{{ isArabic ? 'إجراءات سريعة' : 'Quick Actions' }}</h4>
-              <div class="quantro-action-grid">
-                <router-link to="/app/pos" class="quantro-action-btn primary">
-                  <lucide-icon name="plus" /> {{ isArabic ? 'بيع جديد' : 'New Sale' }}
-                </router-link>
-                <router-link to="/app/products/store" class="quantro-action-btn">
-                  <lucide-icon name="package" /> {{ isArabic ? 'إضافة منتج' : 'Add Product' }}
-                </router-link>
-                <router-link to="/app/purchases/store" class="quantro-action-btn">
-                  <lucide-icon name="receipt-text" /> {{ isArabic ? 'أمر شراء' : 'Purchase Order' }}
-                </router-link>
-                <router-link to="/app/reports/sales_report" class="quantro-action-btn">
-                  <lucide-icon name="bar-chart-2" /> {{ isArabic ? 'تشغيل تقرير' : 'Run Report' }}
-                </router-link>
+          <div class="quantro-panel-card">
+            <h4>{{ isArabic ? 'قيمة المخزون' : 'Stock Value' }}</h4>
+            <div class="quantro-stock-value-list">
+              <div v-for="item in stockValueRows" :key="item.label" class="quantro-stock-value-row">
+                <span class="quantro-stock-value-icon" :style="{ background: item.bg, color: item.color }"><lucide-icon :name="item.icon" /></span>
+                <span>{{ item.label }}</span>
+                <strong>{{ item.value }}</strong>
               </div>
             </div>
+            <div class="quantro-panel-foot">{{ stockSummaryLabel }}</div>
+          </div>
 
-            <!-- Stock Alerts -->
-            <div class="quantro-alert-card">
-              <div class="quantro-alert-header">
-                <h4>{{ isArabic ? 'تنبيهات المخزون' : 'Stock Alerts' }}</h4>
-                <router-link to="/app/reports/quantity_alerts">{{ isArabic ? 'عرض الكل ←' : 'View all →' }}</router-link>
-              </div>
-              <div v-for="(item, index) in stockAlertRows" :key="'qa-' + index" class="quantro-alert-row">
-                <div class="quantro-alert-icon" :style="{ background: item.tileBg || 'rgba(225, 72, 72, .1)', color: item.tileC || '#E14848' }">
-                  {{ item.code }}
-                </div>
-                <div class="quantro-alert-info">
-                  <strong>{{ item.name }}</strong>
-                  <div class="quantro-alert-bar">
-                    <div class="quantro-alert-progress" :style="{ width: item.percent || '0%', background: item.barC || '#E14848' }"></div>
-                  </div>
-                </div>
-                <button class="quantro-alert-reorder">{{ isArabic ? 'إعادة طلب' : 'Reorder' }}</button>
+          <div class="quantro-panel-card">
+            <div class="quantro-card-title-row">
+              <h4>{{ isArabic ? 'أفضل ٥ عملاء' : 'Top 5 Customers' }}</h4>
+              <router-link to="/app/people/customers">{{ isArabic ? 'عرض الكل ←' : 'View all →' }}</router-link>
+            </div>
+            <div class="quantro-customer-list">
+              <div v-for="customer in topCustomerRows" :key="customer.name" class="quantro-customer-row">
+                <span class="quantro-avatar-sm" :style="{ background: customer.color }">{{ customer.initial }}</span>
+                <span class="quantro-customer-meta"><strong>{{ customer.name }}</strong><em>{{ customer.orders }}</em></span>
+                <strong>{{ customer.amount }}</strong>
               </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Sales by Branch -->
-            <div class="quantro-branch-card">
-              <h4>{{ isArabic ? 'المبيعات حسب الفرع' : 'Sales by Branch' }}</h4>
-              <div v-for="(branch, index) in branchSales" :key="'br-' + index" class="quantro-branch-row">
-                <div class="quantro-branch-label">
-                  <span>{{ branch.name }}</span>
-                  <strong>{{ formatPriceWithSymbol(currentUser && currentUser.currency, branch.amount || 0, 2) }}</strong>
-                </div>
-                <div class="quantro-branch-bar">
-                  <div class="quantro-branch-progress" :style="{ width: branch.percent + '%' }"></div>
-                </div>
+        <div class="quantro-reference-grid-bottom">
+          <div class="quantro-table-card">
+            <div class="quantro-table-header">
+              <h4>{{ isArabic ? 'تنبيهات المخزون' : 'Stock Alerts' }}</h4>
+              <router-link to="/app/reports/quantity_alerts">{{ isArabic ? 'عرض الكل ←' : 'View all →' }}</router-link>
+            </div>
+            <div class="quantro-reference-table quantro-reference-table--alerts">
+              <div class="quantro-reference-head">
+                <span>{{ isArabic ? 'الرمز' : 'Code' }}</span><span>{{ isArabic ? 'المنتج' : 'Product' }}</span><span>{{ isArabic ? 'المستودع' : 'Warehouse' }}</span><span>{{ isArabic ? 'الكمية / التنبيه' : 'Qty / Alert' }}</span>
+              </div>
+              <div v-for="item in stockAlertRows" :key="item.code + item.name" class="quantro-reference-row">
+                <router-link to="/app/reports/quantity_alerts">{{ item.code }}</router-link>
+                <strong>{{ item.name }}</strong>
+                <span>{{ item.warehouse || selectedWarehouseLabel }}</span>
+                <em :style="{ color: item.barC }">{{ item.quantity }} / {{ item.stock_alert }}</em>
+              </div>
+            </div>
+          </div>
+
+          <div class="quantro-table-card">
+            <div class="quantro-table-header">
+              <h4>{{ isArabic ? 'أحدث المبيعات' : 'Recent Sales' }}</h4>
+              <router-link to="/app/sales/list">{{ isArabic ? 'عرض الكل ←' : 'View all →' }}</router-link>
+            </div>
+            <div class="quantro-reference-table quantro-reference-table--sales">
+              <div class="quantro-reference-head">
+                <span>{{ isArabic ? 'المرجع' : 'Reference' }}</span><span>{{ isArabic ? 'العميل' : 'Customer' }}</span><span>{{ isArabic ? 'الإجمالي' : 'Total' }}</span><span>{{ isArabic ? 'المدفوع' : 'Paid' }}</span><span>{{ isArabic ? 'المستحق' : 'Due' }}</span><span>{{ isArabic ? 'الحالة' : 'Status' }}</span>
+              </div>
+              <div v-for="sale in recentSaleRows.slice(0, 5)" :key="sale.Ref" class="quantro-reference-row">
+                <router-link :to="'/app/sales/detail/' + (sale.id || '')">{{ sale.Ref }}</router-link>
+                <strong>{{ sale.client_name || '-' }}</strong>
+                <strong>{{ formatPriceWithSymbol(currentUser && currentUser.currency, sale.GrandTotal || 0, 2) }}</strong>
+                <span>{{ formatPriceWithSymbol(currentUser && currentUser.currency, sale.paid_amount || sale.paid || 0, 2) }}</span>
+                <span>{{ formatPriceWithSymbol(currentUser && currentUser.currency, sale.due || sale.due_amount || 0, 2) }}</span>
+                <span class="quantro-status-pill" :class="'quantro-status-pill--' + sale.statusTone">{{ sale.payment_status || sale.statut || '-' }}</span>
               </div>
             </div>
           </div>
@@ -369,11 +309,13 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import VueApexCharts from "vue-apexcharts";
+import DateRangePicker from "vue2-daterange-picker";
+import "vue2-daterange-picker/dist/vue2-daterange-picker.css";
 import moment from "moment";
 import { formatPriceDisplay as formatPriceDisplayHelper, getPriceFormatSetting, getPriceDecimals } from "../../../utils/priceFormat";
 
 export default {
-  components: { apexchart: VueApexCharts },
+  components: { apexchart: VueApexCharts, "date-range-picker": DateRangePicker },
   metaInfo: { title: "Dashboard" },
   data() {
     const end = moment().endOf("day");
@@ -400,12 +342,16 @@ export default {
       },
       products: [],
       customers_top: [],
+      sales_by_payment: [],
       loading: true,
+      dashboardRefreshTimer: null,
+      dashboardRequestInFlight: false,
       price_format_key: null,
       dashboardSectionOrder: [],
       dashboardFontSize: "",
       dashboardFontFamily: "",
       stock_value: { by_cost: 0, by_retail: 0, by_wholesale: 0 },
+      stock_summary: { sku_count: 0, warehouse_count: 0 },
       chartSalesSeries: [],
       chartProductSeries: [],
       chartSalesOptions: {},
@@ -433,6 +379,16 @@ export default {
       const warehouse = (this.warehouses || []).find(item => String(item.id) === String(this.warehouse_id));
       return (warehouse && (warehouse.name || warehouse.label)) || this.$t("warehouse") || "Warehouse";
     },
+    warehouseOptions() {
+      const allLabel = this.$t("All_Warehouses") || "All Warehouses";
+      return [
+        { label: allLabel, value: "" },
+        ...(this.warehouses || []).map(warehouse => ({
+          label: warehouse.name || warehouse.label || String(warehouse.id),
+          value: warehouse.id,
+        })),
+      ];
+    },
     notificationCount() {
       const alertCount = Array.isArray(this.notifs_alert) ? this.notifs_alert.length : Number(this.notifs_alert || 0);
       if (alertCount) return alertCount;
@@ -448,6 +404,57 @@ export default {
       if (this.dashboardFontFamily) s.fontFamily = this.dashboardFontFamily;
       return s;
     },
+    referenceKpis() {
+      const symbol = this.currentUser && this.currentUser.currency;
+      const salesTotal = this.cleanNumber(this.report_today.today_sales);
+      const salesDue = this.cleanNumber(this.report_today.sales_due);
+      const purchasesTotal = this.cleanNumber(this.report_today.today_purchases);
+      const purchaseDue = this.cleanNumber(this.report_today.purchase_due);
+      const returnSales = this.cleanNumber(this.report_today.return_sales);
+      const returnPurchases = this.cleanNumber(this.report_today.return_purchases);
+      const profit = this.cleanNumber(this.report_today.today_profit);
+      const salesPaid = Math.max(salesTotal - salesDue, 0);
+      const purchasesPaid = Math.max(purchasesTotal - purchaseDue, 0);
+      const returnsTotal = returnSales + returnPurchases;
+      const movementTotal = salesTotal + purchasesTotal;
+      return [
+        { key: "sales", to: "/app/sales/list", icon: "shopping-cart", label: this.isArabic ? "المبيعات" : "Sales", value: this.formatPriceWithSymbol(symbol, salesTotal, 2), trend: this.formatKpiPercent(salesPaid, salesTotal), trendTone: salesTotal ? "up" : "flat", footerLabel: this.isArabic ? "مبيعات مستحقة" : "Sales due", footerValue: this.formatPriceWithSymbol(symbol, salesDue, 2), footerColor: "#E88A00", bg: "rgba(37,99,235,.1)", color: "#2563EB" },
+        { key: "purchases", to: "/app/purchases/list", icon: "shopping-bag", label: this.isArabic ? "المشتريات" : "Purchases", value: this.formatPriceWithSymbol(symbol, purchasesTotal, 2), trend: this.formatKpiPercent(purchasesPaid, purchasesTotal), trendTone: purchasesTotal ? "up" : "flat", footerLabel: this.isArabic ? "مشتريات مستحقة" : "Purchase due", footerValue: this.formatPriceWithSymbol(symbol, purchaseDue, 2), footerColor: "#E88A00", bg: "rgba(0,196,154,.12)", color: "#00A882" },
+        { key: "returns", to: "/app/sale_return/list", icon: "undo", label: this.isArabic ? "المرتجعات" : "Returns", value: this.formatPriceWithSymbol(symbol, returnSales, 2), trend: this.formatKpiPercent(returnsTotal, movementTotal, true), trendTone: returnsTotal ? "down" : "flat", footerLabel: this.isArabic ? "مبيعات / مشتريات" : "Sales / Purchases", footerValue: `${this.formatPriceWithSymbol(symbol, returnSales, 2)} · ${this.formatPriceWithSymbol(symbol, returnPurchases, 2)}`, footerColor: "var(--q-ink, #0B1B33)", bg: "rgba(139,92,246,.12)", color: "#8B5CF6" },
+        { key: "profit", to: "/app/reports/profit_and_loss", icon: "trending-up", label: this.isArabic ? "الربح" : "Profit", value: this.formatPriceWithSymbol(symbol, profit, 2), trend: this.formatKpiPercent(profit, salesTotal), trendTone: profit < 0 ? "down" : (salesTotal ? "up" : "flat"), footerLabel: this.isArabic ? "الفواتير الصادرة" : "Invoices issued", footerValue: String(this.cleanNumber(this.report_today.today_invoices)), footerColor: "var(--q-ink, #0B1B33)", bg: "rgba(0,196,154,.12)", color: "#00A882" },
+      ];
+    },
+    paymentRows() {
+      const colors = ["#2563EB", "#00C49A", "#8B5CF6", "#FF9F1C", "#64748B"];
+      return (this.sales_by_payment || []).map((row, index) => ({
+        name: row.name || "-",
+        amount: this.formatPriceWithSymbol(this.currentUser && this.currentUser.currency, row.amount || 0, 2),
+        percent: Number(row.percentage || row.percent || 0),
+        color: colors[index % colors.length],
+      }));
+    },
+    stockValueRows() {
+      const symbol = this.currentUser && this.currentUser.currency;
+      return [
+        { label: this.isArabic ? "حسب التكلفة" : "By Cost", value: this.formatPriceWithSymbol(symbol, this.stock_value.by_cost || 0, 2), icon: "circle-dollar-sign", bg: "rgba(37,99,235,.1)", color: "#2563EB" },
+        { label: this.isArabic ? "حسب التجزئة" : "By Retail", value: this.formatPriceWithSymbol(symbol, this.stock_value.by_retail || 0, 2), icon: "tag", bg: "rgba(255,159,28,.14)", color: "#E88A00" },
+        { label: this.isArabic ? "حسب الجملة" : "By Wholesale", value: this.formatPriceWithSymbol(symbol, this.stock_value.by_wholesale || 0, 2), icon: "package", bg: "rgba(139,92,246,.12)", color: "#8B5CF6" },
+      ];
+    },
+    topCustomerRows() {
+      const colors = ["#2563EB", "#00A882", "#8B5CF6", "#FF9F1C", "#E8618C"];
+      const source = (this.customers_top || []).slice(0, 5);
+      return source.map((item, index) => {
+        const name = item.name || item.client_name || item.customer_name || "-";
+        return {
+          name,
+          initial: name.charAt(0).toUpperCase(),
+          color: colors[index % colors.length],
+          orders: `${item.orders || item.count || 0} ${this.isArabic ? "طلب" : "orders"}`,
+          amount: this.formatPriceWithSymbol(this.currentUser && this.currentUser.currency, item.amount || item.total || item.value || 0, 2),
+        };
+      });
+    },
     topCategoryRows() {
       const colors = ["#2563EB", "#00C49A", "#8B5CF6", "#FF9F1C", "#D4DEEC"];
       const rows = (this.products || []).slice(0, 5);
@@ -458,13 +465,20 @@ export default {
         color: colors[index] || colors[colors.length - 1],
       }));
     },
-    branchSales() {
-      return [
-        { name: this.isArabic ? 'المستودع الرئيسي' : 'Main Warehouse', amount: 98245, percent: 80 },
-        { name: this.isArabic ? 'فرع وسط المدينة' : 'Downtown Branch', amount: 67812, percent: 55 },
-        { name: this.isArabic ? 'فرع المطار' : 'Airport Branch', amount: 45760, percent: 37 },
-        { name: this.isArabic ? 'المنطقة الصناعية' : 'Industrial Area', amount: 21936, percent: 18 },
-      ];
+    topProductInsight() {
+      const top = (this.products || [])[0];
+      if (!top || !top.name) return "";
+      const count = Number(top.total_sales || top.value || 0);
+      return this.isArabic
+        ? `${top.name} يتصدر بـ ${count} مبيعات`
+        : `${top.name} leads with ${count} sales`;
+    },
+    stockSummaryLabel() {
+      const skuCount = Number(this.stock_summary.sku_count || 0);
+      const warehouseCount = Number(this.stock_summary.warehouse_count || 0);
+      return this.isArabic
+        ? `${skuCount} منتج عبر ${warehouseCount} مستودعات`
+        : `${skuCount} SKUs across ${warehouseCount} warehouses`;
     },
     stockAlertRows() {
       return (this.stock_alerts || []).slice(0, 4).map((item) => {
@@ -478,6 +492,7 @@ export default {
         return {
           code: item.code || item.product_code || "-",
           name: item.name || item.product_name || "-",
+          warehouse: item.warehouse_name || item.warehouse || this.selectedWarehouseLabel,
           quantity,
           stock_alert: alert,
           percent,
@@ -502,6 +517,17 @@ export default {
           avatarColor: avatarColors[idx % avatarColors.length],
         };
       });
+    },
+  },
+  watch: {
+    // Dark mode can also be toggled from the global top nav (e.g. on
+    // narrower viewports where it isn't hidden) instead of this page's
+    // own button. Without this watcher, that path flips the Vuex flag
+    // and body.dark-theme class but never refreshes this component's
+    // --q-* CSS variables, leaving the header stuck on light colors
+    // against a dark page.
+    isDark() {
+      this.applyTheme();
     },
   },
   methods: {
@@ -536,7 +562,7 @@ export default {
         '--q-bg': '#060D1A',
         '--q-card': '#0C1728',
         '--q-card2': '#111F35',
-        '--q-ink': '#EAF1FA',
+        '--q-ink': '#FFFFFF',
         '--q-ink2': '#B4C4D9',
         '--q-ink3': '#71839E',
         '--q-bd': '#1C2B45',
@@ -554,10 +580,23 @@ export default {
       if (window.Fire) Fire.$emit("ChangeLanguage");
       window.location.reload();
     },
+    cleanNumber(value) {
+      if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+      if (value === null || value === undefined || value === "") return 0;
+      const parsed = Number(String(value).replace(/,/g, ""));
+      return Number.isFinite(parsed) ? parsed : 0;
+    },
+    formatKpiPercent(value, base, inverse) {
+      const amount = this.cleanNumber(value);
+      const denominator = Math.abs(this.cleanNumber(base));
+      const percent = denominator > 0 ? Math.abs((amount / denominator) * 100) : 0;
+      const arrow = percent === 0 ? "•" : (inverse || amount < 0 ? "↓" : "↑");
+      return `${arrow} ${percent.toFixed(1)}%`;
+    },
     formatPriceDisplay(number, dec) {
       try {
         const decimals = this.priceDecimals;
-        const n = Number(number || 0);
+        const n = this.cleanNumber(number);
         const key = this.price_format_key || getPriceFormatSetting({ store: this.$store });
         if (key) this.price_format_key = key;
         return formatPriceDisplayHelper(n, decimals, key || null);
@@ -577,10 +616,12 @@ export default {
         return safeSymbol ? `${safeSymbol} ${value}` : value;
       }
     },
-    all_dashboard_data() {
-      this.loading = true;
+    all_dashboard_data(showLoader = true) {
+      if (this.dashboardRequestInFlight) return Promise.resolve();
+      this.dashboardRequestInFlight = true;
+      if (showLoader) this.loading = true;
       this.get_data_loaded();
-      axios
+      return axios
         .get(`/dashboard_data?warehouse_id=${this.warehouse_id}&to=${this.endDate}&from=${this.startDate}`)
         .then(response => {
           this.today_mode = false;
@@ -600,12 +641,20 @@ export default {
           this.stock_alerts = response.data.report_dashboard.original.stock_alert;
           this.products = response.data.report_dashboard.original.products;
           this.sales = response.data.report_dashboard.original.last_sales;
+          this.customers_top = responseData.customers && responseData.customers.original ? responseData.customers.original : [];
+          this.sales_by_payment = responseData.sales_by_payment || [];
 
           if (response.data.stock_value) {
             this.stock_value = {
               by_cost: Number(response.data.stock_value.by_cost) || 0,
               by_retail: Number(response.data.stock_value.by_retail) || 0,
               by_wholesale: Number(response.data.stock_value.by_wholesale) || 0,
+            };
+          }
+          if (response.data.stock_summary) {
+            this.stock_summary = {
+              sku_count: Number(response.data.stock_summary.sku_count) || 0,
+              warehouse_count: Number(response.data.stock_summary.warehouse_count) || 0,
             };
           }
 
@@ -627,12 +676,12 @@ export default {
             },
             fill: { opacity: 1 },
             tooltip: { y: { formatter: (val) => this.formatPriceDisplay(val, 2) } },
-            legend: { position: "top", horizontalAlign: "right", fontSize: "13px" },
+            legend: { show: false },
             grid: { borderColor: "#e0e6ed" },
           };
 
           // Top Products Chart
-          const productData = responseData.product_report.original;
+          const productData = responseData.product_report.original || [];
           this.chartProductSeries = productData.map(item => item.value);
           this.chartProductOptions = {
             chart: { type: "donut", fontFamily: "inherit" },
@@ -654,13 +703,28 @@ export default {
             },
             tooltip: { y: { formatter: (val) => Math.floor(val) + " " + this.$t('Sales') } },
           };
-
           this.loading = false;
         })
         .catch(() => {
           this.today_mode = false;
           this.loading = false;
+        })
+        .finally(() => {
+          this.dashboardRequestInFlight = false;
         });
+    },
+    startDashboardAutoRefresh() {
+      this.stopDashboardAutoRefresh();
+      this.dashboardRefreshTimer = window.setInterval(() => {
+        if (typeof document !== "undefined" && document.hidden) return;
+        this.all_dashboard_data(false);
+      }, 15000);
+    },
+    stopDashboardAutoRefresh() {
+      if (this.dashboardRefreshTimer) {
+        window.clearInterval(this.dashboardRefreshTimer);
+        this.dashboardRefreshTimer = null;
+      }
     },
     get_data_loaded() {
       if (this.today_mode) {
@@ -676,9 +740,18 @@ export default {
         this.dateRange = { startDate: start.toDate(), endDate: end.toDate() };
       }
     },
-    openDatePicker() {
-      // Trigger date picker modal or dropdown
-      // You can implement this with vue2-daterange-picker or any other date picker
+    onWarehouseChange() {
+      this.today_mode = false;
+      this.all_dashboard_data(true);
+    },
+    onDateRangeUpdate(range) {
+      const start = moment(range.startDate);
+      const end = moment(range.endDate);
+      if (!start.isValid() || !end.isValid()) return;
+      this.today_mode = false;
+      this.startDate = start.format("YYYY-MM-DD");
+      this.endDate = end.format("YYYY-MM-DD");
+      this.all_dashboard_data(true);
     },
     loadDefaultDateRangeSetting() {
       return axios
@@ -715,9 +788,11 @@ export default {
     const range = await this.loadDefaultDateRangeSetting();
     this.defaultDateRange = range;
     await this.all_dashboard_data();
+    this.startDashboardAutoRefresh();
     this.applyTheme();
   },
   beforeDestroy() {
+    this.stopDashboardAutoRefresh();
     if (typeof document !== "undefined") {
       document.body.classList.remove("quantro-dashboard-route");
       document.body.classList.remove("dark-theme");
@@ -747,8 +822,9 @@ export default {
 .quantro-header {
   display: flex;
   align-items: center;
-  gap: 14px;
-  min-height: 82px;
+  gap: 12px;
+  min-height: 84px;
+  height: 84px;
   padding: 0 32px;
   background: var(--q-card, #FFFFFF);
   border-bottom: 1px solid var(--q-bd, #E4EAF3);
@@ -761,8 +837,8 @@ export default {
 }
 
 .quantro-header-left {
-  flex: 1 1 360px;
-  min-width: 280px;
+  flex: 1 1 auto;
+  min-width: 300px;
 }
 
 .quantro-header-left h2 {
@@ -771,7 +847,7 @@ export default {
   font-size: 17px;
   letter-spacing: -0.3px;
   margin: 0;
-  color: var(--q-ink, #0B1B33);
+  color: var(--q-ink, #0B1B33) !important;
 }
 
 .quantro-welcome-text {
@@ -783,7 +859,7 @@ export default {
 .quantro-header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex: 1;
   justify-content: flex-end;
   flex-wrap: nowrap;
@@ -795,13 +871,13 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 44px;
+  height: 42px;
   min-width: 138px;
-  padding: 0 20px;
+  padding: 0 18px;
   border-radius: 12px;
-  background: #2563EB;
+  background: var(--primary-color, #2563EB);
   color: #FFFFFF;
-  border: 1px solid #2563EB;
+  border: 1px solid var(--primary-color, #2563EB);
   box-shadow: 0 12px 22px -12px rgba(37, 99, 235, 0.75);
   font-size: 13px;
   font-weight: 700;
@@ -809,18 +885,32 @@ export default {
   text-decoration: none;
   white-space: nowrap;
   box-sizing: border-box;
+  flex: 0 0 auto;
 }
 
 .quantro-pos-btn:hover {
-  background: #1D53D0;
-  border-color: #1D53D0;
+  background: var(--primary-color-darker, #1D53D0);
+  border-color: var(--primary-color-darker, #1D53D0);
   color: #FFFFFF;
   text-decoration: none;
 }
 
 .quantro-pos-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+
+.quantro-pos-btn svg * {
+  stroke: #FFFFFF !important;
+}
+
+.quantro-pos-btn span {
+  display: inline-block;
+  color: #FFFFFF;
+  line-height: 1;
 }
 
 .quantro-warehouse-chip {
@@ -835,15 +925,72 @@ export default {
   font-size: 12px;
   font-weight: 700;
   min-width: 190px;
-  height: 44px;
+  height: 42px;
   box-sizing: border-box;
   white-space: nowrap;
+}
+
+.quantro-warehouse-select {
+  background: var(--q-card2, #F6F9FC) !important;
+  border: 1px solid var(--q-bd, #E4EAF3) !important;
+  color: var(--q-ink, #0B1B33) !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+}
+
+.quantro-warehouse-select .vs__dropdown-toggle {
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.quantro-warehouse-select .vs__selected-options {
+  flex-wrap: nowrap !important;
+  padding: 0 !important;
+}
+
+.quantro-warehouse-select .vs__selected {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--q-ink, #0B1B33) !important;
+  white-space: nowrap !important;
+}
+
+.quantro-warehouse-select .vs__actions {
+  padding: 0 0 0 8px !important;
+}
+
+.quantro-warehouse-select .vs__search {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 0 !important;
+}
+
+.quantro-warehouse-select.vs--open .vs__selected {
+  opacity: 1 !important;
+  position: static !important;
+}
+
+.quantro-date-picker {
+  display: inline-flex !important;
+}
+
+.quantro-date-picker .reportrange-text {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  width: auto !important;
+  overflow: visible !important;
 }
 
 .quantro-warehouse-chip svg {
   width: 16px;
   height: 16px;
-  color: #2563EB;
+  color: var(--primary-color, #2563EB);
 }
 
 .quantro-warehouse-chip .quantro-chip-chevron {
@@ -860,18 +1007,18 @@ export default {
   background: var(--q-card2, #F6F9FC);
   border: 1px solid var(--q-bd, #E4EAF3);
   border-radius: 10px;
-  padding: 8px 14px;
+  padding: 0 14px;
   font-weight: 600;
   font-size: 12px;
   color: var(--q-ink, #0B1B33);
   cursor: pointer;
-  height: 44px;
+  height: 42px;
   white-space: nowrap;
   box-sizing: border-box;
 }
 
 .quantro-date-chip svg {
-  color: #2563EB;
+  color: var(--primary-color, #2563EB);
 }
 
 .quantro-lang-toggle {
@@ -881,7 +1028,7 @@ export default {
   border-radius: 10px;
   padding: 3px;
   gap: 2px;
-  height: 44px;
+  height: 42px;
   box-sizing: border-box;
   flex: 0 0 auto;
 }
@@ -901,7 +1048,7 @@ export default {
 
 .quantro-lang-btn.active {
   background: #FFFFFF;
-  color: #2563EB;
+  color: var(--primary-color, #2563EB);
   box-shadow: 0 1px 4px rgba(11, 27, 51, .12);
 }
 
@@ -926,22 +1073,150 @@ body.dark-theme .quantro-lang-btn.active {
   justify-content: center;
   position: relative;
   transition: all 0.2s;
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   padding: 0;
-  flex: 0 0 44px;
+  flex: 0 0 42px;
 }
 
 .quantro-icon-btn:hover {
-  border-color: #2563EB;
-  color: #2563EB;
+  border-color: var(--primary-color, #2563EB);
+  color: var(--primary-color, #2563EB);
+}
+
+/* ===== Header controls: hover / press / focus / open states ===== */
+.quantro-pos-btn,
+.quantro-warehouse-select,
+.quantro-date-chip,
+.quantro-icon-btn,
+.quantro-lang-toggle {
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease,
+              box-shadow .18s ease, transform .12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --- Primary: Open POS --- */
+.quantro-pos-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px -12px rgba(11, 27, 51, .55);
+}
+
+.quantro-pos-btn:active {
+  transform: translateY(0) scale(.975);
+  box-shadow: 0 4px 10px -6px rgba(11, 27, 51, .6);
+  filter: brightness(1.12);
+}
+
+.quantro-pos-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--q-card, #FFFFFF),
+              0 0 0 5px var(--primary-color, #2563EB);
+}
+
+/* --- Secondary chips: warehouse / date --- */
+.quantro-warehouse-select:hover,
+.quantro-date-chip:hover {
+  background: var(--q-card, #FFFFFF) !important;
+  border-color: var(--primary-color, #2563EB) !important;
+  box-shadow: 0 6px 16px -10px rgba(11, 27, 51, .45);
+}
+
+.quantro-date-chip:active,
+.quantro-warehouse-select:active {
+  transform: scale(.978);
+  box-shadow: none;
+}
+
+.quantro-date-chip:focus-visible,
+.quantro-warehouse-select:focus-within {
+  outline: none;
+  border-color: var(--primary-color, #2563EB) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
+}
+
+/* open dropdown / open date picker keep the "pressed" look */
+.quantro-warehouse-select.vs--open,
+.quantro-date-picker.show-ranges .quantro-date-chip,
+.quantro-date-picker[data-open="true"] .quantro-date-chip {
+  border-color: var(--primary-color, #2563EB) !important;
+  background: var(--q-card, #FFFFFF) !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
+}
+
+.quantro-warehouse-select .vs__open-indicator {
+  transition: transform .18s ease;
+}
+
+.quantro-warehouse-select.vs--open .vs__open-indicator {
+  transform: rotate(180deg);
+}
+
+/* --- Icon buttons (theme / bell) --- */
+.quantro-icon-btn:hover {
+  background: var(--q-card, #FFFFFF);
+  box-shadow: 0 6px 16px -10px rgba(11, 27, 51, .45);
+}
+
+.quantro-icon-btn:active {
+  transform: scale(.93);
+  box-shadow: none;
+}
+
+.quantro-icon-btn:focus-visible {
+  outline: none;
+  border-color: var(--primary-color, #2563EB);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
+}
+
+/* --- Language toggle --- */
+.quantro-lang-btn {
+  cursor: pointer;
+  transition: background-color .18s ease, color .18s ease, transform .12s ease;
+}
+
+.quantro-lang-btn:not(.active):hover {
+  color: var(--q-ink, #0B1B33);
+  background: rgba(11, 27, 51, .06);
+}
+
+.quantro-lang-btn:active {
+  transform: scale(.94);
+}
+
+.quantro-lang-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--primary-color, #2563EB);
+}
+
+/* --- Dark theme adjustments --- */
+body.dark-theme .quantro-warehouse-select:hover,
+body.dark-theme .quantro-date-chip:hover,
+body.dark-theme .quantro-icon-btn:hover {
+  background: #172844 !important;
+  box-shadow: 0 6px 16px -10px rgba(0, 0, 0, .7);
+}
+
+body.dark-theme .quantro-lang-btn:not(.active):hover {
+  color: #e5edf8;
+  background: rgba(255, 255, 255, .07);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quantro-pos-btn,
+  .quantro-warehouse-select,
+  .quantro-date-chip,
+  .quantro-icon-btn,
+  .quantro-lang-btn {
+    transition: none;
+    transform: none !important;
+  }
 }
 
 .quantro-bell-badge {
   position: absolute;
   top: -4px;
   inset-inline-end: -4px;
-  background: #2563EB;
+  background: var(--primary-color, #2563EB);
   color: #fff;
   font-size: 9px;
   font-weight: 700;
@@ -960,7 +1235,7 @@ body.dark-theme .quantro-lang-btn.active {
   text-decoration: none;
   min-width: 154px;
   max-width: 178px;
-  height: 44px;
+  height: 42px;
   overflow: hidden;
   flex: 0 0 auto;
 }
@@ -969,7 +1244,7 @@ body.dark-theme .quantro-lang-btn.active {
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: #2563EB;
+  background: var(--primary-color, #2563EB);
   color: #fff;
   display: flex;
   align-items: center;
@@ -1000,6 +1275,101 @@ body.dark-theme .quantro-lang-btn.active {
 .quantro-user-meta span {
   color: var(--q-ink3, #8291A9);
   font-size: 10px;
+}
+
+@media (min-width: 992px) {
+  body.quantro-dashboard-route .quantro-header {
+    height: 82px !important;
+    min-height: 82px !important;
+    max-height: 82px !important;
+    gap: 10px !important;
+    padding: 0 30px !important;
+  }
+
+  body.quantro-dashboard-route .quantro-header-left h2 {
+    font-size: 20px !important;
+    line-height: 1.1 !important;
+  }
+
+  body.quantro-dashboard-route .quantro-welcome-text {
+    font-size: 12px !important;
+  }
+
+  body.quantro-dashboard-route .quantro-pos-btn,
+  body.quantro-dashboard-route .quantro-warehouse-chip,
+  body.quantro-dashboard-route .quantro-warehouse-select,
+  body.quantro-dashboard-route .quantro-date-chip,
+  body.quantro-dashboard-route .quantro-lang-toggle,
+  body.quantro-dashboard-route .quantro-icon-btn,
+  body.quantro-dashboard-route .quantro-user {
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    border-radius: 10px !important;
+  }
+
+  body.quantro-dashboard-route .quantro-pos-btn {
+    width: 136px !important;
+    min-width: 136px !important;
+    max-width: 136px !important;
+    flex: 0 0 136px !important;
+    padding: 0 12px !important;
+    gap: 7px !important;
+    font-size: 12px !important;
+  }
+
+  body.quantro-dashboard-route .quantro-pos-btn span {
+    display: inline-block !important;
+    color: #fff !important;
+  }
+
+  body.quantro-dashboard-route .quantro-warehouse-chip {
+    width: 188px !important;
+    min-width: 188px !important;
+    max-width: 188px !important;
+    flex: 0 0 188px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
+  }
+
+  body.quantro-dashboard-route .quantro-warehouse-select {
+    width: 188px !important;
+    min-width: 188px !important;
+    max-width: 188px !important;
+    flex: 0 0 188px !important;
+    padding: 0 12px !important;
+    font-size: 12px !important;
+  }
+
+  body.quantro-dashboard-route .quantro-date-chip {
+    width: 198px !important;
+    min-width: 198px !important;
+    max-width: 198px !important;
+    flex: 0 0 198px !important;
+    padding: 0 11px !important;
+    font-size: 11.5px !important;
+  }
+
+  body.quantro-dashboard-route .quantro-lang-toggle {
+    width: 118px !important;
+    min-width: 118px !important;
+    max-width: 118px !important;
+    flex: 0 0 118px !important;
+    padding: 3px !important;
+  }
+
+  body.quantro-dashboard-route .quantro-icon-btn {
+    width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    flex-basis: 38px !important;
+  }
+
+  body.quantro-dashboard-route .quantro-user-avatar {
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+  }
 }
 
 /* ================================================================
@@ -1095,6 +1465,15 @@ body.dark-theme .quantro-lang-btn.active {
 
 .quantro-kpi-trend.down {
   color: #E14848;
+}
+
+.quantro-kpi-trend.flat {
+  color: var(--q-ink3, #8291A9);
+}
+
+body.dark-theme .quantro-kpi-label,
+body.dark-theme .quantro-kpi-footer {
+  color: #FFFFFF;
 }
 
 /* ================================================================
@@ -1587,6 +1966,7 @@ body.dark-theme .quantro-dashboard {
 
 body.dark-theme .quantro-search,
 body.dark-theme .quantro-warehouse-chip,
+body.dark-theme .quantro-warehouse-select,
 body.dark-theme .quantro-date-chip,
 body.dark-theme .quantro-lang-toggle,
 body.dark-theme .quantro-icon-btn {
@@ -1784,6 +2164,296 @@ body.quantro-dashboard-route .quantro-bottom-grid {
 
 @media (max-width: 480px) {
   body.quantro-dashboard-route .quantro-kpi-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Reference dashboard layout */
+.dashboard-page-root.quantro-dashboard .quantro-content {
+  padding: 22px 26px !important;
+  gap: 18px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-kpi-grid--reference {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-kpi-card--reference {
+  border-radius: 16px !important;
+  padding: 16px 17px !important;
+  min-height: 128px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-kpi-card--reference .quantro-kpi-top {
+  margin-bottom: 9px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-kpi-card--reference .quantro-kpi-trend {
+  margin-inline-start: auto !important;
+  font-size: 11px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-kpi-card--reference .quantro-kpi-value {
+  margin: 0 !important;
+  font-size: 22px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-kpi-footer--split {
+  justify-content: space-between !important;
+  margin-top: 9px !important;
+  padding-top: 9px !important;
+  border-top: 1px dashed var(--q-bd, #E4EAF3) !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-kpi-footer--split strong {
+  font-weight: 700 !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-main-grid--reference {
+  display: grid !important;
+  grid-template-columns: 1.9fr 1fr !important;
+  gap: 16px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-chart-card {
+  border-radius: 16px !important;
+  padding: 19px 20px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-chart-body--large {
+  min-height: 270px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-products-card {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-products-card .quantro-chart-footer {
+  margin-top: auto !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-reference-grid-3 {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+  align-items: stretch !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-panel-card {
+  background: var(--q-card, #fff) !important;
+  border: 1px solid var(--q-bd, #E4EAF3) !important;
+  border-radius: 16px !important;
+  padding: 17px 18px !important;
+  box-shadow: var(--q-sh, 0 1px 2px rgba(11,27,51,.04)) !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-panel-card h4,
+.dashboard-page-root.quantro-dashboard .quantro-card-title-row h4 {
+  font-family: Sora, sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  margin: 0 !important;
+  color: var(--q-ink, #0B1B33) !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-payment-list,
+.dashboard-page-root.quantro-dashboard .quantro-stock-value-list,
+.dashboard-page-root.quantro-dashboard .quantro-customer-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 11px !important;
+  margin-top: 13px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-payment-meta {
+  display: flex !important;
+  justify-content: space-between !important;
+  margin-bottom: 5px !important;
+  color: var(--q-ink2, #47586F) !important;
+  font-size: 11.5px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-payment-meta strong {
+  color: var(--q-ink, #0B1B33) !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-payment-bar,
+.dashboard-page-root.quantro-dashboard .quantro-branch-bar {
+  height: 6px !important;
+  border-radius: 3px !important;
+  background: var(--q-bd, #E4EAF3) !important;
+  overflow: hidden !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-payment-bar span {
+  display: block !important;
+  height: 100% !important;
+  border-radius: 3px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-stock-value-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 11px !important;
+  padding: 12px 13px !important;
+  border: 1px solid var(--q-bd, #E4EAF3) !important;
+  border-radius: 11px !important;
+  background: var(--q-card2, #F6F9FC) !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-stock-value-icon {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 9px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 30px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-stock-value-icon svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-stock-value-row span:nth-child(2) {
+  flex: 1 !important;
+  color: var(--q-ink2, #47586F) !important;
+  font-size: 12px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-stock-value-row strong {
+  font-family: Sora, sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-panel-foot {
+  margin-top: 13px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid var(--q-bd, #E4EAF3) !important;
+  color: var(--q-ink3, #8291A9) !important;
+  font-size: 11px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-card-title-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-card-title-row a {
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: #2563EB !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-customer-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 9px 0 !important;
+  border-bottom: 1px solid var(--q-bd, #E4EAF3) !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-customer-row:last-child {
+  border-bottom: 0 !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-customer-meta {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-customer-meta strong {
+  display: block !important;
+  font-size: 12px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-customer-meta em {
+  display: block !important;
+  color: var(--q-ink3, #8291A9) !important;
+  font-size: 10.5px !important;
+  font-style: normal !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-reference-grid-bottom {
+  display: grid !important;
+  grid-template-columns: .95fr 1.35fr !important;
+  gap: 16px !important;
+  align-items: start !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-reference-table {
+  overflow-x: auto !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-reference-head,
+.dashboard-page-root.quantro-dashboard .quantro-reference-row {
+  display: grid !important;
+  gap: 8px !important;
+  align-items: center !important;
+  padding: 10px 20px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-reference-table--alerts .quantro-reference-head,
+.dashboard-page-root.quantro-dashboard .quantro-reference-table--alerts .quantro-reference-row {
+  grid-template-columns: 1fr 1.6fr 1fr .8fr !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-reference-table--sales .quantro-reference-head,
+.dashboard-page-root.quantro-dashboard .quantro-reference-table--sales .quantro-reference-row {
+  grid-template-columns: 1.2fr 1.3fr 1fr .8fr .8fr .9fr !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-reference-head {
+  background: var(--q-card2, #F6F9FC) !important;
+  border-top: 1px solid var(--q-bd, #E4EAF3) !important;
+  border-bottom: 1px solid var(--q-bd, #E4EAF3) !important;
+  color: var(--q-ink3, #8291A9) !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: .6px !important;
+  text-transform: uppercase !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-reference-row {
+  min-height: 48px !important;
+  border-bottom: 1px solid var(--q-bd, #E4EAF3) !important;
+  font-size: 12px !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-reference-row:last-child {
+  border-bottom: 0 !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-reference-row a {
+  color: #2563EB !important;
+  font-weight: 700 !important;
+}
+
+.dashboard-page-root.quantro-dashboard .quantro-reference-row em {
+  justify-self: start !important;
+  padding: 4px 10px !important;
+  border-radius: 999px !important;
+  background: rgba(225, 72, 72, .1) !important;
+  font-style: normal !important;
+  font-weight: 700 !important;
+}
+
+@media (max-width: 1399px) {
+  .dashboard-page-root.quantro-dashboard .quantro-kpi-grid--reference {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 1199px) {
+  .dashboard-page-root.quantro-dashboard .quantro-main-grid--reference,
+  .dashboard-page-root.quantro-dashboard .quantro-reference-grid-3,
+  .dashboard-page-root.quantro-dashboard .quantro-reference-grid-bottom {
     grid-template-columns: 1fr !important;
   }
 }

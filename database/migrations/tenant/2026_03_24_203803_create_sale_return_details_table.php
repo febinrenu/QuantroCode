@@ -16,15 +16,15 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('sale_return_id')->index('return_id');
-            $table->integer('product_id')->index('product_id_details_returns');
+            $table->integer('sale_return_id')->index();
+            $table->integer('product_id')->index();
             $table->decimal('price', 15);
-            $table->integer('sale_unit_id')->nullable()->index('sale_unit_id_return_details');
+            $table->integer('sale_unit_id')->nullable()->index();
             $table->decimal('TaxNet', 15)->nullable()->default(0);
             $table->string('tax_method', 192)->nullable()->default('1');
             $table->decimal('discount', 15)->nullable()->default(0);
             $table->string('discount_method', 192)->nullable()->default('1');
-            $table->integer('product_variant_id')->nullable()->index('sale_return_id_product_variant_id');
+            $table->integer('product_variant_id')->nullable()->index();
             $table->text('imei_number')->nullable();
             $table->decimal('quantity', 12, 3);
             $table->decimal('total', 15);

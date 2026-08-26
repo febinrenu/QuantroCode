@@ -16,11 +16,11 @@ return new class extends Migration
             $table->charset = 'utf8mb4';
 
             $table->integer('id', true);
-            $table->integer('user_id')->index('draft_sales_user_id');
+            $table->integer('user_id')->index();
             $table->date('date');
             $table->string('Ref', 192);
-            $table->integer('client_id')->index('draft_sales_client_id');
-            $table->integer('warehouse_id')->index('draft_sales_warehouse_id');
+            $table->integer('client_id')->index();
+            $table->integer('warehouse_id')->index();
             $table->decimal('tax_rate', 15)->nullable()->default(0);
             $table->decimal('TaxNet', 15)->nullable()->default(0);
             $table->decimal('discount', 15)->nullable()->default(0);

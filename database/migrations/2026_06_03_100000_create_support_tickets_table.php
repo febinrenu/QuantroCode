@@ -42,11 +42,11 @@ return new class extends Migration
             $table->foreign('assigned_to')->references('id')->on('central_users')
                 ->onUpdate('cascade')->onDelete('set null');
 
-            $table->index('tenant_id');
-            $table->index('status');
-            $table->index('priority');
-            $table->index('category');
-            $table->index('assigned_to');
+            $table->index();
+            $table->index();
+            $table->index();
+            $table->index();
+            $table->index();
         });
     }
 

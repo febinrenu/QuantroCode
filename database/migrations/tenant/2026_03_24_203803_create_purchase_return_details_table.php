@@ -17,16 +17,16 @@ return new class extends Migration
 
             $table->integer('id', true);
             $table->decimal('cost', 16, 3);
-            $table->integer('purchase_unit_id')->nullable()->index('unit_id_purchase_return_details');
+            $table->integer('purchase_unit_id')->nullable()->index();
             $table->decimal('TaxNet', 15)->nullable()->default(0);
             $table->string('tax_method', 192)->nullable()->default('1');
             $table->decimal('discount', 15)->nullable()->default(0);
             $table->string('discount_method', 192)->nullable()->default('1');
             $table->decimal('total', 15);
             $table->decimal('quantity', 12, 3);
-            $table->integer('purchase_return_id')->index('purchase_return_id_return');
-            $table->integer('product_id')->index('product_id_details_purchase_return');
-            $table->integer('product_variant_id')->nullable()->index('purchase_return_product_variant_id');
+            $table->integer('purchase_return_id')->index();
+            $table->integer('product_id')->index();
+            $table->integer('product_variant_id')->nullable()->index();
             $table->text('imei_number')->nullable();
             $table->timestamps(6);
             $table->softDeletes();
