@@ -14,16 +14,18 @@ use Illuminate\Http\Request;
 class StoreFrontController extends Controller
 {
     /**
-     * Homepage — blocks driven by StoreSetting->homepage_lineup.
+     * Homepage â€” blocks driven by StoreSetting->homepage_lineup.
      */
     public function index(Request $request)
     {
         $s = StoreSetting::firstOrFail();
 
+        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'default')));
+
         // Theme switch: when the Real Estate theme is active, the storefront
         // homepage is served by the dedicated real estate controller. This keeps
         // the default eCommerce storefront untouched.
-        if (($s->theme ?? 'default') === 'real_estate') {
+        if ($activeTheme === 'real_estate') {
             return app(RealEstateStoreController::class)->home($request);
         }
 
@@ -239,11 +241,31 @@ class StoreFrontController extends Controller
             'showCategoryBar' => true,
         ];
 
+        $themeMap = [
+            'wholesale'        => 'store.themes.wholesale.home',
+            'grocery'          => 'store.themes.grocery.home',
+            'electronics'      => 'store.themes.electronics.home',
+            'auto_parts'       => 'store.themes.auto_parts.home',
+            'autoparts'        => 'store.themes.auto_parts.home',
+            'digital_products' => 'store.themes.digital_products.home',
+            'digital'          => 'store.themes.digital_products.home',
+            'bookstore'        => 'store.themes.bookstore.home',
+            'restaurant'       => 'store.themes.restaurant.home',
+            'pharmacy'         => 'store.themes.pharmacy.home',
+            'pet_supplies'     => 'store.themes.pet_supplies.home',
+            'pet'              => 'store.themes.pet_supplies.home',
+            'marketplace'      => 'store.themes.marketplace.home',
+        ];
+
+        if (isset($themeMap[$activeTheme]) && view()->exists($themeMap[$activeTheme])) {
+            return view($themeMap[$activeTheme], $viewData);
+        }
+
         return view('store.index', $viewData);
     }
 
     /**
-     * Shop — products with filters.
+     * Shop â€” products with filters.
      * Sorting/filters use base "effective_price" (min variant or product price).
      * UI shows final display price (discount + tax) computed per item after fetch.
      */
