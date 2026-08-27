@@ -1,35 +1,44 @@
-/* Jewelry & Watches — Luxe. Portable storefront theme pack.
-   Depends only on the CSS-variable contract in resources/css/storefront.css
-   (--color-*, --store-font-*, --store-radius-*, --store-card-aspect, --store-grid-cols)
-   plus the .store-hero / .store-product-grid hook classes — no framework lock-in. */
+/* Jewelry & Watches - Luxe. Portable storefront theme pack.
+   Palette adapted from a Voguelane-style luxury fashion storefront mockup:
+   black/cream/gold, Playfair Display headings. */
 
-html[data-theme="jewelry-luxe"],
-html[data-theme="jewelry-luxe"].dark {
-  --color-bg-base:     11 11 14;
-  --color-bg-surface:  19 19 24;
-  --color-bg-elevated: 26 26 33;
-  --color-bg-muted:    33 31 38;
+html[data-theme="jewelry-luxe"] {
+  --color-bg-base:     255 255 255;
+  --color-bg-surface:  244 237 226;
+  --color-bg-elevated: 255 255 255;
+  --color-bg-muted:    233 220 198;
 
-  --color-border-subtle: 42 40 48;
-  --color-border-strong: 61 58 68;
+  --color-border-subtle: 233 220 198;
+  --color-border-strong: 140 124 103;
 
-  --color-fg-primary:   245 241 230;
-  --color-fg-secondary: 201 194 180;
-  --color-fg-muted:     148 140 123;
+  --color-fg-primary:   23 19 16;
+  --color-fg-secondary: 140 124 103;
+  --color-fg-muted:     168 153 138;
 
-  --color-accent-400: 220 192 119;
-  --color-accent-500: 201 162 39;
-  --color-accent-600: 166 132 29;
-  --color-accent-glow: rgba(201, 162, 39, 0.35);
+  --color-accent-400: 217 187 121;
+  --color-accent-500: 201 161 91;
+  --color-accent-600: 179 139 69;
+  --color-accent-glow: rgba(201, 161, 91, 0.3);
 
-  --store-font-heading: 'Cormorant Garamond', 'Playfair Display', serif;
+  --store-font-heading: 'Playfair Display', serif;
   --store-font-body: 'Inter', system-ui, sans-serif;
   --store-radius-sm: 0.0625rem;
   --store-radius-md: 0.125rem;
   --store-radius-lg: 0.125rem;
   --store-card-aspect: 4 / 5;
   --store-grid-cols: 3;
+  color-scheme: light;
+}
 
+html[data-theme="jewelry-luxe"].dark {
+  --color-bg-base:     23 19 16;
+  --color-bg-surface:  33 27 22;
+  --color-bg-elevated: 42 35 28;
+  --color-bg-muted:    51 43 34;
+  --color-border-subtle: 61 52 42;
+  --color-fg-primary:   244 237 226;
+  --color-fg-secondary: 217 204 184;
+  --color-fg-muted:     168 153 138;
   color-scheme: dark;
 }
 
@@ -55,10 +64,6 @@ html[data-theme="jewelry-luxe"] .btn-primary {
 html[data-theme="jewelry-luxe"] .product-card {
   background: transparent;
   border: 1px solid rgb(var(--color-border-subtle));
-}
-
-html[data-theme="jewelry-luxe"] .product-media {
-  background: rgb(var(--color-bg-elevated));
 }
 
 @media (min-width: 1024px) {

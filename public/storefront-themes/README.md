@@ -6,6 +6,23 @@ so the exact same folder can be copied into any other platform (a different
 SaaS, a static site, a headless storefront) that implements the same tiny
 CSS-variable contract described below.
 
+Each pack's palette, type pairing, and shape language is adapted from a
+real per-industry storefront design mockup, then translated into this
+project's CSS-variable contract:
+
+| Theme slug | Industry | Design source |
+|---|---|---|
+| `jewelry-luxe` | Jewelry, Watches & Luxury Goods | Voguelane |
+| `fashion-edit` | Fashion, Apparel & Footwear | Urbana |
+| `beauty-glow` | Cosmetics, Skincare & Beauty | Veloura |
+| `electronics-tech` | Electronics, Gadgets & Tech | Novatech |
+| `grocery-fresh` | Grocery, Supermarket & Fresh Produce | Naturia |
+| `fitness-power` | Fitness, Gym & Supplements | Trailpeak |
+| `bookstore-classic` | Books, Stationery & Media | Paperloom |
+| `restaurant-fresh` | Restaurant, Cafe & Food Delivery | Terra & Co. |
+| `marketplace-mega` | Marketplace & Multi-Category Retail | ShopIQ |
+| `pawluxe-pets` | Pet Supplies & Accessories | PawLuxe |
+
 ## Folder layout
 
 ```

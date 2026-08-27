@@ -1,31 +1,44 @@
-/* Fitness & Supplements — Power. Portable storefront theme pack. */
+/* Fitness & Supplements - Power. Portable storefront theme pack.
+   Palette adapted from a Trailpeak-style outdoor/gear storefront mockup:
+   black/forest-green/burnt-orange, Archivo Black headings. */
 
-html[data-theme="fitness-power"],
-html[data-theme="fitness-power"].dark {
-  --color-bg-base:     13 13 13;
-  --color-bg-surface:  22 22 22;
-  --color-bg-elevated: 30 30 30;
-  --color-bg-muted:    39 39 39;
+html[data-theme="fitness-power"] {
+  --color-bg-base:     255 255 255;
+  --color-bg-surface:  241 235 221;
+  --color-bg-elevated: 255 255 255;
+  --color-bg-muted:    22 38 27;
 
-  --color-border-subtle: 46 46 46;
-  --color-border-strong: 69 69 69;
+  --color-border-subtle: 228 220 200;
+  --color-border-strong: 191 95 42;
 
-  --color-fg-primary:   245 245 245;
-  --color-fg-secondary: 190 190 190;
-  --color-fg-muted:     138 138 138;
+  --color-fg-primary:   20 20 20;
+  --color-fg-secondary: 22 38 27;
+  --color-fg-muted:     107 107 107;
 
-  --color-accent-400: 212 255 63;
-  --color-accent-500: 198 255 0;
-  --color-accent-600: 159 204 0;
-  --color-accent-glow: rgba(198, 255, 0, 0.35);
+  --color-accent-400: 224 140 90;
+  --color-accent-500: 191 95 42;
+  --color-accent-600: 165 79 34;
+  --color-accent-glow: rgba(191, 95, 42, 0.35);
 
-  --store-font-heading: 'Barlow Condensed', sans-serif;
+  --store-font-heading: 'Archivo Black', sans-serif;
   --store-font-body: 'Inter', system-ui, sans-serif;
   --store-radius-sm: 0rem;
   --store-radius-md: 0rem;
   --store-radius-lg: 0rem;
   --store-card-aspect: 1 / 1;
   --store-grid-cols: 4;
+  color-scheme: light;
+}
+
+html[data-theme="fitness-power"].dark {
+  --color-bg-base:     20 20 20;
+  --color-bg-surface:  22 38 27;
+  --color-bg-elevated: 30 46 35;
+  --color-bg-muted:    38 54 43;
+  --color-border-subtle: 46 62 51;
+  --color-fg-primary:   241 235 221;
+  --color-fg-secondary: 200 190 170;
+  --color-fg-muted:     150 150 140;
   color-scheme: dark;
 }
 
@@ -33,7 +46,6 @@ html[data-theme="fitness-power"] h1,
 html[data-theme="fitness-power"] .section-title {
   text-transform: uppercase;
   letter-spacing: 0.01em;
-  font-weight: 700;
 }
 
 html[data-theme="fitness-power"] .btn,
@@ -43,7 +55,7 @@ html[data-theme="fitness-power"] .chip {
 }
 
 html[data-theme="fitness-power"] .btn-primary {
-  color: #0D0D0D;
+  color: #fff;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;

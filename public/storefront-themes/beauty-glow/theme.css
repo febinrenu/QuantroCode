@@ -1,25 +1,27 @@
-/* Cosmetics & Beauty — Glow. Portable storefront theme pack. */
+/* Cosmetics & Beauty - Glow. Portable storefront theme pack.
+   Palette adapted from a Veloura-style beauty storefront mockup:
+   cream/mauve/gold, Playfair Display headings. */
 
 html[data-theme="beauty-glow"] {
-  --color-bg-base:     255 247 245;
-  --color-bg-surface:  253 236 232;
+  --color-bg-base:     253 246 240;
+  --color-bg-surface:  251 237 232;
   --color-bg-elevated: 255 255 255;
-  --color-bg-muted:    247 225 220;
+  --color-bg-muted:    243 212 219;
 
-  --color-border-subtle: 243 217 210;
-  --color-border-strong: 227 183 171;
+  --color-border-subtle: 243 212 219;
+  --color-border-strong: 233 185 196;
 
-  --color-fg-primary:   58 42 38;
-  --color-fg-secondary: 122 93 85;
-  --color-fg-muted:     169 138 128;
+  --color-fg-primary:   46 26 34;
+  --color-fg-secondary: 110 42 71;
+  --color-fg-muted:     169 116 138;
 
-  --color-accent-400: 245 166 161;
-  --color-accent-500: 232 131 124;
-  --color-accent-600: 210 104 95;
-  --color-accent-glow: rgba(232, 131, 124, 0.3);
+  --color-accent-400: 138 62 98;
+  --color-accent-500: 110 42 71;
+  --color-accent-600: 87 31 56;
+  --color-accent-glow: rgba(110, 42, 71, 0.25);
 
-  --store-font-heading: 'DM Serif Display', serif;
-  --store-font-body: 'Nunito', system-ui, sans-serif;
+  --store-font-heading: 'Playfair Display', serif;
+  --store-font-body: 'Inter', system-ui, sans-serif;
   --store-radius-sm: 0.75rem;
   --store-radius-md: 1rem;
   --store-radius-lg: 1.5rem;
@@ -34,16 +36,16 @@ html[data-theme="beauty-glow"].dark {
   --color-bg-elevated: 64 46 42;
   --color-bg-muted:    74 54 49;
   --color-border-subtle: 90 66 60;
-  --color-fg-primary:   253 236 232;
-  --color-fg-secondary: 224 194 185;
-  --color-fg-muted:     181 150 140;
+  --color-fg-primary:   251 237 232;
+  --color-fg-secondary: 224 194 205;
+  --color-fg-muted:     181 150 160;
   color-scheme: dark;
 }
 
 html[data-theme="beauty-glow"] h1,
 html[data-theme="beauty-glow"] .section-title {
   font-style: italic;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 html[data-theme="beauty-glow"] .btn,

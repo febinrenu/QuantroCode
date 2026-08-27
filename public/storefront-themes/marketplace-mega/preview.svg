@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260">
   <rect width="400" height="260" fill="#FFFFFF"/>
-  <rect width="400" height="34" fill="#111827"/>
-  <text x="16" y="23" font-family="Arial, sans-serif" font-weight="700" font-size="14" fill="#F5820A">MEGA STORE</text>
-  <g fill="#F1F4F8" stroke="#DEE4EC">
+  <rect width="400" height="34" fill="#141B3D"/>
+  <text x="16" y="23" font-family="Arial, sans-serif" font-weight="700" font-size="14" fill="#F2C231">SHOPIQ</text>
+  <g fill="#F1F4FA" stroke="#DEE4F0">
     <rect x="16" y="46" width="56" height="56"/><rect x="76" y="46" width="56" height="56"/><rect x="136" y="46" width="56" height="56"/>
     <rect x="196" y="46" width="56" height="56"/><rect x="256" y="46" width="56" height="56"/><rect x="316" y="46" width="56" height="56"/>
   </g>
-  <rect x="16" y="46" width="56" height="16" fill="#F5820A" opacity="0.85"/>
+  <rect x="16" y="46" width="56" height="16" fill="#EC5A87" opacity="0.85"/>
 </svg>

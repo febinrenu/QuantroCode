@@ -1,24 +1,26 @@
-/* Grocery & Supermarket — Fresh. Portable storefront theme pack. */
+/* Grocery & Supermarket - Fresh. Portable storefront theme pack.
+   Palette adapted from a Naturia-style pure-ingredients storefront mockup:
+   green/cream/tan, Playfair Display headings. */
 
 html[data-theme="grocery-fresh"] {
   --color-bg-base:     255 255 255;
-  --color-bg-surface:  243 251 243;
+  --color-bg-surface:  232 240 227;
   --color-bg-elevated: 255 255 255;
-  --color-bg-muted:    232 246 232;
+  --color-bg-muted:    237 221 196;
 
-  --color-border-subtle: 220 239 220;
-  --color-border-strong: 168 216 168;
+  --color-border-subtle: 232 240 227;
+  --color-border-strong: 58 82 51;
 
-  --color-fg-primary:   23 51 24;
-  --color-fg-secondary: 65 96 63;
-  --color-fg-muted:     110 138 108;
+  --color-fg-primary:   44 64 40;
+  --color-fg-secondary: 58 82 51;
+  --color-fg-muted:     124 138 114;
 
-  --color-accent-400: 95 203 95;
-  --color-accent-500: 47 168 62;
-  --color-accent-600: 35 137 49;
-  --color-accent-glow: rgba(47, 168, 62, 0.25);
+  --color-accent-400: 90 120 80;
+  --color-accent-500: 58 82 51;
+  --color-accent-600: 44 64 40;
+  --color-accent-glow: rgba(58, 82, 51, 0.25);
 
-  --store-font-heading: 'Poppins', sans-serif;
+  --store-font-heading: 'Playfair Display', serif;
   --store-font-body: 'Inter', system-ui, sans-serif;
   --store-radius-sm: 0.375rem;
   --store-radius-md: 0.5rem;
@@ -34,7 +36,7 @@ html[data-theme="grocery-fresh"].dark {
   --color-bg-elevated: 28 46 29;
   --color-bg-muted:    35 56 36;
   --color-border-subtle: 44 68 45;
-  --color-fg-primary:   232 246 232;
+  --color-fg-primary:   232 240 227;
   --color-fg-secondary: 180 210 178;
   --color-fg-muted:     130 160 128;
   color-scheme: dark;

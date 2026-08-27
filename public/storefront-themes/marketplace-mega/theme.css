@@ -1,24 +1,26 @@
-/* Marketplace — Mega Store. Portable storefront theme pack. */
+/* Marketplace - Mega Store. Portable storefront theme pack.
+   Palette adapted from a ShopIQ-style multi-category storefront mockup:
+   navy/yellow/pink, Poppins headings. */
 
 html[data-theme="marketplace-mega"] {
   --color-bg-base:     255 255 255;
-  --color-bg-surface:  241 244 248;
+  --color-bg-surface:  241 244 250;
   --color-bg-elevated: 255 255 255;
-  --color-bg-muted:    231 236 243;
+  --color-bg-muted:    20 27 61;
 
-  --color-border-subtle: 222 228 236;
-  --color-border-strong: 185 196 211;
+  --color-border-subtle: 222 228 240;
+  --color-border-strong: 20 27 61;
 
-  --color-fg-primary:   17 24 39;
-  --color-fg-secondary: 75 85 99;
+  --color-fg-primary:   20 27 61;
+  --color-fg-secondary: 91 63 201;
   --color-fg-muted:     107 114 128;
 
-  --color-accent-400: 255 164 61;
-  --color-accent-500: 245 130 10;
-  --color-accent-600: 214 108 0;
-  --color-accent-glow: rgba(245, 130, 10, 0.25);
+  --color-accent-400: 245 143 168;
+  --color-accent-500: 236 90 135;
+  --color-accent-600: 214 67 111;
+  --color-accent-glow: rgba(236, 90, 135, 0.25);
 
-  --store-font-heading: 'Inter', sans-serif;
+  --store-font-heading: 'Poppins', sans-serif;
   --store-font-body: 'Inter', system-ui, sans-serif;
   --store-radius-sm: 0.25rem;
   --store-radius-md: 0.375rem;
@@ -30,13 +32,13 @@ html[data-theme="marketplace-mega"] {
 
 html[data-theme="marketplace-mega"].dark {
   --color-bg-base:     15 20 30;
-  --color-bg-surface:  21 27 39;
-  --color-bg-elevated: 27 34 48;
-  --color-bg-muted:    35 43 59;
-  --color-border-subtle: 44 53 71;
+  --color-bg-surface:  20 27 61;
+  --color-bg-elevated: 27 35 75;
+  --color-bg-muted:    35 43 85;
+  --color-border-subtle: 44 53 95;
   --color-fg-primary:   237 242 250;
-  --color-fg-secondary: 170 182 203;
-  --color-fg-muted:     120 132 152;
+  --color-fg-secondary: 200 190 240;
+  --color-fg-muted:     150 155 175;
   color-scheme: dark;
 }
 

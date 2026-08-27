@@ -1,0 +1,54 @@
+/* Pet Supplies - PawLuxe. Portable storefront theme pack.
+   Palette adapted from a PawLuxe-style pet-essentials storefront mockup:
+   mint/coral/navy, Baloo 2 headings, rounded pill UI. */
+
+html[data-theme="pawluxe-pets"] {
+  --color-bg-base:     255 255 255;
+  --color-bg-surface:  228 245 240;
+  --color-bg-elevated: 255 255 255;
+  --color-bg-muted:    26 35 50;
+
+  --color-border-subtle: 205 238 228;
+  --color-border-strong: 143 212 196;
+
+  --color-fg-primary:   26 35 50;
+  --color-fg-secondary: 95 179 159;
+  --color-fg-muted:     124 138 166;
+
+  --color-accent-400: 240 138 120;
+  --color-accent-500: 232 96 74;
+  --color-accent-600: 206 76 55;
+  --color-accent-glow: rgba(232, 96, 74, 0.3);
+
+  --store-font-heading: 'Baloo 2', cursive;
+  --store-font-body: 'Inter', system-ui, sans-serif;
+  --store-radius-sm: 1rem;
+  --store-radius-md: 1.5rem;
+  --store-radius-lg: 1.75rem;
+  --store-card-aspect: 1 / 1;
+  --store-grid-cols: 4;
+  color-scheme: light;
+}
+
+html[data-theme="pawluxe-pets"].dark {
+  --color-bg-base:     26 35 50;
+  --color-bg-surface:  34 46 63;
+  --color-bg-elevated: 42 56 76;
+  --color-bg-muted:    50 66 88;
+  --color-border-subtle: 60 78 100;
+  --color-fg-primary:   228 245 240;
+  --color-fg-secondary: 143 212 196;
+  --color-fg-muted:     150 165 185;
+  color-scheme: dark;
+}
+
+html[data-theme="pawluxe-pets"] .btn,
+html[data-theme="pawluxe-pets"] .product-card,
+html[data-theme="pawluxe-pets"] .chip,
+html[data-theme="pawluxe-pets"] .input,
+html[data-theme="pawluxe-pets"] .select {
+  border-radius: 1.5rem !important;
+}
+
+html[data-theme="pawluxe-pets"] .product-media { border-radius: 1.25rem; margin: 0.6rem; width: calc(100% - 1.2rem); }
+html[data-theme="pawluxe-pets"] .section-title { font-weight: 700; }

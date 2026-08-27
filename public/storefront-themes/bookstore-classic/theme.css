@@ -1,25 +1,27 @@
-/* Bookstore — Classic. Portable storefront theme pack. */
+/* Bookstore - Classic. Portable storefront theme pack.
+   Palette adapted from a Paperloom-style bookstore storefront mockup:
+   cream/navy/rust, Playfair Display headings. */
 
 html[data-theme="bookstore-classic"] {
-  --color-bg-base:     250 246 238;
-  --color-bg-surface:  241 233 216;
+  --color-bg-base:     246 240 227;
+  --color-bg-surface:  237 241 232;
   --color-bg-elevated: 255 255 255;
-  --color-bg-muted:    233 223 200;
+  --color-bg-muted:    232 217 190;
 
-  --color-border-subtle: 222 209 176;
-  --color-border-strong: 139 94 60;
+  --color-border-subtle: 232 217 190;
+  --color-border-strong: 188 91 57;
 
-  --color-fg-primary:   46 33 21;
-  --color-fg-secondary: 92 74 56;
-  --color-fg-muted:     139 122 97;
+  --color-fg-primary:   31 46 61;
+  --color-fg-secondary: 60 80 64;
+  --color-fg-muted:     138 122 99;
 
-  --color-accent-400: 168 67 58;
-  --color-accent-500: 126 46 39;
-  --color-accent-600: 98 31 26;
-  --color-accent-glow: rgba(126, 46, 39, 0.25);
+  --color-accent-400: 214 130 106;
+  --color-accent-500: 188 91 57;
+  --color-accent-600: 156 74 45;
+  --color-accent-glow: rgba(188, 91, 57, 0.25);
 
-  --store-font-heading: 'Merriweather', serif;
-  --store-font-body: 'Source Sans 3', system-ui, sans-serif;
+  --store-font-heading: 'Playfair Display', serif;
+  --store-font-body: 'Inter', system-ui, sans-serif;
   --store-radius-sm: 0.125rem;
   --store-radius-md: 0.25rem;
   --store-radius-lg: 0.25rem;
@@ -35,7 +37,7 @@ html[data-theme="bookstore-classic"].dark {
   --color-bg-muted:    57 45 31;
   --color-border-subtle: 69 55 39;
   --color-fg-primary:   241 233 216;
-  --color-fg-secondary: 201 184 157;
+  --color-fg-secondary: 190 200 190;
   --color-fg-muted:     150 133 108;
   color-scheme: dark;
 }

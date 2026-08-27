@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260">
-  <rect width="400" height="260" fill="#0A0E14"/>
-  <text x="24" y="30" font-family="Consolas, monospace" font-size="16" fill="#22D3EE">/// CIRCUIT</text>
-  <g fill="#141B29" stroke="#233047">
+  <rect width="400" height="260" fill="#FFFFFF"/>
+  <text x="24" y="30" font-family="Arial, sans-serif" font-weight="800" font-size="16" fill="#6D3FE0">NOVATECH</text>
+  <g fill="#EFE9FC" stroke="#DCD3F5">
     <rect x="24" y="48" width="64" height="64"/><rect x="96" y="48" width="64" height="64"/>
     <rect x="168" y="48" width="64" height="64"/><rect x="240" y="48" width="64" height="64"/><rect x="312" y="48" width="64" height="64"/>
     <rect x="24" y="120" width="64" height="64"/><rect x="96" y="120" width="64" height="64"/>
     <rect x="168" y="120" width="64" height="64"/><rect x="240" y="120" width="64" height="64"/><rect x="312" y="120" width="64" height="64"/>
   </g>
-  <rect x="24" y="48" width="64" height="64" fill="none" stroke="#22D3EE" stroke-width="2"/>
+  <rect x="24" y="48" width="64" height="64" fill="none" stroke="#6D3FE0" stroke-width="2"/>
 </svg>

@@ -1,51 +1,46 @@
-/* Restaurant & Delivery — Fresh Bite. Portable storefront theme pack. */
+/* Restaurant & Delivery - Fresh Bite. Portable storefront theme pack.
+   Palette adapted from a Terra & Co-style fine-food storefront mockup:
+   cream/tan/forest-green, Playfair Display headings. */
 
 html[data-theme="restaurant-fresh"] {
-  --color-bg-base:     255 250 245;
-  --color-bg-surface:  255 241 228;
+  --color-bg-base:     243 237 224;
+  --color-bg-surface:  217 201 168;
   --color-bg-elevated: 255 255 255;
-  --color-bg-muted:    255 228 204;
+  --color-bg-muted:    194 172 128;
 
-  --color-border-subtle: 255 217 184;
-  --color-border-strong: 255 173 102;
+  --color-border-subtle: 217 201 168;
+  --color-border-strong: 44 64 40;
 
-  --color-fg-primary:   58 36 22;
-  --color-fg-secondary: 122 84 56;
-  --color-fg-muted:     169 131 98;
+  --color-fg-primary:   22 22 19;
+  --color-fg-secondary: 44 64 40;
+  --color-fg-muted:     120 112 90;
 
-  --color-accent-400: 255 138 76;
-  --color-accent-500: 244 96 42;
-  --color-accent-600: 209 70 20;
-  --color-accent-glow: rgba(244, 96, 42, 0.3);
+  --color-accent-400: 80 115 95;
+  --color-accent-500: 44 64 40;
+  --color-accent-600: 26 40 24;
+  --color-accent-glow: rgba(44, 64, 40, 0.25);
 
-  --store-font-heading: 'Fredoka', sans-serif;
-  --store-font-body: 'Nunito', system-ui, sans-serif;
-  --store-radius-sm: 0.75rem;
-  --store-radius-md: 1rem;
-  --store-radius-lg: 1.25rem;
+  --store-font-heading: 'Playfair Display', serif;
+  --store-font-body: 'Inter', system-ui, sans-serif;
+  --store-radius-sm: 0.5rem;
+  --store-radius-md: 0.625rem;
+  --store-radius-lg: 0.75rem;
   --store-card-aspect: 1 / 1;
   --store-grid-cols: 4;
   color-scheme: light;
 }
 
 html[data-theme="restaurant-fresh"].dark {
-  --color-bg-base:     32 20 14;
-  --color-bg-surface:  44 28 18;
-  --color-bg-elevated: 54 35 22;
-  --color-bg-muted:    64 42 27;
-  --color-border-subtle: 78 52 33;
-  --color-fg-primary:   255 241 228;
-  --color-fg-secondary: 224 189 155;
-  --color-fg-muted:     169 131 98;
+  --color-bg-base:     26 26 22;
+  --color-bg-surface:  35 35 29;
+  --color-bg-elevated: 44 44 37;
+  --color-bg-muted:    53 53 44;
+  --color-border-subtle: 64 64 53;
+  --color-fg-primary:   243 237 224;
+  --color-fg-secondary: 194 172 128;
+  --color-fg-muted:     150 140 115;
   color-scheme: dark;
 }
 
-html[data-theme="restaurant-fresh"] .btn,
-html[data-theme="restaurant-fresh"] .chip,
-html[data-theme="restaurant-fresh"] .input,
-html[data-theme="restaurant-fresh"] .select {
-  border-radius: 999px !important;
-}
-
 html[data-theme="restaurant-fresh"] .product-card { border-radius: var(--store-radius-lg); }
-html[data-theme="restaurant-fresh"] .product-media { border-radius: 999px; margin: 0.5rem; width: calc(100% - 1rem); }
+html[data-theme="restaurant-fresh"] .product-media { border-radius: 0.5rem; margin: 0.5rem; width: calc(100% - 1rem); }
