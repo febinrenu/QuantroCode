@@ -6,6 +6,7 @@
  */
 
 use App\Http\Controllers\QuickBooksController;
+use App\Http\Controllers\RealEstateStoreController;
 use App\Http\Controllers\StoreAuthController;
 use App\Http\Controllers\StoreFrontController;
 use App\Http\Controllers\Api\Store\AccountPagesController;
@@ -52,6 +53,9 @@ if ($installed === true) {
             Route::post('/contact', [StoreFrontController::class, 'sendContact'])->name('store.contact.send');
             Route::post('/store/orders', [CheckoutController::class, 'store'])->name('store.orders.store');
             Route::get('/collections/{slug}', [StoreFrontController::class, 'collection'])->name('store.collection.show');
+Route::get('/properties', [RealEstateStoreController::class, 'listings'])->name('store.realestate.listings');
+Route::post('/properties/inquiry', [RealEstateStoreController::class, 'inquiry'])->name('store.realestate.inquiry');
+Route::get('/properties/{slug}', [RealEstateStoreController::class, 'show'])->name('store.realestate.show');
             Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
             Route::post('/contact/send', [MessageController::class, 'store'])->name('store.contact.send');
 

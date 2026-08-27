@@ -1,0 +1,32 @@
+{
+  "slug": "kids-toybox",
+  "name": "Kids & Toys - Toybox",
+  "industry": "Kids, Toys & Baby",
+  "version": "1.0.0",
+  "description": "Vibrant, playful palette with bubbly rounded shapes and a bold friendly display font - built to feel fun for kids and toy stores.",
+  "layout": "playful-bold",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600&display=swap",
+  "tokens": {
+    "color-bg-base": "#FFFFFF",
+    "color-bg-surface": "#F0F7FF",
+    "color-bg-elevated": "#FFFFFF",
+    "color-bg-muted": "#E4F0FF",
+    "color-border-subtle": "#D6E8FF",
+    "color-border-strong": "#8FC1FF",
+    "color-fg-primary": "#1E2A45",
+    "color-fg-secondary": "#4C5C7A",
+    "color-fg-muted": "#7C8AA6",
+    "color-accent-400": "#FF8FB1",
+    "color-accent-500": "#FF5C8A",
+    "color-accent-600": "#E23E6D",
+    "font-heading": "'Baloo 2', cursive",
+    "font-body": "'Nunito', system-ui, sans-serif",
+    "radius-lg": "1.75rem",
+    "card-aspect": "1 / 1",
+    "grid-cols": "4"
+  },
+  "customizable": [
+    "color-accent-400", "color-accent-500", "color-accent-600",
+    "color-bg-surface", "font-heading", "font-body"
+  ]
+}

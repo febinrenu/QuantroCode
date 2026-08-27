@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260">
-  <rect width="400" height="260" fill="#FBF7F1"/>
-  <text x="24" y="34" font-family="Georgia, serif" font-size="20" fill="#3B2E22">Haven</text>
-  <rect x="24" y="56" width="108" height="82" rx="10" fill="#F3EBDD" stroke="#C7A97C"/>
-  <rect x="146" y="56" width="108" height="82" rx="10" fill="#F3EBDD" stroke="#C7A97C"/>
-  <rect x="268" y="56" width="108" height="82" rx="10" fill="#F3EBDD" stroke="#C7A97C"/>
-  <rect x="24" y="152" width="352" height="60" rx="10" fill="#BC6C33" opacity="0.15"/>
-</svg>
