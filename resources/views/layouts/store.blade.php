@@ -58,9 +58,28 @@
   $modalRegEnabled = $s->registration_enabled ?? true;
   $modalInviteRequired = $s->require_invite_code ?? false;
   $hidePrices = !$client && ($s->hide_prices_for_guests ?? false);
+
+  // ---- Storefront theme pack (see public/storefront-themes). Token keys are
+  //      literal CSS custom-property names (minus the "--"), e.g.
+  //      "color-accent-500", "font-heading" — the same contract theme.css
+  //      files use, so tenant overrides layer on top with zero translation.
+  $activeThemeSlug = $s->theme ?? 'default';
+  $themePack       = \App\Support\StorefrontThemeCatalog::find($activeThemeSlug);
+  $themeTokens     = \App\Support\StorefrontThemeCatalog::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
+  $themeTokenCss   = collect($themeTokens)
+      ->map(function ($value, $key) {
+          if (!preg_match('/^[a-z0-9-]+$/', $key)) return null;
+          $isColorKey = Str::startsWith($key, 'color-');
+          if ($isColorKey) {
+              return preg_match('/^#[0-9a-fA-F]{3,8}$/', $value) ? "--{$key}: {$value};" : null;
+          }
+          return Str::length($value) <= 120 ? "--{$key}: " . e($value) . ';' : null;
+      })
+      ->filter()
+      ->implode(' ');
 @endphp
 <!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale() ?? 'en') }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
+<html lang="{{ str_replace('_','-', app()->getLocale() ?? 'en') }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}" data-theme="{{ $activeThemeSlug }}">
 <head>
   <meta charset="utf-8" />
   <title>{{ $title }}</title>
@@ -108,8 +127,18 @@
   <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
 
+  @if(!empty($themePack['googleFontsUrl']))
+    {{-- Theme pack's own type pairing, layered on top of the base Inter link above --}}
+    <link rel="stylesheet" href="{{ $themePack['googleFontsUrl'] }}">
+  @endif
+
   {{-- Storefront bundle --}}
   <link rel="stylesheet" href="{{ $cssStore }}">
+
+  @if(!empty($themePack['assets']['css']))
+    {{-- Theme pack overrides — loaded after the base bundle so it wins the cascade --}}
+    <link rel="stylesheet" href="{{ $themePack['assets']['css'] }}">
+  @endif
 
   <style>
     :root {
@@ -118,9 +147,16 @@
     }
     .dark { --color-accent-glow: rgba({{ $accent500Rgb }}, 0.45); }
 
+    @if($activeThemeSlug === 'default')
     body { font-family: {{ $s->font_family ?? 'Inter, system-ui, sans-serif' }}; }
+    @endif
 
     .mega-panel { box-shadow: 0 24px 48px -12px rgba(0,0,0,0.5); }
+
+    {{-- Per-tenant theme customization (colors/fonts/radius) layered above the theme pack's own theme.css --}}
+    @if($themeTokenCss !== '')
+    html[data-theme="{{ $activeThemeSlug }}"] { {!! $themeTokenCss !!} }
+    @endif
 
     {!! $s->custom_css ?? '' !!}
   </style>

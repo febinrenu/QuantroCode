@@ -44,12 +44,12 @@
             $heroUrl = global_asset('store_files/hero_image.jpg');
         }
       @endphp
-      <section class="py-12 lg:py-16 relative overflow-hidden"
+      <section class="store-hero py-12 lg:py-16 relative overflow-hidden"
                style="background:
                  radial-gradient(1200px 360px at 15% 50%, rgb(var(--color-accent-500) / .10) 0%, transparent 55%),
                  radial-gradient(900px 280px at 85% 50%, rgb(var(--color-accent-500) / .06) 0%, transparent 55%);">
         <div class="container">
-          <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div class="store-hero-grid grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div>
               <span class="section-kicker">{{ __('messages.Shop') }}</span>
               <h1 class="mt-3 mb-4 text-4xl lg:text-5xl font-bold tracking-tight text-fg-primary">
@@ -107,7 +107,7 @@
             </a>
           </div>
 
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div class="store-product-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             @foreach($prods as $p)
               @include('store.partials.product-card', ['p' => $p, 'currency' => $currency])
             @endforeach

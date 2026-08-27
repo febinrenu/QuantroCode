@@ -1,0 +1,53 @@
+/* Bookstore — Classic. Portable storefront theme pack. */
+
+html[data-theme="bookstore-classic"] {
+  --color-bg-base:     250 246 238;
+  --color-bg-surface:  241 233 216;
+  --color-bg-elevated: 255 255 255;
+  --color-bg-muted:    233 223 200;
+
+  --color-border-subtle: 222 209 176;
+  --color-border-strong: 139 94 60;
+
+  --color-fg-primary:   46 33 21;
+  --color-fg-secondary: 92 74 56;
+  --color-fg-muted:     139 122 97;
+
+  --color-accent-400: 168 67 58;
+  --color-accent-500: 126 46 39;
+  --color-accent-600: 98 31 26;
+  --color-accent-glow: rgba(126, 46, 39, 0.25);
+
+  --store-font-heading: 'Merriweather', serif;
+  --store-font-body: 'Source Sans 3', system-ui, sans-serif;
+  --store-radius-sm: 0.125rem;
+  --store-radius-md: 0.25rem;
+  --store-radius-lg: 0.25rem;
+  --store-card-aspect: 2 / 3;
+  --store-grid-cols: 5;
+  color-scheme: light;
+}
+
+html[data-theme="bookstore-classic"].dark {
+  --color-bg-base:     28 22 16;
+  --color-bg-surface:  38 30 21;
+  --color-bg-elevated: 47 37 26;
+  --color-bg-muted:    57 45 31;
+  --color-border-subtle: 69 55 39;
+  --color-fg-primary:   241 233 216;
+  --color-fg-secondary: 201 184 157;
+  --color-fg-muted:     150 133 108;
+  color-scheme: dark;
+}
+
+html[data-theme="bookstore-classic"] .product-media {
+  aspect-ratio: 2 / 3;
+  box-shadow: -3px 0 0 rgb(var(--color-border-strong) / 0.5) inset;
+}
+
+@media (min-width: 1280px) {
+  html[data-theme="bookstore-classic"] .store-product-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}

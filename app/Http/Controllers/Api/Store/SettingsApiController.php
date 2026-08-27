@@ -8,9 +8,11 @@ use App\Models\Currency;
 use App\Models\Setting;
 use App\Models\StoreSetting;
 use App\Models\Warehouse;
+use App\Support\StorefrontThemeCatalog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Intervention\Image\ImageManagerStatic as Image;
 
 class SettingsApiController extends Controller
@@ -89,6 +91,7 @@ class SettingsApiController extends Controller
             'warehouses' => $warehouses,
             'currencies' => $currencies,
             'pending_customers_count' => $pendingCustomersCount,
+            'themes' => StorefrontThemeCatalog::all(),
         ]);
     }
 
@@ -145,7 +148,8 @@ class SettingsApiController extends Controller
             'show_stock' => 'nullable|in:0,1',
 
             'store_name' => 'nullable|string|max:190',
-            'theme' => 'nullable|string|in:default,real_estate',
+            'theme' => ['nullable', 'string', Rule::in(array_merge(['default', 'real_estate'], StorefrontThemeCatalog::slugs()))],
+            'theme_tokens' => 'nullable',
             'primary_color' => 'nullable|string|max:20',
             'secondary_color' => 'nullable|string|max:20',
             'font_family' => 'nullable|string|max:100',
@@ -190,6 +194,41 @@ class SettingsApiController extends Controller
                     $data[$key] = $decoded;
                 }
             }
+        }
+
+        // --- Theme tokens: decode + restrict to the selected theme's
+        //     declared customizable keys, and sanity-check color/font values
+        //     so a bad payload can never inject arbitrary CSS. ---
+        if (array_key_exists('theme_tokens', $data)) {
+            $tokens = $data['theme_tokens'];
+            if (is_string($tokens)) {
+                $tokens = json_decode($tokens, true) ?: [];
+            }
+            if (! is_array($tokens)) {
+                $tokens = [];
+            }
+
+            $themeSlug = $data['theme'] ?? $s->theme ?? 'default';
+            $theme = StorefrontThemeCatalog::find($themeSlug);
+            $customizable = $theme['customizable'] ?? [];
+
+            $clean = [];
+            foreach ($tokens as $key => $value) {
+                if (! in_array($key, $customizable, true) || ! is_string($value)) {
+                    continue;
+                }
+                $value = trim($value);
+                $isColorKey = Str::startsWith($key, 'color') || Str::endsWith($key, 'Color');
+                if ($isColorKey && ! preg_match('/^#[0-9a-fA-F]{3,8}$/', $value)) {
+                    continue;
+                }
+                if (! $isColorKey && Str::length($value) > 120) {
+                    continue;
+                }
+                $clean[$key] = $value;
+            }
+
+            $data['theme_tokens'] = $clean;
         }
 
         // --- Normalize unified lineup ---

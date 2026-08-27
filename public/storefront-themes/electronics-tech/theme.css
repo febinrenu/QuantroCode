@@ -1,0 +1,53 @@
+/* Electronics & Gadgets — Circuit. Portable storefront theme pack. */
+
+html[data-theme="electronics-tech"],
+html[data-theme="electronics-tech"].dark {
+  --color-bg-base:     10 14 20;
+  --color-bg-surface:  15 21 32;
+  --color-bg-elevated: 20 27 41;
+  --color-bg-muted:    27 35 51;
+
+  --color-border-subtle: 35 48 71;
+  --color-border-strong: 51 68 95;
+
+  --color-fg-primary:   233 241 250;
+  --color-fg-secondary: 159 179 204;
+  --color-fg-muted:     101 126 158;
+
+  --color-accent-400: 94 234 212;
+  --color-accent-500: 34 211 238;
+  --color-accent-600: 14 165 199;
+  --color-accent-glow: rgba(34, 211, 238, 0.4);
+
+  --store-font-heading: 'JetBrains Mono', monospace;
+  --store-font-body: 'Inter', system-ui, sans-serif;
+  --store-radius-sm: 0.25rem;
+  --store-radius-md: 0.375rem;
+  --store-radius-lg: 0.375rem;
+  --store-card-aspect: 1 / 1;
+  --store-grid-cols: 5;
+  color-scheme: dark;
+}
+
+html[data-theme="electronics-tech"] .section-title,
+html[data-theme="electronics-tech"] .product-price,
+html[data-theme="electronics-tech"] .product-meta {
+  font-family: var(--store-font-heading);
+}
+
+html[data-theme="electronics-tech"] .product-card {
+  border: 1px solid rgb(var(--color-border-subtle));
+  background: rgb(var(--color-bg-surface));
+}
+
+html[data-theme="electronics-tech"] .product-card:hover {
+  border-color: rgb(var(--color-accent-500) / 0.6);
+  box-shadow: 0 0 0 1px rgb(var(--color-accent-500) / 0.3), 0 0 24px rgb(var(--color-accent-500) / 0.15);
+}
+
+@media (min-width: 1280px) {
+  html[data-theme="electronics-tech"] .store-product-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+}

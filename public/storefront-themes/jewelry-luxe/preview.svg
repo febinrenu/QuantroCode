@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260">
+  <rect width="400" height="260" fill="#0B0B0E"/>
+  <rect x="24" y="24" width="352" height="70" fill="#1A1A21"/>
+  <text x="24" y="18" font-family="Georgia, serif" font-size="14" fill="#C9A227" letter-spacing="2">JEWELRY &amp; WATCHES</text>
+  <rect x="24" y="112" width="110" height="124" fill="#1A1A21" stroke="#C9A227" stroke-width="1"/>
+  <rect x="145" y="112" width="110" height="124" fill="#1A1A21" stroke="#3D3A44" stroke-width="1"/>
+  <rect x="266" y="112" width="110" height="124" fill="#1A1A21" stroke="#3D3A44" stroke-width="1"/>
+  <circle cx="79" cy="160" r="24" fill="none" stroke="#C9A227" stroke-width="2"/>
+  <circle cx="200" cy="160" r="20" fill="none" stroke="#DCC077" stroke-width="2"/>
+  <circle cx="321" cy="160" r="18" fill="none" stroke="#948C7B" stroke-width="2"/>
+</svg>

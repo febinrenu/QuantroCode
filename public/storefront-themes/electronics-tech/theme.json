@@ -1,0 +1,32 @@
+{
+  "slug": "electronics-tech",
+  "name": "Electronics & Gadgets — Circuit",
+  "industry": "Electronics, Gadgets & Tech",
+  "version": "1.0.0",
+  "description": "Dark technical aesthetic with a neon cyan accent, monospace headings and a dense spec-sheet friendly catalogue grid.",
+  "layout": "dense-dark-tech",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Inter:wght@400;500;600&display=swap",
+  "tokens": {
+    "color-bg-base": "#0A0E14",
+    "color-bg-surface": "#0F1520",
+    "color-bg-elevated": "#141B29",
+    "color-bg-muted": "#1B2333",
+    "color-border-subtle": "#233047",
+    "color-border-strong": "#33445F",
+    "color-fg-primary": "#E9F1FA",
+    "color-fg-secondary": "#9FB3CC",
+    "color-fg-muted": "#657E9E",
+    "color-accent-400": "#5EEAD4",
+    "color-accent-500": "#22D3EE",
+    "color-accent-600": "#0EA5C7",
+    "font-heading": "'JetBrains Mono', monospace",
+    "font-body": "'Inter', system-ui, sans-serif",
+    "radius-lg": "0.375rem",
+    "card-aspect": "1 / 1",
+    "grid-cols": "5"
+  },
+  "customizable": [
+    "color-accent-400", "color-accent-500", "color-accent-600",
+    "color-bg-base", "font-heading", "font-body"
+  ]
+}

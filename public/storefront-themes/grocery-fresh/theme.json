@@ -1,0 +1,32 @@
+{
+  "slug": "grocery-fresh",
+  "name": "Grocery & Supermarket — Fresh",
+  "industry": "Grocery, Supermarket & Fresh Produce",
+  "version": "1.0.0",
+  "description": "Bright, high-density layout with a fresh green accent, compact cards and a tight grid built for fast list-style browsing.",
+  "layout": "dense-bright",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500&display=swap",
+  "tokens": {
+    "color-bg-base": "#FFFFFF",
+    "color-bg-surface": "#F3FBF3",
+    "color-bg-elevated": "#FFFFFF",
+    "color-bg-muted": "#E8F6E8",
+    "color-border-subtle": "#DCEFDC",
+    "color-border-strong": "#A8D8A8",
+    "color-fg-primary": "#173318",
+    "color-fg-secondary": "#41603F",
+    "color-fg-muted": "#6E8A6C",
+    "color-accent-400": "#5FCB5F",
+    "color-accent-500": "#2FA83E",
+    "color-accent-600": "#238931",
+    "font-heading": "'Poppins', sans-serif",
+    "font-body": "'Inter', system-ui, sans-serif",
+    "radius-lg": "0.5rem",
+    "card-aspect": "1 / 1",
+    "grid-cols": "6"
+  },
+  "customizable": [
+    "color-accent-400", "color-accent-500", "color-accent-600",
+    "font-heading", "font-body"
+  ]
+}

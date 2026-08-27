@@ -1,0 +1,32 @@
+{
+  "slug": "restaurant-fresh",
+  "name": "Restaurant & Delivery — Fresh Bite",
+  "industry": "Restaurant, Cafe & Food Delivery",
+  "version": "1.0.0",
+  "description": "Warm red-orange palette, fully rounded pill UI and square food photography — playful and mobile-first.",
+  "layout": "mobile-first-rounded",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600&display=swap",
+  "tokens": {
+    "color-bg-base": "#FFFAF5",
+    "color-bg-surface": "#FFF1E4",
+    "color-bg-elevated": "#FFFFFF",
+    "color-bg-muted": "#FFE4CC",
+    "color-border-subtle": "#FFD9B8",
+    "color-border-strong": "#FFAD66",
+    "color-fg-primary": "#3A2416",
+    "color-fg-secondary": "#7A5438",
+    "color-fg-muted": "#A98362",
+    "color-accent-400": "#FF8A4C",
+    "color-accent-500": "#F4602A",
+    "color-accent-600": "#D14614",
+    "font-heading": "'Fredoka', sans-serif",
+    "font-body": "'Nunito', system-ui, sans-serif",
+    "radius-lg": "1.25rem",
+    "card-aspect": "1 / 1",
+    "grid-cols": "4"
+  },
+  "customizable": [
+    "color-accent-400", "color-accent-500", "color-accent-600",
+    "font-heading", "font-body"
+  ]
+}

@@ -1,0 +1,61 @@
+/* Cosmetics & Beauty — Glow. Portable storefront theme pack. */
+
+html[data-theme="beauty-glow"] {
+  --color-bg-base:     255 247 245;
+  --color-bg-surface:  253 236 232;
+  --color-bg-elevated: 255 255 255;
+  --color-bg-muted:    247 225 220;
+
+  --color-border-subtle: 243 217 210;
+  --color-border-strong: 227 183 171;
+
+  --color-fg-primary:   58 42 38;
+  --color-fg-secondary: 122 93 85;
+  --color-fg-muted:     169 138 128;
+
+  --color-accent-400: 245 166 161;
+  --color-accent-500: 232 131 124;
+  --color-accent-600: 210 104 95;
+  --color-accent-glow: rgba(232, 131, 124, 0.3);
+
+  --store-font-heading: 'DM Serif Display', serif;
+  --store-font-body: 'Nunito', system-ui, sans-serif;
+  --store-radius-sm: 0.75rem;
+  --store-radius-md: 1rem;
+  --store-radius-lg: 1.5rem;
+  --store-card-aspect: 1 / 1;
+  --store-grid-cols: 4;
+  color-scheme: light;
+}
+
+html[data-theme="beauty-glow"].dark {
+  --color-bg-base:     42 30 28;
+  --color-bg-surface:  54 38 35;
+  --color-bg-elevated: 64 46 42;
+  --color-bg-muted:    74 54 49;
+  --color-border-subtle: 90 66 60;
+  --color-fg-primary:   253 236 232;
+  --color-fg-secondary: 224 194 185;
+  --color-fg-muted:     181 150 140;
+  color-scheme: dark;
+}
+
+html[data-theme="beauty-glow"] h1,
+html[data-theme="beauty-glow"] .section-title {
+  font-style: italic;
+  font-weight: 400;
+}
+
+html[data-theme="beauty-glow"] .btn,
+html[data-theme="beauty-glow"] .product-card,
+html[data-theme="beauty-glow"] .chip,
+html[data-theme="beauty-glow"] .input,
+html[data-theme="beauty-glow"] .select {
+  border-radius: 999px !important;
+}
+
+html[data-theme="beauty-glow"] .product-media { border-radius: 999px; }
+
+html[data-theme="beauty-glow"] .store-hero {
+  background: radial-gradient(1000px 320px at 20% 40%, rgb(var(--color-accent-500) / .14), transparent 60%) !important;
+}

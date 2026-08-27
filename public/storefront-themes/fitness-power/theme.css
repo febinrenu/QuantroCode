@@ -1,0 +1,54 @@
+/* Fitness & Supplements — Power. Portable storefront theme pack. */
+
+html[data-theme="fitness-power"],
+html[data-theme="fitness-power"].dark {
+  --color-bg-base:     13 13 13;
+  --color-bg-surface:  22 22 22;
+  --color-bg-elevated: 30 30 30;
+  --color-bg-muted:    39 39 39;
+
+  --color-border-subtle: 46 46 46;
+  --color-border-strong: 69 69 69;
+
+  --color-fg-primary:   245 245 245;
+  --color-fg-secondary: 190 190 190;
+  --color-fg-muted:     138 138 138;
+
+  --color-accent-400: 212 255 63;
+  --color-accent-500: 198 255 0;
+  --color-accent-600: 159 204 0;
+  --color-accent-glow: rgba(198, 255, 0, 0.35);
+
+  --store-font-heading: 'Barlow Condensed', sans-serif;
+  --store-font-body: 'Inter', system-ui, sans-serif;
+  --store-radius-sm: 0rem;
+  --store-radius-md: 0rem;
+  --store-radius-lg: 0rem;
+  --store-card-aspect: 1 / 1;
+  --store-grid-cols: 4;
+  color-scheme: dark;
+}
+
+html[data-theme="fitness-power"] h1,
+html[data-theme="fitness-power"] .section-title {
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-weight: 700;
+}
+
+html[data-theme="fitness-power"] .btn,
+html[data-theme="fitness-power"] .product-card,
+html[data-theme="fitness-power"] .chip {
+  border-radius: 0 !important;
+}
+
+html[data-theme="fitness-power"] .btn-primary {
+  color: #0D0D0D;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+html[data-theme="fitness-power"] .product-card {
+  border-left: 3px solid rgb(var(--color-accent-500));
+}

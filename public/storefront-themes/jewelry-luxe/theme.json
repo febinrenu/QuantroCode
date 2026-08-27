@@ -1,0 +1,32 @@
+{
+  "slug": "jewelry-luxe",
+  "name": "Jewelry & Watches — Luxe",
+  "industry": "Jewelry, Watches & Luxury Goods",
+  "version": "1.0.0",
+  "description": "Deep dark canvas with gold accenting, serif display type and generous white-space — built for large lifestyle photography and minimal copy.",
+  "layout": "spacious-dark",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500&display=swap",
+  "tokens": {
+    "color-bg-base": "#0B0B0E",
+    "color-bg-surface": "#131318",
+    "color-bg-elevated": "#1A1A21",
+    "color-bg-muted": "#211F26",
+    "color-border-subtle": "#2A2830",
+    "color-border-strong": "#3D3A44",
+    "color-fg-primary": "#F5F1E6",
+    "color-fg-secondary": "#C9C2B4",
+    "color-fg-muted": "#948C7B",
+    "color-accent-400": "#DCC077",
+    "color-accent-500": "#C9A227",
+    "color-accent-600": "#A6841D",
+    "font-heading": "'Cormorant Garamond', 'Playfair Display', serif",
+    "font-body": "'Inter', system-ui, sans-serif",
+    "radius-lg": "0.125rem",
+    "card-aspect": "4 / 5",
+    "grid-cols": "3"
+  },
+  "customizable": [
+    "color-accent-400", "color-accent-500", "color-accent-600",
+    "color-bg-base", "color-fg-primary", "font-heading", "font-body"
+  ]
+}

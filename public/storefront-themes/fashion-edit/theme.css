@@ -1,0 +1,71 @@
+/* Fashion & Apparel — The Edit. Portable storefront theme pack. */
+
+html[data-theme="fashion-edit"] {
+  --color-bg-base:     255 255 255;
+  --color-bg-surface:  244 244 244;
+  --color-bg-elevated: 255 255 255;
+  --color-bg-muted:    234 234 234;
+
+  --color-border-subtle: 226 226 226;
+  --color-border-strong: 17 17 17;
+
+  --color-fg-primary:   17 17 17;
+  --color-fg-secondary: 74 74 74;
+  --color-fg-muted:     138 138 138;
+
+  --color-accent-400: 255 77 109;
+  --color-accent-500: 225 29 72;
+  --color-accent-600: 190 18 60;
+  --color-accent-glow: rgba(225, 29, 72, 0.25);
+
+  --store-font-heading: 'Space Grotesk', sans-serif;
+  --store-font-body: 'Inter', system-ui, sans-serif;
+  --store-radius-sm: 0rem;
+  --store-radius-md: 0rem;
+  --store-radius-lg: 0rem;
+  --store-card-aspect: 3 / 4;
+  --store-grid-cols: 4;
+  color-scheme: light;
+}
+
+html[data-theme="fashion-edit"].dark {
+  --color-bg-base:     17 17 17;
+  --color-bg-surface:  26 26 26;
+  --color-bg-elevated: 34 34 34;
+  --color-bg-muted:    46 46 46;
+  --color-border-subtle: 58 58 58;
+  --color-border-strong: 255 255 255;
+  --color-fg-primary:   255 255 255;
+  --color-fg-secondary: 209 209 209;
+  --color-fg-muted:     150 150 150;
+  color-scheme: dark;
+}
+
+html[data-theme="fashion-edit"] h1,
+html[data-theme="fashion-edit"] .section-title {
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+html[data-theme="fashion-edit"] .btn,
+html[data-theme="fashion-edit"] .product-card,
+html[data-theme="fashion-edit"] .chip {
+  border-radius: 0 !important;
+}
+
+html[data-theme="fashion-edit"] .btn-primary {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+
+html[data-theme="fashion-edit"] .product-card {
+  border: 1px solid rgb(var(--color-border-subtle));
+}
+
+@media (min-width: 1280px) {
+  html[data-theme="fashion-edit"] .store-product-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+}

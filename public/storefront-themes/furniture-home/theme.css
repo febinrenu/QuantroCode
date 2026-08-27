@@ -1,0 +1,50 @@
+/* Furniture & Home — Haven. Portable storefront theme pack. */
+
+html[data-theme="furniture-home"] {
+  --color-bg-base:     251 247 241;
+  --color-bg-surface:  243 235 221;
+  --color-bg-elevated: 255 255 255;
+  --color-bg-muted:    235 224 205;
+
+  --color-border-subtle: 226 212 187;
+  --color-border-strong: 199 169 124;
+
+  --color-fg-primary:   59 46 34;
+  --color-fg-secondary: 107 90 69;
+  --color-fg-muted:     156 138 111;
+
+  --color-accent-400: 214 140 81;
+  --color-accent-500: 188 108 51;
+  --color-accent-600: 154 85 39;
+  --color-accent-glow: rgba(188, 108, 51, 0.25);
+
+  --store-font-heading: 'Fraunces', serif;
+  --store-font-body: 'Inter', system-ui, sans-serif;
+  --store-radius-sm: 0.5rem;
+  --store-radius-md: 0.75rem;
+  --store-radius-lg: 1rem;
+  --store-card-aspect: 4 / 3;
+  --store-grid-cols: 3;
+  color-scheme: light;
+}
+
+html[data-theme="furniture-home"].dark {
+  --color-bg-base:     30 25 20;
+  --color-bg-surface:  40 33 26;
+  --color-bg-elevated: 49 41 32;
+  --color-bg-muted:    59 49 38;
+  --color-border-subtle: 71 60 46;
+  --color-fg-primary:   243 235 221;
+  --color-fg-secondary: 206 187 158;
+  --color-fg-muted:     156 138 111;
+  color-scheme: dark;
+}
+
+html[data-theme="furniture-home"] .store-hero { padding-block: 4.5rem; }
+
+@media (min-width: 1024px) {
+  html[data-theme="furniture-home"] .store-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+  }
+}

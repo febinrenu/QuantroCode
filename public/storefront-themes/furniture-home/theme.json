@@ -1,0 +1,32 @@
+{
+  "slug": "furniture-home",
+  "name": "Furniture & Home — Haven",
+  "industry": "Furniture, Home & Decor",
+  "version": "1.0.0",
+  "description": "Warm, earthy palette with generous negative space, soft rounded corners and wide room-style imagery.",
+  "layout": "spacious-warm",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Inter:wght@400;500&display=swap",
+  "tokens": {
+    "color-bg-base": "#FBF7F1",
+    "color-bg-surface": "#F3EBDD",
+    "color-bg-elevated": "#FFFFFF",
+    "color-bg-muted": "#EBE0CD",
+    "color-border-subtle": "#E2D4BB",
+    "color-border-strong": "#C7A97C",
+    "color-fg-primary": "#3B2E22",
+    "color-fg-secondary": "#6B5A45",
+    "color-fg-muted": "#9C8A6F",
+    "color-accent-400": "#D68C51",
+    "color-accent-500": "#BC6C33",
+    "color-accent-600": "#9A5527",
+    "font-heading": "'Fraunces', serif",
+    "font-body": "'Inter', system-ui, sans-serif",
+    "radius-lg": "1rem",
+    "card-aspect": "4 / 3",
+    "grid-cols": "3"
+  },
+  "customizable": [
+    "color-accent-400", "color-accent-500", "color-accent-600",
+    "color-bg-base", "font-heading", "font-body"
+  ]
+}
