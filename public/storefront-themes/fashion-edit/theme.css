@@ -122,3 +122,36 @@ html[data-theme="fashion-edit"] .store-product-grid {
 html[data-theme="fashion-edit"] .store-product-grid .product-card {
   background: rgb(var(--color-bg-base));
 }
+
+/* ===== Round 2: unmistakable chrome ===== */
+html[data-theme="fashion-edit"] .store-hero {
+  background: rgb(var(--color-fg-primary)) !important;
+  color: rgb(var(--color-bg-base));
+}
+html[data-theme="fashion-edit"] .store-hero h1,
+html[data-theme="fashion-edit"] .store-hero p,
+html[data-theme="fashion-edit"] .store-hero .section-kicker {
+  color: rgb(var(--color-bg-base)) !important;
+}
+html[data-theme="fashion-edit"] .store-hero h1 {
+  font-size: clamp(3rem, 7vw, 6rem) !important;
+  text-transform: uppercase;
+  line-height: 0.95 !important;
+  letter-spacing: -0.02em;
+}
+html[data-theme="fashion-edit"] header {
+  background: rgb(var(--color-bg-base)) !important;
+  border-bottom: 2px solid rgb(var(--color-fg-primary)) !important;
+}
+html[data-theme="fashion-edit"] .chip-info {
+  background: rgb(var(--color-fg-primary)) !important;
+  color: rgb(var(--color-bg-base)) !important;
+  border-radius: 0 !important;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+html[data-theme="fashion-edit"] nav a {
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}

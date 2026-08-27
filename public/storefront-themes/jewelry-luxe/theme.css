@@ -109,3 +109,45 @@ html[data-theme="jewelry-luxe"] .section-title::before {
 html[data-theme="jewelry-luxe"] .store-hero {
   clip-path: polygon(0 0, 100% 0, 100% 92%, 0 100%);
 }
+
+/* ===== Round 2: make the always-visible chrome (hero/header/nav) unmistakable ===== */
+html[data-theme="jewelry-luxe"] .store-hero {
+  background:
+    linear-gradient(120deg, rgb(var(--color-bg-base)) 0%, rgb(var(--color-bg-surface)) 55%, rgb(var(--color-bg-base)) 100%) !important;
+  border-bottom: 1px solid rgb(var(--color-accent-500) / .4);
+}
+html[data-theme="jewelry-luxe"] .store-hero h1 {
+  font-family: var(--store-font-heading);
+  font-size: clamp(2.5rem, 5vw, 4rem) !important;
+  font-style: italic;
+}
+html[data-theme="jewelry-luxe"] header {
+  background: rgb(var(--color-bg-base) / .96) !important;
+  border-bottom: 1px solid rgb(var(--color-accent-500) / .5) !important;
+}
+html[data-theme="jewelry-luxe"] .chip-info {
+  background: transparent !important;
+  border: 1px solid rgb(var(--color-accent-500)) !important;
+  color: rgb(var(--color-accent-500)) !important;
+  border-radius: 0 !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 10px !important;
+}
+html[data-theme="jewelry-luxe"] nav a {
+  position: relative;
+}
+html[data-theme="jewelry-luxe"] nav a::after {
+  content: '';
+  position: absolute; left: 50%; bottom: 2px;
+  width: 0; height: 1px;
+  background: rgb(var(--color-accent-500));
+  transition: width 0.25s ease, left 0.25s ease;
+}
+html[data-theme="jewelry-luxe"] nav a:hover::after {
+  width: 70%; left: 15%;
+}
+html[data-theme="jewelry-luxe"] .btn-outline {
+  border-color: rgb(var(--color-accent-500)) !important;
+  color: rgb(var(--color-accent-500)) !important;
+}

@@ -71,3 +71,32 @@ html[data-theme="grocery-fresh"] .product-card {
 html[data-theme="grocery-fresh"] .product-card:hover {
   transform: translateY(-4px) rotate(-0.6deg);
 }
+
+/* ===== Round 2: unmistakable chrome ===== */
+html[data-theme="grocery-fresh"] .store-hero {
+  background: rgb(var(--color-accent-500)) !important;
+  color: #fff;
+}
+html[data-theme="grocery-fresh"] .store-hero h1,
+html[data-theme="grocery-fresh"] .store-hero p,
+html[data-theme="grocery-fresh"] .store-hero .section-kicker {
+  color: #fff !important;
+}
+html[data-theme="grocery-fresh"] .store-hero h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem) !important;
+  font-weight: 700 !important;
+}
+html[data-theme="grocery-fresh"] header {
+  background: rgb(var(--color-bg-base)) !important;
+  border-bottom: 3px solid rgb(var(--color-accent-500)) !important;
+}
+html[data-theme="grocery-fresh"] .chip-info {
+  background: rgb(var(--color-accent-500)) !important;
+  color: #fff !important;
+  border-radius: 999px !important;
+  font-weight: 700;
+}
+html[data-theme="grocery-fresh"] .btn-primary {
+  border-radius: 999px !important;
+  font-weight: 700;
+}

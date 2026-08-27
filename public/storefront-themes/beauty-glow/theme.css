@@ -92,3 +92,32 @@ html[data-theme="beauty-glow"] .store-hero::before {
 html[data-theme="beauty-glow"] .chip {
   border-radius: 999px !important;
 }
+
+/* ===== Round 2: unmistakable chrome ===== */
+html[data-theme="beauty-glow"] .store-hero {
+  background:
+    radial-gradient(60% 100% at 0% 0%, rgb(var(--color-accent-500) / .18), transparent 60%),
+    radial-gradient(60% 100% at 100% 100%, rgb(var(--color-accent-400) / .22), transparent 60%),
+    rgb(var(--color-bg-base)) !important;
+}
+html[data-theme="beauty-glow"] .store-hero h1 {
+  font-size: clamp(2.75rem, 5.5vw, 4.5rem) !important;
+  font-style: italic;
+  font-weight: 500 !important;
+}
+html[data-theme="beauty-glow"] header {
+  background: rgb(var(--color-bg-base) / .9) !important;
+  border-bottom: 1px solid rgb(var(--color-accent-500) / .25) !important;
+}
+html[data-theme="beauty-glow"] .chip-info {
+  background: rgb(var(--color-accent-500) / .12) !important;
+  color: rgb(var(--color-accent-500)) !important;
+  border: none !important;
+  border-radius: 999px !important;
+}
+html[data-theme="beauty-glow"] nav a:hover {
+  color: rgb(var(--color-accent-500)) !important;
+}
+html[data-theme="beauty-glow"] .btn-primary {
+  border-radius: 999px !important;
+}

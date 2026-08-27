@@ -88,3 +88,31 @@ html[data-theme="bookstore-classic"] a {
   text-decoration-style: dotted;
   text-underline-offset: 3px;
 }
+
+/* ===== Round 2: unmistakable chrome ===== */
+html[data-theme="bookstore-classic"] .store-hero {
+  background: rgb(var(--color-bg-surface)) !important;
+  border-bottom: 4px double rgb(var(--color-accent-500));
+}
+html[data-theme="bookstore-classic"] .store-hero h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem) !important;
+  font-weight: 700 !important;
+}
+html[data-theme="bookstore-classic"] .store-hero h1::first-letter {
+  font-size: 1.5em;
+  color: rgb(var(--color-accent-500));
+}
+html[data-theme="bookstore-classic"] header {
+  background: rgb(var(--color-bg-base)) !important;
+  border-bottom: 1px solid rgb(var(--color-border-strong)) !important;
+}
+html[data-theme="bookstore-classic"] .chip-info {
+  background: rgb(var(--color-fg-primary)) !important;
+  color: rgb(var(--color-bg-base)) !important;
+  border-radius: 0 !important;
+  font-family: var(--store-font-heading);
+  font-style: italic;
+}
+html[data-theme="bookstore-classic"] nav a {
+  font-family: var(--store-font-heading);
+}

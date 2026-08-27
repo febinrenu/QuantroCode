@@ -78,3 +78,31 @@ html[data-theme="pawluxe-pets"] .btn-primary {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-2px); }
 }
+
+/* ===== Round 2: unmistakable chrome ===== */
+html[data-theme="pawluxe-pets"] .store-hero {
+  background:
+    radial-gradient(circle at 10px 10px, rgb(var(--color-accent-500) / .16) 3px, transparent 3.2px),
+    radial-gradient(circle at 24px 4px, rgb(var(--color-accent-500) / .16) 2px, transparent 2.2px),
+    radial-gradient(circle at 4px 24px, rgb(var(--color-accent-500) / .16) 2px, transparent 2.2px),
+    radial-gradient(circle at 24px 24px, rgb(var(--color-accent-500) / .16) 2px, transparent 2.2px),
+    rgb(var(--color-bg-surface)) !important;
+  background-size: 60px 60px, 60px 60px, 60px 60px, 60px 60px, 100% 100% !important;
+}
+html[data-theme="pawluxe-pets"] .store-hero h1 {
+  font-family: var(--store-font-heading);
+  font-size: clamp(2.5rem, 5vw, 4rem) !important;
+}
+html[data-theme="pawluxe-pets"] header {
+  background: rgb(var(--color-bg-base)) !important;
+  border-bottom: 3px dashed rgb(var(--color-border-strong)) !important;
+}
+html[data-theme="pawluxe-pets"] .chip-info {
+  background: rgb(var(--color-accent-500)) !important;
+  color: #fff !important;
+  border-radius: 999px !important;
+  font-family: var(--store-font-heading);
+}
+html[data-theme="pawluxe-pets"] .btn-primary {
+  border-radius: 999px !important;
+}

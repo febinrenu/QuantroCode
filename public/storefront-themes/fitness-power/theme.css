@@ -100,3 +100,38 @@ html[data-theme="fitness-power"] .section-title::after {
   background: rgb(var(--color-accent-500));
   clip-path: polygon(0 0, 92% 0, 100% 100%, 8% 100%);
 }
+
+/* ===== Round 2: unmistakable chrome ===== */
+html[data-theme="fitness-power"] .store-hero {
+  background: rgb(var(--color-fg-primary)) !important;
+  background-image: repeating-linear-gradient(
+    45deg, rgb(var(--color-accent-500) / .1) 0px, rgb(var(--color-accent-500) / .1) 14px,
+    transparent 14px, transparent 30px
+  ) !important;
+  color: #fff;
+}
+html[data-theme="fitness-power"] .store-hero h1,
+html[data-theme="fitness-power"] .store-hero p,
+html[data-theme="fitness-power"] .store-hero .section-kicker {
+  color: #fff !important;
+}
+html[data-theme="fitness-power"] .store-hero h1 {
+  font-family: var(--store-font-heading);
+  font-size: clamp(3rem, 6.5vw, 5.5rem) !important;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  -webkit-text-stroke: 1px rgb(var(--color-accent-500));
+}
+html[data-theme="fitness-power"] header {
+  background: rgb(var(--color-fg-primary)) !important;
+  border-bottom: 3px solid rgb(var(--color-accent-500)) !important;
+}
+html[data-theme="fitness-power"] header * { color: #fff; }
+html[data-theme="fitness-power"] .chip-info {
+  background: rgb(var(--color-accent-500)) !important;
+  color: #fff !important;
+  border-radius: 0 !important;
+  text-transform: uppercase;
+  font-weight: 700;
+  clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+}
