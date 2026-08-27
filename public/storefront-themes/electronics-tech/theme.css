@@ -63,3 +63,38 @@ html[data-theme="electronics-tech"] .product-card:hover {
     gap: 0.75rem;
   }
 }
+
+/* ===== Signature: scanline grid + animated glow border, not just a recolor ===== */
+html[data-theme="electronics-tech"] body {
+  background-image:
+    linear-gradient(rgb(var(--color-border-subtle) / .35) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--color-border-subtle) / .35) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+html[data-theme="electronics-tech"] .product-card {
+  position: relative;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(rgb(var(--color-bg-elevated)), rgb(var(--color-bg-elevated))) padding-box,
+    linear-gradient(135deg, rgb(var(--color-accent-500)), rgb(var(--color-accent-400) / .2)) border-box;
+}
+html[data-theme="electronics-tech"] .product-media::after {
+  content: '';
+  position: absolute; left: 0; right: 0; top: 0;
+  height: 2px;
+  background: rgb(var(--color-accent-500));
+  box-shadow: 0 0 8px rgb(var(--color-accent-500));
+  animation: tech-scan 2.4s linear infinite;
+}
+@keyframes tech-scan {
+  0%   { top: 0; opacity: 1; }
+  95%  { top: 100%; opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+html[data-theme="electronics-tech"] .product-price,
+html[data-theme="electronics-tech"] .product-meta {
+  font-family: 'Consolas', 'JetBrains Mono', monospace;
+}
+html[data-theme="electronics-tech"] .btn-primary {
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}

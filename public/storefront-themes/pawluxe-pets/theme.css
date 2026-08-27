@@ -52,3 +52,29 @@ html[data-theme="pawluxe-pets"] .select {
 
 html[data-theme="pawluxe-pets"] .product-media { border-radius: 1.25rem; margin: 0.6rem; width: calc(100% - 1.2rem); }
 html[data-theme="pawluxe-pets"] .section-title { font-weight: 700; }
+
+/* ===== Signature: paw-print texture + bouncy wiggle, not just a recolor ===== */
+html[data-theme="pawluxe-pets"] .store-hero {
+  background-image:
+    radial-gradient(circle at 6px 6px, rgb(var(--color-accent-500) / .12) 2.4px, transparent 2.6px),
+    radial-gradient(circle at 14px 2px, rgb(var(--color-accent-500) / .12) 1.6px, transparent 1.8px),
+    radial-gradient(circle at 2px 14px, rgb(var(--color-accent-500) / .12) 1.6px, transparent 1.8px),
+    radial-gradient(circle at 14px 14px, rgb(var(--color-accent-500) / .12) 1.6px, transparent 1.8px);
+  background-size: 40px 40px;
+}
+html[data-theme="pawluxe-pets"] .product-card {
+  transition: transform 0.25s cubic-bezier(.34,1.56,.64,1);
+}
+html[data-theme="pawluxe-pets"] .product-card:hover {
+  transform: translateY(-6px) rotate(-1.5deg);
+}
+html[data-theme="pawluxe-pets"] .product-media {
+  border-radius: 50% 50% 46% 46% / 55% 55% 45% 45% !important;
+}
+html[data-theme="pawluxe-pets"] .btn-primary {
+  animation: paw-bounce 3s ease-in-out infinite;
+}
+@keyframes paw-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}

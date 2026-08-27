@@ -53,3 +53,38 @@ html[data-theme="bookstore-classic"] .product-media {
     gap: 1.25rem;
   }
 }
+
+/* ===== Signature: page-curl corner + spine shadow, not just a recolor ===== */
+html[data-theme="bookstore-classic"] .product-media {
+  position: relative;
+  box-shadow: inset 6px 0 10px -6px rgb(0 0 0 / .35);
+}
+html[data-theme="bookstore-classic"] .product-card {
+  position: relative;
+  overflow: visible !important;
+}
+html[data-theme="bookstore-classic"] .product-card::after {
+  content: '';
+  position: absolute;
+  right: 0; bottom: 0;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 0 20px 20px;
+  border-color: transparent transparent rgb(var(--color-bg-base)) transparent;
+  filter: drop-shadow(-1px -1px 2px rgb(0 0 0 / .25));
+  transition: border-width 0.2s ease;
+}
+html[data-theme="bookstore-classic"] .product-card:hover::after {
+  border-width: 0 0 30px 30px;
+}
+html[data-theme="bookstore-classic"] .section-title {
+  position: relative;
+}
+html[data-theme="bookstore-classic"] .section-title::first-letter {
+  font-size: 1.6em;
+  color: rgb(var(--color-accent-500));
+}
+html[data-theme="bookstore-classic"] a {
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}

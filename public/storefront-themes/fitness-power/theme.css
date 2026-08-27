@@ -64,3 +64,39 @@ html[data-theme="fitness-power"] .btn-primary {
 html[data-theme="fitness-power"] .product-card {
   border-left: 3px solid rgb(var(--color-accent-500));
 }
+
+/* ===== Signature: angular skewed cards + diagonal stripes, not just a recolor ===== */
+html[data-theme="fitness-power"] .store-hero {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgb(var(--color-accent-500) / .06) 0px,
+    rgb(var(--color-accent-500) / .06) 12px,
+    transparent 12px,
+    transparent 26px
+  );
+}
+html[data-theme="fitness-power"] .product-card {
+  transform: skewX(-2deg);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+html[data-theme="fitness-power"] .product-card > * {
+  transform: skewX(2deg);
+}
+html[data-theme="fitness-power"] .product-card:hover {
+  transform: skewX(-2deg) scale(1.03);
+  box-shadow: 6px 6px 0 rgb(var(--color-accent-500));
+}
+html[data-theme="fitness-power"] .btn-primary {
+  clip-path: polygon(6% 0, 100% 0, 94% 100%, 0 100%);
+}
+html[data-theme="fitness-power"] .section-title {
+  position: relative;
+  display: inline-block;
+}
+html[data-theme="fitness-power"] .section-title::after {
+  content: '';
+  position: absolute; left: 0; bottom: -6px;
+  width: 100%; height: 4px;
+  background: rgb(var(--color-accent-500));
+  clip-path: polygon(0 0, 92% 0, 100% 100%, 8% 100%);
+}

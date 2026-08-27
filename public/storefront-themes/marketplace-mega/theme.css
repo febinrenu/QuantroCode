@@ -52,3 +52,34 @@ html[data-theme="marketplace-mega"] .btn-primary { background: rgb(var(--color-a
     gap: 0.5rem;
   }
 }
+
+/* ===== Signature: corner deal-ribbon + zigzag sale tag, not just a recolor ===== */
+html[data-theme="marketplace-mega"] .product-card {
+  position: relative;
+  overflow: visible !important;
+}
+html[data-theme="marketplace-mega"] .badge-deal::before,
+html[data-theme="marketplace-mega"] .chip-danger {
+  clip-path: polygon(0 0, 100% 0, 92% 50%, 100% 100%, 0 100%);
+  padding-inline-start: 0.9rem !important;
+}
+html[data-theme="marketplace-mega"] .product-card::before {
+  content: '';
+  position: absolute;
+  top: -6px; left: -6px;
+  width: 46px; height: 46px;
+  background: rgb(var(--color-accent-500));
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+html[data-theme="marketplace-mega"] .product-card[data-deal]::before {
+  opacity: 1;
+}
+html[data-theme="marketplace-mega"] .store-product-grid {
+  gap: 0.375rem !important;
+}
+html[data-theme="marketplace-mega"] .product-card {
+  border-top: 3px solid rgb(var(--color-accent-500));
+}

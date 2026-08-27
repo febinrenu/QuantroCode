@@ -44,3 +44,34 @@ html[data-theme="restaurant-fresh"].dark {
 
 html[data-theme="restaurant-fresh"] .product-card { border-radius: var(--store-radius-lg); }
 html[data-theme="restaurant-fresh"] .product-media { border-radius: 0.5rem; margin: 0.5rem; width: calc(100% - 1rem); }
+
+/* ===== Signature: plated circular imagery + wave divider, not just a recolor ===== */
+html[data-theme="restaurant-fresh"] .product-media {
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1 !important;
+  box-shadow:
+    0 0 0 6px rgb(var(--color-bg-base)),
+    0 0 0 8px rgb(var(--color-border-strong) / .35);
+  margin: 0.75rem auto 0.25rem;
+  width: calc(100% - 1.5rem) !important;
+}
+html[data-theme="restaurant-fresh"] .product-card {
+  text-align: center;
+}
+html[data-theme="restaurant-fresh"] .store-hero {
+  position: relative;
+}
+html[data-theme="restaurant-fresh"] .store-hero::after {
+  content: '';
+  position: absolute; left: 0; right: 0; bottom: -1px; height: 28px;
+  background: rgb(var(--color-bg-base));
+  -webkit-mask-image: radial-gradient(18px 18px at 18px 0, transparent 98%, black 100%);
+  mask-image: radial-gradient(18px 18px at 18px 0, transparent 98%, black 100%);
+  -webkit-mask-size: 36px 28px;
+  mask-size: 36px 28px;
+  -webkit-mask-repeat: repeat-x;
+  mask-repeat: repeat-x;
+}
+html[data-theme="restaurant-fresh"] .btn-primary {
+  border-radius: 999px !important;
+}
