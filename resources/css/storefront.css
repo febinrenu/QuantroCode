@@ -41,6 +41,18 @@
     --color-badge-new:    34 197 94;
     --color-badge-refurb: 168 85 247;
 
+    /* Storefront theme pack tokens (overridden per-theme in
+       /public/storefront-themes/<slug>/theme.css). These are the "contract"
+       any presentation layer — Blade, a headless SPA, another platform —
+       can implement to render one of the 10 theme packs consistently. */
+    --store-font-heading: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    --store-font-body:    'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    --store-radius-sm: 0.25rem;
+    --store-radius-md: 0.5rem;
+    --store-radius-lg: 0.75rem;
+    --store-card-aspect: 1 / 1;
+    --store-grid-cols: 4;
+
     color-scheme: light;
   }
 
@@ -73,7 +85,7 @@
   html { -webkit-text-size-adjust: 100%; }
 
   body {
-    font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    font-family: var(--store-font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background: rgb(var(--color-bg-base));
@@ -89,7 +101,7 @@
     border-radius: 4px;
   }
 
-  h1, h2, h3, h4, h5, h6 { font-weight: 600; letter-spacing: -0.01em; }
+  h1, h2, h3, h4, h5, h6 { font-weight: 600; letter-spacing: -0.01em; font-family: var(--store-font-heading); }
   h1 { font-size: 2rem; line-height: 1.15; }
   h2 { font-size: 1.5rem; line-height: 1.2; }
 
@@ -637,10 +649,11 @@
   /* ===== Product card ===== */
   .product-card {
     @apply relative flex flex-col card card-hover rounded-lg;
+    border-radius: var(--store-radius-lg);
   }
   .product-media {
     @apply relative block overflow-hidden;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: var(--store-card-aspect);
     background: rgb(var(--color-bg-muted));
   }
   .product-media img {

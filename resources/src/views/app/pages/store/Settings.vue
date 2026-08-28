@@ -38,6 +38,7 @@
                 <b-form-group :label="$t('Store_Theme')">
                   <b-form-select v-model="form.theme">
                     <b-form-select-option value="default">{{ $t('Default_Store_Theme') || 'Default Store Theme' }}</b-form-select-option>
+                    <b-form-select-option v-for="t in themes" :key="t.slug" :value="t.slug">{{ t.name }}</b-form-select-option>
                     <b-form-select-option value="wholesale">{{ $t('Theme_Wholesale') || 'Wholesale / B2B' }}</b-form-select-option>
                     <b-form-select-option value="grocery">{{ $t('Theme_Grocery') || 'Grocery / Supermarket' }}</b-form-select-option>
                     <b-form-select-option value="electronics">{{ $t('Theme_Electronics') || 'Electronics / Gadgets' }}</b-form-select-option>
@@ -200,6 +201,74 @@
                       {{ $t('Show_stock_help') }}
                     </small>
                   </b-form-group>
+                </div>
+              </div>
+            </div>
+          </div>
+        </b-card>
+
+        <!-- ===== Storefront Theme Gallery ===== -->
+        <b-card class="settings-card shadow-sm mb-3" no-body>
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="h6 mb-0">{{ $t('Storefront_Theme_Gallery') }}</div>
+            <b-badge pill variant="light">
+              <lucide-icon class="mr-1" name="palette" style="width:12px;height:12px" />{{ $t('Theme') }}
+            </b-badge>
+          </div>
+          <div class="card-body">
+            <small class="text-muted d-block mb-3">
+              {{ $t('Storefront_Theme_Gallery_Help') }}
+            </small>
+
+            <div class="theme-gallery">
+              <div
+                v-for="t in themes"
+                :key="t.slug"
+                class="theme-gallery-card"
+                :class="{ active: form.theme === t.slug }"
+                @click="selectTheme(t)"
+              >
+                <div class="theme-gallery-thumb">
+                  <img :src="t.assets && t.assets.preview" :alt="t.name" loading="lazy">
+                  <span v-if="form.theme === t.slug" class="theme-gallery-check">
+                    <lucide-icon name="check" style="width:14px;height:14px" />
+                  </span>
+                </div>
+                <div class="theme-gallery-meta">
+                  <div class="theme-gallery-name">{{ t.name }}</div>
+                  <div class="theme-gallery-industry text-muted">{{ t.industry }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Per-theme token customizer -->
+            <div v-if="selectedTheme && selectedTheme.customizable && selectedTheme.customizable.length" class="mt-4">
+              <h6 class="text-muted border-bottom pb-2 mb-3">
+                <lucide-icon class="mr-1" name="sliders" />
+                {{ $t('Customize') }} — {{ selectedTheme.name }}
+              </h6>
+              <div class="row">
+                <div class="col-md-3" v-for="tokenKey in selectedTheme.customizable" :key="tokenKey">
+                  <b-form-group :label="tokenLabel(tokenKey)">
+                    <b-form-input
+                      v-if="tokenKey.indexOf('color') === 0"
+                      type="color"
+                      :value="form.theme_tokens[tokenKey] || (selectedTheme.tokens && selectedTheme.tokens[tokenKey]) || '#000000'"
+                      @input="v => setToken(tokenKey, v)"
+                    />
+                    <b-form-input
+                      v-else
+                      type="text"
+                      :placeholder="selectedTheme.tokens && selectedTheme.tokens[tokenKey]"
+                      :value="form.theme_tokens[tokenKey]"
+                      @input="v => setToken(tokenKey, v)"
+                    />
+                  </b-form-group>
+                </div>
+                <div class="col-md-3 d-flex align-items-end mb-3">
+                  <button type="button" class="btn btn-outline-secondary btn-sm" @click="resetThemeTokens">
+                    {{ $t('Reset_To_Theme_Defaults') }}
+                  </button>
                 </div>
               </div>
             </div>
@@ -428,6 +497,7 @@ export default {
       homeRows: [],
       warehouses: [],
       currencies: [],
+      themes: [],
 
       pendingCustomersCount: 0,
 
@@ -466,6 +536,7 @@ export default {
         custom_css: '',
         custom_js: '',
         store_slug: 'online_store',
+        theme_tokens: {},
       },
       files: {},
       langs: [
@@ -489,6 +560,11 @@ export default {
       return arr.map(function (w) {
         return { text: w.name, value: Number(w.id) }
       })
+    },
+    selectedTheme () {
+      var arr = Array.isArray(this.themes) ? this.themes : []
+      var found = arr.find(function (t) { return t.slug === this.form.theme }.bind(this))
+      return found || null
     }
   },
   mounted(){ this.fetch() },
@@ -526,6 +602,22 @@ export default {
     },
     collectionUrl(slug){
       return `/${this.form.store_slug ? this.form.store_slug + '/' : ''}collections/${slug}`
+    },
+
+    // --------- Theme gallery ----------
+    selectTheme(t){
+      if (this.form.theme === t.slug) return
+      this.form.theme = t.slug
+      this.form.theme_tokens = {}
+    },
+    setToken(key, value){
+      this.$set(this.form.theme_tokens, key, value)
+    },
+    resetThemeTokens(){
+      this.form.theme_tokens = {}
+    },
+    tokenLabel(key){
+      return String(key).replace(/^color-/, '').replace(/^font-/, 'Font: ').replace(/-/g, ' ')
     },
 
     // --------- Normalizers ----------
@@ -636,10 +728,12 @@ export default {
         const settings = (payload && payload.settings) ? payload.settings : payload
         const warehouses = Array.isArray(payload && payload.warehouses) ? payload.warehouses : []
         const currencies = Array.isArray(payload && payload.currencies) ? payload.currencies : []
+        const themes = Array.isArray(payload && payload.themes) ? payload.themes : []
 
         this.settings = settings || {}
         this.warehouses = warehouses
         this.currencies = currencies
+        this.themes = themes
         this.pendingCustomersCount = (payload && payload.pending_customers_count) || 0
 
         // build form (no spread / optional chaining)
@@ -653,6 +747,10 @@ export default {
         merged.social_links   = this.normalizeSocialLinks(settings && settings.social_links)
         merged.store_slug     = (settings && settings.store_slug) ? settings.store_slug : this.form.store_slug
         merged.theme          = (settings && settings.theme) ? settings.theme : 'default'
+        var tokensRaw = settings && settings.theme_tokens
+        merged.theme_tokens = (tokensRaw && typeof tokensRaw === 'object' && !Array.isArray(tokensRaw))
+          ? tokensRaw
+          : (this.tryParseJson(tokensRaw) || {})
 
         var lineupRaw = settings && settings.homepage_lineup
         merged.homepage_lineup = Array.isArray(lineupRaw)
@@ -745,7 +843,7 @@ export default {
 
         // 3) Build FormData (Vue 2 compatible)
         var fd = new FormData()
-        var jsonFields = ['menus', 'social_links', 'homepage_lineup']
+        var jsonFields = ['menus', 'social_links', 'homepage_lineup', 'theme_tokens']
 
         for (var k in this.form) {
           if (!Object.prototype.hasOwnProperty.call(this.form, k)) continue
@@ -852,6 +950,34 @@ export default {
 
 .fade-enter-active, .fade-leave-active { transition: all .15s ease; }
 .fade-enter, .fade-leave-to { opacity:0; transform: translateY(-4px); }
+
+/* Storefront theme gallery */
+.theme-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+.theme-gallery-card {
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: .6rem;
+  overflow: hidden;
+  background: #f8f9fb;
+  transition: border-color .15s ease, transform .15s ease;
+}
+.theme-gallery-card:hover { transform: translateY(-2px); }
+.theme-gallery-card.active { border-color: #6c5ce7; }
+.theme-gallery-thumb { position: relative; aspect-ratio: 400 / 260; background: #fff; }
+.theme-gallery-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.theme-gallery-check {
+  position: absolute; top: 6px; right: 6px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #6c5ce7; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+.theme-gallery-meta { padding: .5rem .6rem; }
+.theme-gallery-name { font-size: .8rem; font-weight: 600; line-height: 1.2; }
+.theme-gallery-industry { font-size: .7rem; }
 
 /* Sticky Save Bar */
 .savebar{

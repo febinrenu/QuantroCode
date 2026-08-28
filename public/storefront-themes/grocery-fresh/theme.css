@@ -1,0 +1,102 @@
+/* Grocery & Supermarket - Fresh. Portable storefront theme pack.
+   Palette adapted from a Naturia-style pure-ingredients storefront mockup:
+   green/cream/tan, Playfair Display headings. */
+
+html[data-theme="grocery-fresh"] {
+  --color-bg-base:     255 255 255;
+  --color-bg-surface:  232 240 227;
+  --color-bg-elevated: 255 255 255;
+  --color-bg-muted:    237 221 196;
+
+  --color-border-subtle: 232 240 227;
+  --color-border-strong: 58 82 51;
+
+  --color-fg-primary:   44 64 40;
+  --color-fg-secondary: 58 82 51;
+  --color-fg-muted:     124 138 114;
+
+  --color-accent-400: 90 120 80;
+  --color-accent-500: 58 82 51;
+  --color-accent-600: 44 64 40;
+  --color-accent-glow: rgba(58, 82, 51, 0.25);
+
+  --store-font-heading: 'Playfair Display', serif;
+  --store-font-body: 'Inter', system-ui, sans-serif;
+  --store-radius-sm: 0.375rem;
+  --store-radius-md: 0.5rem;
+  --store-radius-lg: 0.5rem;
+  --store-card-aspect: 1 / 1;
+  --store-grid-cols: 6;
+  color-scheme: light;
+}
+
+html[data-theme="grocery-fresh"].dark {
+  --color-bg-base:     16 28 17;
+  --color-bg-surface:  22 38 23;
+  --color-bg-elevated: 28 46 29;
+  --color-bg-muted:    35 56 36;
+  --color-border-subtle: 44 68 45;
+  --color-fg-primary:   232 240 227;
+  --color-fg-secondary: 180 210 178;
+  --color-fg-muted:     130 160 128;
+  color-scheme: dark;
+}
+
+html[data-theme="grocery-fresh"] .product-body { padding: 0.5rem; gap: 0.15rem; }
+html[data-theme="grocery-fresh"] .product-title { font-size: 0.8125rem; min-height: 2rem; }
+
+@media (min-width: 1280px) {
+  html[data-theme="grocery-fresh"] .store-product-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+}
+
+/* ===== Signature: torn-edge banner + stamped freshness badge, not just a recolor ===== */
+html[data-theme="grocery-fresh"] .store-hero {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 97% 94%, 94% 100%, 91% 94%, 88% 100%, 85% 94%, 82% 100%, 79% 94%, 76% 100%, 73% 94%, 70% 100%, 67% 94%, 64% 100%, 61% 94%, 58% 100%, 55% 94%, 52% 100%, 49% 94%, 46% 100%, 43% 94%, 40% 100%, 37% 94%, 34% 100%, 31% 94%, 28% 100%, 25% 94%, 22% 100%, 19% 94%, 16% 100%, 13% 94%, 10% 100%, 7% 94%, 4% 100%, 0 94%);
+  padding-bottom: 2.5rem !important;
+}
+html[data-theme="grocery-fresh"] .section-kicker::before {
+  content: '\1F343  ';
+}
+html[data-theme="grocery-fresh"] .chip-accent {
+  transform: rotate(-6deg);
+  border-width: 2px !important;
+  font-weight: 700;
+}
+html[data-theme="grocery-fresh"] .product-card {
+  transition: transform 0.2s ease;
+}
+html[data-theme="grocery-fresh"] .product-card:hover {
+  transform: translateY(-4px) rotate(-0.6deg);
+}
+
+/* ===== Round 2: unmistakable chrome ===== */
+html[data-theme="grocery-fresh"] .store-hero {
+  background: rgb(var(--color-accent-500)) !important;
+  color: #fff;
+}
+html[data-theme="grocery-fresh"] .store-hero h1,
+html[data-theme="grocery-fresh"] .store-hero p,
+html[data-theme="grocery-fresh"] .store-hero .section-kicker {
+  color: #fff !important;
+}
+html[data-theme="grocery-fresh"] .store-hero h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem) !important;
+  font-weight: 700 !important;
+}
+html[data-theme="grocery-fresh"] header {
+  background: rgb(var(--color-bg-base)) !important;
+  border-bottom: 3px solid rgb(var(--color-accent-500)) !important;
+}
+html[data-theme="grocery-fresh"] .chip-info {
+  background: rgb(var(--color-accent-500)) !important;
+  color: #fff !important;
+  border-radius: 999px !important;
+  font-weight: 700;
+}
+html[data-theme="grocery-fresh"] .btn-primary {
+  border-radius: 999px !important;
+  font-weight: 700;
+}

@@ -1,0 +1,123 @@
+/* Cosmetics & Beauty - Glow. Portable storefront theme pack.
+   Palette adapted from a Veloura-style beauty storefront mockup:
+   cream/mauve/gold, Playfair Display headings. */
+
+html[data-theme="beauty-glow"] {
+  --color-bg-base:     253 246 240;
+  --color-bg-surface:  251 237 232;
+  --color-bg-elevated: 255 255 255;
+  --color-bg-muted:    243 212 219;
+
+  --color-border-subtle: 243 212 219;
+  --color-border-strong: 233 185 196;
+
+  --color-fg-primary:   46 26 34;
+  --color-fg-secondary: 110 42 71;
+  --color-fg-muted:     169 116 138;
+
+  --color-accent-400: 138 62 98;
+  --color-accent-500: 110 42 71;
+  --color-accent-600: 87 31 56;
+  --color-accent-glow: rgba(110, 42, 71, 0.25);
+
+  --store-font-heading: 'Playfair Display', serif;
+  --store-font-body: 'Inter', system-ui, sans-serif;
+  --store-radius-sm: 0.75rem;
+  --store-radius-md: 1rem;
+  --store-radius-lg: 1.5rem;
+  --store-card-aspect: 1 / 1;
+  --store-grid-cols: 4;
+  color-scheme: light;
+}
+
+html[data-theme="beauty-glow"].dark {
+  --color-bg-base:     42 30 28;
+  --color-bg-surface:  54 38 35;
+  --color-bg-elevated: 64 46 42;
+  --color-bg-muted:    74 54 49;
+  --color-border-subtle: 90 66 60;
+  --color-fg-primary:   251 237 232;
+  --color-fg-secondary: 224 194 205;
+  --color-fg-muted:     181 150 160;
+  color-scheme: dark;
+}
+
+html[data-theme="beauty-glow"] h1,
+html[data-theme="beauty-glow"] .section-title {
+  font-style: italic;
+  font-weight: 500;
+}
+
+html[data-theme="beauty-glow"] .btn,
+html[data-theme="beauty-glow"] .product-card,
+html[data-theme="beauty-glow"] .chip,
+html[data-theme="beauty-glow"] .input,
+html[data-theme="beauty-glow"] .select {
+  border-radius: 999px !important;
+}
+
+html[data-theme="beauty-glow"] .product-media { border-radius: 999px; }
+
+html[data-theme="beauty-glow"] .store-hero {
+  background: radial-gradient(1000px 320px at 20% 40%, rgb(var(--color-accent-500) / .14), transparent 60%) !important;
+}
+
+/* ===== Signature: organic blob shapes + soft glow pulse, not just a recolor ===== */
+html[data-theme="beauty-glow"] .product-media {
+  border-radius: 62% 38% 55% 45% / 45% 55% 45% 55% !important;
+  transition: border-radius 0.6s ease;
+}
+html[data-theme="beauty-glow"] .product-card:hover .product-media {
+  border-radius: 45% 55% 45% 55% / 55% 45% 55% 45% !important;
+}
+html[data-theme="beauty-glow"] .btn-primary {
+  position: relative;
+  animation: beauty-glow-pulse 2.6s ease-in-out infinite;
+}
+@keyframes beauty-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(var(--color-accent-500) / .35); }
+  50%      { box-shadow: 0 0 0 8px rgb(var(--color-accent-500) / 0); }
+}
+html[data-theme="beauty-glow"] .section-kicker::before {
+  content: '\2726  ';
+}
+html[data-theme="beauty-glow"] .store-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(340px 220px at 8% 20%, rgb(var(--color-accent-500) / .16), transparent 60%),
+    radial-gradient(280px 200px at 95% 80%, rgb(var(--color-accent-400) / .14), transparent 60%);
+  pointer-events: none;
+}
+html[data-theme="beauty-glow"] .chip {
+  border-radius: 999px !important;
+}
+
+/* ===== Round 2: unmistakable chrome ===== */
+html[data-theme="beauty-glow"] .store-hero {
+  background:
+    radial-gradient(60% 100% at 0% 0%, rgb(var(--color-accent-500) / .18), transparent 60%),
+    radial-gradient(60% 100% at 100% 100%, rgb(var(--color-accent-400) / .22), transparent 60%),
+    rgb(var(--color-bg-base)) !important;
+}
+html[data-theme="beauty-glow"] .store-hero h1 {
+  font-size: clamp(2.75rem, 5.5vw, 4.5rem) !important;
+  font-style: italic;
+  font-weight: 500 !important;
+}
+html[data-theme="beauty-glow"] header {
+  background: rgb(var(--color-bg-base) / .9) !important;
+  border-bottom: 1px solid rgb(var(--color-accent-500) / .25) !important;
+}
+html[data-theme="beauty-glow"] .chip-info {
+  background: rgb(var(--color-accent-500) / .12) !important;
+  color: rgb(var(--color-accent-500)) !important;
+  border: none !important;
+  border-radius: 999px !important;
+}
+html[data-theme="beauty-glow"] nav a:hover {
+  color: rgb(var(--color-accent-500)) !important;
+}
+html[data-theme="beauty-glow"] .btn-primary {
+  border-radius: 999px !important;
+}

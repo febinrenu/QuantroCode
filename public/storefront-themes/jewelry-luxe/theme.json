@@ -1,0 +1,32 @@
+{
+  "slug": "jewelry-luxe",
+  "name": "Jewelry & Watches - Luxe",
+  "industry": "Jewelry, Watches & Luxury Goods",
+  "version": "2.0.0",
+  "description": "Black-and-gold luxury palette inspired by editorial fashion storefronts, with deep serif headings and a warm gold accent.",
+  "layout": "spacious-luxury",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Inter:wght@400;500;600;700;800&display=swap",
+  "tokens": {
+    "color-bg-base": "#FFFFFF",
+    "color-bg-surface": "#F4EDE2",
+    "color-bg-elevated": "#FFFFFF",
+    "color-bg-muted": "#E9DCC6",
+    "color-border-subtle": "#E9DCC6",
+    "color-border-strong": "#8C7C67",
+    "color-fg-primary": "#171310",
+    "color-fg-secondary": "#8C7C67",
+    "color-fg-muted": "#A8998A",
+    "color-accent-400": "#D9BB79",
+    "color-accent-500": "#C9A15B",
+    "color-accent-600": "#B38B45",
+    "font-heading": "'Playfair Display', serif",
+    "font-body": "'Inter', system-ui, sans-serif",
+    "radius-lg": "0.125rem",
+    "card-aspect": "4 / 5",
+    "grid-cols": "3"
+  },
+  "customizable": [
+    "color-accent-400", "color-accent-500", "color-accent-600",
+    "color-bg-base", "color-fg-primary", "font-heading", "font-body"
+  ]
+}

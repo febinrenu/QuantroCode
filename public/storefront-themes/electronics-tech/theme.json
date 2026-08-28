@@ -1,0 +1,32 @@
+{
+  "slug": "electronics-tech",
+  "name": "Electronics & Gadgets - Circuit",
+  "industry": "Electronics, Gadgets & Tech",
+  "version": "2.0.0",
+  "description": "Navy and violet palette inspired by a Novatech-style tech storefront mockup, with a bold purple accent and dense product grid.",
+  "layout": "dense-dark-tech",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap",
+  "tokens": {
+    "color-bg-base": "#FFFFFF",
+    "color-bg-surface": "#EFE9FC",
+    "color-bg-elevated": "#FFFFFF",
+    "color-bg-muted": "#1C1F42",
+    "color-border-subtle": "#DCD3F5",
+    "color-border-strong": "#6D3FE0",
+    "color-fg-primary": "#12142E",
+    "color-fg-secondary": "#5A32C4",
+    "color-fg-muted": "#6B7280",
+    "color-accent-400": "#8C63E8",
+    "color-accent-500": "#6D3FE0",
+    "color-accent-600": "#5A32C4",
+    "font-heading": "'Inter', sans-serif",
+    "font-body": "'Inter', system-ui, sans-serif",
+    "radius-lg": "0.5rem",
+    "card-aspect": "1 / 1",
+    "grid-cols": "5"
+  },
+  "customizable": [
+    "color-accent-400", "color-accent-500", "color-accent-600",
+    "color-bg-base", "font-heading", "font-body"
+  ]
+}

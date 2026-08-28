@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260">
+  <rect width="400" height="260" fill="#FFFFFF"/>
+  <text x="24" y="36" font-family="Comic Sans MS, cursive" font-weight="700" font-size="22" fill="#E8604A">PawLuxe</text>
+  <rect x="24" y="56" width="80" height="80" rx="24" fill="#E4F5F0" stroke="#8FD4C4"/>
+  <rect x="112" y="56" width="80" height="80" rx="24" fill="#E4F5F0" stroke="#F08A78"/>
+  <rect x="200" y="56" width="80" height="80" rx="24" fill="#E4F5F0" stroke="#8FD4C4"/>
+  <rect x="288" y="56" width="80" height="80" rx="24" fill="#E4F5F0" stroke="#F08A78"/>
+</svg>

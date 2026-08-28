@@ -1,0 +1,32 @@
+{
+  "slug": "restaurant-fresh",
+  "name": "Restaurant & Delivery - Fresh Bite",
+  "industry": "Restaurant, Cafe & Food Delivery",
+  "version": "2.0.0",
+  "description": "Warm cream and forest-green palette inspired by a Terra & Co-style fine-food storefront mockup, with serif headings and rounded product cards.",
+  "layout": "fine-food-warm",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap",
+  "tokens": {
+    "color-bg-base": "#F3EDE0",
+    "color-bg-surface": "#D9C9A8",
+    "color-bg-elevated": "#FFFFFF",
+    "color-bg-muted": "#C2AC80",
+    "color-border-subtle": "#D9C9A8",
+    "color-border-strong": "#2C4028",
+    "color-fg-primary": "#161613",
+    "color-fg-secondary": "#2C4028",
+    "color-fg-muted": "#78705A",
+    "color-accent-400": "#50735F",
+    "color-accent-500": "#2C4028",
+    "color-accent-600": "#1A2818",
+    "font-heading": "'Playfair Display', serif",
+    "font-body": "'Inter', system-ui, sans-serif",
+    "radius-lg": "0.75rem",
+    "card-aspect": "1 / 1",
+    "grid-cols": "4"
+  },
+  "customizable": [
+    "color-accent-400", "color-accent-500", "color-accent-600",
+    "font-heading", "font-body"
+  ]
+}

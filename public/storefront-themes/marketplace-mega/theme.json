@@ -1,0 +1,32 @@
+{
+  "slug": "marketplace-mega",
+  "name": "Marketplace - Mega Store",
+  "industry": "Marketplace, Mega-Store & Multi-Category Retail",
+  "version": "2.0.0",
+  "description": "Navy, yellow and pink palette inspired by a ShopIQ-style multi-category storefront mockup, tuned for very large catalogues.",
+  "layout": "dense-marketplace",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Poppins:wght@600;700;800&display=swap",
+  "tokens": {
+    "color-bg-base": "#FFFFFF",
+    "color-bg-surface": "#F1F4FA",
+    "color-bg-elevated": "#FFFFFF",
+    "color-bg-muted": "#141B3D",
+    "color-border-subtle": "#DEE4F0",
+    "color-border-strong": "#141B3D",
+    "color-fg-primary": "#141B3D",
+    "color-fg-secondary": "#5B3FC9",
+    "color-fg-muted": "#6B7280",
+    "color-accent-400": "#F58FA8",
+    "color-accent-500": "#EC5A87",
+    "color-accent-600": "#D6436F",
+    "font-heading": "'Poppins', sans-serif",
+    "font-body": "'Inter', system-ui, sans-serif",
+    "radius-lg": "0.375rem",
+    "card-aspect": "1 / 1",
+    "grid-cols": "6"
+  },
+  "customizable": [
+    "color-accent-400", "color-accent-500", "color-accent-600",
+    "font-heading", "font-body"
+  ]
+}

@@ -1,0 +1,118 @@
+/* Bookstore - Classic. Portable storefront theme pack.
+   Palette adapted from a Paperloom-style bookstore storefront mockup:
+   cream/navy/rust, Playfair Display headings. */
+
+html[data-theme="bookstore-classic"] {
+  --color-bg-base:     246 240 227;
+  --color-bg-surface:  237 241 232;
+  --color-bg-elevated: 255 255 255;
+  --color-bg-muted:    232 217 190;
+
+  --color-border-subtle: 232 217 190;
+  --color-border-strong: 188 91 57;
+
+  --color-fg-primary:   31 46 61;
+  --color-fg-secondary: 60 80 64;
+  --color-fg-muted:     138 122 99;
+
+  --color-accent-400: 214 130 106;
+  --color-accent-500: 188 91 57;
+  --color-accent-600: 156 74 45;
+  --color-accent-glow: rgba(188, 91, 57, 0.25);
+
+  --store-font-heading: 'Playfair Display', serif;
+  --store-font-body: 'Inter', system-ui, sans-serif;
+  --store-radius-sm: 0.125rem;
+  --store-radius-md: 0.25rem;
+  --store-radius-lg: 0.25rem;
+  --store-card-aspect: 2 / 3;
+  --store-grid-cols: 5;
+  color-scheme: light;
+}
+
+html[data-theme="bookstore-classic"].dark {
+  --color-bg-base:     28 22 16;
+  --color-bg-surface:  38 30 21;
+  --color-bg-elevated: 47 37 26;
+  --color-bg-muted:    57 45 31;
+  --color-border-subtle: 69 55 39;
+  --color-fg-primary:   241 233 216;
+  --color-fg-secondary: 190 200 190;
+  --color-fg-muted:     150 133 108;
+  color-scheme: dark;
+}
+
+html[data-theme="bookstore-classic"] .product-media {
+  aspect-ratio: 2 / 3;
+  box-shadow: -3px 0 0 rgb(var(--color-border-strong) / 0.5) inset;
+}
+
+@media (min-width: 1280px) {
+  html[data-theme="bookstore-classic"] .store-product-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+/* ===== Signature: page-curl corner + spine shadow, not just a recolor ===== */
+html[data-theme="bookstore-classic"] .product-media {
+  position: relative;
+  box-shadow: inset 6px 0 10px -6px rgb(0 0 0 / .35);
+}
+html[data-theme="bookstore-classic"] .product-card {
+  position: relative;
+  overflow: visible !important;
+}
+html[data-theme="bookstore-classic"] .product-card::after {
+  content: '';
+  position: absolute;
+  right: 0; bottom: 0;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 0 20px 20px;
+  border-color: transparent transparent rgb(var(--color-bg-base)) transparent;
+  filter: drop-shadow(-1px -1px 2px rgb(0 0 0 / .25));
+  transition: border-width 0.2s ease;
+}
+html[data-theme="bookstore-classic"] .product-card:hover::after {
+  border-width: 0 0 30px 30px;
+}
+html[data-theme="bookstore-classic"] .section-title {
+  position: relative;
+}
+html[data-theme="bookstore-classic"] .section-title::first-letter {
+  font-size: 1.6em;
+  color: rgb(var(--color-accent-500));
+}
+html[data-theme="bookstore-classic"] a {
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+
+/* ===== Round 2: unmistakable chrome ===== */
+html[data-theme="bookstore-classic"] .store-hero {
+  background: rgb(var(--color-bg-surface)) !important;
+  border-bottom: 4px double rgb(var(--color-accent-500));
+}
+html[data-theme="bookstore-classic"] .store-hero h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem) !important;
+  font-weight: 700 !important;
+}
+html[data-theme="bookstore-classic"] .store-hero h1::first-letter {
+  font-size: 1.5em;
+  color: rgb(var(--color-accent-500));
+}
+html[data-theme="bookstore-classic"] header {
+  background: rgb(var(--color-bg-base)) !important;
+  border-bottom: 1px solid rgb(var(--color-border-strong)) !important;
+}
+html[data-theme="bookstore-classic"] .chip-info {
+  background: rgb(var(--color-fg-primary)) !important;
+  color: rgb(var(--color-bg-base)) !important;
+  border-radius: 0 !important;
+  font-family: var(--store-font-heading);
+  font-style: italic;
+}
+html[data-theme="bookstore-classic"] nav a {
+  font-family: var(--store-font-heading);
+}

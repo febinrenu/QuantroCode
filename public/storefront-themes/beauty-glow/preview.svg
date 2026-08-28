@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260">
+  <rect width="400" height="260" fill="#FDF6F0"/>
+  <text x="24" y="36" font-family="Georgia, serif" font-style="italic" font-size="22" fill="#6E2A47">Glow</text>
+  <circle cx="70" cy="120" r="46" fill="#FBEDE8" stroke="#6E2A47"/>
+  <circle cx="170" cy="120" r="46" fill="#FBEDE8" stroke="#C9A15B"/>
+  <circle cx="270" cy="120" r="46" fill="#FBEDE8" stroke="#6E2A47"/>
+  <circle cx="360" cy="120" r="30" fill="#FBEDE8" stroke="#C9A15B"/>
+  <rect x="24" y="196" width="140" height="24" rx="12" fill="#6E2A47"/>
+</svg>

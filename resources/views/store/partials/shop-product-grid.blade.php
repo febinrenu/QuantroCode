@@ -48,7 +48,7 @@
 @endif
 
 @if($products->count())
-  <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+  <div class="store-product-grid grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
     @foreach($products as $p)
       @include('store.partials.product-card', ['p' => $p, 'currency' => $currency])
     @endforeach

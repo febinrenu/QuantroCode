@@ -1,0 +1,32 @@
+{
+  "slug": "beauty-glow",
+  "name": "Cosmetics & Beauty - Glow",
+  "industry": "Cosmetics, Skincare & Beauty",
+  "version": "2.0.0",
+  "description": "Cream and mauve palette inspired by a Veloura-style beauty storefront mockup, with soft pink surfaces, gold detailing and serif headings.",
+  "layout": "soft-pastel",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap",
+  "tokens": {
+    "color-bg-base": "#FDF6F0",
+    "color-bg-surface": "#FBEDE8",
+    "color-bg-elevated": "#FFFFFF",
+    "color-bg-muted": "#F3D4DB",
+    "color-border-subtle": "#F3D4DB",
+    "color-border-strong": "#E9B9C4",
+    "color-fg-primary": "#2E1A22",
+    "color-fg-secondary": "#6E2A47",
+    "color-fg-muted": "#A9748A",
+    "color-accent-400": "#8A3E62",
+    "color-accent-500": "#6E2A47",
+    "color-accent-600": "#571F38",
+    "font-heading": "'Playfair Display', serif",
+    "font-body": "'Inter', system-ui, sans-serif",
+    "radius-lg": "1.5rem",
+    "card-aspect": "1 / 1",
+    "grid-cols": "4"
+  },
+  "customizable": [
+    "color-accent-400", "color-accent-500", "color-accent-600",
+    "color-bg-base", "font-heading", "font-body"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "slug": "bookstore-classic",
+  "name": "Bookstore - Classic",
+  "industry": "Books, Stationery & Media",
+  "version": "2.0.0",
+  "description": "Warm cream, navy and rust palette inspired by a Paperloom-style bookstore & stationery storefront mockup, with serif headings and portrait book-cover imagery.",
+  "layout": "paper-portrait",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap",
+  "tokens": {
+    "color-bg-base": "#F6F0E3",
+    "color-bg-surface": "#EDF1E8",
+    "color-bg-elevated": "#FFFFFF",
+    "color-bg-muted": "#E8D9BE",
+    "color-border-subtle": "#E8D9BE",
+    "color-border-strong": "#BC5B39",
+    "color-fg-primary": "#1F2E3D",
+    "color-fg-secondary": "#3C5040",
+    "color-fg-muted": "#8A7A63",
+    "color-accent-400": "#D6826A",
+    "color-accent-500": "#BC5B39",
+    "color-accent-600": "#9C4A2D",
+    "font-heading": "'Playfair Display', serif",
+    "font-body": "'Inter', system-ui, sans-serif",
+    "radius-lg": "0.25rem",
+    "card-aspect": "2 / 3",
+    "grid-cols": "5"
+  },
+  "customizable": [
+    "color-accent-400", "color-accent-500", "color-accent-600",
+    "color-bg-base", "font-heading", "font-body"
+  ]
+}

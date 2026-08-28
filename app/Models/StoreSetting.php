@@ -8,7 +8,7 @@ class StoreSetting extends Model
 {
     protected $fillable = [
         'enabled', 'registration_enabled', 'require_invite_code', 'require_admin_approval',
-        'store_name', 'theme', 'logo_path', 'favicon_path',
+        'store_name', 'theme', 'theme_tokens', 'logo_path', 'favicon_path',
         'primary_color', 'secondary_color', 'font_family',
         'hero_title', 'hero_subtitle', 'hero_image_path',
         'homepage_lineup', 'homepage_layout', 'social_links',
@@ -29,5 +29,6 @@ class StoreSetting extends Model
         'show_stock' => 'boolean',
         'homepage_lineup' => 'array',
         'social_links' => 'array',
+        'theme_tokens' => 'array',
     ];
 }

@@ -43,33 +43,34 @@
         } elseif (file_exists(public_path('store_files/hero_image.jpg'))) {
             $heroUrl = global_asset('store_files/hero_image.jpg');
         }
+
+        // Each storefront theme owns a structurally distinct hero layout
+        // (not just a recolor of the same markup). Falls back to the
+        // original default layout for 'default', 'real_estate', or any
+        // theme that hasn't defined its own hero partial.
+        $heroPartial = 'store.partials.hero.' . ($s->theme ?? 'default');
+        if (! \Illuminate\Support\Facades\View::exists($heroPartial)) {
+            $heroPartial = 'store.partials.hero.default';
+        }
+
+        // Until an admin fills in Hero Title/Subtitle, fall back to
+        // theme-specific copy so an empty store never collapses every
+        // theme into the same "photo + Shop Now button" look.
+        $heroCopyDefaults = [
+            'jewelry-luxe'       => ['title' => 'Timeless Pieces, Made to Last', 'subtitle' => 'Hand-finished fine jewelry and watches, crafted for the moments that matter.'],
+            'fashion-edit'       => ['title' => 'THE EDIT: NEW SEASON', 'subtitle' => 'Curated apparel and footwear, cut for the way you actually move.'],
+            'beauty-glow'        => ['title' => 'Glow That Starts With Skin', 'subtitle' => 'Clean-formula skincare and cosmetics, tested for real results.'],
+            'electronics-tech'   => ['title' => 'Next-Gen Tech, In Stock', 'subtitle' => 'Specs that matter, gadgets that ship — browse the latest drops.'],
+            'grocery-fresh'      => ['title' => 'Fresh Picks, Delivered Daily', 'subtitle' => 'Farm-sourced produce and pantry staples, at their peak.'],
+            'fitness-power'      => ['title' => 'Train Harder. Recover Smarter.', 'subtitle' => 'Performance gear and supplements built for every rep.'],
+            'bookstore-classic'  => ['title' => 'Stories Worth Shelving', 'subtitle' => 'Curated titles, stationery, and reads for every kind of shelf.'],
+            'restaurant-fresh'   => ['title' => "Today's Menu, Made Fresh", 'subtitle' => 'Seasonal dishes and daily specials, ready when you are.'],
+            'marketplace-mega'   => ['title' => 'Everything You Need, One Cart', 'subtitle' => 'Thousands of deals across every category, updated daily.'],
+            'pawluxe-pets'       => ['title' => 'Spoil Them a Little More', 'subtitle' => 'Toys, treats, and essentials your best friend will love.'],
+        ];
+        $heroDefaults = $heroCopyDefaults[$s->theme ?? ''] ?? ['title' => __('messages.Shop'), 'subtitle' => ''];
       @endphp
-      <section class="py-12 lg:py-16 relative overflow-hidden"
-               style="background:
-                 radial-gradient(1200px 360px at 15% 50%, rgb(var(--color-accent-500) / .10) 0%, transparent 55%),
-                 radial-gradient(900px 280px at 85% 50%, rgb(var(--color-accent-500) / .06) 0%, transparent 55%);">
-        <div class="container">
-          <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            <div>
-              <span class="section-kicker">{{ __('messages.Shop') }}</span>
-              <h1 class="mt-3 mb-4 text-4xl lg:text-5xl font-bold tracking-tight text-fg-primary">
-                {{ $block['title'] ?? $s->hero_title }}
-              </h1>
-              <p class="section-subtitle mb-6 max-w-xl">
-                {{ $block['subtitle'] ?? $s->hero_subtitle }}
-              </p>
-              <a href="{{ route('store.shop') }}" class="btn btn-primary btn-lg">
-                <x-store.icon name="lightning" class="w-5 h-5" />{{ __('messages.ShopNow') }}
-              </a>
-            </div>
-            <div class="relative">
-              <div class="rounded-xl overflow-hidden shadow-lg border border-line-subtle">
-                <img class="w-full h-auto object-cover max-h-[420px]" src="{{ $heroUrl }}" alt="Hero">
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      @include($heroPartial, ['s' => $s, 'block' => $block, 'heroUrl' => $heroUrl, 'currency' => $currency, 'heroDefaults' => $heroDefaults])
 
       {{-- ===== CENTER ===== --}}
       @if(!$printedCenter && ( ($byPos['center_left'] ?? collect())->count() || ($byPos['center_right'] ?? collect())->count() ))
@@ -107,7 +108,7 @@
             </a>
           </div>
 
-          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div class="store-product-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             @foreach($prods as $p)
               @include('store.partials.product-card', ['p' => $p, 'currency' => $currency])
             @endforeach
