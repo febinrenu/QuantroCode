@@ -37,9 +37,19 @@
               <div class="col-md-4">
                 <b-form-group :label="$t('Store_Theme')">
                   <b-form-select v-model="form.theme">
-                    <b-form-select-option value="default">{{ $t('Default_Store_Theme') }}</b-form-select-option>
-                    <b-form-select-option value="real_estate">{{ $t('Real_Estate_Theme') }}</b-form-select-option>
+                    <b-form-select-option value="default">{{ $t('Default_Store_Theme') || 'Default Store Theme' }}</b-form-select-option>
                     <b-form-select-option v-for="t in themes" :key="t.slug" :value="t.slug">{{ t.name }}</b-form-select-option>
+                    <b-form-select-option value="wholesale">{{ $t('Theme_Wholesale') || 'Wholesale / B2B' }}</b-form-select-option>
+                    <b-form-select-option value="grocery">{{ $t('Theme_Grocery') || 'Grocery / Supermarket' }}</b-form-select-option>
+                    <b-form-select-option value="electronics">{{ $t('Theme_Electronics') || 'Electronics / Gadgets' }}</b-form-select-option>
+                    <b-form-select-option value="auto_parts">{{ $t('Theme_AutoParts') || 'Auto Parts / Hardware' }}</b-form-select-option>
+                    <b-form-select-option value="digital_products">{{ $t('Theme_DigitalProducts') || 'Digital Products / Software' }}</b-form-select-option>
+                    <b-form-select-option value="bookstore">{{ $t('Theme_Bookstore') || 'Bookstore' }}</b-form-select-option>
+                    <b-form-select-option value="restaurant">{{ $t('Theme_Restaurant') || 'Restaurant / Delivery' }}</b-form-select-option>
+                    <b-form-select-option value="pharmacy">{{ $t('Theme_Pharmacy') || 'Pharmacy / Medical' }}</b-form-select-option>
+                    <b-form-select-option value="pet_supplies">{{ $t('Theme_PetSupplies') || 'Pet Supplies' }}</b-form-select-option>
+                    <b-form-select-option value="marketplace">{{ $t('Theme_Marketplace') || 'Marketplace / Mega-Store' }}</b-form-select-option>
+                    <b-form-select-option value="real_estate">{{ $t('Real_Estate_Theme') || 'Real Estate Theme' }}</b-form-select-option>
                   </b-form-select>
                   <small class="text-muted d-block mt-1">
                     {{ $t('Store_Theme_Hint') }}

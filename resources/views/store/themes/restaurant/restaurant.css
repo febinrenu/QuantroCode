@@ -1,0 +1,446 @@
+/* ============================================================================
+ * THEME 17 — RESTAURANT / DELIVERY STOREFRONT STYLES
+ * Scoped strictly under .theme-restaurant.
+ * ============================================================================ */
+
+.theme-restaurant {
+  --res-bg: #fafafa;
+  --res-card: #ffffff;
+  --res-border: #f1f5f9;
+  --res-rose: #f43f5e;
+  --res-rose-dark: #e11d48;
+  --res-amber: #ea580c;
+  --res-text: #0f172a;
+  --res-text-secondary: #475569;
+  --res-text-muted: #94a3b8;
+
+  background-color: var(--res-bg);
+  color: var(--res-text);
+  min-height: 100vh;
+}
+
+.theme-restaurant * {
+  box-sizing: border-box;
+}
+
+.theme-restaurant .res-container {
+  width: min(1200px, calc(100% - 1.5rem));
+  margin-inline: auto;
+}
+
+/* --- Bistro Hero Header --- */
+.theme-restaurant .res-hero {
+  background: linear-gradient(135deg, #881337 0%, #be123c 50%, #e11d48 100%);
+  color: #ffffff;
+  padding: 3rem 0 3.5rem;
+  position: relative;
+}
+
+.theme-restaurant .res-hero-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.theme-restaurant .res-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #ffe4e6;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  margin-bottom: 1rem;
+}
+
+.theme-restaurant .res-hero-title {
+  font-size: clamp(2rem, 3.8vw, 3.25rem);
+  font-weight: 900;
+  line-height: 1.15;
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+
+.theme-restaurant .res-hero-sub {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #fecdd3;
+  max-width: 520px;
+  margin-bottom: 1.75rem;
+}
+
+.theme-restaurant .res-search-box {
+  display: flex;
+  background: #ffffff;
+  border-radius: 9999px;
+  padding: 0.35rem 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  max-width: 480px;
+}
+
+.theme-restaurant .res-search-box input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.95rem;
+  color: #0f172a;
+  outline: none;
+}
+
+.theme-restaurant .res-search-box input::placeholder {
+  color: #94a3b8;
+}
+
+.theme-restaurant .res-search-box button {
+  background: var(--res-rose);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  font-size: 0.875rem;
+  padding: 0.6rem 1.35rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: background 0.15s;
+}
+
+.theme-restaurant .res-search-box button:hover {
+  background: var(--res-rose-dark);
+}
+
+/* Delivery Info Widget (Hero Right) */
+.theme-restaurant .res-info-card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.theme-restaurant .res-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.theme-restaurant .res-info-row:last-child {
+  border-bottom: none;
+}
+
+.theme-restaurant .res-info-icon {
+  font-size: 1.25rem;
+}
+
+.theme-restaurant .res-info-lbl {
+  font-size: 0.75rem;
+  color: #fecdd3;
+}
+
+.theme-restaurant .res-info-val {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+/* --- Sticky Category Rail --- */
+.theme-restaurant .res-cat-bar {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 0.75rem 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+}
+
+.theme-restaurant .res-cat-list {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.theme-restaurant .res-cat-list::-webkit-scrollbar {
+  display: none;
+}
+
+.theme-restaurant .res-cat-btn {
+  white-space: nowrap;
+  background: #f1f5f9;
+  color: var(--res-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.15s, color 0.15s;
+}
+
+.theme-restaurant .res-cat-btn:hover {
+  background: var(--res-rose);
+  color: #ffffff;
+}
+
+/* --- Section Layout --- */
+.theme-restaurant .res-section {
+  padding: 2.5rem 0;
+}
+
+.theme-restaurant .res-sec-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.theme-restaurant .res-sec-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--res-text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* --- Dish Grid / Menu Items --- */
+.theme-restaurant .res-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.25rem;
+}
+
+/* Dish Card (App-style row layout) */
+.theme-restaurant .dish-card {
+  background: var(--res-card);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.theme-restaurant .dish-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.theme-restaurant .dish-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.theme-restaurant .dish-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.theme-restaurant .dish-cat {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--res-rose);
+}
+
+.theme-restaurant .dish-options-badge {
+  font-size: 0.65rem;
+  background: #fef2f2;
+  color: var(--res-rose);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+.theme-restaurant .dish-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--res-text);
+  margin: 0 0 0.35rem;
+  line-height: 1.3;
+}
+
+.theme-restaurant .dish-desc {
+  font-size: 0.8rem;
+  color: var(--res-text-secondary);
+  line-height: 1.4;
+  margin: 0 0 0.75rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.theme-restaurant .dish-price-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
+.theme-restaurant .dish-price {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--res-text);
+}
+
+.theme-restaurant .dish-unit {
+  font-size: 0.75rem;
+  color: var(--res-text-muted);
+  font-weight: normal;
+}
+
+.theme-restaurant .dish-ctrls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.theme-restaurant .dish-stepper {
+  display: flex;
+  align-items: center;
+  background: #f1f5f9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.theme-restaurant .dish-step-btn {
+  border: none;
+  background: transparent;
+  color: var(--res-text);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0 0.4rem;
+  height: 32px;
+  cursor: pointer;
+}
+
+.theme-restaurant .dish-qty-val {
+  width: 28px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  font-weight: 700;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.theme-restaurant .dish-btn-add {
+  background: var(--res-rose);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  height: 32px;
+  padding: 0 0.75rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: background 0.15s;
+}
+
+.theme-restaurant .dish-btn-add:hover:not(:disabled) {
+  background: var(--res-rose-dark);
+}
+
+.theme-restaurant .dish-btn-add:disabled {
+  opacity: 0.5;
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+.theme-restaurant .dish-add-status {
+  font-size: 0.7rem;
+  color: var(--res-rose);
+  min-height: 0.85rem;
+  margin-top: 0.2rem;
+}
+
+/* Dish Thumbnail */
+.theme-restaurant .dish-thumb-wrap {
+  width: 110px;
+  height: 110px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f1f5f9;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.theme-restaurant .dish-thumb-link {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.theme-restaurant .dish-thumb-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+
+.theme-restaurant .dish-card:hover .dish-thumb-img {
+  transform: scale(1.06);
+}
+
+.theme-restaurant .dish-badge-out {
+  position: absolute;
+  bottom: 0.25rem;
+  left: 0.25rem;
+  right: 0.25rem;
+  background: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 0.15rem;
+  border-radius: 4px;
+}
+
+.theme-restaurant .dish-badge-pre {
+  position: absolute;
+  bottom: 0.25rem;
+  left: 0.25rem;
+  right: 0.25rem;
+  background: var(--res-amber);
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 0.15rem;
+  border-radius: 4px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .theme-restaurant .res-hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .theme-restaurant .res-menu-grid {
+    grid-template-columns: 1fr;
+  }
+}
