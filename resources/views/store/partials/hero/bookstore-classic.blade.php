@@ -5,9 +5,9 @@
       <div>
         <span class="section-kicker">{{ __('messages.Shop') }}</span>
         <h1 class="mt-3 mb-4" style="font-family:var(--store-font-heading); font-size:clamp(2.5rem,5vw,4rem); color:rgb(var(--color-fg-primary));">
-          {{ $block['title'] ?? $s->hero_title }}
+          {{ $block['title'] ?? $s->hero_title ?: $heroDefaults['title'] ?? '' }}
         </h1>
-        <p class="section-subtitle mb-6 max-w-md">{{ $block['subtitle'] ?? $s->hero_subtitle }}</p>
+        <p class="section-subtitle mb-6 max-w-md">{{ $block['subtitle'] ?? $s->hero_subtitle ?: $heroDefaults['subtitle'] ?? '' }}</p>
         <a href="{{ route('store.shop') }}" class="btn btn-primary btn-lg">{{ __('messages.ShopNow') }}</a>
       </div>
       <div class="flex items-end justify-center gap-2" style="height:220px;">

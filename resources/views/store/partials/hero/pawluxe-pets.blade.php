@@ -6,10 +6,10 @@
       <div>
         <div class="inline-block px-5 py-4 mb-4" style="background:#fff;border-radius:1.5rem;box-shadow:0 4px 14px rgb(0 0 0/.08);">
           <h1 style="font-family:var(--store-font-heading); font-size:clamp(2rem,4.5vw,3.25rem); color:rgb(var(--color-fg-primary)); margin:0;">
-            {{ $block['title'] ?? $s->hero_title }}
+            {{ $block['title'] ?? $s->hero_title ?: $heroDefaults['title'] ?? '' }}
           </h1>
         </div>
-        <p class="section-subtitle mb-6 max-w-md">{{ $block['subtitle'] ?? $s->hero_subtitle }}</p>
+        <p class="section-subtitle mb-6 max-w-md">{{ $block['subtitle'] ?? $s->hero_subtitle ?: $heroDefaults['subtitle'] ?? '' }}</p>
         <a href="{{ route('store.shop') }}" class="btn btn-primary btn-lg" style="border-radius:999px;">{{ __('messages.ShopNow') }}</a>
       </div>
       <div class="flex justify-center">

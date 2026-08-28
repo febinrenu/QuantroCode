@@ -6,9 +6,9 @@
       <div>
         <span class="section-kicker" style="color:rgb(var(--color-accent-500));">// {{ __('messages.Shop') }}</span>
         <h1 class="mt-3 mb-4" style="color:#fff;font-family:'Consolas','JetBrains Mono',monospace; font-size:clamp(2.25rem,4.5vw,3.5rem); text-shadow:0 0 18px rgb(var(--color-accent-500)/.6);">
-          {{ $block['title'] ?? $s->hero_title }}
+          {{ $block['title'] ?? $s->hero_title ?: $heroDefaults['title'] ?? '' }}
         </h1>
-        <p class="mb-6 max-w-md" style="color:rgb(255 255 255/.72);">{{ $block['subtitle'] ?? $s->hero_subtitle }}</p>
+        <p class="mb-6 max-w-md" style="color:rgb(255 255 255/.72);">{{ $block['subtitle'] ?? $s->hero_subtitle ?: $heroDefaults['subtitle'] ?? '' }}</p>
         <a href="{{ route('store.shop') }}" class="btn btn-lg" style="background:rgb(var(--color-accent-500));color:#fff;box-shadow:0 0 24px rgb(var(--color-accent-500)/.5);">{{ __('messages.ShopNow') }}</a>
       </div>
       <div class="relative">

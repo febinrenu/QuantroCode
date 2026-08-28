@@ -6,9 +6,9 @@
       <div>
         <span class="section-kicker">{{ __('messages.Shop') }}</span>
         <h1 class="mt-3 mb-4" style="font-family:var(--store-font-heading);font-style:italic;font-weight:500;font-size:clamp(2.5rem,5vw,4rem);color:rgb(var(--color-fg-primary));">
-          {{ $block['title'] ?? $s->hero_title }}
+          {{ $block['title'] ?? $s->hero_title ?: $heroDefaults['title'] ?? '' }}
         </h1>
-        <p class="section-subtitle mb-6 max-w-md">{{ $block['subtitle'] ?? $s->hero_subtitle }}</p>
+        <p class="section-subtitle mb-6 max-w-md">{{ $block['subtitle'] ?? $s->hero_subtitle ?: $heroDefaults['subtitle'] ?? '' }}</p>
         <div class="flex items-center gap-3 mb-6 flex-wrap">
           <span class="chip" style="border-radius:999px;">Cruelty-free</span>
           <span class="chip" style="border-radius:999px;">Clean formulas</span>

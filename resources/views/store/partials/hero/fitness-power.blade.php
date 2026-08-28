@@ -4,9 +4,9 @@
   <div class="container">
     <span class="section-kicker" style="color:#fff;">{{ __('messages.Shop') }}</span>
     <h1 class="mt-3 mb-6 mx-auto" style="color:#fff;font-family:var(--store-font-heading); text-transform:uppercase; font-size:clamp(2.75rem,6.5vw,5rem); -webkit-text-stroke:1px rgb(var(--color-accent-500)); max-width:900px;">
-      {{ $block['title'] ?? $s->hero_title }}
+      {{ $block['title'] ?? $s->hero_title ?: $heroDefaults['title'] ?? '' }}
     </h1>
-    <p class="mb-8 mx-auto max-w-lg" style="color:rgb(255 255 255/.75);">{{ $block['subtitle'] ?? $s->hero_subtitle }}</p>
+    <p class="mb-8 mx-auto max-w-lg" style="color:rgb(255 255 255/.75);">{{ $block['subtitle'] ?? $s->hero_subtitle ?: $heroDefaults['subtitle'] ?? '' }}</p>
     <a href="{{ route('store.shop') }}" class="btn btn-lg mb-10 inline-block" style="background:rgb(var(--color-accent-500));color:#fff;clip-path:polygon(6% 0,100% 0,94% 100%,0 100%);">{{ __('messages.ShopNow') }}</a>
     <div class="flex items-center justify-center gap-10 flex-wrap" style="color:#fff;">
       <div><div class="text-3xl font-black">10K+</div><div class="text-xs uppercase" style="letter-spacing:.15em;color:rgb(var(--color-accent-500));">Athletes</div></div>

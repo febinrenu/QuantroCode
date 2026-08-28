@@ -7,10 +7,10 @@
       <div>
         <span class="section-kicker">{{ __('messages.Shop') }}</span>
         <h1 class="mt-3 mb-4 text-4xl lg:text-5xl font-bold tracking-tight text-fg-primary">
-          {{ $block['title'] ?? $s->hero_title }}
+          {{ $block['title'] ?? $s->hero_title ?: $heroDefaults['title'] ?? '' }}
         </h1>
         <p class="section-subtitle mb-6 max-w-xl">
-          {{ $block['subtitle'] ?? $s->hero_subtitle }}
+          {{ $block['subtitle'] ?? $s->hero_subtitle ?: $heroDefaults['subtitle'] ?? '' }}
         </p>
         <a href="{{ route('store.shop') }}" class="btn btn-primary btn-lg">
           <x-store.icon name="lightning" class="w-5 h-5" />{{ __('messages.ShopNow') }}
