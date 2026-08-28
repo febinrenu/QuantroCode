@@ -1,5 +1,5 @@
 {{-- Marketplace - Mega Store: deal-hub hero with category tile row --}}
-<section class="store-hero py-14 relative overflow-hidden" style="background:rgb(var(--color-fg-primary));">
+<section class="store-hero py-14 relative overflow-hidden" style="background:rgb(var(--store-hero-invert-bg));">
   <div class="container">
     <div class="flex items-center justify-between flex-wrap gap-4 mb-8">
       <div>

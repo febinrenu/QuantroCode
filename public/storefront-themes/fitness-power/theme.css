@@ -28,6 +28,8 @@ html[data-theme="fitness-power"] {
   --store-card-aspect: 1 / 1;
   --store-grid-cols: 4;
   color-scheme: light;
+
+  --store-hero-invert-bg: 20 20 20;
 }
 
 html[data-theme="fitness-power"].dark {
@@ -103,7 +105,7 @@ html[data-theme="fitness-power"] .section-title::after {
 
 /* ===== Round 2: unmistakable chrome ===== */
 html[data-theme="fitness-power"] .store-hero {
-  background: rgb(var(--color-fg-primary)) !important;
+  background: rgb(var(--store-hero-invert-bg)) !important;
   background-image: repeating-linear-gradient(
     45deg, rgb(var(--color-accent-500) / .1) 0px, rgb(var(--color-accent-500) / .1) 14px,
     transparent 14px, transparent 30px
@@ -123,7 +125,7 @@ html[data-theme="fitness-power"] .store-hero h1 {
   -webkit-text-stroke: 1px rgb(var(--color-accent-500));
 }
 html[data-theme="fitness-power"] header {
-  background: rgb(var(--color-fg-primary)) !important;
+  background: rgb(var(--store-hero-invert-bg)) !important;
   border-bottom: 3px solid rgb(var(--color-accent-500)) !important;
 }
 html[data-theme="fitness-power"] header * { color: #fff; }

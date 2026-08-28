@@ -28,6 +28,8 @@ html[data-theme="fashion-edit"] {
   --store-card-aspect: 3 / 4;
   --store-grid-cols: 4;
   color-scheme: light;
+
+  --store-hero-invert-bg: 13 13 13;
 }
 
 html[data-theme="fashion-edit"].dark {
@@ -125,7 +127,7 @@ html[data-theme="fashion-edit"] .store-product-grid .product-card {
 
 /* ===== Round 2: unmistakable chrome ===== */
 html[data-theme="fashion-edit"] .store-hero {
-  background: rgb(var(--color-fg-primary)) !important;
+  background: rgb(var(--store-hero-invert-bg)) !important;
   color: rgb(var(--color-bg-base));
 }
 html[data-theme="fashion-edit"] .store-hero h1,
@@ -144,7 +146,7 @@ html[data-theme="fashion-edit"] header {
   border-bottom: 2px solid rgb(var(--color-fg-primary)) !important;
 }
 html[data-theme="fashion-edit"] .chip-info {
-  background: rgb(var(--color-fg-primary)) !important;
+  background: rgb(var(--store-hero-invert-bg)) !important;
   color: rgb(var(--color-bg-base)) !important;
   border-radius: 0 !important;
   text-transform: uppercase;

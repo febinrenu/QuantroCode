@@ -28,6 +28,8 @@ html[data-theme="marketplace-mega"] {
   --store-card-aspect: 1 / 1;
   --store-grid-cols: 6;
   color-scheme: light;
+
+  --store-hero-invert-bg: 20 27 61;
 }
 
 html[data-theme="marketplace-mega"].dark {
@@ -86,7 +88,7 @@ html[data-theme="marketplace-mega"] .product-card {
 
 /* ===== Round 2: unmistakable chrome ===== */
 html[data-theme="marketplace-mega"] .store-hero {
-  background: rgb(var(--color-fg-primary)) !important;
+  background: rgb(var(--store-hero-invert-bg)) !important;
   color: #fff;
 }
 html[data-theme="marketplace-mega"] .store-hero h1,
@@ -100,7 +102,7 @@ html[data-theme="marketplace-mega"] .store-hero h1 {
   font-weight: 800 !important;
 }
 html[data-theme="marketplace-mega"] header {
-  background: rgb(var(--color-fg-primary)) !important;
+  background: rgb(var(--store-hero-invert-bg)) !important;
 }
 html[data-theme="marketplace-mega"] header * { color: #fff; }
 html[data-theme="marketplace-mega"] .chip-info {

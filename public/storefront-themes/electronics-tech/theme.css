@@ -28,6 +28,8 @@ html[data-theme="electronics-tech"] {
   --store-card-aspect: 1 / 1;
   --store-grid-cols: 5;
   color-scheme: light;
+
+  --store-hero-invert-bg: 18 20 46;
 }
 
 html[data-theme="electronics-tech"].dark {
@@ -101,7 +103,7 @@ html[data-theme="electronics-tech"] .btn-primary {
 
 /* ===== Round 2: unmistakable chrome ===== */
 html[data-theme="electronics-tech"] .store-hero {
-  background: rgb(var(--color-fg-primary)) !important;
+  background: rgb(var(--store-hero-invert-bg)) !important;
   background-image:
     linear-gradient(rgb(255 255 255 / .04) 1px, transparent 1px),
     linear-gradient(90deg, rgb(255 255 255 / .04) 1px, transparent 1px) !important;
@@ -119,7 +121,7 @@ html[data-theme="electronics-tech"] .store-hero h1 {
   text-shadow: 0 0 18px rgb(var(--color-accent-500) / .6);
 }
 html[data-theme="electronics-tech"] header {
-  background: rgb(var(--color-fg-primary)) !important;
+  background: rgb(var(--store-hero-invert-bg)) !important;
   border-bottom: 1px solid rgb(var(--color-accent-500) / .4) !important;
 }
 html[data-theme="electronics-tech"] header * { color: rgb(var(--color-bg-base)); }

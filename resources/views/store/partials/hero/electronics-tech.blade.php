@@ -1,6 +1,6 @@
 {{-- Electronics & Gadgets - Circuit: dark grid background, floating spec card --}}
 <section class="store-hero py-16 relative overflow-hidden"
-         style="background:rgb(var(--color-fg-primary)); background-image:linear-gradient(rgb(255 255 255/.04) 1px,transparent 1px),linear-gradient(90deg,rgb(255 255 255/.04) 1px,transparent 1px); background-size:28px 28px;">
+         style="background:rgb(var(--store-hero-invert-bg)); background-image:linear-gradient(rgb(255 255 255/.04) 1px,transparent 1px),linear-gradient(90deg,rgb(255 255 255/.04) 1px,transparent 1px); background-size:28px 28px;">
   <div class="container">
     <div class="store-hero-grid grid lg:grid-cols-2 gap-10 items-center">
       <div>
