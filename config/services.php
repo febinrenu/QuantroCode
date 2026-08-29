@@ -46,4 +46,8 @@ return [
         'redirect_url' => env('FLUTTERWAVE_REDIRECT_URL'),
     ],
 
+    'unsplash' => [
+        'access_key' => env('UNSPLASH_ACCESS_KEY'),
+    ],
+
 ];
