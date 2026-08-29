@@ -143,19 +143,16 @@ class SeedIndustryCatalog extends Command
      */
     private function downloadUnsplashPhoto(string $accessKey, string $query, string $dir, string $slug): ?string
     {
-        $search = Http::withHeaders(['Authorization' => "Client-ID {$accessKey}"])
-            ->get('https://api.unsplash.com/search/photos', [
-                'query' => $query,
-                'per_page' => 1,
-                'orientation' => 'squarish',
-                'content_filter' => 'high',
-            ]);
+        // Try the constrained search first (squarish, high content filter);
+        // some specific queries have too few matches under those constraints,
+        // so fall back to a plain search before giving up on the query.
+        $photo = $this->searchUnsplash($accessKey, $query, ['orientation' => 'squarish', 'content_filter' => 'high'])
+            ?? $this->searchUnsplash($accessKey, $query, []);
 
-        if (! $search->ok()) {
+        if (! $photo) {
             return null;
         }
 
-        $photo = $search->json('results.0');
         $imageUrl = $photo['urls']['regular'] ?? $photo['urls']['small'] ?? null;
         if (! $imageUrl) {
             return null;
@@ -170,6 +167,27 @@ class SeedIndustryCatalog extends Command
         file_put_contents($dir . '/' . $filename, $image->body());
 
         return $filename;
+    }
+
+    /**
+     * @param array<string, string> $extraParams
+     * @return array<string, mixed>|null
+     */
+    private function searchUnsplash(string $accessKey, string $query, array $extraParams): ?array
+    {
+        $search = Http::withHeaders(['Authorization' => "Client-ID {$accessKey}"])
+            ->get('https://api.unsplash.com/search/photos', array_merge([
+                'query' => $query,
+                'per_page' => 1,
+            ], $extraParams));
+
+        if (! $search->ok()) {
+            $this->warn("    Unsplash search request failed ({$search->status()}): " . $search->body());
+
+            return null;
+        }
+
+        return $search->json('results.0');
     }
 
     /**
