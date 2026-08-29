@@ -63,8 +63,13 @@ class SeedIndustryCatalog extends Command
             ]);
         }
 
+        // catalogDefinition() must stay first and untouched, in its existing
+        // order -- product codes are assigned sequentially, so anything
+        // seeded before today (PR-IND-001..042) has to keep landing on the
+        // same code. New products only ever get appended via
+        // moreProductsDefinition(), never inserted into catalogDefinition().
         $seq = 1;
-        foreach ($this->catalogDefinition() as $industry) {
+        foreach (array_merge($this->catalogDefinition(), $this->moreProductsDefinition()) as $industry) {
             $categoryId = DB::table('categories')->where('code', $industry['code'])->value('id');
             if (! $categoryId) {
                 $categoryId = DB::table('categories')->insertGetId([
@@ -265,6 +270,75 @@ class SeedIndustryCatalog extends Command
                 ['Daily Multivitamin Bottle', 'medicine bottle pills pharmacy', 15.00],
                 ['Digital Stethoscope', 'stethoscope medical', 45.00],
                 ['Complete First Aid Kit', 'first aid kit medical', 24.00],
+            ]],
+        ];
+    }
+
+    /**
+     * A second, later-appended batch -- two more products per industry.
+     * Kept separate from catalogDefinition() (see the note in handle())
+     * purely so the codes already assigned to that first batch never shift.
+     *
+     * @return array<int, array{code:string, category:string, products:array<int, array{0:string,1:string,2:float}>}>
+     */
+    private function moreProductsDefinition(): array
+    {
+        return [
+            ['code' => 'CAT-IND-JWL', 'category' => 'Jewelry & Watches', 'products' => [
+                ['Rose Gold Bracelet', 'gold bracelet jewelry', 179.00],
+                ['Diamond Stud Earrings', 'diamond earrings jewelry', 219.00],
+            ]],
+            ['code' => 'CAT-IND-FSH', 'category' => 'Fashion & Apparel', 'products' => [
+                ['Classic Denim Jeans', 'denim jeans fashion', 69.00],
+                ['Wool Winter Coat', 'winter coat fashion', 159.00],
+            ]],
+            ['code' => 'CAT-IND-BTY', 'category' => 'Beauty & Cosmetics', 'products' => [
+                ['Hydrating Face Cream', 'face cream cosmetics', 28.00],
+                ['Signature Perfume', 'perfume bottle', 65.00],
+            ]],
+            ['code' => 'CAT-IND-ELC', 'category' => 'Electronics & Gadgets', 'products' => [
+                ['Mechanical Gaming Keyboard', 'gaming keyboard electronics', 89.00],
+                ['Portable Bluetooth Speaker', 'bluetooth speaker electronics', 59.00],
+            ]],
+            ['code' => 'CAT-IND-GRC', 'category' => 'Grocery & Fresh Produce', 'products' => [
+                ['Farm Fresh Eggs (Dozen)', 'eggs carton grocery', 4.50],
+                ['Dairy Milk Bottle', 'milk bottle dairy', 3.20],
+            ]],
+            ['code' => 'CAT-IND-FIT', 'category' => 'Fitness & Gym', 'products' => [
+                ['Resistance Band Set', 'resistance bands fitness', 24.00],
+                ['Foam Massage Roller', 'foam roller fitness', 27.00],
+            ]],
+            ['code' => 'CAT-IND-BKS', 'category' => 'Books & Stationery', 'products' => [
+                ['Watercolor Art Set', 'watercolor paint set art', 32.00],
+                ['Wooden Desk Organizer', 'desk organizer stationery', 26.00],
+            ]],
+            ['code' => 'CAT-IND-RST', 'category' => 'Restaurant & Food Delivery', 'products' => [
+                ['Fresh Sushi Platter', 'sushi platter food', 18.00],
+                ['Iced Coffee', 'iced coffee drink', 5.50],
+            ]],
+            ['code' => 'CAT-IND-MKT', 'category' => 'Marketplace & General Retail', 'products' => [
+                ['Scented Candle Set', 'scented candle retail', 22.00],
+                ['Kitchen Utensil Set', 'kitchen utensils retail', 34.00],
+            ]],
+            ['code' => 'CAT-IND-PET', 'category' => 'Pet Supplies & Accessories', 'products' => [
+                ['Cozy Pet Bed', 'pet bed dog', 39.00],
+                ['Aquarium Fish Tank', 'aquarium fish tank', 79.00],
+            ]],
+            ['code' => 'CAT-IND-WHS', 'category' => 'Wholesale & B2B', 'products' => [
+                ['Industrial Shelving Unit', 'industrial shelving warehouse', 289.00],
+                ['Bulk Packaging Tape (24pk)', 'packaging tape warehouse', 49.00],
+            ]],
+            ['code' => 'CAT-IND-AUT', 'category' => 'Auto Parts & Hardware', 'products' => [
+                ['Heavy-Duty Car Battery', 'car battery auto', 129.00],
+                ['Hydraulic Floor Jack', 'hydraulic car jack', 99.00],
+            ]],
+            ['code' => 'CAT-IND-DIG', 'category' => 'Digital Products & Software', 'products' => [
+                ['Stock Photo Bundle License', 'photography camera laptop', 49.00],
+                ['Online Course Bundle', 'online course laptop study', 29.00],
+            ]],
+            ['code' => 'CAT-IND-PHM', 'category' => 'Pharmacy & Medical', 'products' => [
+                ['Blood Pressure Monitor', 'blood pressure monitor medical', 39.00],
+                ['Hand Sanitizer Pack', 'hand sanitizer', 8.00],
             ]],
         ];
     }
