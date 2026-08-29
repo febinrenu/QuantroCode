@@ -228,7 +228,7 @@ class SeedIndustryCatalog extends Command
             ['code' => 'CAT-IND-PET', 'category' => 'Pet Supplies & Accessories', 'products' => [
                 ['Comfort Dog Leash & Collar Set', 'dog leash collar pet', 22.00],
                 ['Interactive Cat Toy', 'cat toy pet', 12.00],
-                ['Ceramic Pet Food Bowl', 'pet food bowl', 14.00],
+                ['Ceramic Pet Food Bowl', 'dog bowl', 14.00],
             ]],
             ['code' => 'CAT-IND-WHS', 'category' => 'Wholesale & B2B', 'products' => [
                 ['Bulk Shipping Pallet', 'warehouse pallets wholesale', 199.00],
