@@ -340,7 +340,7 @@
     @if(!empty($showCategoryBar) && $categories->count())
       <div class="hidden lg:block border-t border-line-subtle bg-bg-base">
         <div class="container">
-          <ul class="flex flex-wrap items-center gap-1 py-2">
+          <ul class="no-scrollbar flex flex-nowrap items-center gap-1 py-2 overflow-x-auto">
             @foreach($categories as $category)
               <li class="relative group shrink-0">
                 <a href="{{ route('store.shop', ['category' => $category->id]) }}"
