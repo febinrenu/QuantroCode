@@ -43,12 +43,10 @@ class SeedIndustryCatalog extends Command
             return self::FAILURE;
         }
 
-        $alreadySeeded = DB::table('products')->where('code', self::CODE_PREFIX . '001')->exists();
-        if ($alreadySeeded && ! $this->option('force')) {
-            $this->info('Industry catalog already seeded. Pass --force to re-fetch images and re-insert.');
-
-            return self::SUCCESS;
-        }
+        // No blanket "already seeded" short-circuit here: each product below is
+        // checked (and skipped, without spending an API call) individually, so
+        // re-running this command after a partial failure correctly resumes
+        // by only fetching whatever is still missing. --force re-fetches everything.
 
         $dir = upload_public_path('products');
         if (! is_dir($dir)) {
