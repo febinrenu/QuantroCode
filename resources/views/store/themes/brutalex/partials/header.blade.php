@@ -75,6 +75,9 @@
       </div>
 
       <div class="ms-auto flex items-center gap-0 h-full border-l-4 border-ink-black divide-x-4 divide-ink-black">
+        <div class="hidden md:flex items-center h-full">
+          @include('store.partials.language-switcher')
+        </div>
         @if($bxClient)
           <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-full px-3 items-center gap-1.5 text-xs font-bold uppercase text-ink-black hover:bg-ink-black hover:text-white transition-colors">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -115,6 +118,8 @@
       </form>
       <a href="{{ route('store.index') }}" class="block py-2 text-sm font-bold uppercase border-b-2 border-ink-black">{{ __('messages.Home') }}</a>
       <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-bold uppercase border-b-2 border-ink-black">{{ __('messages.Shop') }}</a>
+      <div class="text-xs font-bold uppercase tracking-widest text-ink-black/60 mt-4 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+      @include('store.partials.language-switcher', ['variant' => 'mobile'])
       @foreach($bxCategories as $cat)
         <details class="border-b-2 border-ink-black py-1">
           <summary class="flex items-center justify-between py-2 text-sm font-bold uppercase">

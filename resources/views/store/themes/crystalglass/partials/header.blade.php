@@ -72,6 +72,9 @@
       </div>
 
       <div class="ms-auto flex items-center gap-1">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         @if($cgClient)
           <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-10 px-3 items-center gap-1.5 text-sm font-medium tracking-wide text-brand-ink/70 hover:text-brand-violetDark rounded-full hover:bg-white/50">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -110,7 +113,9 @@
       <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
         <input type="text" name="q" class="w-full h-10 pl-4 pr-3 rounded-full border border-white/60 bg-white/50 text-sm" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}">
       </form>
-      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold tracking-wide text-brand-ink">{{ __('messages.Home') }}</a>
+      <div class="text-xs font-bold uppercase tracking-widest text-brand-ink/40 mt-1 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+      @include('store.partials.language-switcher', ['variant' => 'mobile'])
+      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold tracking-wide text-brand-ink mt-2">{{ __('messages.Home') }}</a>
       <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-semibold tracking-wide text-brand-ink">{{ __('messages.Shop') }}</a>
       @foreach($cgCategories as $cat)
         <details class="border-t border-white/40 py-1">

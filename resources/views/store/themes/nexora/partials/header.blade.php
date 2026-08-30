@@ -71,6 +71,9 @@
       </div>
 
       <div class="ms-auto flex items-center gap-2">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         @if($nxClient)
           <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-11 px-4 items-center gap-1.5 nx-pill text-sm font-semibold text-nx-ink hover:bg-nx-chrome1/40">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -109,7 +112,9 @@
       <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
         <input type="text" name="q" class="w-full h-11 pl-4 pr-3 nx-pill border border-nx-chrome1 bg-nx-bg text-sm" placeholder="Search products…">
       </form>
-      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold text-nx-ink">Home</a>
+      <div class="text-xs font-bold uppercase tracking-widest text-nx-mute mt-1 mb-2">Language</div>
+      @include('store.partials.language-switcher', ['variant' => 'mobile'])
+      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold text-nx-ink mt-2">Home</a>
       <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-semibold text-nx-ink">Shop</a>
       @foreach($nxCategories as $cat)
         <details class="border-t border-nx-chrome1/60 py-1">

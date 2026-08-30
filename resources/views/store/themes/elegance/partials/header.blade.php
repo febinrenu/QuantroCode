@@ -72,6 +72,9 @@
       </div>
 
       <div class="flex items-center gap-1 ms-2">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         @if($elClient)
           <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-10 px-3 items-center gap-1.5 text-xs eyebrow font-medium text-brand-charcoalSoft hover:text-brand-gold">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -112,6 +115,8 @@
       </form>
       <a href="{{ route('store.index') }}" class="block py-2.5 font-serif text-lg text-brand-charcoal border-b border-brand-hairline">{{ __('messages.Home') }}</a>
       <a href="{{ route('store.shop') }}" class="block py-2.5 font-serif text-lg text-brand-charcoal border-b border-brand-hairline">{{ __('messages.Shop') }}</a>
+      <div class="text-xs eyebrow font-semibold text-brand-charcoalSoft mt-4 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+      @include('store.partials.language-switcher', ['variant' => 'mobile'])
       @foreach($elCategories as $cat)
         <details class="border-b border-brand-hairline py-1">
           <summary class="flex items-center justify-between py-2.5 text-sm font-medium text-brand-charcoal">

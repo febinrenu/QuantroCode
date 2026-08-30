@@ -72,6 +72,9 @@
       </div>
 
       <div class="ms-auto flex items-center gap-1">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         @if($fxClient)
           <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-10 px-3 items-center gap-1.5 text-sm font-medium text-fx-mute hover:text-fx-cyan">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -110,7 +113,9 @@
       <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
         <input type="text" name="q" class="w-full h-10 pl-3 pr-3 rounded-full border border-fx-border bg-fx-panel text-sm text-fx-ink placeholder-fx-mute" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}">
       </form>
-      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold text-fx-ink">{{ __('messages.Home') }}</a>
+      <div class="text-xs font-bold uppercase tracking-widest text-fx-mute mt-1 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+      @include('store.partials.language-switcher', ['variant' => 'mobile'])
+      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold text-fx-ink mt-2">{{ __('messages.Home') }}</a>
       <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-semibold text-fx-ink">{{ __('messages.Shop') }}</a>
       @foreach($fxCategories as $cat)
         <details class="border-t border-fx-border/60 py-1">

@@ -48,6 +48,9 @@
       </div>
 
       <div class="ms-auto md:ms-0 flex items-center gap-1">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         @if($trClient)
           <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-10 px-3 items-center gap-1.5 text-sm text-terra-inkSoft hover:text-terra-ink">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -88,6 +91,9 @@
       </form>
       <a href="{{ route('store.index') }}" class="block py-2.5 text-sm text-terra-ink border-b border-terra-line">{{ __('messages.Home') }}</a>
       <a href="{{ route('store.shop') }}" class="block py-2.5 text-sm text-terra-ink border-b border-terra-line">{{ __('messages.Shop') }}</a>
+      <div class="py-2.5 border-b border-terra-line">
+        @include('store.partials.language-switcher', ['variant' => 'mobile'])
+      </div>
       @foreach($trCategories as $cat)
         <details class="border-b border-terra-line py-1">
           <summary class="flex items-center justify-between py-2 text-sm text-terra-inkSoft">
