@@ -31,7 +31,7 @@
   </div>
 
   <div class="max-w-7xl mx-auto px-4 py-6 grid lg:grid-cols-2 gap-10"
-       x-data="{ variantIdx: 0, variants: @json($product['variants']), gallery: @json($gallery), activeImg: 0 }">
+       x-data='{ variantIdx: 0, variants: @json($product["variants"], JSON_HEX_APOS | JSON_HEX_QUOT), gallery: @json($gallery, JSON_HEX_APOS | JSON_HEX_QUOT), activeImg: 0 }'>
 
     {{-- Gallery --}}
     <div>
