@@ -1,0 +1,22 @@
+{
+  "slug": "freshcart",
+  "name": "FreshCart",
+  "tagline": "Fresh picks, delivered daily.",
+  "description": "Warm, content-dense cream/green/orange market persona with a mega-menu, countdown deal banner, aisle strip, tabbed collections and editorial inspiration cards. General merchandise across electronics, fashion, home, beauty, grocery and sports, styled with a neighborhood-market warmth.",
+  "category": "general-merchandise",
+  "version": "1.0.0",
+  "layout_persona": "Warm Market Fresh",
+  "layout": "dense-multicategory",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap",
+  "fontPairing": { "heading": "Poppins", "body": "Poppins" },
+  "paletteSwatches": ["#1F9D55", "#F0800F", "#FBF1D6", "#14532D"],
+  "tokens": {
+    "color-bg-base": "#FBF1D6",
+    "color-accent-500": "#1F9D55",
+    "color-accent-600": "#167A42",
+    "font-heading": "'Poppins', sans-serif",
+    "font-body": "'Poppins', sans-serif"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}

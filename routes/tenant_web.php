@@ -53,6 +53,8 @@ if ($installed === true) {
             Route::post('/contact', [StoreFrontController::class, 'sendContact'])->name('store.contact.send');
             Route::post('/store/orders', [CheckoutController::class, 'store'])->name('store.orders.store');
             Route::get('/collections/{slug}', [StoreFrontController::class, 'collection'])->name('store.collection.show');
+            Route::get('/product/{slugOrId}', [StoreFrontController::class, 'product'])->name('store.product.show');
+            Route::get('/cart', [StoreFrontController::class, 'cart'])->name('store.cart');
 Route::get('/properties', [RealEstateStoreController::class, 'listings'])->name('store.realestate.listings');
 Route::post('/properties/inquiry', [RealEstateStoreController::class, 'inquiry'])->name('store.realestate.inquiry');
 Route::get('/properties/{slug}', [RealEstateStoreController::class, 'show'])->name('store.realestate.show');

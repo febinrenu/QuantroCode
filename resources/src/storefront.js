@@ -462,7 +462,15 @@ Alpine.data('miniCart', () => ({
   clear() { window.CartLS.clear(); },
   checkout(url) {
     if (window.__LOGGED_IN__) { window.location.href = url; return; }
-    window.StoreUI.open('authModal');
+    // Pages that still carry the legacy #authModal (the shared layouts/store.blade.php
+    // shell) open it in place; the 20 new theme cart pages don't render that modal,
+    // so fall back to a real navigation to the login page with a redirect back here —
+    // otherwise StoreUI.open() silently no-ops when the element is missing.
+    if (document.getElementById('authModal')) {
+      window.StoreUI.open('authModal');
+      return;
+    }
+    window.location.href = '/online_store/login?redirect=' + encodeURIComponent(url);
   },
 }));
 
