@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260">
-  <rect width="400" height="260" fill="#F3EDE0"/>
-  <text x="24" y="34" font-family="Georgia, serif" font-weight="700" font-size="20" fill="#2C4028">Terra &amp; Co.</text>
-  <circle cx="60" cy="120" r="42" fill="#D9C9A8" stroke="#2C4028"/>
-  <circle cx="152" cy="120" r="42" fill="#D9C9A8" stroke="#50735F"/>
-  <circle cx="244" cy="120" r="42" fill="#D9C9A8" stroke="#2C4028"/>
-  <circle cx="336" cy="120" r="42" fill="#D9C9A8" stroke="#50735F"/>
-  <rect x="24" y="196" width="120" height="28" rx="14" fill="#2C4028"/>
-</svg>

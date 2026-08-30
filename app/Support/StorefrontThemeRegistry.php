@@ -1,0 +1,123 @@
+<?php
+
+namespace App\Support;
+
+use Illuminate\Support\Facades\File;
+
+/**
+ * Registry for the 20 unified storefront themes living under
+ * resources/views/store/themes/{slug}/theme.json. Replaces the old
+ * StorefrontThemeCatalog (which scanned public/storefront-themes for the
+ * now-retired color-token-only themes).
+ */
+class StorefrontThemeRegistry
+{
+    protected static ?array $cache = null;
+
+    public static function all(): array
+    {
+        if (static::$cache !== null) {
+            return static::$cache;
+        }
+
+        $root = resource_path('views/store/themes');
+        $themes = [];
+
+        if (File::isDirectory($root)) {
+            foreach (File::directories($root) as $dir) {
+                $slug = basename($dir);
+                $jsonPath = $dir.'/theme.json';
+
+                if (! File::exists($jsonPath)) {
+                    continue;
+                }
+
+                $decoded = json_decode(File::get($jsonPath), true);
+                if (! is_array($decoded)) {
+                    continue;
+                }
+
+                $decoded['slug'] = $decoded['slug'] ?? $slug;
+                $themes[$decoded['slug']] = $decoded;
+            }
+        }
+
+        ksort($themes);
+
+        return static::$cache = array_values($themes);
+    }
+
+    public static function slugs(): array
+    {
+        return array_map(fn ($t) => $t['slug'], static::all());
+    }
+
+    public static function find(string $slug): ?array
+    {
+        foreach (static::all() as $theme) {
+            if ($theme['slug'] === $slug) {
+                return $theme;
+            }
+        }
+
+        return null;
+    }
+
+    public static function resolveTokens(?string $slug, $overrides = []): array
+    {
+        $theme = $slug ? static::find($slug) : null;
+        $tokens = $theme['tokens'] ?? [];
+
+        if (is_string($overrides)) {
+            $overrides = json_decode($overrides, true) ?: [];
+        }
+        if (! is_array($overrides)) {
+            $overrides = [];
+        }
+
+        $customizable = $theme['customizable'] ?? array_keys($tokens);
+
+        foreach ($overrides as $key => $value) {
+            if (in_array($key, $customizable, true) && is_string($value) && $value !== '') {
+                $tokens[$key] = $value;
+            }
+        }
+
+        return $tokens;
+    }
+
+    /**
+     * Whether the given theme declares (and ships a Blade file for) the given page.
+     * $page is one of: home, shop, product, cart.
+     */
+    public static function hasPage(?string $slug, string $page): bool
+    {
+        if (! $slug) {
+            return false;
+        }
+
+        $theme = static::find($slug);
+        if (! $theme) {
+            return false;
+        }
+
+        if (isset($theme['pages'][$page]) && ! $theme['pages'][$page]) {
+            return false;
+        }
+
+        return File::exists(resource_path("views/store/themes/{$slug}/{$page}.blade.php"));
+    }
+
+    /**
+     * Resolve the Blade view name for a theme's page, or null if the theme
+     * doesn't have that page (caller should fall back to the generic view).
+     */
+    public static function viewFor(?string $slug, string $page): ?string
+    {
+        if (! static::hasPage($slug, $page)) {
+            return null;
+        }
+
+        return "store.themes.{$slug}.{$page}";
+    }
+}

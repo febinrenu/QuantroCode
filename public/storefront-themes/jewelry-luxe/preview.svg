@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="400" height="260" viewBox="0 0 400 260">
-  <rect width="400" height="260" fill="#FFFFFF"/>
-  <text x="24" y="34" font-family="Georgia, serif" font-size="18" fill="#171310" letter-spacing="1">VOGUE &amp; LUXE</text>
-  <rect x="24" y="56" width="108" height="130" fill="#F4EDE2" stroke="#C9A15B"/>
-  <rect x="146" y="56" width="108" height="130" fill="#F4EDE2" stroke="#E9DCC6"/>
-  <rect x="268" y="56" width="108" height="130" fill="#F4EDE2" stroke="#E9DCC6"/>
-  <rect x="24" y="200" width="150" height="8" fill="#C9A15B"/>
-</svg>

@@ -63,9 +63,9 @@
   //      literal CSS custom-property names (minus the "--"), e.g.
   //      "color-accent-500", "font-heading" — the same contract theme.css
   //      files use, so tenant overrides layer on top with zero translation.
-  $activeThemeSlug = $s->theme ?? 'default';
-  $themePack       = \App\Support\StorefrontThemeCatalog::find($activeThemeSlug);
-  $themeTokens     = \App\Support\StorefrontThemeCatalog::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
+  $activeThemeSlug = $s->theme ?? 'monochra';
+  $themePack       = \App\Support\StorefrontThemeRegistry::find($activeThemeSlug);
+  $themeTokens     = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
   $themeTokenCss   = collect($themeTokens)
       ->map(function ($value, $key) {
           if (!preg_match('/^[a-z0-9-]+$/', $key)) return null;

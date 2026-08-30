@@ -33,31 +33,6 @@
                 </b-form-group>
               </div>
 
-              <!-- Storefront Theme -->
-              <div class="col-md-4">
-                <b-form-group :label="$t('Store_Theme')">
-                  <b-form-select v-model="form.theme">
-                    <b-form-select-option value="default">{{ $t('Default_Store_Theme') || 'Default Store Theme' }}</b-form-select-option>
-                    <b-form-select-option v-for="t in themes" :key="t.slug" :value="t.slug">{{ t.name }}</b-form-select-option>
-                    <b-form-select-option value="wholesale">{{ $t('Theme_Wholesale') || 'Wholesale / B2B' }}</b-form-select-option>
-                    <b-form-select-option value="grocery">{{ $t('Theme_Grocery') || 'Grocery / Supermarket' }}</b-form-select-option>
-                    <b-form-select-option value="electronics">{{ $t('Theme_Electronics') || 'Electronics / Gadgets' }}</b-form-select-option>
-                    <b-form-select-option value="auto_parts">{{ $t('Theme_AutoParts') || 'Auto Parts / Hardware' }}</b-form-select-option>
-                    <b-form-select-option value="digital_products">{{ $t('Theme_DigitalProducts') || 'Digital Products / Software' }}</b-form-select-option>
-                    <b-form-select-option value="bookstore">{{ $t('Theme_Bookstore') || 'Bookstore' }}</b-form-select-option>
-                    <b-form-select-option value="restaurant">{{ $t('Theme_Restaurant') || 'Restaurant / Delivery' }}</b-form-select-option>
-                    <b-form-select-option value="pharmacy">{{ $t('Theme_Pharmacy') || 'Pharmacy / Medical' }}</b-form-select-option>
-                    <b-form-select-option value="pet_supplies">{{ $t('Theme_PetSupplies') || 'Pet Supplies' }}</b-form-select-option>
-                    <b-form-select-option value="marketplace">{{ $t('Theme_Marketplace') || 'Marketplace / Mega-Store' }}</b-form-select-option>
-                    <b-form-select-option value="real_estate">{{ $t('Real_Estate_Theme') || 'Real Estate Theme' }}</b-form-select-option>
-                  </b-form-select>
-                  <small class="text-muted d-block mt-1">
-                    {{ $t('Store_Theme_Hint') }}
-                  </small>
-                </b-form-group>
-              </div>
-
-
              <b-col lg="4" md="4" sm="12">
               <b-form-group :label="$t('Currency')">
                 <v-select
@@ -228,15 +203,17 @@
                 :class="{ active: form.theme === t.slug }"
                 @click="selectTheme(t)"
               >
-                <div class="theme-gallery-thumb">
-                  <img :src="t.assets && t.assets.preview" :alt="t.name" loading="lazy">
+                <div class="theme-gallery-thumb" :style="themeThumbStyle(t)">
                   <span v-if="form.theme === t.slug" class="theme-gallery-check">
                     <lucide-icon name="check" style="width:14px;height:14px" />
                   </span>
+                  <div class="theme-gallery-swatches">
+                    <span v-for="(c, i) in (t.paletteSwatches || [])" :key="i" class="theme-gallery-swatch" :style="{ background: c }"></span>
+                  </div>
                 </div>
                 <div class="theme-gallery-meta">
                   <div class="theme-gallery-name">{{ t.name }}</div>
-                  <div class="theme-gallery-industry text-muted">{{ t.industry }}</div>
+                  <div class="theme-gallery-industry text-muted">{{ t.tagline || t.layout_persona }}</div>
                 </div>
               </div>
             </div>
@@ -507,7 +484,7 @@ export default {
         require_invite_code: false,
         require_admin_approval: false,
         store_name: '',
-        theme: 'default',
+        theme: 'monochra',
         primary_color: '#6c5ce7',
         secondary_color: '#00c2ff',
         font_family: 'Arial, sans-serif',
@@ -609,6 +586,11 @@ export default {
       if (this.form.theme === t.slug) return
       this.form.theme = t.slug
       this.form.theme_tokens = {}
+    },
+    themeThumbStyle(t){
+      const colors = (t.paletteSwatches && t.paletteSwatches.length) ? t.paletteSwatches : ['#3B82F6', '#22D3EE']
+      const stops = colors.map((c, i) => `${c} ${Math.round((i / colors.length) * 100)}%, ${c} ${Math.round(((i + 1) / colors.length) * 100)}%`).join(', ')
+      return { background: `linear-gradient(135deg, ${stops})` }
     },
     setToken(key, value){
       this.$set(this.form.theme_tokens, key, value)
@@ -978,6 +960,15 @@ export default {
 .theme-gallery-meta { padding: .5rem .6rem; }
 .theme-gallery-name { font-size: .8rem; font-weight: 600; line-height: 1.2; }
 .theme-gallery-industry { font-size: .7rem; }
+.theme-gallery-swatches {
+  position: absolute; bottom: 6px; left: 6px;
+  display: flex; gap: 4px;
+}
+.theme-gallery-swatch {
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.85);
+  box-shadow: 0 1px 2px rgba(0,0,0,.25);
+}
 
 /* Sticky Save Bar */
 .savebar{

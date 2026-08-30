@@ -1,0 +1,22 @@
+{
+  "slug": "elegance",
+  "name": "Elegance",
+  "tagline": "Refined, for every room and every look.",
+  "description": "Editorial, magazine-inspired general-merchandise storefront with a large serif display face, cream and charcoal tones, hairline section rules instead of boxed cards, and an asymmetric look-book product grid spanning electronics, fashion, home, beauty, grocery and sports.",
+  "category": "general-merchandise",
+  "version": "1.0.0",
+  "layout_persona": "Editorial Magazine Serif",
+  "layout": "editorial-lookbook",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400;1,500&family=Inter:wght@400;500;600&display=swap",
+  "fontPairing": { "heading": "Fraunces", "body": "Inter" },
+  "paletteSwatches": ["#FBF6EE", "#2A2622", "#9C7A4A", "#FBF6EE"],
+  "tokens": {
+    "color-bg-base": "#FBF6EE",
+    "color-accent-500": "#9C7A4A",
+    "color-accent-600": "#7C6039",
+    "font-heading": "'Fraunces', serif",
+    "font-body": "'Inter', sans-serif"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}

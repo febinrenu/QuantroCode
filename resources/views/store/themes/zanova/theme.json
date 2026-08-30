@@ -1,0 +1,22 @@
+{
+  "slug": "zanova",
+  "name": "Zanova",
+  "tagline": "Shop the future.",
+  "description": "Neon cyberpunk dark persona with glowing violet-to-cyan gradient headlines, glassy gradient CTAs, an infinite-scroll deals marquee, and glow-on-hover product cards. General merchandise across electronics, fashion, home, beauty, grocery and sports.",
+  "category": "general-merchandise",
+  "version": "1.0.0",
+  "layout_persona": "Neon Cyberpunk Dark",
+  "layout": "marquee-neon-grid",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap",
+  "fontPairing": { "heading": "Space Grotesk", "body": "Inter" },
+  "paletteSwatches": ["#8B5CF6", "#22D3EE", "#0B0B12", "#F472B6"],
+  "tokens": {
+    "color-bg-base": "#0B0B12",
+    "color-accent-500": "#8B5CF6",
+    "color-accent-600": "#7C3AED",
+    "font-heading": "'Space Grotesk', sans-serif",
+    "font-body": "'Inter', sans-serif"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}

@@ -1,0 +1,22 @@
+{
+  "slug": "novatech",
+  "name": "NovaTech",
+  "tagline": "Tomorrow's essentials, today.",
+  "description": "Dark navy/violet tech-forward persona with glassmorphism cards and a bento-grid category layout. General merchandise across electronics, fashion, home, beauty, grocery and sports, presented with a premium, futuristic feel.",
+  "category": "general-merchandise",
+  "version": "1.0.0",
+  "layout_persona": "Dark Glass Bento",
+  "layout": "bento-glassmorphism",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap",
+  "fontPairing": { "heading": "Inter", "body": "Inter" },
+  "paletteSwatches": ["#7C4DFF", "#141327", "#ffffff", "#0B0A1A"],
+  "tokens": {
+    "color-bg-base": "#141327",
+    "color-accent-500": "#7C4DFF",
+    "color-accent-600": "#6432E0",
+    "font-heading": "'Inter', sans-serif",
+    "font-body": "'Inter', sans-serif"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}

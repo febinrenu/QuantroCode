@@ -634,7 +634,7 @@
             {{ $t('pos.All_Categories') || 'All Products' }}
           </button>
           <button
-            v-for="c in (categories || []).slice(0, 8)"
+            v-for="c in categories || []"
             :key="'quick-cat-' + c.id"
             type="button"
             class="pos-shell-category-chip"
@@ -15110,8 +15110,12 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
-    flex-wrap: wrap !important;
-    padding: 0 !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin !important;
+    padding: 0 0 6px !important;
     margin: 0 !important;
     background: transparent !important;
     border: 0 !important;
@@ -15128,6 +15132,8 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 13px !important;
     font-weight: 800 !important;
     box-shadow: none !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
   }
 
   body .pos-codecanyon.pos-codecanyon .pos-shell-category-chip.pos-shell-category-chip.active {
@@ -15165,30 +15171,34 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     margin: 0 !important;
   }
 
+  /* NOTE: these use background-color (not the `background` shorthand) on
+     purpose — the shorthand resets background-image to `none`, which was
+     clobbering the real product photo Vue sets inline via :style="{ backgroundImage: ... }"
+     on this same element, so product images never rendered in the POS grid. */
   body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card > div[style*="margin: -10px"] > div {
     height: 86px !important;
     border-radius: 10px !important;
-    background: #e8eefb !important;
+    background-color: #e8eefb !important;
   }
 
   body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card:nth-child(4n+2) > div[style*="margin: -10px"] > div {
-    background: #e8eefb !important;
+    background-color: #e8eefb !important;
   }
 
   body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card:nth-child(4n+3) > div[style*="margin: -10px"] > div {
-    background: #ddf6f0 !important;
+    background-color: #ddf6f0 !important;
   }
 
   body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card:nth-child(4n+4) > div[style*="margin: -10px"] > div {
-    background: #e8eefb !important;
+    background-color: #e8eefb !important;
   }
 
   body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card:nth-child(n+5) > div[style*="margin: -10px"] > div {
-    background: #efe8fb !important;
+    background-color: #efe8fb !important;
   }
 
   body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card:nth-child(4n+1) > div[style*="margin: -10px"] > div {
-    background: #ddf6f0 !important;
+    background-color: #ddf6f0 !important;
   }
 
   body .pos-codecanyon.pos-codecanyon .pos-shell-product-card.pos-shell-product-card > div[style*="margin: -10px"] span {
@@ -15338,6 +15348,26 @@ $transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* Base (viewport-independent) category strip layout — the desktop-only
+   1025px+ override above restyles colors/sizing, but the scrollable-row
+   behavior itself must hold at every width, including below 1025px where
+   that override doesn't apply. */
+.pos-shell-category-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  padding-bottom: 6px;
+}
+.pos-shell-category-chip {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* ===== Interactive polish: every clickable POS control gets hover + press feedback ===== */

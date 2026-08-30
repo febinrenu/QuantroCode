@@ -1,0 +1,22 @@
+{
+  "slug": "brutalex",
+  "name": "Brutalex",
+  "tagline": "No fluff. Just the goods.",
+  "description": "Raw brutalist industrial storefront persona built on black, white and a single alarm-red accent, thick borders and offset hard shadows. Sells general merchandise — electronics, fashion, home, beauty, grocery and sports — presented with blunt, no-nonsense confidence.",
+  "category": "general-merchandise",
+  "version": "1.0.0",
+  "layout_persona": "Raw Brutalist Industrial",
+  "layout": "exposed-grid-blockwork",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;600;700&display=swap",
+  "fontPairing": { "heading": "Archivo Black", "body": "JetBrains Mono" },
+  "paletteSwatches": ["#0A0A0A", "#FFFFFF", "#E5303A", "#F2F2F2"],
+  "tokens": {
+    "color-bg-base": "#FFFFFF",
+    "color-accent-500": "#E5303A",
+    "color-accent-600": "#B7212A",
+    "font-heading": "'Archivo Black', sans-serif",
+    "font-body": "'JetBrains Mono', monospace"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}

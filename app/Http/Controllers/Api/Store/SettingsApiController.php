@@ -8,7 +8,7 @@ use App\Models\Currency;
 use App\Models\Setting;
 use App\Models\StoreSetting;
 use App\Models\Warehouse;
-use App\Support\StorefrontThemeCatalog;
+use App\Support\StorefrontThemeRegistry;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -34,6 +34,7 @@ class SettingsApiController extends Controller
             $s = StoreSetting::create([
                 'enabled' => 1,
                 'store_name' => 'StoreX',
+                'theme' => 'monochra',
                 'primary_color' => '#6c5ce7',
                 'secondary_color' => '#00c2ff',
                 'font_family' => 'Arial, sans-serif',
@@ -91,7 +92,7 @@ class SettingsApiController extends Controller
             'warehouses' => $warehouses,
             'currencies' => $currencies,
             'pending_customers_count' => $pendingCustomersCount,
-            'themes' => StorefrontThemeCatalog::all(),
+            'themes' => StorefrontThemeRegistry::all(),
         ]);
     }
 
@@ -101,6 +102,16 @@ class SettingsApiController extends Controller
     public function update(Request $request)
     {
         $this->authorizeForUser($request->user('api'), 'view', StoreSetting::class);
+
+        // Grandfather in the store's current theme value (e.g. a legacy 'default'
+        // or 'real_estate' store) so saving unrelated settings doesn't fail
+        // validation just because those slugs are no longer offered as fresh
+        // picks in the theme gallery.
+        $currentTheme = StoreSetting::first()?->theme;
+        $allowedThemeSlugs = array_values(array_unique(array_filter(array_merge(
+            StorefrontThemeRegistry::slugs(),
+            [$currentTheme]
+        ))));
 
         // --- Normalize boolean to 0/1 so in:0,1 passes ---
         if ($request->has('enabled')) {
@@ -148,10 +159,7 @@ class SettingsApiController extends Controller
             'show_stock' => 'nullable|in:0,1',
 
             'store_name' => 'nullable|string|max:190',
-            'theme' => ['nullable', 'string', Rule::in(array_merge(
-                ['default', 'real_estate', 'wholesale', 'grocery', 'electronics', 'auto_parts', 'autoparts', 'digital_products', 'digital', 'bookstore', 'restaurant', 'pharmacy', 'pet_supplies', 'pet', 'marketplace'],
-                StorefrontThemeCatalog::slugs()
-            ))],
+            'theme' => ['nullable', 'string', Rule::in($allowedThemeSlugs)],
             'theme_tokens' => 'nullable',
             'primary_color' => 'nullable|string|max:20',
             'secondary_color' => 'nullable|string|max:20',
@@ -211,8 +219,8 @@ class SettingsApiController extends Controller
                 $tokens = [];
             }
 
-            $themeSlug = $data['theme'] ?? $s->theme ?? 'default';
-            $theme = StorefrontThemeCatalog::find($themeSlug);
+            $themeSlug = $data['theme'] ?? $s->theme ?? 'monochra';
+            $theme = StorefrontThemeRegistry::find($themeSlug);
             $customizable = $theme['customizable'] ?? [];
 
             $clean = [];

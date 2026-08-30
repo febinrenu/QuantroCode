@@ -7,6 +7,9 @@ use App\Models\Collection;
 use App\Models\Product;
 use App\Models\StoreBanner;
 use App\Models\StoreSetting;
+use App\Support\StorefrontThemeRegistry;
+use App\Support\Storefront\StorefrontPresenter;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use DB;
 use Illuminate\Http\Request;
@@ -20,7 +23,7 @@ class StoreFrontController extends Controller
     {
         $s = StoreSetting::firstOrFail();
 
-        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'default')));
+        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'monochra')));
 
         // Theme switch: when the Real Estate theme is active, the storefront
         // homepage is served by the dedicated real estate controller. This keeps
@@ -69,31 +72,7 @@ class StoreFrontController extends Controller
         }
 
         // ===== Shared price SQL (mirrors shop()) =====
-        $minVariantSub = DB::table('product_variants')
-            ->select('product_id', DB::raw('MIN(price) AS min_variant_price'))
-            ->groupBy('product_id');
-
-        // Base: if a product has variants, use MIN(variant.price); else use products.price
-        $baseExpr = 'COALESCE(pvmin.min_variant_price, products.price)';
-
-        // discount_method: '1' => percent, '2' => fixed
-        $discValExpr = 'IFNULL(products.discount, 0)';
-        $afterDiscountExpr = "GREATEST(0,
-            CASE
-                WHEN products.discount_method = '1' THEN $baseExpr - ($baseExpr * ($discValExpr/100))
-                WHEN products.discount_method = '2' THEN $baseExpr - LEAST($discValExpr, $baseExpr)
-                ELSE $baseExpr
-            END
-        )";
-
-        // tax_method: '2' => Inclusive (leave as-is), otherwise treat as Exclusive and add tax
-        $taxRateExpr = 'COALESCE(products.TaxNet, 0)';
-        $finalExpr = "ROUND(
-            CASE
-                WHEN products.tax_method = '2' THEN $afterDiscountExpr
-                ELSE $afterDiscountExpr * (1 + ($taxRateExpr/100))
-            END, 2
-        )";
+        [$minVariantSub, $baseExpr, $afterDiscountExpr, $finalExpr] = $this->priceSqlExpressions();
 
         // 3) Build blocks
         $blocks = [];
@@ -241,27 +220,9 @@ class StoreFrontController extends Controller
             'showCategoryBar' => true,
         ];
 
-        $themeMap = [
-            'wholesale'        => 'store.themes.wholesale.home',
-            'grocery'          => 'store.themes.grocery.home',
-            'electronics'      => 'store.themes.electronics.home',
-            'auto_parts'       => 'store.themes.auto_parts.home',
-            'autoparts'        => 'store.themes.auto_parts.home',
-            'digital_products' => 'store.themes.digital_products.home',
-            'digital'          => 'store.themes.digital_products.home',
-            'bookstore'        => 'store.themes.bookstore.home',
-            'restaurant'       => 'store.themes.restaurant.home',
-            'pharmacy'         => 'store.themes.pharmacy.home',
-            'pet_supplies'     => 'store.themes.pet_supplies.home',
-            'pet'              => 'store.themes.pet_supplies.home',
-            'marketplace'      => 'store.themes.marketplace.home',
-        ];
+        $view = StorefrontThemeRegistry::viewFor($activeTheme, 'home') ?? 'store.index';
 
-        if (isset($themeMap[$activeTheme]) && view()->exists($themeMap[$activeTheme])) {
-            return view($themeMap[$activeTheme], $viewData);
-        }
-
-        return view('store.index', $viewData);
+        return view($view, $viewData);
     }
 
     /**
@@ -282,32 +243,8 @@ class StoreFrontController extends Controller
         $sort = $request->get('sort', 'latest');   // latest|price_asc|price_desc
         $coll = $request->get('collection');       // id or slug
 
-        // 1) Subquery: MIN(variant.price) per product
-        $minVariantSub = DB::table('product_variants')
-            ->select('product_id', DB::raw('MIN(price) AS min_variant_price'))
-            ->groupBy('product_id');
-
-        // 2) SQL price pipeline (MySQL-compatible)
-        $baseExpr = 'COALESCE(pvmin.min_variant_price, products.price)';
-
-        // discount_method: '1'=percent, '2'=fixed (varchar)
-        $discValExpr = 'IFNULL(products.discount, 0)';
-        $afterDiscountExpr = "GREATEST(0,
-            CASE
-                WHEN products.discount_method = '1' THEN $baseExpr - ($baseExpr * ($discValExpr/100))
-                WHEN products.discount_method = '2' THEN $baseExpr - LEAST($discValExpr, $baseExpr)
-                ELSE $baseExpr
-            END
-        )";
-
-        // tax_method: '1'=Exclusive, '2'=Inclusive (varchar);  TaxNet
-        $taxRateExpr = 'COALESCE(products.TaxNet, 0)';
-        $finalExpr = "ROUND(
-            CASE
-                WHEN products.tax_method = '2' THEN $afterDiscountExpr
-                ELSE $afterDiscountExpr * (1 + ($taxRateExpr/100))
-            END, 2
-        )";
+        // 1-2) Shared price SQL pipeline (mirrors index())
+        [$minVariantSub, $baseExpr, $afterDiscountExpr, $finalExpr] = $this->priceSqlExpressions();
 
         $productsQuery = Product::query()
             ->where('deleted_at', '=', null)
@@ -411,7 +348,10 @@ class StoreFrontController extends Controller
         }
         $this->attachStockToProducts($products, $s->default_warehouse_id);
 
-        return view('store.shop', [
+        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'monochra')));
+        $view = StorefrontThemeRegistry::viewFor($activeTheme, 'shop') ?? 'store.shop';
+
+        return view($view, [
             's' => $s,
             'products' => $products,
             'categories' => $categories,
@@ -425,13 +365,135 @@ class StoreFrontController extends Controller
             'showCategoryBar' => true,
         ]);
     }
- 
+
+    /**
+     * Product detail page — themed per the active store theme.
+     */
+    public function product(Request $request, string $slugOrId)
+    {
+        $s = StoreSetting::firstOrFail();
+
+        $query = Product::query()
+            ->where('is_active', 1)
+            ->where('hide_from_online_store', 0)
+            ->with(['variants', 'images' => fn ($q) => $q->orderBy('sort_order')->orderBy('id'), 'category', 'brand']);
+
+        $product = (string) (int) $slugOrId === $slugOrId
+            ? $query->where('id', (int) $slugOrId)->first()
+            : $query->where('slug', $slugOrId)->first();
+
+        if (! $product) {
+            abort(404);
+        }
+
+        $currency = $s->currency_code ?? '$';
+        $hidePrices = ! Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+
+        $product->base_price = $product->variants->isNotEmpty()
+            ? (float) $product->variants->min('price')
+            : (float) $product->price;
+        $product->display_price = $product->minDisplayPrice();
+        foreach ($product->variants as $v) {
+            $v->display_price = $product->computeFinalPrice(null, (float) ($v->price ?? 0))['final'];
+        }
+        $this->attachStockToProducts(collect([$product]), $s->default_warehouse_id);
+
+        $related = Product::query()
+            ->where('is_active', 1)
+            ->where('hide_from_online_store', 0)
+            ->where('id', '!=', $product->id)
+            ->when($product->category_id, fn ($q) => $q->where('category_id', $product->category_id))
+            ->with(['variants:id,product_id,name,price,image', 'images:id,product_id,image_path,is_main,sort_order'])
+            ->latest()
+            ->take(8)
+            ->get();
+
+        foreach ($related as $rp) {
+            $rp->base_price = $rp->variants->isNotEmpty()
+                ? (float) $rp->variants->min('price')
+                : (float) $rp->price;
+            $rp->display_price = $rp->minDisplayPrice();
+        }
+        $this->attachStockToProducts($related, $s->default_warehouse_id);
+
+        $productVm = StorefrontPresenter::product($product, $currency, $hidePrices);
+        $relatedVm = $related->map(fn ($rp) => StorefrontPresenter::product($rp, $currency, $hidePrices))->values()->all();
+
+        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'monochra')));
+        $view = StorefrontThemeRegistry::viewFor($activeTheme, 'product') ?? 'store.product';
+
+        return view($view, [
+            's' => $s,
+            'p' => $product,
+            'product' => $productVm,
+            'related' => $relatedVm,
+            'currency' => $currency,
+            'categories' => Category::with('subcategories')->orderBy('name')->get(),
+            'showCategoryBar' => false,
+        ]);
+    }
+
+    /**
+     * Full-page cart — themed per the active store theme. Reuses the same
+     * Alpine miniCart() component (client-side cart state) as the drawer,
+     * just rendered full-page instead of inside a slide-out.
+     */
+    public function cart(Request $request)
+    {
+        $s = StoreSetting::firstOrFail();
+
+        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'monochra')));
+        $view = StorefrontThemeRegistry::viewFor($activeTheme, 'cart') ?? 'store.cart';
+
+        return view($view, [
+            's' => $s,
+            'categories' => Category::with('subcategories')->orderBy('name')->get(),
+            'showCategoryBar' => false,
+        ]);
+    }
 
     public function contact()
     {
         $s = StoreSetting::first();
 
         return view('store.contact', compact('s'));
+    }
+
+    /**
+     * Shared price-calculation SQL fragments used by both index() and shop()
+     * (previously duplicated verbatim in each method).
+     *
+     * @return array{0: \Illuminate\Database\Query\Builder, 1: string, 2: string, 3: string}
+     */
+    private function priceSqlExpressions(): array
+    {
+        $minVariantSub = DB::table('product_variants')
+            ->select('product_id', DB::raw('MIN(price) AS min_variant_price'))
+            ->groupBy('product_id');
+
+        // Base: if a product has variants, use MIN(variant.price); else use products.price
+        $baseExpr = 'COALESCE(pvmin.min_variant_price, products.price)';
+
+        // discount_method: '1' => percent, '2' => fixed
+        $discValExpr = 'IFNULL(products.discount, 0)';
+        $afterDiscountExpr = "GREATEST(0,
+            CASE
+                WHEN products.discount_method = '1' THEN $baseExpr - ($baseExpr * ($discValExpr/100))
+                WHEN products.discount_method = '2' THEN $baseExpr - LEAST($discValExpr, $baseExpr)
+                ELSE $baseExpr
+            END
+        )";
+
+        // tax_method: '2' => Inclusive (leave as-is), otherwise treat as Exclusive and add tax
+        $taxRateExpr = 'COALESCE(products.TaxNet, 0)';
+        $finalExpr = "ROUND(
+            CASE
+                WHEN products.tax_method = '2' THEN $afterDiscountExpr
+                ELSE $afterDiscountExpr * (1 + ($taxRateExpr/100))
+            END, 2
+        )";
+
+        return [$minVariantSub, $baseExpr, $afterDiscountExpr, $finalExpr];
     }
 
     /**
