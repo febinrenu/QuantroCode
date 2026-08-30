@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
 <head>
 @include('store.themes.retropop._shell', ['pageTitle' => ($s->seo_meta_title ?? $s->store_name ?? 'Retropop') . ' — Shop Like It\'s The Best Decade Ever'])
 </head>

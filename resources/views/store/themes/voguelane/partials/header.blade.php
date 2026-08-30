@@ -72,6 +72,9 @@
       </div>
 
       <div class="ms-2 flex items-center gap-1">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         @if($vlClient)
           <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-10 px-3 items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-white/70 hover:text-brand-magenta">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -110,7 +113,9 @@
       <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
         <input type="text" name="q" class="w-full h-10 pl-3 pr-3 bg-white/10 border border-white/20 text-sm text-white placeholder-white/40" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}">
       </form>
-      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-bold uppercase tracking-wide">{{ __('messages.Home') }}</a>
+      <div class="text-xs font-bold uppercase tracking-widest text-white/40 mt-1 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+      @include('store.partials.language-switcher', ['variant' => 'mobile'])
+      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-bold uppercase tracking-wide mt-2">{{ __('messages.Home') }}</a>
       <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-bold uppercase tracking-wide">{{ __('messages.Shop') }}</a>
       @foreach($vlCategories as $cat)
         <details class="border-t border-white/10 py-1">

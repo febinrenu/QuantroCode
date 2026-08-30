@@ -80,6 +80,9 @@
         @else
           <a href="{{ url('/online_store/login') }}" class="hidden md:inline-flex h-10 px-4 items-center border border-vel-gold/40 text-[13px] font-semibold text-vel-gold hover:bg-vel-gold hover:text-vel-black transition-colors">{{ __('messages.SignIn') }}</a>
         @endif
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         <a href="{{ route('store.cart') }}" class="relative h-10 px-4 inline-flex items-center gap-1.5 bg-vel-gold text-vel-black text-[13px] font-bold hover:bg-vel-goldSoft transition-colors">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
           <span class="hidden sm:inline">{{ __('messages.Cart') }}</span>
@@ -110,6 +113,8 @@
       <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
         <input type="text" name="q" class="w-full h-10 pl-3 pr-3 bg-vel-black border border-vel-line text-sm text-vel-ink" placeholder="Search the collection…">
       </form>
+      <div class="text-xs font-bold uppercase tracking-widest text-vel-mute mt-4 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+      @include('store.partials.language-switcher', ['variant' => 'mobile'])
       <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold text-vel-ink">{{ __('messages.Home') }}</a>
       <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-semibold text-vel-ink">{{ __('messages.Shop') }}</a>
       @foreach($vlCategories as $cat)

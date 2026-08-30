@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
 <head>
 @include('store.themes.brutalex._shell', ['pageTitle' => 'SHOP — ' . ($s->store_name ?? 'BRUTALEX')])
 </head>

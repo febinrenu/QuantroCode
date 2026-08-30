@@ -274,18 +274,8 @@
           </button>
 
           {{-- Language --}}
-          <div class="relative hidden md:block" x-data="dropdown()" @click.outside="close">
-            <button type="button" class="btn btn-ghost h-10 px-3 text-sm font-medium" @click="toggle">
-              <x-store.icon name="globe" class="w-4 h-4 me-1" />{{ strtoupper(app()->getLocale()) }}
-              <x-store.icon name="chevron-down" class="w-3 h-3 ms-1" />
-            </button>
-            <div x-show="open" x-cloak x-transition
-                 class="absolute end-0 mt-1 w-36 bg-bg-elevated border border-line-subtle rounded-md shadow-lg py-1 z-50">
-              <a class="block px-3 py-2 text-sm text-fg-primary hover:bg-bg-muted" href="{{ route('lang.switch', 'en') }}">English</a>
-              <a class="block px-3 py-2 text-sm text-fg-primary hover:bg-bg-muted" href="{{ route('lang.switch', 'fr') }}">Français</a>
-              <a class="block px-3 py-2 text-sm text-fg-primary hover:bg-bg-muted" href="{{ route('lang.switch', 'ar') }}">العربية</a>
-              <a class="block px-3 py-2 text-sm text-fg-primary hover:bg-bg-muted" href="{{ route('lang.switch', 'es') }}">Español</a>
-            </div>
+          <div class="hidden md:block">
+            @include('store.partials.language-switcher')
           </div>
 
           {{-- Account --}}

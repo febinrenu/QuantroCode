@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
 <head>
 @include('store.themes.shopiq._shell', ['pageTitle' => ($s->seo_meta_title ?? $s->store_name ?? 'ShopIQ') . ' — Shop Smarter'])
 </head>

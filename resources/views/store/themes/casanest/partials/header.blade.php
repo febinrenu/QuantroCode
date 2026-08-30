@@ -68,6 +68,9 @@
           </form>
         </div>
 
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         @if($cnClient)
           <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-10 w-10 items-center justify-center text-cn-emerald hover:text-cn-gold" title="{{ $cnClient->username ?: $cnClient->email }}">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -104,7 +107,9 @@
       <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
         <input type="text" name="q" class="w-full h-10 pl-3 pr-3 border border-cn-gold/40 bg-white text-sm" placeholder="Search the collection…">
       </form>
-      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold text-cn-emerald">Home</a>
+      <div class="text-[11px] eyebrow text-cn-mute mt-1 mb-2 text-center">Language</div>
+      @include('store.partials.language-switcher', ['variant' => 'mobile'])
+      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold text-cn-emerald mt-2">Home</a>
       <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-semibold text-cn-emerald">Shop</a>
       @foreach($cnCategories as $cat)
         <details class="border-t border-cn-gold/20 py-1">

@@ -80,6 +80,9 @@
       </div>
 
       <div class="ms-auto flex items-center gap-1.5">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         @if($rpClient)
           <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-11 px-4 items-center gap-1.5 text-sm font-semibold text-pop-ink/70 hover:text-pop-orange rounded-full hover:bg-pop-mustard/20">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
@@ -120,6 +123,8 @@
       </form>
       <a href="{{ route('store.index') }}" class="block py-2 text-sm font-heading font-bold text-pop-ink">{{ __('messages.Home') }}</a>
       <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-heading font-bold text-pop-ink">{{ __('messages.Shop') }}</a>
+      <div class="text-xs font-bold uppercase tracking-widest text-pop-ink/40 mt-4 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+      @include('store.partials.language-switcher', ['variant' => 'mobile'])
       @foreach($rpCategories as $cat)
         <details class="border-t border-pop-ink/10 py-1">
           <summary class="flex items-center justify-between py-2 text-sm font-semibold text-pop-ink/80">
