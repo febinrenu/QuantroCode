@@ -14,7 +14,9 @@ use Illuminate\Support\Str;
  * grocery, fitness, books, restaurant, marketplace, pets, wholesale,
  * auto parts, digital products, pharmacy) — with real photos fetched
  * live from the Unsplash Search API, so every theme's product grid has
- * something real and on-brand to show instead of "no-image.png".
+ * something real and on-brand to show instead of "no-image.png". Also
+ * backfills the pre-existing generic DemoDataSeeder's 4 brands and 8
+ * products, which hardcode that same placeholder filename.
  *
  * Run per-tenant, e.g.:
  *   php artisan tenants:run "demo:industry-catalog" --tenants=<tenant-id>
@@ -145,7 +147,79 @@ class SeedIndustryCatalog extends Command
 
         $this->info('Industry catalog seeded.');
 
+        $this->backfillLegacyDemoImages($accessKey, $dir);
+
         return self::SUCCESS;
+    }
+
+    /**
+     * The pre-existing generic DemoDataSeeder (unrelated to this command)
+     * seeds 4 brands and 8 products with a hardcoded 'no-image.png'
+     * placeholder filename -- never a real photo. Backfill those with real
+     * Unsplash photos too, the same way, so nothing in the demo storefront
+     * is left showing a broken/placeholder image.
+     */
+    private function backfillLegacyDemoImages(string $accessKey, string $dir): void
+    {
+        $now = Carbon::now();
+
+        $brands = [
+            'AquaPure' => 'water bottle brand',
+            'CrunchCo' => 'snack food brand',
+            'TechNova' => 'technology electronics brand',
+            'WriteWell' => 'pen notebook stationery brand',
+        ];
+
+        $products = [
+            'PR-DEMO-001' => ['Mineral Water 500ml', 'mineral water bottle'],
+            'PR-DEMO-002' => ['Cola Can 330ml', 'soda can drink'],
+            'PR-DEMO-003' => ['Potato Chips 100g', 'potato chips snack'],
+            'PR-DEMO-004' => ['Chocolate Bar 50g', 'chocolate bar'],
+            'PR-DEMO-005' => ['USB-C Cable 1m', 'usb c cable'],
+            'PR-DEMO-006' => ['Wireless Mouse', 'wireless computer mouse'],
+            'PR-DEMO-007' => ['Notebook A5', 'notebook paper'],
+            'PR-DEMO-008' => ['Ballpoint Pen', 'ballpoint pen'],
+        ];
+
+        $didWork = false;
+
+        foreach ($brands as $name => $query) {
+            $row = DB::table('brands')->where('name', $name)->first();
+            if (! $row || $row->image !== 'no-image.png') {
+                continue;
+            }
+
+            $didWork = true;
+            $filename = $this->downloadUnsplashPhoto($accessKey, $query, $dir, Str::slug($name));
+            if (! $filename) {
+                $this->warn("  \xE2\x9C\x97 {$name} (brand) — could not fetch a photo for \"{$query}\", skipped.");
+                continue;
+            }
+
+            DB::table('brands')->where('id', $row->id)->update(['image' => $filename, 'updated_at' => $now]);
+            $this->line("  \xE2\x9C\x93 {$name} (brand)");
+        }
+
+        foreach ($products as $code => [$name, $query]) {
+            $row = DB::table('products')->where('code', $code)->first();
+            if (! $row || $row->image !== 'no-image.png') {
+                continue;
+            }
+
+            $didWork = true;
+            $filename = $this->downloadUnsplashPhoto($accessKey, $query, $dir, Str::slug($name));
+            if (! $filename) {
+                $this->warn("  \xE2\x9C\x97 {$name} — could not fetch a photo for \"{$query}\", skipped.");
+                continue;
+            }
+
+            DB::table('products')->where('id', $row->id)->update(['image' => $filename, 'updated_at' => $now]);
+            $this->line("  \xE2\x9C\x93 {$name}");
+        }
+
+        if ($didWork) {
+            $this->info('Legacy demo images backfilled.');
+        }
     }
 
     /**
