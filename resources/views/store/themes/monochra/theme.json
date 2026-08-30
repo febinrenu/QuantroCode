@@ -1,22 +1,48 @@
 {
-  "slug": "monochra",
-  "name": "Monochra",
-  "tagline": "Nothing but the essentials.",
-  "description": "Ultra-bold monochrome general-merchandise storefront — pure black and white with a single red accent reserved strictly for price, CTA, and sale badges. Grayscale-filtered photography, hard-edged zero-radius cards, and a stark high-contrast grid across electronics, fashion, home, beauty, grocery and sports.",
-  "category": "general-merchandise",
-  "version": "1.0.0",
-  "layout_persona": "Monochrome High-Contrast",
-  "layout": "stark-grid-mono",
-  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&display=swap",
-  "fontPairing": { "heading": "Archivo Black", "body": "Inter" },
-  "paletteSwatches": ["#0A0A0A", "#FFFFFF", "#E1231A", "#0A0A0A"],
-  "tokens": {
-    "color-bg-base": "#FFFFFF",
-    "color-accent-500": "#E1231A",
-    "color-accent-600": "#B81913",
-    "font-heading": "'Archivo Black', sans-serif",
-    "font-body": "'Inter', sans-serif"
-  },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
-  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+    "slug": "monochra",
+    "name": "Monochra",
+    "tagline": "Nothing but the essentials.",
+    "description": "Ultra-bold monochrome general-merchandise storefront — pure black and white with a single red accent reserved strictly for price, CTA, and sale badges. Grayscale-filtered photography, hard-edged zero-radius cards, and a stark high-contrast grid across electronics, fashion, home, beauty, grocery and sports.",
+    "category": "general-merchandise",
+    "version": "1.0.0",
+    "layout_persona": "Monochrome High-Contrast",
+    "layout": "stark-grid-mono",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&display=swap",
+    "fontPairing": {
+        "heading": "Archivo Black",
+        "body": "Inter"
+    },
+    "paletteSwatches": [
+        "#E1231A",
+        "#B81913",
+        "#0A0A0A",
+        "#6B6B6B"
+    ],
+    "tokens": {
+        "color-bg-base": "#FFFFFF",
+        "color-accent-500": "#E1231A",
+        "color-accent-600": "#B81913",
+        "color-accent-700": "#0A0A0A",
+        "color-accent-800": "#6B6B6B",
+        "font-heading": "'Archivo Black', sans-serif",
+        "font-body": "'Inter', sans-serif",
+        "font-size-heading": "36px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
 }

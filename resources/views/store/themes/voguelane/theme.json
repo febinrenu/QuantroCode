@@ -1,12 +1,48 @@
 {
-  "slug": "voguelane", "name": "Voguelane", "tagline": "Style has no single lane.",
-  "description": "Bold, asymmetric high-fashion-adjacent general-merchandise storefront in black, white and hot magenta, with a diagonal split-screen hero, oversized condensed display type, and asymmetric section layouts across electronics, fashion, home, beauty, grocery and sports.",
-  "category": "general-merchandise", "version": "1.0.0",
-  "layout_persona": "Bold Asymmetric Editorial", "layout": "split-diagonal-asymmetric",
-  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap",
-  "fontPairing": { "heading": "Bebas Neue", "body": "Inter" },
-  "paletteSwatches": ["#111111", "#FFFFFF", "#E4006F", "#111111"],
-  "tokens": { "color-bg-base": "#FFFFFF", "color-accent-500": "#E4006F", "color-accent-600": "#B8005A", "font-heading": "'Bebas Neue', sans-serif", "font-body": "'Inter', sans-serif" },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
-  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+    "slug": "voguelane",
+    "name": "Voguelane",
+    "tagline": "Style has no single lane.",
+    "description": "Bold, asymmetric high-fashion-adjacent general-merchandise storefront in black, white and hot magenta, with a diagonal split-screen hero, oversized condensed display type, and asymmetric section layouts across electronics, fashion, home, beauty, grocery and sports.",
+    "category": "general-merchandise",
+    "version": "1.0.0",
+    "layout_persona": "Bold Asymmetric Editorial",
+    "layout": "split-diagonal-asymmetric",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap",
+    "fontPairing": {
+        "heading": "Bebas Neue",
+        "body": "Inter"
+    },
+    "paletteSwatches": [
+        "#E4006F",
+        "#B8005A",
+        "#111111",
+        "#6B6B6B"
+    ],
+    "tokens": {
+        "color-bg-base": "#FFFFFF",
+        "color-accent-500": "#E4006F",
+        "color-accent-600": "#B8005A",
+        "color-accent-700": "#111111",
+        "color-accent-800": "#6B6B6B",
+        "font-heading": "'Bebas Neue', sans-serif",
+        "font-body": "'Inter', sans-serif",
+        "font-size-heading": "38px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
 }

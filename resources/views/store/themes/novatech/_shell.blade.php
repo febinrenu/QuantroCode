@@ -1,17 +1,27 @@
 {{-- NovaTech theme shell — Tailwind CDN + config + fonts, included once per page --}}
 @php
-  $ntTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'NovaTech');
-  $ntHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $themeTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'NovaTech');
+  $themeHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $activeThemeSlug = 'novatech';
+  $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
+  $accent500 = $themeTokens['color-accent-500'] ?? '{{ $accent500 }}';
+  $accent600 = $themeTokens['color-accent-600'] ?? '{{ $accent600 }}';
+  $accent700 = $themeTokens['color-accent-700'] ?? '{{ $accent700 }}';
+  $accent800 = $themeTokens['color-accent-800'] ?? '{{ $accent800 }}';
+  $fontHeading = $themeTokens['font-heading'] ?? "'Inter', sans-serif";
+  $fontBody = $themeTokens['font-body'] ?? "'Inter', sans-serif";
+  $fontSizeHeading = $themeTokens['font-size-heading'] ?? '32px';
+  $fontSizeBody = $themeTokens['font-size-body'] ?? '15px';
 @endphp
 <meta charset="utf-8" />
-<title>{{ $ntTitle }}</title>
+<title>{{ $themeTitle }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="description" content="{{ $s->seo_meta_description ?? 'Tomorrow\'s essentials, today — electronics, fashion, home, beauty, grocery and sports in one premium store.' }}" />
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="currency" content="{{ $s->currency_code ?? '$' }}">
 <script>window.__LOGGED_IN__ = @json(Auth::guard('store')->check());</script>
 <script>window.__ALLOW_OVERSELLING__ = @json($s->allow_overselling ?? true);</script>
-<script>window.__HIDE_PRICES__ = @json($ntHidePrices);</script>
+<script>window.__HIDE_PRICES__ = @json($themeHidePrices);</script>
 <script>window.__SHOW_STOCK__ = @json($s->show_stock ?? true);</script>
 <script>
   window.__MSG_ONLY_X_STOCK__ = @json(__('messages.Only_x_available_in_stock'));
@@ -34,11 +44,11 @@
             bg: '#141327',
             bgDeep: '#0B0A1A',
             surface: '#1B1934',
-            violet: '#7C4DFF',
-            violetDark: '#6432E0',
+            violet: '{{ $accent500 }}',
+            violetDark: '{{ $accent600 }}',
             violetLight: '#B69CFF',
-            cyan: '#5EEAD4',
-            amber: '#FCC419',
+            cyan: '{{ $accent700 }}',
+            amber: '{{ $accent800 }}',
             ink: '#0B0A1A',
           }
         },
@@ -59,6 +69,25 @@
 </script>
 
 <style>
+  :root {
+    --color-accent-500: {{ $accent500 }};
+    --color-accent-600: {{ $accent600 }};
+    --color-accent-700: {{ $accent700 }};
+    --color-accent-800: {{ $accent800 }};
+    --font-heading: {!! $fontHeading !!};
+    --font-body: {!! $fontBody !!};
+    --font-size-heading: {{ $fontSizeHeading }};
+    --font-size-body: {{ $fontSizeBody }};
+  }
+  body {
+    font-family: {!! $fontBody !!} !important;
+    font-size: {{ $fontSizeBody }} !important;
+  }
+  h1, .hero-title, [class*="-hero"] h1, .font-display, .font-head, .font-serif {
+    font-size: {{ $fontSizeHeading }};
+    font-family: {!! $fontHeading !!};
+  }
+
   * { scrollbar-width: thin; scrollbar-color: #7C4DFF33 transparent; }
   ::-webkit-scrollbar { height: 8px; width: 8px; }
   ::-webkit-scrollbar-thumb { background: rgba(124,77,255,0.35); border-radius: 9999px; }
