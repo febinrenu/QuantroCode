@@ -13,7 +13,7 @@
 </div>
 
 <div class="container py-6 grid lg:grid-cols-2 gap-10"
-     x-data="{ variantIdx: 0, variants: @json($product['variants']), gallery: @json($gallery), activeImg: 0 }">
+     x-data='{ variantIdx: 0, variants: @json($product["variants"], JSON_HEX_APOS | JSON_HEX_QUOT), gallery: @json($gallery, JSON_HEX_APOS | JSON_HEX_QUOT), activeImg: 0 }'>
 
   <div>
     <div class="aspect-square rounded-lg overflow-hidden bg-bg-elevated border border-line-subtle flex items-center justify-center">

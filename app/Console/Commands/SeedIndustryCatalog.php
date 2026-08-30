@@ -14,7 +14,9 @@ use Illuminate\Support\Str;
  * grocery, fitness, books, restaurant, marketplace, pets, wholesale,
  * auto parts, digital products, pharmacy) — with real photos fetched
  * live from the Unsplash Search API, so every theme's product grid has
- * something real and on-brand to show instead of "no-image.png".
+ * something real and on-brand to show instead of "no-image.png". Also
+ * backfills the pre-existing generic DemoDataSeeder's 4 brands and 8
+ * products, which hardcode that same placeholder filename.
  *
  * Run per-tenant, e.g.:
  *   php artisan tenants:run "demo:industry-catalog" --tenants=<tenant-id>
@@ -82,12 +84,19 @@ class SeedIndustryCatalog extends Command
 
             $this->info($industry['category']);
 
-            foreach ($industry['products'] as [$name, $query, $price]) {
+            foreach ($industry['products'] as [$name, $query, $price, $description]) {
                 $code = self::CODE_PREFIX . str_pad((string) $seq, 3, '0', STR_PAD_LEFT);
                 $seq++;
 
-                $exists = DB::table('products')->where('code', $code)->exists();
-                if ($exists && ! $this->option('force')) {
+                $existingId = DB::table('products')->where('code', $code)->value('id');
+                if ($existingId && ! $this->option('force')) {
+                    // Already seeded (photo included) on a previous run -- just
+                    // backfill the description if this command's product list
+                    // has since gained one, without spending another API call.
+                    DB::table('products')->where('id', $existingId)->update([
+                        'note' => $description,
+                        'updated_at' => $now,
+                    ]);
                     continue;
                 }
 
@@ -106,6 +115,7 @@ class SeedIndustryCatalog extends Command
                         'Type_barcode' => 'CODE128',
                         'name' => $name,
                         'image' => $filename,
+                        'note' => $description,
                         'cost' => $cost,
                         'price' => $price,
                         'wholesale_price' => round($price * 0.9, 2),
@@ -137,7 +147,79 @@ class SeedIndustryCatalog extends Command
 
         $this->info('Industry catalog seeded.');
 
+        $this->backfillLegacyDemoImages($accessKey, $dir);
+
         return self::SUCCESS;
+    }
+
+    /**
+     * The pre-existing generic DemoDataSeeder (unrelated to this command)
+     * seeds 4 brands and 8 products with a hardcoded 'no-image.png'
+     * placeholder filename -- never a real photo. Backfill those with real
+     * Unsplash photos too, the same way, so nothing in the demo storefront
+     * is left showing a broken/placeholder image.
+     */
+    private function backfillLegacyDemoImages(string $accessKey, string $dir): void
+    {
+        $now = Carbon::now();
+
+        $brands = [
+            'AquaPure' => 'water bottle brand',
+            'CrunchCo' => 'snack food brand',
+            'TechNova' => 'technology electronics brand',
+            'WriteWell' => 'pen notebook stationery brand',
+        ];
+
+        $products = [
+            'PR-DEMO-001' => ['Mineral Water 500ml', 'mineral water bottle'],
+            'PR-DEMO-002' => ['Cola Can 330ml', 'soda can drink'],
+            'PR-DEMO-003' => ['Potato Chips 100g', 'potato chips snack'],
+            'PR-DEMO-004' => ['Chocolate Bar 50g', 'chocolate bar'],
+            'PR-DEMO-005' => ['USB-C Cable 1m', 'usb c cable'],
+            'PR-DEMO-006' => ['Wireless Mouse', 'wireless computer mouse'],
+            'PR-DEMO-007' => ['Notebook A5', 'notebook paper'],
+            'PR-DEMO-008' => ['Ballpoint Pen', 'ballpoint pen'],
+        ];
+
+        $didWork = false;
+
+        foreach ($brands as $name => $query) {
+            $row = DB::table('brands')->where('name', $name)->first();
+            if (! $row || $row->image !== 'no-image.png') {
+                continue;
+            }
+
+            $didWork = true;
+            $filename = $this->downloadUnsplashPhoto($accessKey, $query, $dir, Str::slug($name));
+            if (! $filename) {
+                $this->warn("  \xE2\x9C\x97 {$name} (brand) — could not fetch a photo for \"{$query}\", skipped.");
+                continue;
+            }
+
+            DB::table('brands')->where('id', $row->id)->update(['image' => $filename, 'updated_at' => $now]);
+            $this->line("  \xE2\x9C\x93 {$name} (brand)");
+        }
+
+        foreach ($products as $code => [$name, $query]) {
+            $row = DB::table('products')->where('code', $code)->first();
+            if (! $row || $row->image !== 'no-image.png') {
+                continue;
+            }
+
+            $didWork = true;
+            $filename = $this->downloadUnsplashPhoto($accessKey, $query, $dir, Str::slug($name));
+            if (! $filename) {
+                $this->warn("  \xE2\x9C\x97 {$name} — could not fetch a photo for \"{$query}\", skipped.");
+                continue;
+            }
+
+            DB::table('products')->where('id', $row->id)->update(['image' => $filename, 'updated_at' => $now]);
+            $this->line("  \xE2\x9C\x93 {$name}");
+        }
+
+        if ($didWork) {
+            $this->info('Legacy demo images backfilled.');
+        }
     }
 
     /**
@@ -196,80 +278,80 @@ class SeedIndustryCatalog extends Command
     }
 
     /**
-     * @return array<int, array{code:string, category:string, products:array<int, array{0:string,1:string,2:float}>}>
+     * @return array<int, array{code:string, category:string, products:array<int, array{0:string,1:string,2:float,3:string}>}>
      */
     private function catalogDefinition(): array
     {
         return [
             ['code' => 'CAT-IND-JWL', 'category' => 'Jewelry & Watches', 'products' => [
-                ['Gold Diamond Ring', 'gold diamond ring jewelry', 249.00],
-                ['Silver Pendant Necklace', 'silver necklace pendant jewelry', 89.00],
-                ['Luxury Wristwatch', 'luxury wristwatch', 399.00],
+                ['Gold Diamond Ring', 'gold diamond ring jewelry', 249.00, '18k gold band set with a brilliant-cut diamond centerpiece, hand-finished and hallmarked.'],
+                ['Silver Pendant Necklace', 'silver necklace pendant jewelry', 89.00, 'Sterling silver pendant on an 18-inch chain, finished with a tarnish-resistant coating.'],
+                ['Luxury Wristwatch', 'luxury wristwatch', 399.00, 'Automatic movement watch with a sapphire crystal face and genuine leather strap.'],
             ]],
             ['code' => 'CAT-IND-FSH', 'category' => 'Fashion & Apparel', 'products' => [
-                ['Leather Biker Jacket', 'leather jacket fashion', 129.00],
-                ['Designer Sneakers', 'designer sneakers shoes', 89.00],
-                ['Summer Floral Dress', 'summer dress fashion', 59.00],
+                ['Leather Biker Jacket', 'leather jacket fashion', 129.00, 'Genuine leather biker jacket with asymmetric zip and quilted shoulder panels.'],
+                ['Designer Sneakers', 'designer sneakers shoes', 89.00, 'Lightweight knit-upper sneakers with a cushioned midsole for all-day wear.'],
+                ['Summer Floral Dress', 'summer dress fashion', 59.00, 'Breathable floral-print midi dress with an adjustable waist tie.'],
             ]],
             ['code' => 'CAT-IND-BTY', 'category' => 'Beauty & Cosmetics', 'products' => [
-                ['Radiance Skincare Serum', 'skincare serum bottle cosmetics', 34.00],
-                ['Matte Liquid Lipstick', 'matte lipstick cosmetics', 18.00],
-                ['Pro Makeup Brush Set', 'makeup brush set cosmetics', 42.00],
+                ['Radiance Skincare Serum', 'skincare serum bottle cosmetics', 34.00, 'Vitamin C serum formulated to brighten skin tone and even texture over time.'],
+                ['Matte Liquid Lipstick', 'matte lipstick cosmetics', 18.00, 'Long-wear matte lipstick that resists transfer without drying out lips.'],
+                ['Pro Makeup Brush Set', 'makeup brush set cosmetics', 42.00, '12-piece synthetic-bristle brush set covering face, eyes, and contour.'],
             ]],
             ['code' => 'CAT-IND-ELC', 'category' => 'Electronics & Gadgets', 'products' => [
-                ['Wireless Noise-Cancelling Headphones', 'wireless headphones electronics', 129.00],
-                ['Smartwatch Series X', 'smartwatch electronics', 199.00],
-                ['4K Camera Drone', 'drone electronics gadget', 349.00],
+                ['Wireless Noise-Cancelling Headphones', 'wireless headphones electronics', 129.00, 'Over-ear Bluetooth headphones with active noise cancellation and 30-hour battery life.'],
+                ['Smartwatch Series X', 'smartwatch electronics', 199.00, 'Fitness-tracking smartwatch with heart-rate monitoring and a 5-day battery.'],
+                ['4K Camera Drone', 'drone electronics gadget', 349.00, 'Folding quadcopter drone with a stabilized 4K camera and 25-minute flight time.'],
             ]],
             ['code' => 'CAT-IND-GRC', 'category' => 'Grocery & Fresh Produce', 'products' => [
-                ['Fresh Vegetable Basket', 'fresh vegetables basket grocery', 12.50],
-                ['Organic Fruit Box', 'organic fruits grocery', 15.00],
-                ['Artisan Sourdough Bread', 'artisan bread bakery', 6.50],
+                ['Fresh Vegetable Basket', 'fresh vegetables basket grocery', 12.50, 'Hand-picked seasonal vegetable assortment, sourced from local growers.'],
+                ['Organic Fruit Box', 'organic fruits grocery', 15.00, 'Certified-organic mixed fruit box, packed fresh for same-week delivery.'],
+                ['Artisan Sourdough Bread', 'artisan bread bakery', 6.50, 'Naturally leavened sourdough loaf, baked fresh daily in small batches.'],
             ]],
             ['code' => 'CAT-IND-FIT', 'category' => 'Fitness & Gym', 'products' => [
-                ['Adjustable Dumbbell Set', 'dumbbell set gym fitness', 89.00],
-                ['Premium Yoga Mat', 'yoga mat fitness', 29.00],
-                ['Whey Protein Powder', 'protein powder fitness supplement', 39.00],
+                ['Adjustable Dumbbell Set', 'dumbbell set gym fitness', 89.00, 'Space-saving dumbbell pair with quick-adjust weight plates from 5 to 25 lbs.'],
+                ['Premium Yoga Mat', 'yoga mat fitness', 29.00, 'Non-slip 6mm yoga mat with dual-sided grip texture and carry strap.'],
+                ['Whey Protein Powder', 'protein powder fitness supplement', 39.00, '24g of whey protein per serving, low sugar, mixes smoothly with no clumping.'],
             ]],
             ['code' => 'CAT-IND-BKS', 'category' => 'Books & Stationery', 'products' => [
-                ['Bestseller Book Bundle', 'stack of books', 24.00],
-                ['Leather Journal Notebook', 'leather journal notebook stationery', 19.00],
-                ['Fountain Pen Set', 'fountain pen stationery', 22.00],
+                ['Bestseller Book Bundle', 'stack of books', 24.00, 'Curated bundle of three current bestselling paperbacks across fiction and non-fiction.'],
+                ['Leather Journal Notebook', 'leather journal notebook stationery', 19.00, 'Refillable leather-bound journal with 200 pages of acid-free paper.'],
+                ['Fountain Pen Set', 'fountain pen stationery', 22.00, 'Smooth-writing fountain pen with a fine nib, gift-boxed with two ink cartridges.'],
             ]],
             ['code' => 'CAT-IND-RST', 'category' => 'Restaurant & Food Delivery', 'products' => [
-                ['Gourmet Wood-Fired Pizza', 'gourmet pizza food', 14.00],
-                ['Signature Beef Burger', 'burger food plate', 9.50],
-                ['Fresh Garden Salad Bowl', 'fresh salad bowl food', 8.00],
+                ['Gourmet Wood-Fired Pizza', 'gourmet pizza food', 14.00, 'Wood-fired thin-crust pizza topped with fresh mozzarella and basil.'],
+                ['Signature Beef Burger', 'burger food plate', 9.50, 'Char-grilled beef patty with aged cheddar, house sauce, and a brioche bun.'],
+                ['Fresh Garden Salad Bowl', 'fresh salad bowl food', 8.00, 'Crisp mixed greens with cherry tomatoes, cucumber, and a light vinaigrette.'],
             ]],
             ['code' => 'CAT-IND-MKT', 'category' => 'Marketplace & General Retail', 'products' => [
-                ['Everyday Essentials Bundle', 'shopping bags retail', 19.99],
-                ['Premium Gift Box Set', 'gift box retail', 29.99],
-                ['Home Care Value Pack', 'home essentials retail products', 24.99],
+                ['Everyday Essentials Bundle', 'shopping bags retail', 19.99, 'A hand-picked bundle of everyday household essentials at one flat price.'],
+                ['Premium Gift Box Set', 'gift box retail', 29.99, 'Ready-to-give gift box with premium wrapping and a personalized note card.'],
+                ['Home Care Value Pack', 'home essentials retail products', 24.99, 'Multi-pack of home care basics, sized for a full month of everyday use.'],
             ]],
             ['code' => 'CAT-IND-PET', 'category' => 'Pet Supplies & Accessories', 'products' => [
-                ['Comfort Dog Leash & Collar Set', 'dog leash collar pet', 22.00],
-                ['Interactive Cat Toy', 'cat toy pet', 12.00],
-                ['Ceramic Pet Food Bowl', 'dog bowl', 14.00],
+                ['Comfort Dog Leash & Collar Set', 'dog leash collar pet', 22.00, 'Padded nylon leash and collar set with reflective stitching for night walks.'],
+                ['Interactive Cat Toy', 'cat toy pet', 12.00, 'Motion-activated toy that keeps cats engaged with unpredictable movement.'],
+                ['Ceramic Pet Food Bowl', 'dog bowl', 14.00, 'Heavyweight ceramic bowl that resists tipping and is dishwasher safe.'],
             ]],
             ['code' => 'CAT-IND-WHS', 'category' => 'Wholesale & B2B', 'products' => [
-                ['Bulk Shipping Pallet', 'warehouse pallets wholesale', 199.00],
-                ['Cardboard Box Bundle (50pk)', 'cardboard boxes warehouse', 79.00],
-                ['Warehouse Storage Rack', 'warehouse storage shelving', 249.00],
+                ['Bulk Shipping Pallet', 'warehouse pallets wholesale', 199.00, 'Standard 48x40 shipping pallet rated for up to 2,800 lbs of static load.'],
+                ['Cardboard Box Bundle (50pk)', 'cardboard boxes warehouse', 79.00, '50-pack of double-wall corrugated boxes for shipping and bulk storage.'],
+                ['Warehouse Storage Rack', 'warehouse storage shelving', 249.00, '5-tier boltless steel shelving unit rated for 350 lbs per shelf.'],
             ]],
             ['code' => 'CAT-IND-AUT', 'category' => 'Auto Parts & Hardware', 'products' => [
-                ['Performance Engine Part', 'car engine parts', 149.00],
-                ['Professional Wrench Tool Set', 'wrench tool set hardware', 59.00],
-                ['All-Season Car Tire', 'car tire auto', 89.00],
+                ['Performance Engine Part', 'car engine parts', 149.00, 'OEM-spec replacement engine component, tested to manufacturer tolerances.'],
+                ['Professional Wrench Tool Set', 'wrench tool set hardware', 59.00, '32-piece chrome vanadium wrench and socket set with a carrying case.'],
+                ['All-Season Car Tire', 'car tire auto', 89.00, 'All-season radial tire engineered for wet and dry traction year-round.'],
             ]],
             ['code' => 'CAT-IND-DIG', 'category' => 'Digital Products & Software', 'products' => [
-                ['Pro Design Software License', 'laptop software code', 59.00],
-                ['UI/UX Template Pack', 'ui ux design software', 39.00],
-                ['Cloud Backup Subscription', 'cloud computing server', 9.99],
+                ['Pro Design Software License', 'laptop software code', 59.00, 'One-year license for professional design software, single-seat activation.'],
+                ['UI/UX Template Pack', 'ui ux design software', 39.00, 'Editable UI/UX template pack covering 40+ common app screen layouts.'],
+                ['Cloud Backup Subscription', 'cloud computing server', 9.99, '1TB of encrypted cloud backup storage, billed monthly, cancel anytime.'],
             ]],
             ['code' => 'CAT-IND-PHM', 'category' => 'Pharmacy & Medical', 'products' => [
-                ['Daily Multivitamin Bottle', 'medicine bottle pills pharmacy', 15.00],
-                ['Digital Stethoscope', 'stethoscope medical', 45.00],
-                ['Complete First Aid Kit', 'first aid kit medical', 24.00],
+                ['Daily Multivitamin Bottle', 'medicine bottle pills pharmacy', 15.00, '90-day supply of daily multivitamins covering essential vitamins and minerals.'],
+                ['Digital Stethoscope', 'stethoscope medical', 45.00, 'Dual-head stethoscope with enhanced acoustic sensitivity for clinical use.'],
+                ['Complete First Aid Kit', 'first aid kit medical', 24.00, '100-piece first aid kit stocked for home, travel, and workplace emergencies.'],
             ]],
         ];
     }
@@ -279,66 +361,66 @@ class SeedIndustryCatalog extends Command
      * Kept separate from catalogDefinition() (see the note in handle())
      * purely so the codes already assigned to that first batch never shift.
      *
-     * @return array<int, array{code:string, category:string, products:array<int, array{0:string,1:string,2:float}>}>
+     * @return array<int, array{code:string, category:string, products:array<int, array{0:string,1:string,2:float,3:string}>}>
      */
     private function moreProductsDefinition(): array
     {
         return [
             ['code' => 'CAT-IND-JWL', 'category' => 'Jewelry & Watches', 'products' => [
-                ['Rose Gold Bracelet', 'gold bracelet jewelry', 179.00],
-                ['Diamond Stud Earrings', 'diamond earrings jewelry', 219.00],
+                ['Rose Gold Bracelet', 'gold bracelet jewelry', 179.00, '14k rose gold chain bracelet with a secure lobster-claw clasp.'],
+                ['Diamond Stud Earrings', 'diamond earrings jewelry', 219.00, 'Classic round-cut diamond studs set in white gold, sold as a pair.'],
             ]],
             ['code' => 'CAT-IND-FSH', 'category' => 'Fashion & Apparel', 'products' => [
-                ['Classic Denim Jeans', 'denim jeans fashion', 69.00],
-                ['Wool Winter Coat', 'winter coat fashion', 159.00],
+                ['Classic Denim Jeans', 'denim jeans fashion', 69.00, 'Straight-fit denim jeans in a mid-wash, built from durable stretch cotton.'],
+                ['Wool Winter Coat', 'winter coat fashion', 159.00, 'Wool-blend overcoat with a notch lapel and quilted inner lining for warmth.'],
             ]],
             ['code' => 'CAT-IND-BTY', 'category' => 'Beauty & Cosmetics', 'products' => [
-                ['Hydrating Face Cream', 'face cream cosmetics', 28.00],
-                ['Signature Perfume', 'perfume bottle', 65.00],
+                ['Hydrating Face Cream', 'face cream cosmetics', 28.00, 'Lightweight daily moisturizer with hyaluronic acid for all skin types.'],
+                ['Signature Perfume', 'perfume bottle', 65.00, 'Eau de parfum with warm amber and citrus notes, 50ml bottle.'],
             ]],
             ['code' => 'CAT-IND-ELC', 'category' => 'Electronics & Gadgets', 'products' => [
-                ['Mechanical Gaming Keyboard', 'gaming keyboard electronics', 89.00],
-                ['Portable Bluetooth Speaker', 'bluetooth speaker electronics', 59.00],
+                ['Mechanical Gaming Keyboard', 'gaming keyboard electronics', 89.00, 'RGB-backlit mechanical keyboard with hot-swappable tactile switches.'],
+                ['Portable Bluetooth Speaker', 'bluetooth speaker electronics', 59.00, 'Water-resistant Bluetooth speaker with 12 hours of playback per charge.'],
             ]],
             ['code' => 'CAT-IND-GRC', 'category' => 'Grocery & Fresh Produce', 'products' => [
-                ['Farm Fresh Eggs (Dozen)', 'eggs carton grocery', 4.50],
-                ['Dairy Milk Bottle', 'milk bottle dairy', 3.20],
+                ['Farm Fresh Eggs (Dozen)', 'eggs carton grocery', 4.50, 'Free-range eggs from local farms, delivered within days of collection.'],
+                ['Dairy Milk Bottle', 'milk bottle dairy', 3.20, 'Whole milk in a returnable glass bottle, pasteurized and locally sourced.'],
             ]],
             ['code' => 'CAT-IND-FIT', 'category' => 'Fitness & Gym', 'products' => [
-                ['Resistance Band Set', 'resistance bands fitness', 24.00],
-                ['Foam Massage Roller', 'foam roller fitness', 27.00],
+                ['Resistance Band Set', 'resistance bands fitness', 24.00, 'Five-band resistance set covering light to heavy tension for full-body training.'],
+                ['Foam Massage Roller', 'foam roller fitness', 27.00, 'High-density foam roller for post-workout muscle recovery and mobility work.'],
             ]],
             ['code' => 'CAT-IND-BKS', 'category' => 'Books & Stationery', 'products' => [
-                ['Watercolor Art Set', 'watercolor paint set art', 32.00],
-                ['Wooden Desk Organizer', 'desk organizer stationery', 26.00],
+                ['Watercolor Art Set', 'watercolor paint set art', 32.00, '24-color watercolor set with brushes and a mixing palette included.'],
+                ['Wooden Desk Organizer', 'desk organizer stationery', 26.00, 'Solid wood desk organizer with compartments for pens, cards, and notes.'],
             ]],
             ['code' => 'CAT-IND-RST', 'category' => 'Restaurant & Food Delivery', 'products' => [
-                ['Fresh Sushi Platter', 'sushi platter food', 18.00],
-                ['Iced Coffee', 'iced coffee drink', 5.50],
+                ['Fresh Sushi Platter', 'sushi platter food', 18.00, 'Chef-prepared sushi platter with a rotating selection of nigiri and rolls.'],
+                ['Iced Coffee', 'iced coffee drink', 5.50, 'Cold-brewed iced coffee, brewed slow for a smooth, low-acidity finish.'],
             ]],
             ['code' => 'CAT-IND-MKT', 'category' => 'Marketplace & General Retail', 'products' => [
-                ['Scented Candle Set', 'scented candle retail', 22.00],
-                ['Kitchen Utensil Set', 'kitchen utensils retail', 34.00],
+                ['Scented Candle Set', 'scented candle retail', 22.00, 'Set of three soy-wax candles in warm, seasonal fragrances.'],
+                ['Kitchen Utensil Set', 'kitchen utensils retail', 34.00, '10-piece silicone kitchen utensil set with a heat-resistant holder.'],
             ]],
             ['code' => 'CAT-IND-PET', 'category' => 'Pet Supplies & Accessories', 'products' => [
-                ['Cozy Pet Bed', 'pet bed dog', 39.00],
-                ['Aquarium Fish Tank', 'aquarium fish tank', 79.00],
+                ['Cozy Pet Bed', 'pet bed dog', 39.00, 'Machine-washable orthopedic pet bed with a raised, cushioned rim.'],
+                ['Aquarium Fish Tank', 'aquarium fish tank', 79.00, '20-gallon glass aquarium kit with filter and LED hood included.'],
             ]],
             ['code' => 'CAT-IND-WHS', 'category' => 'Wholesale & B2B', 'products' => [
-                ['Industrial Shelving Unit', 'industrial shelving warehouse', 289.00],
-                ['Bulk Packaging Tape (24pk)', 'packaging tape warehouse', 49.00],
+                ['Industrial Shelving Unit', 'industrial shelving warehouse', 289.00, 'Heavy-gauge steel shelving unit rated for up to 800 lbs per shelf.'],
+                ['Bulk Packaging Tape (24pk)', 'packaging tape warehouse', 49.00, '24-roll case of heavy-duty packing tape for high-volume shipping.'],
             ]],
             ['code' => 'CAT-IND-AUT', 'category' => 'Auto Parts & Hardware', 'products' => [
-                ['Heavy-Duty Car Battery', 'car battery auto', 129.00],
-                ['Hydraulic Floor Jack', 'hydraulic car jack', 99.00],
+                ['Heavy-Duty Car Battery', 'car battery auto', 129.00, 'Maintenance-free 12V battery with high cold-cranking amps for reliable starts.'],
+                ['Hydraulic Floor Jack', 'hydraulic car jack', 99.00, 'Low-profile 2-ton hydraulic floor jack with a fast-lift mechanism.'],
             ]],
             ['code' => 'CAT-IND-DIG', 'category' => 'Digital Products & Software', 'products' => [
-                ['Stock Photo Bundle License', 'photography camera laptop', 49.00],
-                ['Online Course Bundle', 'online course laptop study', 29.00],
+                ['Stock Photo Bundle License', 'photography camera laptop', 49.00, 'Commercial-use license for a 500-image stock photography bundle.'],
+                ['Online Course Bundle', 'online course laptop study', 29.00, 'Self-paced video course bundle with lifetime access and a completion certificate.'],
             ]],
             ['code' => 'CAT-IND-PHM', 'category' => 'Pharmacy & Medical', 'products' => [
-                ['Blood Pressure Monitor', 'blood pressure monitor medical', 39.00],
-                ['Hand Sanitizer Pack', 'hand sanitizer', 8.00],
+                ['Blood Pressure Monitor', 'blood pressure monitor medical', 39.00, 'Automatic upper-arm blood pressure monitor with irregular-heartbeat detection.'],
+                ['Hand Sanitizer Pack', 'hand sanitizer', 8.00, '3-pack of 70% alcohol hand sanitizer gel in travel-sized bottles.'],
             ]],
         ];
     }

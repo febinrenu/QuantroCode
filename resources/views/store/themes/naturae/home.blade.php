@@ -115,7 +115,7 @@
         @foreach($categories->take(8) as $i => $cat)
           <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="group relative flex flex-col justify-between gap-6 p-5 rounded-3xl {{ $tileBg[$i % count($tileBg)] }} hover:shadow-softHover transition-shadow min-h-[136px] overflow-hidden">
             <span class="w-11 h-11 rounded-full bg-white/70 flex items-center justify-center font-display font-bold text-leaf-deep text-lg group-hover:bg-white transition-colors">
-              {{ strtoupper(substr($cat->name, 0, 1)) }}
+              <x-store.icon :name="category_icon_name($cat->name)" class="w-5 h-5" />
             </span>
             <span class="text-sm font-bold text-ink/90 font-display leading-snug">{{ $cat->name }}</span>
             <svg class="absolute -bottom-4 -right-4 w-20 h-20 text-black/5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/></svg>
