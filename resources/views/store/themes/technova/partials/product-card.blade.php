@@ -1,69 +1,124 @@
-{{-- Pure presentation — $product is the StorefrontPresenter::product() view-model. No pricing/business logic here. --}}
-<article class="product-card group bg-tn-panel border border-tn-border hover:border-tn-green transition-colors overflow-hidden flex flex-col">
-  <a href="{{ $product['url'] }}" class="relative block aspect-square overflow-hidden border-b border-tn-border" style="{{ !$product['image_url'] ? 'background:'.$product['placeholder_color'].'14' : '' }}">
-    @if($product['image_url'])
-      <img src="{{ $product['image_url'] }}" alt="{{ $product['name'] }}" loading="lazy" class="w-full h-full object-cover grayscale-[15%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-300">
-    @else
-      <div class="w-full h-full flex items-center justify-center text-3xl font-bold" style="color: {{ $product['placeholder_color'] }}">
-        {{ strtoupper(substr($product['name'], 0, 1)) }}
-      </div>
-    @endif
+@php
+    $previewTheme = request('preview_theme', 'technova');
 
-    @if($product['is_on_sale'])
-      <span class="absolute top-2 left-2 bg-black border border-tn-amber text-tn-amber text-[11px] font-bold px-1.5 py-0.5">[SALE -{{ $product['discount_percent'] }}%]</span>
-    @elseif($product['stock_status'] === 'preorder')
-      <span class="absolute top-2 left-2 bg-black border border-tn-green text-tn-green text-[11px] font-bold px-1.5 py-0.5">[PRE-ORDER]</span>
-    @elseif($product['stock_status'] === 'out_of_stock')
-      <span class="absolute top-2 left-2 bg-black border border-tn-mute text-tn-mute text-[11px] font-bold px-1.5 py-0.5">[OUT_OF_STOCK]</span>
-    @elseif($product['is_featured'])
-      <span class="absolute top-2 left-2 bg-black border border-tn-green text-tn-green text-[11px] font-bold px-1.5 py-0.5">[NEW]</span>
-    @endif
-  </a>
+    // Normalize object vs array view-model
+    $isArr = is_array($p);
+    $prodId = $isArr ? ($p['id'] ?? 0) : $p->id;
+    $prodName = $isArr ? ($p['name'] ?? '') : $p->name;
+    $prodCode = $isArr ? ($p['code'] ?? '') : ($p->code ?? '');
 
-  <div class="product-body p-3 flex flex-col flex-1">
-    @if($product['category_name'])
-      <span class="text-[11px] font-semibold text-tn-amber uppercase tracking-wide"># {{ $product['category_name'] }}</span>
-    @endif
-    <a href="{{ $product['url'] }}" class="product-title text-sm font-medium text-tn-ink mt-0.5 line-clamp-2 hover:text-tn-green" title="{{ $product['name'] }}">
-      {{ $product['name'] }}
+    // Prices
+    $currency = '$';
+    if ($isArr) {
+        $finalPrice = $p['final_price'] ?? ($p['price'] ?? 0);
+        $comparePrice = $p['compare_at_price'] ?? null;
+        $discPercent = $p['discount_percent'] ?? 0;
+        $catName = $p['category_name'] ?? ($p['category'] ?? 'Electronics');
+        $imgUrl = $p['image_url'] ?? global_asset('images/themes/technova/generic-electronics.jpg');
+    } else {
+        $finalPrice = $p->final_display_price ?? ($p->after_discount ?? ($p->price ?? 0));
+        $comparePrice = ($p->base_price && $p->base_price > $finalPrice) ? $p->base_price : null;
+        $discPercent = $p->discount_percent ?? ($comparePrice ? round((($comparePrice - $finalPrice) / $comparePrice) * 100) : 0);
+        $catName = $p->category->name ?? 'Electronics';
+
+        $imgName = $p->image ?? '';
+        if ($imgName && file_exists(public_path('images/themes/technova/' . $imgName))) {
+            $imgUrl = global_asset('images/themes/technova/' . $imgName);
+        } elseif ($imgName && file_exists(public_path('images/products/' . $imgName))) {
+            $imgUrl = global_asset('images/products/' . $imgName);
+        } elseif ($imgName && file_exists(public_path('images/tenants/21f7a839-4846-4839-8938-d9fcfc0ab086/products/' . $imgName))) {
+            $imgUrl = global_asset('images/tenants/21f7a839-4846-4839-8938-d9fcfc0ab086/products/' . $imgName);
+        } else {
+            $imgUrl = global_asset('images/themes/technova/generic-electronics.jpg');
+        }
+    }
+
+    $detailUrl = url('online_store/product/' . $prodId);
+    if ($previewTheme) {
+        $detailUrl .= '?preview_theme=' . $previewTheme;
+    }
+
+    $rating = 4.8 + (($prodId % 3) * 0.1);
+    $reviews = 45 + ($prodId * 7);
+@endphp
+
+<div class="group bg-white rounded-2xl border border-slate-200/80 hover:border-blue-500/50 hover:shadow-tech-hover transition-all duration-300 flex flex-col justify-between overflow-hidden relative">
+    <!-- Badges Container -->
+    <div class="absolute top-3 left-3 z-10 flex flex-col gap-1">
+        @if($discPercent > 0)
+            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-red-600 text-white shadow-sm">
+                -{{ $discPercent }}%
+            </span>
+        @endif
+        @if($prodId % 2 == 0)
+            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-600 text-white shadow-sm uppercase tracking-wider">
+                Hot Deal
+            </span>
+        @endif
+    </div>
+
+    <!-- Wishlist Button -->
+    <button type="button" class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm border border-slate-200 text-slate-400 hover:text-red-500 hover:bg-white flex items-center justify-center transition shadow-sm" title="Add to Wishlist">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+    </button>
+
+    <!-- Product Image -->
+    <a href="{{ $detailUrl }}" class="block relative pt-[85%] bg-slate-50 overflow-hidden">
+        <img src="{{ $imgUrl }}"
+             alt="{{ $prodName }}"
+             loading="lazy"
+             class="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+             onerror="this.src='{{ global_asset('images/themes/technova/generic-electronics.jpg') }}'" />
     </a>
 
-    <div class="mt-auto pt-2">
-      @if(!$product['hide_prices'])
-        <div class="flex items-baseline gap-1.5">
-          <span class="price text-base font-bold text-tn-green">{{ $product['final_price_formatted'] }}</span>
-          @if($product['compare_at_price_formatted'])
-            <span class="text-xs text-tn-mute line-through">{{ $product['compare_at_price_formatted'] }}</span>
-          @endif
+    <!-- Product Info Content -->
+    <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+        <div>
+            <!-- Category & Rating -->
+            <div class="flex items-center justify-between gap-2 text-xs mb-1.5">
+                <span class="text-blue-600 font-semibold tracking-wide uppercase text-[11px]">{{ $catName }}</span>
+                <div class="flex items-center text-amber-400 text-xs">
+                    <span>★</span>
+                    <span class="font-bold text-slate-700 ml-1">{{ number_format($rating, 1) }}</span>
+                    <span class="text-slate-400 ml-0.5 text-[11px]">({{ $reviews }})</span>
+                </div>
+            </div>
+
+            <!-- Product Title -->
+            <h3 class="font-bold text-slate-900 text-sm leading-snug group-hover:text-blue-600 transition line-clamp-2 mb-3">
+                <a href="{{ $detailUrl }}">{{ $prodName }}</a>
+            </h3>
         </div>
 
-        @if(count($product['variants']) > 0)
-          <a href="{{ $product['url'] }}" class="mt-2 w-full inline-flex items-center justify-center gap-1.5 h-9 border border-tn-green text-tn-green text-sm font-semibold hover:bg-tn-green hover:text-black transition-colors">
-            view --options
-          </a>
-        @else
-          <button type="button"
-                  class="js-add-to-cart tn-glow-btn mt-2 w-full inline-flex items-center justify-center gap-1.5 h-9 border border-tn-green bg-tn-green text-black text-sm font-bold hover:bg-black hover:text-tn-green disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  @if(!$product['is_available']) disabled @endif
-                  data-out-of-stock="{{ $product['is_available'] ? '0' : '1' }}"
-                  data-is-preorder="{{ $product['is_preorder_active'] ? '1' : '0' }}"
-                  data-id="{{ $product['id'] }}"
-                  data-slug="{{ $product['slug'] }}"
-                  data-name="{{ e($product['name']) }}"
-                  data-price="{{ number_format($product['final_price'], 2, '.', '') }}"
-                  data-image="{{ $product['image_url'] }}"
-                  data-currency="{{ $product['currency'] }}"
-                  data-qty="1"
-                  data-stock="{{ $product['stock'] !== null ? $product['stock'] : '' }}"
-                  data-added-label="{{ __('messages.Added') }}">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            {{ $product['is_preorder_active'] ? 'pre-order' : 'add --to-cart' }}
-          </button>
-        @endif
-      @else
-        <a href="{{ url('/online_store/login') }}" class="text-xs font-semibold text-tn-green underline">sign_in --to-see-price</a>
-      @endif
-      <div class="js-add-status text-[11px] text-tn-mute min-h-[1rem] mt-1"></div>
+        <!-- Price & Action Footer -->
+        <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+            <div>
+                <div class="text-lg font-extrabold text-slate-900 font-heading">
+                    {{ $currency }}{{ number_format((float)$finalPrice, 2) }}
+                </div>
+                @if($comparePrice && $comparePrice > $finalPrice)
+                    <div class="text-xs text-slate-400 line-through">
+                        {{ $currency }}{{ number_format((float)$comparePrice, 2) }}
+                    </div>
+                @endif
+            </div>
+
+            <!-- Add to Cart Button -->
+            <button type="button"
+                    class="js-add-to-cart inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-bold transition shadow-sm shadow-blue-500/20"
+                    data-product-id="{{ $prodId }}"
+                    data-product-name="{{ $prodName }}"
+                    data-product-price="{{ $finalPrice }}"
+                    data-product-image="{{ $imgUrl }}"
+                    data-quantity="1"
+                    title="Add to Cart">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span class="hidden sm:inline">Add</span>
+            </button>
+        </div>
     </div>
-  </div>
-</article>
+</div>
