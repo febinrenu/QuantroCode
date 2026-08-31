@@ -1,22 +1,48 @@
 {
-  "slug": "marketverse",
-  "name": "MarketVerse",
-  "tagline": "Your world of shopping, in one cart.",
-  "description": "Dense marketplace-grid persona with a persistent left category rail, a scrolling trending-now ticker, and seller/brand badge chips on tight 5-6 column product grids. General merchandise across electronics, fashion, home, beauty, grocery and sports, priced with a data-terminal mono typeface.",
-  "category": "general-merchandise",
-  "version": "1.0.0",
-  "layout_persona": "Marketplace Data Grid",
-  "layout": "rail-grid-dense",
-  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap",
-  "fontPairing": { "heading": "Inter", "body": "Inter" },
-  "paletteSwatches": ["#F0800F", "#1F2937", "#ffffff", "#FFE7CC"],
-  "tokens": {
-    "color-bg-base": "#F7F5F2",
-    "color-accent-500": "#F0800F",
-    "color-accent-600": "#C4670C",
-    "font-heading": "'Inter', sans-serif",
-    "font-body": "'Inter', sans-serif"
-  },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
-  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+    "slug": "marketverse",
+    "name": "MarketVerse",
+    "tagline": "Your world of shopping, in one cart.",
+    "description": "Dense marketplace-grid persona with a persistent left category rail, a scrolling trending-now ticker, and seller/brand badge chips on tight 5-6 column product grids. General merchandise across electronics, fashion, home, beauty, grocery and sports, priced with a data-terminal mono typeface.",
+    "category": "general-merchandise",
+    "version": "1.0.0",
+    "layout_persona": "Marketplace Data Grid",
+    "layout": "rail-grid-dense",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap",
+    "fontPairing": {
+        "heading": "Inter",
+        "body": "Inter"
+    },
+    "paletteSwatches": [
+        "#F0800F",
+        "#C4670C",
+        "#1F2937",
+        "#FFE7CC"
+    ],
+    "tokens": {
+        "color-bg-base": "#F7F5F2",
+        "color-accent-500": "#F0800F",
+        "color-accent-600": "#C4670C",
+        "color-accent-700": "#1F2937",
+        "color-accent-800": "#FFE7CC",
+        "font-heading": "'Inter', sans-serif",
+        "font-body": "'Inter', sans-serif",
+        "font-size-heading": "32px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
 }

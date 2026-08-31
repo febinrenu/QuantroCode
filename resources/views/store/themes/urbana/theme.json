@@ -1,22 +1,48 @@
 {
-  "slug": "urbana",
-  "name": "Urbana",
-  "tagline": "Shopping that feels like home.",
-  "description": "Playful, rounded, friendly general-merchandise storefront with soft blue and coral tones, oversized soft shadows, and cheerful blob-shaped hero graphics. Electronics, fashion, home, beauty, grocery and sports all in one warm, approachable shop.",
-  "category": "general-merchandise",
-  "version": "1.0.0",
-  "layout_persona": "Playful Rounded Friendly",
-  "layout": "soft-rounded-friendly",
-  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap",
-  "fontPairing": { "heading": "Quicksand", "body": "Inter" },
-  "paletteSwatches": ["#5B8DEF", "#FF6F61", "#FBFAF8", "#2B2B2B"],
-  "tokens": {
-    "color-bg-base": "#FBFAF8",
-    "color-accent-500": "#5B8DEF",
-    "color-accent-600": "#3F6FD1",
-    "font-heading": "'Quicksand', sans-serif",
-    "font-body": "'Inter', sans-serif"
-  },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
-  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+    "slug": "urbana",
+    "name": "Urbana",
+    "tagline": "Shopping that feels like home.",
+    "description": "Playful, rounded, friendly general-merchandise storefront with soft blue and coral tones, oversized soft shadows, and cheerful blob-shaped hero graphics. Electronics, fashion, home, beauty, grocery and sports all in one warm, approachable shop.",
+    "category": "general-merchandise",
+    "version": "1.0.0",
+    "layout_persona": "Playful Rounded Friendly",
+    "layout": "soft-rounded-friendly",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap",
+    "fontPairing": {
+        "heading": "Quicksand",
+        "body": "Inter"
+    },
+    "paletteSwatches": [
+        "#5B8DEF",
+        "#3F6FD1",
+        "#FF6F61",
+        "#E85446"
+    ],
+    "tokens": {
+        "color-bg-base": "#FBFAF8",
+        "color-accent-500": "#5B8DEF",
+        "color-accent-600": "#3F6FD1",
+        "color-accent-700": "#FF6F61",
+        "color-accent-800": "#E85446",
+        "font-heading": "'Quicksand', sans-serif",
+        "font-body": "'Inter', sans-serif",
+        "font-size-heading": "32px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
 }

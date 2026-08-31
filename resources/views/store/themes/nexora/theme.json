@@ -1,22 +1,48 @@
 {
-  "slug": "nexora",
-  "name": "Nexora",
-  "tagline": "The future of shopping, unlocked.",
-  "description": "Y2K/chrome-revival persona with metallic chrome gradients, iridescent holographic accents, bubble-rounded pill UI and glossy button chrome. General merchandise across electronics, fashion, home, beauty, grocery and sports, delivered with 2000s-web nostalgia energy.",
-  "category": "general-merchandise",
-  "version": "1.0.0",
-  "layout_persona": "Y2K Chrome Holographic",
-  "layout": "bubble-chrome",
-  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap",
-  "fontPairing": { "heading": "Poppins", "body": "Poppins" },
-  "paletteSwatches": ["#FF6EC7", "#6EE7FF", "#A78BFA", "#C7CBD1"],
-  "tokens": {
-    "color-bg-base": "#F4F6F8",
-    "color-accent-500": "#FF6EC7",
-    "color-accent-600": "#A78BFA",
-    "font-heading": "'Poppins', sans-serif",
-    "font-body": "'Poppins', sans-serif"
-  },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
-  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+    "slug": "nexora",
+    "name": "Nexora",
+    "tagline": "The future of shopping, unlocked.",
+    "description": "Y2K/chrome-revival persona with metallic chrome gradients, iridescent holographic accents, bubble-rounded pill UI and glossy button chrome. General merchandise across electronics, fashion, home, beauty, grocery and sports, delivered with 2000s-web nostalgia energy.",
+    "category": "general-merchandise",
+    "version": "1.0.0",
+    "layout_persona": "Y2K Chrome Holographic",
+    "layout": "bubble-chrome",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap",
+    "fontPairing": {
+        "heading": "Poppins",
+        "body": "Poppins"
+    },
+    "paletteSwatches": [
+        "#FF6EC7",
+        "#A78BFA",
+        "#6EE7FF",
+        "#1B1730"
+    ],
+    "tokens": {
+        "color-bg-base": "#F4F6F8",
+        "color-accent-500": "#FF6EC7",
+        "color-accent-600": "#A78BFA",
+        "color-accent-700": "#6EE7FF",
+        "color-accent-800": "#1B1730",
+        "font-heading": "'Poppins', sans-serif",
+        "font-body": "'Poppins', sans-serif",
+        "font-size-heading": "32px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
 }

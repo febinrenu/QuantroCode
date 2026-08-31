@@ -1,22 +1,48 @@
 {
-  "slug": "futurex",
-  "name": "FutureX",
-  "tagline": "The store from tomorrow.",
-  "description": "Kinetic-type neon persona on a near-black canvas with violet-to-cyan gradient headlines, an infinite CSS marquee ticker, and glowing button states. General merchandise across electronics, fashion, home, beauty, grocery and sports.",
-  "category": "general-merchandise",
-  "version": "1.0.0",
-  "layout_persona": "Kinetic Neon Marquee",
-  "layout": "marquee-kinetic",
-  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap",
-  "fontPairing": { "heading": "Space Grotesk", "body": "Inter" },
-  "paletteSwatches": ["#8B5CF6", "#22D3EE", "#0A0E1A", "#F472B6"],
-  "tokens": {
-    "color-bg-base": "#0A0E1A",
-    "color-accent-500": "#8B5CF6",
-    "color-accent-600": "#22D3EE",
-    "font-heading": "'Space Grotesk', sans-serif",
-    "font-body": "'Inter', sans-serif"
-  },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
-  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+    "slug": "futurex",
+    "name": "FutureX",
+    "tagline": "The store from tomorrow.",
+    "description": "Kinetic-type neon persona on a near-black canvas with violet-to-cyan gradient headlines, an infinite CSS marquee ticker, and glowing button states. General merchandise across electronics, fashion, home, beauty, grocery and sports.",
+    "category": "general-merchandise",
+    "version": "1.0.0",
+    "layout_persona": "Kinetic Neon Marquee",
+    "layout": "marquee-kinetic",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap",
+    "fontPairing": {
+        "heading": "Space Grotesk",
+        "body": "Inter"
+    },
+    "paletteSwatches": [
+        "#8B5CF6",
+        "#22D3EE",
+        "#F472B6",
+        "#7C3AED"
+    ],
+    "tokens": {
+        "color-bg-base": "#0A0E1A",
+        "color-accent-500": "#8B5CF6",
+        "color-accent-600": "#22D3EE",
+        "color-accent-700": "#F472B6",
+        "color-accent-800": "#7C3AED",
+        "font-heading": "'Space Grotesk', sans-serif",
+        "font-body": "'Inter', sans-serif",
+        "font-size-heading": "36px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
 }

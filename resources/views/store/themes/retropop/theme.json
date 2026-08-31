@@ -1,22 +1,48 @@
 {
-  "slug": "retropop",
-  "name": "Retropop",
-  "tagline": "Shop like it's the best decade ever.",
-  "description": "A groovy, maximalist 70s/80s retro-pop storefront persona built on bold color-blocked bands, sunburst and wave motifs, and pill-shaped everything. General merchandise across electronics, fashion, home, beauty, grocery and sports — styled with unapologetic vintage energy.",
-  "category": "general-merchandise",
-  "version": "1.0.0",
-  "layout_persona": "70s/80s Retro Pop",
-  "layout": "colorblock-maximalist",
-  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap",
-  "fontPairing": { "heading": "Baloo 2", "body": "Inter" },
-  "paletteSwatches": ["#E8A33D", "#D9622B", "#2A7F7E", "#FFF8EC"],
-  "tokens": {
-    "color-bg-base": "#FFF8EC",
-    "color-accent-500": "#D9622B",
-    "color-accent-600": "#B8471E",
-    "font-heading": "'Baloo 2', cursive",
-    "font-body": "'Inter', sans-serif"
-  },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
-  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+    "slug": "retropop",
+    "name": "Retropop",
+    "tagline": "Shop like it's the best decade ever.",
+    "description": "A groovy, maximalist 70s/80s retro-pop storefront persona built on bold color-blocked bands, sunburst and wave motifs, and pill-shaped everything. General merchandise across electronics, fashion, home, beauty, grocery and sports — styled with unapologetic vintage energy.",
+    "category": "general-merchandise",
+    "version": "1.0.0",
+    "layout_persona": "70s/80s Retro Pop",
+    "layout": "colorblock-maximalist",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap",
+    "fontPairing": {
+        "heading": "Baloo 2",
+        "body": "Inter"
+    },
+    "paletteSwatches": [
+        "#D9622B",
+        "#B8471E",
+        "#E8A33D",
+        "#2A7F7E"
+    ],
+    "tokens": {
+        "color-bg-base": "#FFF8EC",
+        "color-accent-500": "#D9622B",
+        "color-accent-600": "#B8471E",
+        "color-accent-700": "#E8A33D",
+        "color-accent-800": "#2A7F7E",
+        "font-heading": "'Baloo 2', cursive",
+        "font-body": "'Inter', sans-serif",
+        "font-size-heading": "36px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
 }
