@@ -1,0 +1,48 @@
+{
+    "slug": "aurumeclat",
+    "name": "AurumÉclat",
+    "tagline": "Fine Jewelry — Crafted to Be Treasured",
+    "description": "Exquisite high-jewelry luxury storefront featuring rich obsidian & warm gold palettes, editorial serif typography, gold rate ticker, diamond certification badges, signature collection arches, and VIP maison membership.",
+    "category": "jewelry",
+    "version": "1.0.0",
+    "layout_persona": "High Jewelry Luxury Maison",
+    "layout": "luxury-maison",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700&display=swap",
+    "fontPairing": {
+        "heading": "Cormorant Garamond",
+        "body": "Montserrat"
+    },
+    "paletteSwatches": [
+        "#D4AF37",
+        "#B8860B",
+        "#0E0D0B",
+        "#8C6D23"
+    ],
+    "tokens": {
+        "color-bg-base": "#0E0D0B",
+        "color-accent-500": "#D4AF37",
+        "color-accent-600": "#B8860B",
+        "color-accent-700": "#0E0D0B",
+        "color-accent-800": "#8C6D23",
+        "font-heading": "'Cormorant Garamond', serif",
+        "font-body": "'Montserrat', sans-serif",
+        "font-size-heading": "38px",
+        "font-size-body": "14px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
+}
