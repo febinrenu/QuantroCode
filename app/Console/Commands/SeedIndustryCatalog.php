@@ -249,8 +249,16 @@ class SeedIndustryCatalog extends Command
         // inspection (e.g. Kaspersky) present a self-signed cert PHP won't
         // trust, breaking this otherwise-harmless fetch of a public stock
         // photo. Scoped to just this dev-only command, not the app at large.
-        $image = Http::withOptions(['verify' => false])->get($imageUrl);
+        try {
+            $image = Http::withOptions(['verify' => false])->get($imageUrl);
+        } catch (\Throwable $e) {
+            $this->warn("    Unsplash image download threw: " . $e->getMessage());
+
+            return null;
+        }
         if (! $image->ok()) {
+            $this->warn("    Unsplash image download failed ({$image->status()}) for {$imageUrl}");
+
             return null;
         }
 
