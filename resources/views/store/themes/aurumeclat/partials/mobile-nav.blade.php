@@ -1,4 +1,14 @@
 {{-- AurumÉclat Mobile Navigation Drawer --}}
+@php
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'aurumeclat');
+  $aurumRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+@endphp
+
 <div id="mobile-menu-drawer" class="fixed inset-0 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden" aria-hidden="true">
   <!-- Backdrop -->
   <div id="mobile-menu-backdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm"></div>
@@ -19,7 +29,10 @@
 
     <!-- Quick Search -->
     <div class="p-4 border-b border-aurum-border/50">
-      <form action="{{ route('store.shop') }}" method="GET" class="relative">
+      <form action="{{ $aurumRoute('store.shop') }}" method="GET" class="relative">
+        @if($themePreview)
+          <input type="hidden" name="preview_theme" value="{{ $themePreview }}">
+        @endif
         <input type="text" name="q" placeholder="Search fine jewelry..." class="w-full bg-[#161411] border border-aurum-border text-xs text-white placeholder-aurum-goldLight/40 px-3 py-2.5 rounded-none focus:outline-none focus:border-aurum-gold">
         <button type="submit" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-aurum-goldLight/60 hover:text-aurum-gold">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -35,7 +48,7 @@
         </div>
         <span class="text-[10px] text-aurum-goldLight/80">Gold Rate</span>
       </a>
-      <a href="{{ route('store.shop', ['q' => 'diamond']) }}" class="flex flex-col items-center gap-1.5 group">
+      <a href="{{ $aurumRoute('store.shop', ['q' => 'diamond']) }}" class="flex flex-col items-center gap-1.5 group">
         <div class="w-11 h-11 rounded-full bg-[#181613] border border-aurum-gold/40 flex items-center justify-center text-aurum-gold group-hover:border-aurum-gold">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="6 3 18 3 22 9 12 22 2 9 6 3"></polygon></svg>
         </div>
@@ -47,7 +60,7 @@
         </div>
         <span class="text-[10px] text-aurum-goldLight/80">Custom</span>
       </a>
-      <a href="{{ route('store.shop', ['q' => 'bridal']) }}" class="flex flex-col items-center gap-1.5 group">
+      <a href="{{ $aurumRoute('store.shop', ['q' => 'bridal']) }}" class="flex flex-col items-center gap-1.5 group">
         <div class="w-11 h-11 rounded-full bg-[#181613] border border-aurum-gold/40 flex items-center justify-center text-aurum-gold group-hover:border-aurum-gold">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="12" r="4"></circle><circle cx="15" cy="12" r="4"></circle></svg>
         </div>
@@ -57,16 +70,16 @@
 
     <!-- Navigation Links -->
     <nav class="p-5 flex-1 space-y-3.5 text-xs font-medium tracking-[0.14em] uppercase text-aurum-goldLight/90">
-      <div><a href="{{ route('store.shop', ['sort' => 'latest']) }}" class="block py-1 hover:text-aurum-gold">NEW ARRIVALS</a></div>
-      <div><a href="{{ route('store.shop', ['q' => 'ring']) }}" class="block py-1 hover:text-aurum-gold">RINGS</a></div>
-      <div><a href="{{ route('store.shop', ['q' => 'necklace']) }}" class="block py-1 hover:text-aurum-gold">NECKLACES</a></div>
-      <div><a href="{{ route('store.shop', ['q' => 'earring']) }}" class="block py-1 hover:text-aurum-gold">EARRINGS</a></div>
-      <div><a href="{{ route('store.shop', ['q' => 'bracelet']) }}" class="block py-1 hover:text-aurum-gold">BRACELETS</a></div>
-      <div><a href="{{ route('store.shop', ['q' => 'bridal']) }}" class="block py-1 text-aurum-gold font-semibold">BRIDAL &amp; WEDDING</a></div>
+      <div><a href="{{ $aurumRoute('store.shop', ['sort' => 'latest']) }}" class="block py-1 hover:text-aurum-gold">NEW ARRIVALS</a></div>
+      <div><a href="{{ $aurumRoute('store.shop', ['q' => 'ring']) }}" class="block py-1 hover:text-aurum-gold">RINGS</a></div>
+      <div><a href="{{ $aurumRoute('store.shop', ['q' => 'necklace']) }}" class="block py-1 hover:text-aurum-gold">NECKLACES</a></div>
+      <div><a href="{{ $aurumRoute('store.shop', ['q' => 'earring']) }}" class="block py-1 hover:text-aurum-gold">EARRINGS</a></div>
+      <div><a href="{{ $aurumRoute('store.shop', ['q' => 'bracelet']) }}" class="block py-1 hover:text-aurum-gold">BRACELETS</a></div>
+      <div><a href="{{ $aurumRoute('store.shop', ['q' => 'bridal']) }}" class="block py-1 text-aurum-gold font-semibold">BRIDAL &amp; WEDDING</a></div>
       <div><a href="#custom-design-section" class="block py-1 hover:text-aurum-gold">CUSTOM DESIGN</a></div>
-      <div><a href="{{ route('store.shop', ['q' => 'diamond']) }}" class="block py-1 hover:text-aurum-gold">DIAMONDS</a></div>
-      <div><a href="{{ route('store.shop', ['q' => 'gold coin']) }}" class="block py-1 hover:text-aurum-gold">GOLD COINS</a></div>
-      <div><a href="{{ route('store.shop') }}" class="block py-1 hover:text-aurum-gold">COLLECTIONS</a></div>
+      <div><a href="{{ $aurumRoute('store.shop', ['q' => 'diamond']) }}" class="block py-1 hover:text-aurum-gold">DIAMONDS</a></div>
+      <div><a href="{{ $aurumRoute('store.shop', ['q' => 'gold coin']) }}" class="block py-1 hover:text-aurum-gold">GOLD COINS</a></div>
+      <div><a href="{{ $aurumRoute('store.shop') }}" class="block py-1 hover:text-aurum-gold">COLLECTIONS</a></div>
     </nav>
 
     <!-- Bottom Actions -->
@@ -75,7 +88,7 @@
         BOOK APPOINTMENT
       </a>
       <div class="pt-2 flex items-center justify-between text-[11px] text-aurum-goldLight/70">
-        <a href="{{ route('store.login.show') }}" class="hover:text-aurum-gold">Account / Sign In</a>
+        <a href="{{ $aurumRoute('store.login.show') }}" class="hover:text-aurum-gold">Account / Sign In</a>
         <a href="#boutique-section" class="hover:text-aurum-gold">Find Boutique</a>
       </div>
     </div>

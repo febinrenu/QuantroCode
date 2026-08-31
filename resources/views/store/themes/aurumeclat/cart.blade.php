@@ -6,6 +6,16 @@
 </head>
 <body class="bg-[#0E0D0B] text-aurum-goldLight antialiased selection:bg-aurum-gold selection:text-aurum-black">
 
+@php
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'aurumeclat');
+  $aurumRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+@endphp
+
 @include('store.themes.aurumeclat.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
 @include('store.themes.aurumeclat.partials.mobile-nav')
 
@@ -29,7 +39,7 @@
             Discover our curated collections of diamond rings, heirloom necklaces, and certified gemstones.
           </p>
           <div class="pt-2">
-            <a href="{{ route('store.shop') }}" class="inline-block px-8 py-3 bg-aurum-gold text-aurum-black text-xs font-semibold tracking-widest uppercase hover:bg-aurum-goldLight transition-colors">
+            <a href="{{ $aurumRoute('store.shop') }}" class="inline-block px-8 py-3 bg-aurum-gold text-aurum-black text-xs font-semibold tracking-widest uppercase hover:bg-aurum-goldLight transition-colors">
               EXPLORE FINE JEWELRY
             </a>
           </div>
@@ -62,40 +72,29 @@
           </div>
         </template>
 
-        <!-- Totals & Actions -->
-        <div class="p-6 bg-[#141210] border border-aurum-border space-y-4">
+        <!-- Cart Summary Box -->
+        <div class="p-6 bg-[#141210] border border-aurum-border space-y-4 mt-6">
           <div class="flex justify-between text-xs text-aurum-goldLight/70">
-            <span>Complimentary Insured Shipping</span>
-            <span class="text-emerald-400 font-medium">Free</span>
+            <span>White-Glove Insured Delivery</span>
+            <span class="text-aurum-gold font-medium">COMPLIMENTARY</span>
           </div>
-          <div class="flex justify-between text-xs text-aurum-goldLight/70">
-            <span>Subtotal</span>
-            <strong class="text-white font-medium text-sm" x-text="money(subtotal)"></strong>
-          </div>
-          <div class="flex justify-between text-base pt-3 border-t border-aurum-border/60">
-            <span class="font-serif text-white">Estimated Total</span>
-            <strong class="text-aurum-gold font-serif text-xl font-bold" x-text="money(grand)"></strong>
+          <div class="flex justify-between text-sm sm:text-base font-serif font-semibold text-white border-t border-aurum-border/60 pt-4">
+            <span>Estimated Total</span>
+            <span class="text-aurum-gold text-xl" x-text="subtotalFormatted()"></span>
           </div>
 
-          <div class="flex flex-col sm:flex-row gap-3 pt-4">
-            <button type="button" class="py-3 px-6 border border-aurum-border text-xs tracking-wider uppercase text-aurum-goldLight/70 hover:border-white hover:text-white transition-colors" @click="clear">
-              Clear Bag
+          <div class="pt-4 flex flex-col sm:flex-row gap-3">
+            <button type="button" @click="clear()" class="px-5 py-3 border border-aurum-border text-aurum-goldLight/70 hover:text-white text-xs tracking-wider uppercase font-medium transition-colors">
+              CLEAR BAG
             </button>
-            <button type="button" class="flex-1 py-3 px-6 bg-aurum-gold hover:bg-[#E5C158] text-aurum-black font-semibold text-xs tracking-[0.2em] uppercase transition-colors text-center" @click="checkout('{{ route('checkout') }}')">
-              PROCEED TO SECURE CHECKOUT →
-            </button>
+            <a href="{{ $aurumRoute('store.checkout') }}" class="flex-1 py-3 bg-aurum-gold hover:bg-[#E5C158] text-aurum-black text-xs font-semibold tracking-[0.2em] uppercase text-center transition-colors shadow">
+              PROCEED TO SECURE CHECKOUT
+            </a>
           </div>
         </div>
 
       </div>
 
-    </div>
-
-    <div class="mt-8">
-      <a href="{{ route('store.shop') }}" class="inline-flex items-center gap-2 text-xs tracking-widest text-aurum-gold hover:text-white uppercase font-medium transition-colors">
-        <span>&larr;</span>
-        <span>CONTINUE BROWSING JEWELRY</span>
-      </a>
     </div>
 
   </div>

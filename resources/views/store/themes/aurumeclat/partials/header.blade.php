@@ -1,6 +1,13 @@
 {{-- AurumÉclat Luxury Header --}}
 @php
   $currency = $s->currency_code ?? '$';
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'aurumeclat');
+  $aurumRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
 @endphp
 
 <!-- TOP ANNOUNCEMENT BAR (Desktop) -->
@@ -63,7 +70,7 @@
 
     <!-- Center: Brand Logo -->
     <div class="text-center">
-      <a href="{{ route('store.index') }}" class="inline-block group">
+      <a href="{{ $aurumRoute('store.index') }}" class="inline-block group">
         <div class="flex items-center justify-center gap-2">
           <span class="text-aurum-gold text-xs">✦</span>
           <span class="font-serif tracking-[0.25em] text-xl sm:text-2xl lg:text-[26px] font-medium text-white group-hover:text-aurum-gold transition-colors uppercase">
@@ -86,23 +93,23 @@
       </button>
 
       <!-- Wishlist -->
-      <a href="{{ route('store.shop', ['collection' => 'bestselling']) }}" class="hidden sm:inline-block p-1 hover:text-aurum-gold transition-colors" aria-label="Wishlist">
+      <a href="{{ $aurumRoute('store.shop', ['collection' => 'bestselling']) }}" class="hidden sm:inline-block p-1 hover:text-aurum-gold transition-colors" aria-label="Wishlist">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
       </a>
 
       <!-- Account -->
       @if(Auth::guard('store')->check())
-        <a href="{{ route('account') }}" class="p-1 hover:text-aurum-gold transition-colors" aria-label="My Account">
+        <a href="{{ $aurumRoute('account') }}" class="p-1 hover:text-aurum-gold transition-colors" aria-label="My Account">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </a>
       @else
-        <a href="{{ route('store.login.show') }}" class="p-1 hover:text-aurum-gold transition-colors" aria-label="Sign In">
+        <a href="{{ $aurumRoute('store.login.show') }}" class="p-1 hover:text-aurum-gold transition-colors" aria-label="Sign In">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </a>
       @endif
 
       <!-- Bag / Cart -->
-      <a href="{{ route('store.cart') }}" class="relative p-1 text-aurum-goldLight hover:text-aurum-gold transition-colors" aria-label="Shopping Bag">
+      <a href="{{ $aurumRoute('store.cart') }}" class="relative p-1 text-aurum-goldLight hover:text-aurum-gold transition-colors" aria-label="Shopping Bag">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
           <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -119,34 +126,34 @@
     <div class="max-w-7xl mx-auto px-6">
       <ul class="flex items-center justify-center gap-7 xl:gap-9 py-3 text-[11px] font-medium tracking-[0.16em] uppercase text-aurum-goldLight/85">
         <li>
-          <a href="{{ route('store.shop', ['sort' => 'latest']) }}" class="hover:text-aurum-gold transition-colors">NEW ARRIVALS</a>
+          <a href="{{ $aurumRoute('store.shop', ['sort' => 'latest']) }}" class="hover:text-aurum-gold transition-colors">NEW ARRIVALS</a>
         </li>
         <li>
-          <a href="{{ route('store.shop', ['q' => 'ring']) }}" class="hover:text-aurum-gold transition-colors">RINGS</a>
+          <a href="{{ $aurumRoute('store.shop', ['q' => 'ring']) }}" class="hover:text-aurum-gold transition-colors">RINGS</a>
         </li>
         <li>
-          <a href="{{ route('store.shop', ['q' => 'necklace']) }}" class="hover:text-aurum-gold transition-colors">NECKLACES</a>
+          <a href="{{ $aurumRoute('store.shop', ['q' => 'necklace']) }}" class="hover:text-aurum-gold transition-colors">NECKLACES</a>
         </li>
         <li>
-          <a href="{{ route('store.shop', ['q' => 'earring']) }}" class="hover:text-aurum-gold transition-colors">EARRINGS</a>
+          <a href="{{ $aurumRoute('store.shop', ['q' => 'earring']) }}" class="hover:text-aurum-gold transition-colors">EARRINGS</a>
         </li>
         <li>
-          <a href="{{ route('store.shop', ['q' => 'bracelet']) }}" class="hover:text-aurum-gold transition-colors">BRACELETS</a>
+          <a href="{{ $aurumRoute('store.shop', ['q' => 'bracelet']) }}" class="hover:text-aurum-gold transition-colors">BRACELETS</a>
         </li>
         <li>
-          <a href="{{ route('store.shop', ['q' => 'bridal']) }}" class="hover:text-aurum-gold transition-colors text-aurum-gold">BRIDAL</a>
+          <a href="{{ $aurumRoute('store.shop', ['q' => 'bridal']) }}" class="hover:text-aurum-gold transition-colors text-aurum-gold">BRIDAL</a>
         </li>
         <li>
           <a href="#custom-design-section" class="hover:text-aurum-gold transition-colors">CUSTOM DESIGN</a>
         </li>
         <li>
-          <a href="{{ route('store.shop', ['q' => 'diamond']) }}" class="hover:text-aurum-gold transition-colors">DIAMONDS</a>
+          <a href="{{ $aurumRoute('store.shop', ['q' => 'diamond']) }}" class="hover:text-aurum-gold transition-colors">DIAMONDS</a>
         </li>
         <li>
-          <a href="{{ route('store.shop', ['q' => 'gold coin']) }}" class="hover:text-aurum-gold transition-colors">GOLD COINS</a>
+          <a href="{{ $aurumRoute('store.shop', ['q' => 'gold coin']) }}" class="hover:text-aurum-gold transition-colors">GOLD COINS</a>
         </li>
         <li>
-          <a href="{{ route('store.shop') }}" class="hover:text-aurum-gold transition-colors">COLLECTIONS</a>
+          <a href="{{ $aurumRoute('store.shop') }}" class="hover:text-aurum-gold transition-colors">COLLECTIONS</a>
         </li>
       </ul>
     </div>

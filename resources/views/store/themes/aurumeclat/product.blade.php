@@ -4,35 +4,55 @@
 @include('store.themes.aurumeclat._shell', ['pageTitle' => $product['name'] . ' — ' . ($s->store_name ?? 'AurumÉclat')])
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="bg-[#0E0D0B] text-aurum-goldLight antialiased selection:bg-aurum-gold selection:text-aurum-black">
+<body class="bg-[#090807] text-aurum-goldLight antialiased selection:bg-aurum-gold selection:text-aurum-black">
+
+@php
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'aurumeclat');
+  $aurumRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+@endphp
 
 @include('store.themes.aurumeclat.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
 @include('store.themes.aurumeclat.partials.mobile-nav')
 
 @php
   $currency = $s->currency_code ?? '$';
-  $gallery = array_values(array_filter(array_merge([$product['image_url']], $product['gallery_urls'] ?? [])));
-  if (empty($gallery)) { $gallery = [null]; }
+  $slugName = \Illuminate\Support\Str::slug($product['name']);
+  $imgSrc = $product['image_url'];
+  if (!$imgSrc || str_contains($imgSrc, 'no-image.png')) {
+      if (file_exists(public_path('images/products/' . $slugName . '.jpg'))) {
+          $imgSrc = global_asset('images/products/' . $slugName . '.jpg');
+      } elseif (file_exists(public_path('images/tenants/21f7a839-4846-4839-8938-d9fcfc0ab086/products/' . $slugName . '.jpg'))) {
+          $imgSrc = global_asset('images/tenants/21f7a839-4846-4839-8938-d9fcfc0ab086/products/' . $slugName . '.jpg');
+      }
+  }
+
+  $gallery = array_values(array_filter(array_merge([$imgSrc], $product['gallery_urls'] ?? [])));
+  if (empty($gallery)) { $gallery = [$imgSrc]; }
 @endphp
 
 <main class="pb-24">
   
   <!-- Breadcrumb -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 text-xs text-aurum-goldLight/60 font-light flex items-center gap-2 border-b border-aurum-border/40">
-    <a href="{{ route('store.index') }}" class="hover:text-aurum-gold">Home</a> /
-    <a href="{{ route('store.shop') }}" class="hover:text-aurum-gold">Fine Jewelry</a> /
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-xs text-aurum-goldLight/60 font-light flex items-center gap-2 border-b border-aurum-border/40">
+    <a href="{{ $aurumRoute('store.index') }}" class="hover:text-aurum-gold">Home</a> /
+    <a href="{{ $aurumRoute('store.shop') }}" class="hover:text-aurum-gold">Fine Jewelry</a> /
     @if($product['category_name'])
-      <a href="{{ route('store.shop', ['category' => $p->category_id ?? '']) }}" class="hover:text-aurum-gold">{{ $product['category_name'] }}</a> /
+      <a href="{{ $aurumRoute('store.shop', ['category' => $p->category_id ?? '']) }}" class="hover:text-aurum-gold">{{ $product['category_name'] }}</a> /
     @endif
     <span class="text-white font-normal">{{ $product['name'] }}</span>
   </div>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14 grid lg:grid-cols-12 gap-12"
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12 grid lg:grid-cols-12 gap-10 lg:gap-14"
        x-data='{ variantIdx: 0, variants: @json($product["variants"], JSON_HEX_APOS | JSON_HEX_QUOT), gallery: @json($gallery, JSON_HEX_APOS | JSON_HEX_QUOT), activeImg: 0, qty: 1 }'>
 
     <!-- Gallery Column (7 cols) -->
     <div class="lg:col-span-7 space-y-4">
-      <div class="aspect-[4/4] sm:aspect-[4/3] bg-[#141210] border border-aurum-border overflow-hidden flex items-center justify-center p-6 relative">
+      <div class="aspect-square bg-[#120F0C] border border-aurum-border overflow-hidden flex items-center justify-center p-6 relative">
         <template x-if="gallery[activeImg]">
           <img :src="gallery[activeImg]" class="w-full h-full object-contain" alt="{{ $product['name'] }}">
         </template>
@@ -40,100 +60,114 @@
           <div class="text-7xl font-serif text-aurum-gold/30">✦</div>
         </template>
 
-        <!-- Purity Tag -->
-        <span class="absolute top-4 left-4 bg-[#1F1C17] border border-aurum-gold/40 text-aurum-gold text-[10px] tracking-widest uppercase font-semibold px-2.5 py-1">
+        <!-- Hallmark Badge -->
+        <span class="absolute top-4 left-4 bg-[#1A1612] border border-aurum-gold/50 text-aurum-gold text-[10px] tracking-widest uppercase font-semibold px-3 py-1 shadow">
           IGI / GIA CERTIFIED
         </span>
       </div>
 
       <!-- Thumbnail Strip -->
       @if(count($gallery) > 1)
-        <div class="flex gap-3 overflow-x-auto pb-2">
-          <template x-for="(img, i) in gallery" :key="i">
-            <button type="button" @click="activeImg = i" class="w-20 h-20 shrink-0 bg-[#141210] border p-1 transition-colors" :class="activeImg === i ? 'border-aurum-gold' : 'border-aurum-border'">
-              <img :src="img" class="w-full h-full object-contain">
+        <div class="flex items-center gap-3 overflow-x-auto pb-2">
+          @foreach($gallery as $idx => $gUrl)
+            <button type="button" 
+                    @click="activeImg = {{ $idx }}" 
+                    :class="activeImg === {{ $idx }} ? 'border-aurum-gold' : 'border-aurum-border opacity-60 hover:opacity-100'"
+                    class="w-16 h-16 bg-[#120F0C] border p-1 shrink-0 transition-all">
+              <img src="{{ $gUrl }}" class="w-full h-full object-cover" alt="Thumbnail {{ $idx + 1 }}">
             </button>
-          </template>
+          @endforeach
         </div>
       @endif
     </div>
 
-    <!-- Buy Box Column (5 cols) -->
+    <!-- Details / Buy Box Column (5 cols) -->
     <div class="lg:col-span-5 space-y-6">
       
       <div>
-        <span class="text-[10px] tracking-[0.25em] text-aurum-gold uppercase font-semibold block">
+        <div class="text-[11px] tracking-[0.2em] text-aurum-gold uppercase font-semibold">
           {{ $product['category_name'] ?? 'AURUMÉCLAT HIGH JEWELRY' }}
-        </span>
-        <h1 class="font-serif text-3xl sm:text-4xl text-white font-normal mt-1 leading-tight">
+        </div>
+        <h1 class="font-serif text-3xl sm:text-4xl text-white font-normal leading-tight mt-1.5">
           {{ $product['name'] }}
         </h1>
-        <div class="text-[11px] text-aurum-goldLight/50 font-light mt-1.5 flex items-center gap-4">
-          <span>SKU: {{ $product['sku'] ?? $product['code'] ?? 'JWL-AUR-001' }}</span>
-          <span>•</span>
-          <span class="text-emerald-400">In Stock &amp; Ready to Ship</span>
+        <div class="text-xs text-aurum-goldLight/60 font-light mt-1">
+          SKU: {{ $product['sku'] }}
         </div>
       </div>
 
-      <!-- Ratings -->
-      <div class="flex items-center gap-2 pt-1">
-        <div class="text-aurum-gold text-xs">★★★★★</div>
-        <span class="text-xs text-aurum-goldLight/70 font-light">(128 verified connoisseur reviews)</span>
+      <!-- Rating & Reviews -->
+      <div class="flex items-center gap-2 py-2 border-y border-aurum-border/60 text-xs">
+        <span class="text-aurum-gold">★★★★★</span>
+        <span class="text-white/80 font-medium">5.0</span>
+        <span class="text-aurum-goldLight/40">•</span>
+        <span class="text-aurum-goldLight/70 font-light">Certified Hallmark Guaranteed</span>
       </div>
 
-      <!-- Price -->
+      <!-- Price Box -->
       @if(!$product['hide_prices'])
-        <div class="py-4 border-y border-aurum-border/60 flex items-baseline gap-3">
-          <span class="text-3xl font-serif text-aurum-gold font-bold" x-show="!variants.length" x-text="'{{ $product['final_price_formatted'] }}'"></span>
-          <template x-if="variants.length">
-            <span class="text-3xl font-serif text-aurum-gold font-bold" x-text="variants[variantIdx].display_price_formatted"></span>
-          </template>
-          @if($product['compare_at_price_formatted'])
-            <span class="text-sm text-white/40 line-through">{{ $product['compare_at_price_formatted'] }}</span>
-          @endif
-        </div>
-      @endif
-
-      <!-- Metal / Variant Options -->
-      <template x-if="variants.length">
-        <div class="space-y-2">
-          <div class="text-xs tracking-wider uppercase text-white font-semibold">Select Precious Metal:</div>
-          <div class="flex flex-wrap gap-2">
-            <template x-for="(v, idx) in variants" :key="v.id">
-              <button type="button" @click="variantIdx = idx" class="px-4 py-2 text-xs border uppercase tracking-wider transition-colors" :class="variantIdx === idx ? 'border-aurum-gold bg-aurum-gold/15 text-white font-semibold' : 'border-aurum-border text-aurum-goldLight/70 hover:border-aurum-gold/50'">
-                <span x-text="v.name"></span>
-              </button>
-            </template>
+        <div class="space-y-1">
+          <div class="flex items-baseline gap-3">
+            <span class="font-serif text-3xl sm:text-4xl font-semibold text-white">
+              {{ $product['final_price_formatted'] }}
+            </span>
+            @if($product['compare_at_price_formatted'])
+              <span class="text-sm text-aurum-goldLight/40 line-through font-light">
+                {{ $product['compare_at_price_formatted'] }}
+              </span>
+              <span class="text-xs text-aurum-wine font-semibold uppercase">
+                Save {{ $product['discount_percent'] }}%
+              </span>
+            @endif
+          </div>
+          <div class="text-[11px] text-aurum-goldLight/60 font-light">
+            Price includes insured white-glove transport &amp; luxury presentation box.
           </div>
         </div>
-      </template>
-
-      <!-- Description / Note -->
-      @if(!empty($product['note']))
-        <p class="text-xs text-aurum-goldLight/80 font-light leading-relaxed">
-          {{ $product['note'] }}
-        </p>
       @endif
 
-      <!-- Quantity and Add to Bag -->
+      <!-- Description -->
+      <div class="text-xs sm:text-sm text-aurum-goldLight/80 font-light leading-relaxed space-y-3 pt-2">
+        <p>{{ $product['description'] ?: 'Meticulously set in solid hallmarked precious metal with certified brilliant stones. Handcrafted by master artisans with heirloom-grade precision.' }}</p>
+      </div>
+
+      <!-- Metal Purity & Specifications -->
+      <div class="bg-[#12100E] border border-aurum-border p-4 space-y-2 text-xs">
+        <div class="flex justify-between py-1 border-b border-aurum-border/40">
+          <span class="text-aurum-goldLight/60">Metal Authenticity</span>
+          <span class="text-white font-medium">18K / 22K Solid Gold</span>
+        </div>
+        <div class="flex justify-between py-1 border-b border-aurum-border/40">
+          <span class="text-aurum-goldLight/60">Gemstone Quality</span>
+          <span class="text-white font-medium">VS-VVS Clarity • Colorless F-G</span>
+        </div>
+        <div class="flex justify-between py-1">
+          <span class="text-aurum-goldLight/60">Service Inclusions</span>
+          <span class="text-aurum-gold font-medium">Lifetime Complimentary Polish</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
       <div class="space-y-3 pt-2">
         <div class="flex items-center gap-3">
-          <div class="flex items-center border border-aurum-border bg-[#141210]">
-            <button type="button" @click="if(qty > 1) qty--" class="px-3.5 py-3 text-aurum-goldLight hover:text-aurum-gold text-xs">-</button>
-            <span class="px-4 text-xs text-white font-medium" x-text="qty"></span>
-            <button type="button" @click="qty++" class="px-3.5 py-3 text-aurum-goldLight hover:text-aurum-gold text-xs">+</button>
+          
+          <!-- Quantity -->
+          <div class="flex items-center border border-aurum-border bg-[#141210] h-12">
+            <button type="button" @click="if (qty > 1) qty--" class="w-10 h-full text-aurum-gold hover:text-white transition-colors">-</button>
+            <span x-text="qty" class="w-10 text-center text-xs font-semibold text-white"></span>
+            <button type="button" @click="qty++" class="w-10 h-full text-aurum-gold hover:text-white transition-colors">+</button>
           </div>
 
+          <!-- Add to Bag Button -->
           <button type="button"
-                  class="js-add-to-cart flex-1 py-3 px-6 bg-aurum-gold hover:bg-[#E5C158] text-aurum-black font-semibold text-xs tracking-[0.2em] uppercase transition-colors text-center disabled:opacity-40"
-                  @if(!$product['is_available']) disabled @endif
+                  class="js-add-to-cart flex-1 h-12 bg-aurum-gold hover:bg-[#E5C158] text-aurum-black text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-[0_4px_20px_rgba(212,175,55,0.25)] flex items-center justify-center"
                   data-out-of-stock="{{ $product['is_available'] ? '0' : '1' }}"
                   data-is-preorder="{{ $product['is_preorder_active'] ? '1' : '0' }}"
                   data-id="{{ $product['id'] }}"
                   data-slug="{{ $product['slug'] }}"
                   data-name="{{ e($product['name']) }}"
                   data-price="{{ number_format($product['final_price'], 2, '.', '') }}"
-                  data-image="{{ $product['image_url'] }}"
+                  data-image="{{ $imgSrc }}"
                   data-currency="{{ $product['currency'] }}"
                   :data-qty="qty"
                   data-stock="{{ $product['stock'] !== null ? $product['stock'] : '' }}"
@@ -148,7 +182,7 @@
       </div>
 
       <!-- Trust Badges -->
-      <div class="pt-6 border-t border-aurum-border/60 grid grid-cols-2 gap-4 text-xs text-aurum-goldLight/70 font-light">
+      <div class="pt-5 border-t border-aurum-border/60 grid grid-cols-2 gap-3.5 text-xs text-aurum-goldLight/70 font-light">
         <div class="flex items-center gap-2">
           <span>💎</span>
           <span>Certified Natural Diamonds</span>

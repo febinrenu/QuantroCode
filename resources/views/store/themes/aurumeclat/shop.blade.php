@@ -5,6 +5,16 @@
 </head>
 <body class="bg-[#0E0D0B] text-aurum-goldLight antialiased selection:bg-aurum-gold selection:text-aurum-black">
 
+@php
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'aurumeclat');
+  $aurumRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+@endphp
+
 @include('store.themes.aurumeclat.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
 @include('store.themes.aurumeclat.partials.mobile-nav')
 
@@ -33,8 +43,11 @@
         </div>
 
         <!-- Sort Form -->
-        <form method="get" action="{{ route('store.shop') }}" class="flex items-center gap-3">
-          @foreach(request()->except(['sort','page']) as $k => $v)
+        <form method="get" action="{{ $aurumRoute('store.shop') }}" class="flex items-center gap-3">
+          @if($themePreview)
+            <input type="hidden" name="preview_theme" value="{{ $themePreview }}">
+          @endif
+          @foreach(request()->except(['sort','page','preview_theme']) as $k => $v)
             <input type="hidden" name="{{ $k }}" value="{{ $v }}">
           @endforeach
           <label for="sort-select" class="text-xs text-aurum-goldLight/70 font-light uppercase tracking-wider hidden sm:inline">Sort by:</label>
@@ -55,7 +68,10 @@
     <aside class="hidden lg:block">
       <div class="sticky top-28 bg-[#12100E] border border-aurum-border p-6 space-y-8">
         
-        <form method="get" action="{{ route('store.shop') }}">
+        <form method="get" action="{{ $aurumRoute('store.shop') }}">
+          @if($themePreview)
+            <input type="hidden" name="preview_theme" value="{{ $themePreview }}">
+          @endif
           <!-- Search Field -->
           <div class="space-y-3">
             <div class="text-[11px] font-semibold tracking-widest text-aurum-gold uppercase">SEARCH</div>
@@ -69,37 +85,37 @@
             <div class="text-[11px] font-semibold tracking-widest text-aurum-gold uppercase">COLLECTIONS</div>
             <ul class="space-y-2 text-xs font-light text-aurum-goldLight/80">
               <li>
-                <a href="{{ route('store.shop') }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ !$q ? 'text-aurum-gold font-medium' : '' }}">
+                <a href="{{ $aurumRoute('store.shop') }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ !$q ? 'text-aurum-gold font-medium' : '' }}">
                   All Jewelry
                 </a>
               </li>
               <li>
-                <a href="{{ route('store.shop', ['q' => 'ring']) }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ ($q ?? '') === 'ring' ? 'text-aurum-gold font-medium' : '' }}">
+                <a href="{{ $aurumRoute('store.shop', ['q' => 'ring']) }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ ($q ?? '') === 'ring' ? 'text-aurum-gold font-medium' : '' }}">
                   Diamond Rings
                 </a>
               </li>
               <li>
-                <a href="{{ route('store.shop', ['q' => 'necklace']) }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ ($q ?? '') === 'necklace' ? 'text-aurum-gold font-medium' : '' }}">
+                <a href="{{ $aurumRoute('store.shop', ['q' => 'necklace']) }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ ($q ?? '') === 'necklace' ? 'text-aurum-gold font-medium' : '' }}">
                   Necklaces &amp; Pendants
                 </a>
               </li>
               <li>
-                <a href="{{ route('store.shop', ['q' => 'earring']) }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ ($q ?? '') === 'earring' ? 'text-aurum-gold font-medium' : '' }}">
+                <a href="{{ $aurumRoute('store.shop', ['q' => 'earring']) }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ ($q ?? '') === 'earring' ? 'text-aurum-gold font-medium' : '' }}">
                   Earrings &amp; Drops
                 </a>
               </li>
               <li>
-                <a href="{{ route('store.shop', ['q' => 'bracelet']) }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ ($q ?? '') === 'bracelet' ? 'text-aurum-gold font-medium' : '' }}">
+                <a href="{{ $aurumRoute('store.shop', ['q' => 'bracelet']) }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ ($q ?? '') === 'bracelet' ? 'text-aurum-gold font-medium' : '' }}">
                   Tennis Bracelets &amp; Bangles
                 </a>
               </li>
               <li>
-                <a href="{{ route('store.shop', ['q' => 'bridal']) }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ ($q ?? '') === 'bridal' ? 'text-aurum-gold font-medium' : '' }}">
+                <a href="{{ $aurumRoute('store.shop', ['q' => 'bridal']) }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ ($q ?? '') === 'bridal' ? 'text-aurum-gold font-medium' : '' }}">
                   Bridal &amp; Wedding Sets
                 </a>
               </li>
               <li>
-                <a href="{{ route('store.shop', ['q' => 'gold coin']) }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ ($q ?? '') === 'gold coin' ? 'text-aurum-gold font-medium' : '' }}">
+                <a href="{{ $aurumRoute('store.shop', ['q' => 'gold coin']) }}" class="hover:text-aurum-gold transition-colors block py-0.5 {{ ($q ?? '') === 'gold coin' ? 'text-aurum-gold font-medium' : '' }}">
                   Gold Coins (22K / 24K)
                 </a>
               </li>
@@ -132,7 +148,7 @@
           <p class="text-xs text-aurum-goldLight/60 font-light max-w-sm mx-auto">
             Try adjusting your search query or clear filters to view the full jewelry collection.
           </p>
-          <a href="{{ route('store.shop') }}" class="inline-block mt-4 px-6 py-2.5 bg-aurum-gold text-aurum-black text-xs font-semibold tracking-wider uppercase">
+          <a href="{{ $aurumRoute('store.shop') }}" class="inline-block mt-4 px-6 py-2.5 bg-aurum-gold text-aurum-black text-xs font-semibold tracking-wider uppercase">
             VIEW ALL PIECES
           </a>
         </div>
@@ -145,7 +161,7 @@
 
         <!-- Pagination -->
         <div class="mt-12 flex justify-center">
-          {{ $products->links() }}
+          {{ $products->appends(request()->query())->links() }}
         </div>
       @endif
     </div>
