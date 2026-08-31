@@ -27,7 +27,7 @@ use Illuminate\Support\Str;
  */
 class SeedIndustryCatalog extends Command
 {
-    protected $signature = 'demo:industry-catalog {--force : Re-download images and re-insert even if already seeded}';
+    protected $signature = 'demo:industry-catalog {--force : Re-download images and re-insert even if already seeded} {--only= : Only re-fetch the product with this code (e.g. PR-IND-072), leaving everything else untouched}';
 
     protected $description = 'Seed a multi-industry product catalog with real Unsplash photos, matching the 20 storefront themes.';
 
@@ -88,8 +88,13 @@ class SeedIndustryCatalog extends Command
                 $code = self::CODE_PREFIX . str_pad((string) $seq, 3, '0', STR_PAD_LEFT);
                 $seq++;
 
+                $only = $this->option('only');
+                if ($only && $only !== $code) {
+                    continue;
+                }
+
                 $existingId = DB::table('products')->where('code', $code)->value('id');
-                if ($existingId && ! $this->option('force')) {
+                if ($existingId && ! $this->option('force') && ! $only) {
                     // Already seeded (photo included) on a previous run -- just
                     // backfill the description if this command's product list
                     // has since gained one, without spending another API call.
