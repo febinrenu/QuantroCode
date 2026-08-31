@@ -454,7 +454,7 @@ class SeedIndustryCatalog extends Command
             // Terra & Co. (Grocery & Fresh Produce) -- gourmet pantry goods
             ['code' => 'CAT-IND-GRC', 'category' => 'Grocery & Fresh Produce', 'products' => [
                 ['Extra Virgin Olive Oil 500ml', 'olive oil bottle', 24.99, 'Cold-pressed extra virgin olive oil from single-estate Mediterranean groves.'],
-                ['Black Truffle Sauce 90g', 'truffle sauce jar', 18.50, 'Rich black truffle sauce, ideal finished over pasta, risotto, or eggs.'],
+                ['Black Truffle Sauce 90g', 'black truffle', 18.50, 'Rich black truffle sauce, ideal finished over pasta, risotto, or eggs.'],
                 ['Raw Wildflower Honey 400g', 'honey jar', 12.90, 'Unfiltered raw wildflower honey harvested from small independent apiaries.'],
                 ['Italian Artisan Pasta 500g', 'pasta package', 7.99, 'Bronze-die extruded pasta made from 100% durum wheat semolina.'],
                 ['Dark Chocolate 70% 100g', 'dark chocolate bar', 6.75, 'Single-origin dark chocolate bar, 70% cacao, dairy-free.'],
