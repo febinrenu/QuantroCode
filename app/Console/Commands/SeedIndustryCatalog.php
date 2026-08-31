@@ -471,6 +471,15 @@ class SeedIndustryCatalog extends Command
                 ['Dark Chocolate 70% 100g', 'dark chocolate bar', 6.75, 'Single-origin dark chocolate bar, 70% cacao, dairy-free.'],
                 ['Organic Green Tea 100g', 'green tea leaves', 9.25, 'Loose-leaf organic green tea, hand-picked and lightly oxidized.'],
             ]],
+            // Élégance (Fashion & Apparel) -- boutique womenswear and accessories
+            ['code' => 'CAT-IND-FSH', 'category' => 'Fashion & Apparel', 'products' => [
+                ['Silk Wrap Blouse', 'silk blouse fashion', 79.00, 'Fluid silk wrap blouse with a tie waist, tailored for an elegant drape.'],
+                ['Tailored Wool Blazer', 'wool blazer fashion', 149.00, 'Structured single-breasted blazer in Italian wool, fully lined.'],
+                ['Pleated Midi Skirt', 'pleated skirt fashion', 65.00, 'Satin pleated midi skirt with a fluid movement and high waistband.'],
+                ['Cashmere Knit Sweater', 'cashmere sweater fashion', 119.00, 'Pure cashmere crewneck sweater, soft-brushed for everyday luxury.'],
+                ['Leather Ankle Boots', 'leather ankle boots fashion', 139.00, 'Block-heel leather ankle boots with a soft round toe and side zip.'],
+                ['Structured Tote Handbag', 'leather handbag fashion', 159.00, 'Structured leather tote with a detachable strap and gold-tone hardware.'],
+            ]],
         ];
     }
 }
