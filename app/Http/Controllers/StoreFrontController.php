@@ -270,6 +270,7 @@ class StoreFrontController extends Controller
         $maxPrice = $request->get('max');
         $sort = $request->get('sort', 'latest');   // latest|price_asc|price_desc
         $coll = $request->get('collection');       // id or slug
+        $brand = trim((string) $request->get('brand', ''));
 
         // 1-2) Shared price SQL pipeline (mirrors index())
         [$minVariantSub, $baseExpr, $afterDiscountExpr, $finalExpr] = $this->priceSqlExpressions();
@@ -325,6 +326,12 @@ class StoreFrontController extends Controller
                 $q->whereIn('products.category_id', $pplCatIds)
                   ->orWhere('products.code', 'like', 'PPL-%');
             });
+        } elseif ($activeTheme === 'marketverse') {
+            $mktCatIds = $categories->pluck('id')->all();
+            $productsQuery->where(function ($q) use ($mktCatIds) {
+                $q->whereIn('products.category_id', $mktCatIds)
+                  ->orWhere('products.code', 'like', 'MKT-%');
+            });
         }
 
         $products = $productsQuery
@@ -332,8 +339,58 @@ class StoreFrontController extends Controller
             ->when($q !== '', function ($qb) use ($q) {
                 $qb->where('products.name', 'like', "%{$q}%");
             })
+            // Brand filter
+            ->when($brand !== '', function ($qb) use ($brand) {
+                $qb->where(function ($q) use ($brand) {
+                    $q->whereHas('brand', function ($bq) use ($brand) {
+                        $bq->where('name', $brand)
+                           ->orWhere('name', 'like', "%{$brand}%");
+                    })
+                    ->orWhere('products.name', 'like', "%{$brand}%");
+                });
+            })
             // Category (legacy column OR category_product pivot OR name/slug match)
             ->when($cat, function ($qb) use ($cat, $activeTheme) {
+                if ($activeTheme === 'marketverse') {
+                    if (strcasecmp($cat, 'Fashion') === 0 || strcasecmp($cat, "Women's Fashion") === 0 || strcasecmp($cat, "Men's Fashion") === 0) {
+                        $fashCatIds = Category::whereIn('name', ['Fashion', "Women's Fashion", "Men's Fashion"])->pluck('id')->all();
+                        $qb->whereIn('products.category_id', $fashCatIds);
+                        return;
+                    } elseif (strcasecmp($cat, 'Home') === 0 || strcasecmp($cat, 'Home & Living') === 0) {
+                        $homeCatIds = Category::whereIn('name', ['Home & Living', 'Home'])->pluck('id')->all();
+                        $qb->whereIn('products.category_id', $homeCatIds);
+                        return;
+                    } elseif (strcasecmp($cat, 'Beauty') === 0 || strcasecmp($cat, 'Beauty & Personal Care') === 0) {
+                        $beautyCatIds = Category::whereIn('name', ['Beauty & Personal Care', 'Beauty'])->pluck('id')->all();
+                        $qb->whereIn('products.category_id', $beautyCatIds);
+                        return;
+                    } elseif (strcasecmp($cat, 'Grocery') === 0 || strcasecmp($cat, 'Grocery & Essentials') === 0) {
+                        $grocCatIds = Category::whereIn('name', ['Grocery & Essentials', 'Grocery'])->pluck('id')->all();
+                        $qb->whereIn('products.category_id', $grocCatIds);
+                        return;
+                    } elseif (strcasecmp($cat, 'Toys') === 0 || strcasecmp($cat, 'Toys & Games') === 0) {
+                        $toyCatIds = Category::whereIn('name', ['Toys & Games', 'Toys'])->pluck('id')->all();
+                        $qb->whereIn('products.category_id', $toyCatIds);
+                        return;
+                    } elseif (strcasecmp($cat, 'Sports') === 0 || strcasecmp($cat, 'Sports & Outdoors') === 0) {
+                        $sportCatIds = Category::whereIn('name', ['Sports & Outdoors', 'Sports'])->pluck('id')->all();
+                        $qb->whereIn('products.category_id', $sportCatIds);
+                        return;
+                    } elseif (strcasecmp($cat, 'Automotive') === 0) {
+                        $autoCatIds = Category::whereIn('name', ['Automotive'])->pluck('id')->all();
+                        $qb->whereIn('products.category_id', $autoCatIds);
+                        return;
+                    } elseif (strcasecmp($cat, 'Books') === 0 || strcasecmp($cat, 'Books & Stationery') === 0) {
+                        $bookCatIds = Category::whereIn('name', ['Books & Stationery', 'Books'])->pluck('id')->all();
+                        $qb->whereIn('products.category_id', $bookCatIds);
+                        return;
+                    } elseif (strcasecmp($cat, 'Pet Supplies') === 0 || strcasecmp($cat, 'Pets') === 0) {
+                        $petCatIds = Category::whereIn('name', ['Pet Supplies', 'Pets'])->pluck('id')->all();
+                        $qb->whereIn('products.category_id', $petCatIds);
+                        return;
+                    }
+                }
+
                 if ($activeTheme === 'paperloom') {
                     if (strcasecmp($cat, 'Books') === 0) {
                         $bookCatIds = Category::whereIn('name', ['Books', 'Fiction', 'Non-Fiction', 'Children', 'Academic'])->pluck('id')->all();
@@ -413,8 +470,14 @@ class StoreFrontController extends Controller
                         if (in_array($coll, ['study-essentials', 'study_essentials', 'essentials'])) {
                             $slugs = array_merge($slugs, ['study-essentials', 'study_essentials', 'essentials']);
                         }
-                        if (in_array($coll, ['sale', 'deals'])) {
-                            $slugs = array_merge($slugs, ['sale', 'deals']);
+                        if (in_array($coll, ['flash-sale', 'flash_sale', 'sale', 'deals'])) {
+                            $slugs = array_merge($slugs, ['flash-sale', 'flash_sale', 'sale', 'deals']);
+                        }
+                        if (in_array($coll, ['top-deals', 'top_deals'])) {
+                            $slugs = array_merge($slugs, ['top-deals', 'top_deals', 'deals', 'sale']);
+                        }
+                        if (in_array($coll, ['recommended', 'recommended-for-you', 'recommended_for_you'])) {
+                            $slugs = array_merge($slugs, ['recommended', 'recommended-for-you', 'recommended_for_you', 'featured']);
                         }
                         $rel->whereIn('collections.slug', array_unique($slugs));
                     }
@@ -454,6 +517,7 @@ class StoreFrontController extends Controller
             'collections' => $collections,
             'q' => $q,
             'cat' => $cat,
+            'brand' => $brand,
             'min' => $minPrice,
             'max' => $maxPrice,
             'sort' => $sort,
@@ -474,9 +538,18 @@ class StoreFrontController extends Controller
             ->where('hide_from_online_store', 0)
             ->with(['variants', 'images' => fn ($q) => $q->orderBy('sort_order')->orderBy('id'), 'category', 'brand']);
 
-        $product = (string) (int) $slugOrId === $slugOrId
-            ? $query->where('id', (int) $slugOrId)->first()
-            : $query->where('slug', $slugOrId)->first();
+        if (is_numeric($slugOrId)) {
+            $product = $query->where('id', (int) $slugOrId)->first();
+        } else {
+            $hasSlug = Schema::hasColumn('products', 'slug');
+            $product = $query->where(function ($q) use ($slugOrId, $hasSlug) {
+                $q->where('code', $slugOrId)
+                  ->orWhere('name', $slugOrId);
+                if ($hasSlug) {
+                    $q->orWhere('slug', $slugOrId);
+                }
+            })->first();
+        }
 
         if (! $product) {
             abort(404);
@@ -813,6 +886,24 @@ class StoreFrontController extends Controller
                     'Gifts',
                 ])
                 ->orderByRaw("FIELD(name, 'Books', 'Fiction', 'Non-Fiction', 'Children', 'Academic', 'Stationery', 'Notebooks', 'Journals', 'Art Supplies', 'Desk Accessories', 'Gifts')")
+                ->get();
+        }
+
+        if ($activeTheme === 'marketverse') {
+            return Category::with('subcategories')
+                ->whereIn('name', [
+                    'Fashion',
+                    'Electronics',
+                    'Home & Living',
+                    'Beauty & Personal Care',
+                    'Grocery & Essentials',
+                    'Sports & Outdoors',
+                    'Toys & Games',
+                    'Automotive',
+                    'Books & Stationery',
+                    'Pet Supplies',
+                ])
+                ->orderByRaw("FIELD(name, 'Fashion', 'Electronics', 'Home & Living', 'Beauty & Personal Care', 'Grocery & Essentials', 'Sports & Outdoors', 'Toys & Games', 'Automotive', 'Books & Stationery', 'Pet Supplies')")
                 ->get();
         }
 

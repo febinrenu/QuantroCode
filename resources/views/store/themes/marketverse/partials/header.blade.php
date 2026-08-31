@@ -1,118 +1,234 @@
 @php
-  $mvClient = Auth::guard('store')->user();
-  $mvCategories = $categories ?? collect();
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'marketverse');
+  $mvRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+  $shopUrl = $mvRoute('store.shop');
+  $cartUrl = $mvRoute('store.cart');
+  $homeUrl = $mvRoute('store.index');
+
+  $navDepartments = [
+      ['name' => 'Fashion', 'category' => 'Fashion'],
+      ['name' => 'Electronics', 'category' => 'Electronics'],
+      ['name' => 'Home', 'category' => 'Home & Living'],
+      ['name' => 'Beauty', 'category' => 'Beauty & Personal Care'],
+      ['name' => 'Grocery', 'category' => 'Grocery & Essentials'],
+      ['name' => 'Toys', 'category' => 'Toys & Games'],
+      ['name' => 'Sports', 'category' => 'Sports & Outdoors'],
+      ['name' => 'Automotive', 'category' => 'Automotive'],
+  ];
 @endphp
-<div class="bg-mv-inkDark text-mv-accentLight text-xs">
-  <div class="max-w-[1600px] mx-auto px-4 flex items-center justify-between h-9">
-    <span class="truncate mv-mono">{{ $s->topbar_text_left ?? 'FREE SHIPPING > $99' }}</span>
-    <div class="hidden md:flex items-center gap-4">
-      <span class="mv-mono">{{ $s->topbar_text_right ?? 'NEW LISTINGS DAILY' }}</span>
-      <a href="{{ route('store.contact') }}" class="hover:text-white">{{ __('messages.Support') }}</a>
+
+<header class="w-full bg-white border-b border-mv-border sticky top-0 z-40 shadow-xs">
+
+  <!-- 1. TOP UTILITY BAR (Purple Deep) -->
+  <div class="bg-[#2D1680] text-slate-200 text-[11px] py-1.5 px-4 sm:px-6 lg:px-8 border-b border-white/10 hidden md:block">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <!-- Left Links -->
+      <div class="flex items-center gap-5">
+        <a href="#app-download" class="flex items-center gap-1.5 hover:text-white transition-colors">
+          <svg class="w-3.5 h-3.5 text-mv-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <span>Download App</span>
+        </a>
+        <a href="{{ $shopUrl }}" class="flex items-center gap-1.5 hover:text-white transition-colors">
+          <svg class="w-3.5 h-3.5 text-mv-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          <span>Become a Seller</span>
+        </a>
+        <a href="{{ $mvRoute('store.shop', ['collection' => 'top-deals']) }}" class="flex items-center gap-1.5 hover:text-white transition-colors">
+          <svg class="w-3.5 h-3.5 text-mv-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <span>Order Tracking</span>
+        </a>
+        <a href="#coupons-section" class="flex items-center gap-1.5 hover:text-white transition-colors">
+          <svg class="w-3.5 h-3.5 text-mv-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+          <span>Coupons</span>
+        </a>
+        <a href="{{ $shopUrl }}" class="flex items-center gap-1.5 hover:text-white transition-colors">
+          <svg class="w-3.5 h-3.5 text-mv-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <span>Customer Support</span>
+        </a>
+      </div>
+
+      <!-- Right Preferences -->
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-1 cursor-pointer hover:text-white">
+          <span>🇺🇸 English</span>
+        </div>
+        <span>|</span>
+        <div class="flex items-center gap-1 cursor-pointer hover:text-white">
+          <span>USD ($)</span>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<header class="sticky top-0 z-40 bg-white/97 backdrop-blur border-b-2 border-mv-ink shadow-tile">
-  <div class="max-w-[1600px] mx-auto px-4">
-    <div class="flex items-center gap-3 h-16">
-      <a href="{{ route('store.index') }}" class="flex items-center gap-2 shrink-0">
-        @if(!empty($s->logo_path))
-          <img src="{{ \Illuminate\Support\Str::startsWith($s->logo_path,['http://','https://','/']) ? $s->logo_path : global_asset($s->logo_path) }}" alt="{{ $s->store_name }}" class="h-9 max-w-[150px] object-contain">
-        @else
-          <span class="font-black text-xl tracking-tight text-mv-ink">{{ $s->store_name ?? 'MarketVerse' }}<span class="text-mv-accent">.</span></span>
-        @endif
-      </a>
+  <!-- 2. MAIN BRAND & SEARCH HEADER -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+    <div class="flex items-center justify-between gap-4 lg:gap-8">
 
-      <button type="button" class="hidden lg:inline-flex h-10 px-3 items-center gap-2 rounded-md bg-mv-ink text-white text-sm font-bold" onclick="document.getElementById('mv-rail-toggle-note')?.scrollIntoView()">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        {{ __('messages.Categories') ?? 'Categories' }}
+      <!-- Mobile Menu Button -->
+      <button type="button"
+              @click="mobileMenuOpen = true"
+              class="lg:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
 
-      <div class="hidden md:flex flex-1 max-w-xl mx-1 relative" x-data="searchBox('{{ route('store.search.suggestions') }}')" @click.outside="results = []">
-        <form action="{{ route('store.shop') }}" method="GET" class="w-full relative">
-          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-mv-slate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
-          <input type="text" name="q" class="w-full h-10 pl-10 pr-3 rounded-md border-2 border-mv-line bg-mv-cream text-sm focus:outline-none focus:ring-2 focus:ring-mv-accent/40 focus:border-mv-accent"
-                 placeholder="{{ __('messages.SearchProducts') ?? 'Search electronics, fashion, home & more…' }}" autocomplete="off" value="{{ request('q') }}" x-model="q" @input.debounce.250ms="fetch">
-          <div x-show="results.length" x-cloak class="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-mv-line rounded-md shadow-tileHover overflow-hidden max-h-96 overflow-y-auto z-50">
-            <template x-for="p in results" :key="p.id">
-              <a :href="p.url" class="flex items-center gap-3 px-3 py-2 hover:bg-mv-accentSoft">
-                <img :src="p.image_url" class="w-10 h-10 rounded object-cover border border-mv-line">
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm font-medium truncate" x-text="p.name"></div>
-                  <div class="text-xs font-bold text-mv-accentDark mv-mono" x-text="window.__HIDE_PRICES__ ? '' : ('{{ $s->currency_code ?? '$' }}' + p.display_price)"></div>
-                </div>
-              </a>
-            </template>
+      <!-- MarketVerse Logo -->
+      <a href="{{ $homeUrl }}" class="flex items-center gap-2.5 shrink-0 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-mv-purpleDark to-mv-purple flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-2xl font-black tracking-tight text-slate-900 leading-none">
+            Market<span class="text-mv-purple">Verse</span>
+          </span>
+          <span class="text-[10px] font-semibold text-slate-400 tracking-wider uppercase mt-0.5">Mega Marketplace</span>
+        </div>
+      </a>
+
+      <!-- Large Center Search Bar with Department Selector -->
+      <div class="flex-1 max-w-2xl hidden md:block">
+        <form action="{{ route('store.shop') }}" method="GET" class="flex items-center bg-slate-50 border-2 border-mv-purple/30 focus-within:border-mv-purple rounded-full p-1 shadow-xs transition-colors">
+          @if($themePreview)
+            <input type="hidden" name="preview_theme" value="{{ $themePreview }}">
+          @endif
+
+          <!-- Departments Dropdown -->
+          <div class="relative pl-3 pr-2 py-1.5 border-r border-slate-200 shrink-0">
+            <select name="category" class="text-xs bg-transparent font-medium text-slate-700 focus:outline-none cursor-pointer">
+              <option value="">All Departments</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Home & Living">Home & Living</option>
+              <option value="Beauty & Personal Care">Beauty</option>
+              <option value="Grocery & Essentials">Grocery</option>
+              <option value="Toys & Games">Toys</option>
+              <option value="Sports & Outdoors">Sports</option>
+              <option value="Automotive">Automotive</option>
+              <option value="Books & Stationery">Books</option>
+            </select>
           </div>
+
+          <!-- Query Input -->
+          <input type="text"
+                 name="q"
+                 value="{{ request('q') }}"
+                 placeholder="Search for products, brands and stores..."
+                 class="w-full bg-transparent px-4 py-2 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none">
+
+          <!-- Search Submit Button (Orange) -->
+          <button type="submit"
+                  class="w-10 h-10 rounded-full bg-mv-orange hover:bg-mv-orangeHover text-white flex items-center justify-center shrink-0 shadow-md transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </button>
         </form>
       </div>
 
-      <nav class="hidden xl:flex items-center gap-1">
-        <a href="{{ route('store.index') }}" class="px-3 h-10 inline-flex items-center text-sm font-semibold text-mv-ink hover:text-mv-accentDark">{{ __('messages.Home') }}</a>
-        <a href="{{ route('store.shop') }}" class="px-3 h-10 inline-flex items-center text-sm font-semibold text-mv-ink hover:text-mv-accentDark">{{ __('messages.Shop') }}</a>
-        <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="px-3 h-10 inline-flex items-center text-sm font-semibold text-mv-ink hover:text-mv-accentDark">{{ __('messages.Deals') ?? 'Deals' }}</a>
-      </nav>
+      <!-- Right Utility Actions -->
+      <div class="flex items-center gap-3 sm:gap-5 shrink-0">
 
-      <div class="ms-auto flex items-center gap-1">
-        @if($mvClient)
-          <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-10 px-3 items-center gap-1.5 text-sm font-medium text-mv-ink hover:text-mv-accentDark">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-            {{ \Illuminate\Support\Str::limit($mvClient->username ?: $mvClient->email, 12) }}
-          </a>
-        @else
-          <a href="{{ url('/online_store/login') }}" class="hidden md:inline-flex h-10 px-4 items-center rounded-md text-sm font-bold text-mv-ink border-2 border-mv-ink hover:bg-mv-ink hover:text-white transition-colors">{{ __('messages.SignIn') }}</a>
-        @endif
-        <div class="hidden md:block">
-          @include('store.partials.language-switcher')
+        <!-- Delivery Location -->
+        <div class="hidden xl:flex items-center gap-2 text-left pl-2">
+          <div class="w-8 h-8 rounded-full bg-mv-purpleLight text-mv-purple flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <div class="text-[11px] leading-tight">
+            <span class="text-slate-400 block">Deliver to</span>
+            <span class="font-bold text-slate-800">New York, USA</span>
+          </div>
         </div>
-        <a href="{{ route('store.cart') }}" class="relative h-10 px-4 inline-flex items-center gap-1.5 rounded-md bg-mv-accent text-white text-sm font-bold hover:bg-mv-accentDark transition-colors">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          <span class="hidden sm:inline">{{ __('messages.Cart') }}</span>
-          <span class="cart-count absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-mv-ink text-white text-[11px] font-bold inline-flex items-center justify-center mv-mono">0</span>
-        </a>
-        <button type="button" class="xl:hidden h-10 w-10 inline-flex items-center justify-center rounded-md hover:bg-mv-accentSoft" onclick="document.getElementById('mv-mobile-menu').classList.toggle('hidden')" aria-label="Menu">
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-      </div>
-    </div>
 
-    @if(($showCategoryBar ?? true) && $mvCategories->count())
-      <div class="hidden lg:block border-t border-mv-line">
-        <ul class="no-scrollbar flex flex-nowrap items-center gap-1 py-1.5 overflow-x-auto">
-          @foreach($mvCategories as $cat)
-            <li class="shrink-0">
-              <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="px-2.5 h-7 inline-flex items-center text-[11px] font-bold uppercase tracking-wide text-mv-slate hover:text-mv-accentDark hover:bg-mv-accentSoft rounded mv-mono">{{ $cat->name }}</a>
-            </li>
-          @endforeach
-        </ul>
+        <!-- Account -->
+        <a href="{{ $shopUrl }}" class="flex items-center gap-2 text-slate-700 hover:text-mv-purple transition-colors">
+          <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center">
+            <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          </div>
+          <div class="hidden sm:block text-[11px] text-left leading-tight">
+            <span class="text-slate-400 block">Account</span>
+            <span class="font-bold text-slate-800">Hello, Sign In</span>
+          </div>
+        </a>
+
+        <!-- Wishlist -->
+        <a href="{{ $shopUrl }}" class="relative p-2 text-slate-700 hover:text-mv-purple transition-colors hidden sm:block">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          <span class="absolute top-0 right-0 w-4 h-4 bg-mv-purple text-white text-[9px] font-bold rounded-full flex items-center justify-center">0</span>
+        </a>
+
+        <!-- Cart Badge (Single Alpine runtime synced via miniCart()) -->
+        <div x-data="miniCart()">
+          <a href="{{ $cartUrl }}"
+             class="flex items-center gap-2 px-3.5 py-2 bg-mv-purple hover:bg-mv-purpleDark text-white rounded-full transition-all shadow-md active:scale-95 group">
+            <div class="relative">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+              <span class="absolute -top-2 -right-2 bg-mv-orange text-white text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center"
+                    x-text="itemsCount()">0</span>
+            </div>
+            <span class="text-xs font-bold hidden sm:inline">Cart</span>
+          </a>
+        </div>
+
       </div>
-    @endif
+
+    </div>
   </div>
 
-  {{-- Mobile menu --}}
-  <div id="mv-mobile-menu" class="hidden xl:hidden border-t border-mv-line bg-white max-h-[70vh] overflow-y-auto">
-    <div class="px-4 py-3">
-      <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
-        <input type="text" name="q" class="w-full h-10 pl-3 pr-3 rounded-md border-2 border-mv-line bg-mv-cream text-sm" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}">
-      </form>
-      <div class="text-xs font-bold uppercase tracking-widest text-mv-slate mt-4 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
-      @include('store.partials.language-switcher', ['variant' => 'mobile'])
-      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-bold text-mv-ink">{{ __('messages.Home') }}</a>
-      <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-bold text-mv-ink">{{ __('messages.Shop') }}</a>
-      @foreach($mvCategories as $cat)
-        <details class="border-t border-mv-line py-1">
-          <summary class="flex items-center justify-between py-2 text-sm font-semibold text-mv-ink">
-            {{ $cat->name }}
-            <svg class="w-4 h-4 text-mv-slate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
-          </summary>
-          <div class="pl-3 pb-2 space-y-1">
-            <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="block py-1 text-sm text-mv-accentDark font-semibold">{{ __('messages.ViewAll') ?? 'View all' }}</a>
-            @foreach($cat->subcategories ?? [] as $sub)
-              <a href="{{ route('store.shop', ['category' => $cat->id, 'sub_category' => $sub->id]) }}" class="block py-1 text-sm text-mv-slate">{{ $sub->name }}</a>
+  <!-- 3. PURPLE MARKETPLACE NAVIGATION BAR -->
+  <nav class="bg-mv-purple text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between">
+
+        <!-- Left: All Departments Button -->
+        <div class="relative" x-data="{ deptOpen: false }">
+          <button type="button"
+                  @click="deptOpen = !deptOpen"
+                  class="flex items-center gap-2.5 px-4 py-3 bg-[#3C1BA8] hover:bg-[#341696] font-bold text-xs uppercase tracking-wider transition-colors shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <span>All Departments</span>
+            <svg class="w-3.5 h-3.5 transition-transform" :class="deptOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+
+          <!-- Dropdown List -->
+          <div x-show="deptOpen"
+               @click.away="deptOpen = false"
+               x-cloak
+               class="absolute top-full left-0 w-64 bg-white text-slate-800 shadow-2xl rounded-b-2xl border border-slate-200 py-2 z-50">
+            @foreach($navDepartments as $dept)
+              <a href="{{ $mvRoute('store.shop', ['category' => $dept['category']]) }}"
+                 class="flex items-center justify-between px-4 py-2.5 text-xs font-semibold hover:bg-mv-purpleLight hover:text-mv-purple transition-colors">
+                <span>{{ $dept['name'] }}</span>
+                <span class="text-slate-400">&rarr;</span>
+              </a>
             @endforeach
           </div>
-        </details>
-      @endforeach
+        </div>
+
+        <!-- Center: Department Links (Horizontal Scroll) -->
+        <div class="flex items-center overflow-x-auto no-scrollbar py-2 text-xs font-semibold space-x-1 sm:space-x-4">
+          @foreach($navDepartments as $dept)
+            <a href="{{ $mvRoute('store.shop', ['category' => $dept['category']]) }}"
+               class="px-2.5 py-1.5 rounded-lg hover:bg-white/15 transition-colors whitespace-nowrap {{ request('category') === $dept['category'] ? 'bg-white/20 text-white font-bold' : 'text-slate-100' }}">
+              {{ $dept['name'] }}
+            </a>
+          @endforeach
+
+          <!-- Top Deals Highlight -->
+          <a href="{{ $mvRoute('store.shop', ['collection' => 'top-deals']) }}"
+             class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-mv-gold text-slate-900 font-extrabold hover:bg-amber-400 transition-colors whitespace-nowrap shadow-xs">
+            <span>🔥</span>
+            <span>Top Deals</span>
+          </a>
+        </div>
+
+        <!-- Right Promo Tag -->
+        <div class="hidden lg:flex items-center gap-2 text-[11px] font-bold text-amber-300">
+          <span>⚡ Flash Deals Up to 70% OFF</span>
+        </div>
+
+      </div>
     </div>
-  </div>
+  </nav>
+
 </header>
