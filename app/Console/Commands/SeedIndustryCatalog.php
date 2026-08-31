@@ -276,12 +276,18 @@ class SeedIndustryCatalog extends Command
      */
     private function searchUnsplash(string $accessKey, string $query, array $extraParams): ?array
     {
-        $search = Http::withOptions(['verify' => false])
-            ->withHeaders(['Authorization' => "Client-ID {$accessKey}"])
-            ->get('https://api.unsplash.com/search/photos', array_merge([
-                'query' => $query,
-                'per_page' => 1,
-            ], $extraParams));
+        try {
+            $search = Http::withOptions(['verify' => false])
+                ->withHeaders(['Authorization' => "Client-ID {$accessKey}"])
+                ->get('https://api.unsplash.com/search/photos', array_merge([
+                    'query' => $query,
+                    'per_page' => 1,
+                ], $extraParams));
+        } catch (\Throwable $e) {
+            $this->warn("    Unsplash search request threw: " . $e->getMessage());
+
+            return null;
+        }
 
         if (! $search->ok()) {
             $this->warn("    Unsplash search request failed ({$search->status()}): " . $search->body());
