@@ -238,7 +238,7 @@ class StoreFrontController extends Controller
             $b->image_url = global_asset($b->image ?: upload_path('banners').'/no-image.png');
         }
 
-        $categories = Category::with('subcategories')->orderBy('name')->get();
+        $categories = $this->getThemedCategories($activeTheme);
 
         $viewData = [
             's' => $s,
@@ -298,25 +298,51 @@ class StoreFrontController extends Controller
             $productsQuery->whereIn('products.id', $inStockIds);
         }
 
+        $activeTheme = $this->resolveActiveTheme($request, $s);
+        $categories = $this->getThemedCategories($activeTheme);
+
+        if ($activeTheme === 'generalhub') {
+            $hubCatIds = $categories->pluck('id')->all();
+            $productsQuery->where(function ($q) use ($hubCatIds) {
+                $q->whereIn('products.category_id', $hubCatIds)
+                  ->orWhere('products.code', 'like', 'GEN-%');
+            });
+        } elseif ($activeTheme === 'aurumeclat') {
+            $jwlCatIds = $categories->pluck('id')->all();
+            $productsQuery->where(function ($q) use ($jwlCatIds) {
+                $q->whereIn('products.category_id', $jwlCatIds)
+                  ->orWhere('products.code', 'like', 'JWL-%');
+            });
+        }
+
         $products = $productsQuery
             // Search
             ->when($q !== '', function ($qb) use ($q) {
                 $qb->where('products.name', 'like', "%{$q}%");
             })
-            // Category (legacy column OR category_product pivot)
+            // Category (legacy column OR category_product pivot OR name/slug match)
             ->when($cat, function ($qb) use ($cat) {
-                $cid = (int) $cat;
-                $qb->where(function ($q) use ($cid) {
-                    $q->where('products.category_id', $cid);
-                    if (Schema::hasTable('category_product')) {
-                        $q->orWhereExists(function ($sub) use ($cid) {
-                            $sub->select(DB::raw(1))
-                                ->from('category_product')
-                                ->whereColumn('category_product.product_id', 'products.id')
-                                ->where('category_product.category_id', $cid);
-                        });
+                if (is_numeric($cat)) {
+                    $cid = (int) $cat;
+                    $qb->where(function ($q) use ($cid) {
+                        $q->where('products.category_id', $cid);
+                        if (Schema::hasTable('category_product')) {
+                            $q->orWhereExists(function ($sub) use ($cid) {
+                                $sub->select(DB::raw(1))
+                                    ->from('category_product')
+                                    ->whereColumn('category_product.product_id', 'products.id')
+                                    ->where('category_product.category_id', $cid);
+                            });
+                        }
+                    });
+                } else {
+                    $matchedCat = Category::where('name', 'like', "%{$cat}%")
+                        ->orWhere('code', 'like', "%{$cat}%")
+                        ->first();
+                    if ($matchedCat) {
+                        $qb->where('products.category_id', $matchedCat->id);
                     }
-                });
+                }
             })
             // Sub Category (legacy column OR product_subcategory pivot)
             ->when($subCat, function ($qb) use ($subCat) {
@@ -361,7 +387,6 @@ class StoreFrontController extends Controller
         }
 
         $products = $products->paginate(12)->withQueryString();
-        $categories = Category::with('subcategories')->orderBy('name')->get(['id', 'name']);
         $collections = Collection::orderBy('title')
             ->get(['id', 'title', 'slug'])
             ->map(function ($c) {
@@ -376,7 +401,6 @@ class StoreFrontController extends Controller
         }
         $this->attachStockToProducts($products, $s->default_warehouse_id);
 
-        $activeTheme = $this->resolveActiveTheme($request, $s);
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'shop') ?? 'store.shop';
 
         return view($view, [
@@ -456,7 +480,7 @@ class StoreFrontController extends Controller
             'product' => $productVm,
             'related' => $relatedVm,
             'currency' => $currency,
-            'categories' => Category::with('subcategories')->orderBy('name')->get(),
+            'categories' => $this->getThemedCategories($activeTheme),
             'showCategoryBar' => false,
         ]);
     }
@@ -475,7 +499,7 @@ class StoreFrontController extends Controller
 
         return view($view, [
             's' => $s,
-            'categories' => Category::with('subcategories')->orderBy('name')->get(),
+            'categories' => $this->getThemedCategories($activeTheme),
             'showCategoryBar' => false,
         ]);
     }
@@ -681,5 +705,39 @@ class StoreFrontController extends Controller
         }
 
         return response()->json($products);
+    }
+
+    /**
+     * Get categories scoped by the active storefront theme.
+     */
+    protected function getThemedCategories(string $activeTheme)
+    {
+        if ($activeTheme === 'generalhub') {
+            return Category::with('subcategories')
+                ->whereIn('name', [
+                    'Electronics',
+                    'Fashion',
+                    'Home & Living',
+                    'Beauty',
+                    'Accessories',
+                    'Sports',
+                    'Toys & Games',
+                    'Daily Essentials',
+                ])
+                ->orderByRaw("FIELD(name, 'Electronics', 'Fashion', 'Home & Living', 'Beauty', 'Accessories', 'Sports', 'Toys & Games', 'Daily Essentials')")
+                ->get();
+        }
+
+        if ($activeTheme === 'aurumeclat') {
+            return Category::with('subcategories')
+                ->where(function ($q) {
+                    $q->whereIn('name', ['Fine Jewelry', 'Jewelry'])
+                      ->orWhere('code', 'like', 'CAT-IND-JWL%');
+                })
+                ->orderBy('name')
+                ->get();
+        }
+
+        return Category::with('subcategories')->orderBy('name')->get();
     }
 }
