@@ -212,12 +212,55 @@ class StoreFrontController extends Controller
 
         $categories = Category::with('subcategories')->orderBy('name')->get();
 
+        // Category-specific themes (see restrict_category_code in their
+        // theme.json) get their homepage's featured-products section fed
+        // directly from their one locked category -- these themes don't
+        // depend on an admin having pre-configured a homepage Collection,
+        // since the whole point is to work out of the box for that category.
+        $restrictedCategoryCode = StorefrontThemeRegistry::restrictedCategoryCode($activeTheme);
+        $categorySpecificProducts = collect();
+        if ($restrictedCategoryCode) {
+            $restrictedCategoryId = Category::where('code', $restrictedCategoryCode)->value('id');
+            if ($restrictedCategoryId) {
+                $hidePrices = ! Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+                $currency = $s->currency_code ?? '$';
+
+                $featured = Product::query()
+                    ->where('is_active', 1)
+                    ->where('hide_from_online_store', 0)
+                    ->where('category_id', $restrictedCategoryId)
+                    ->with(['variants:id,product_id,name,price,image', 'images:id,product_id,image_path,is_main,sort_order', 'category:id,name'])
+                    ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
+                        $join->on('pvmin.product_id', '=', 'products.id');
+                    })
+                    ->addSelect(
+                        'products.*',
+                        DB::raw("$baseExpr AS base_price"),
+                        DB::raw("$afterDiscountExpr AS after_discount"),
+                        DB::raw("$finalExpr AS final_display_price")
+                    )
+                    ->orderBy('products.created_at', 'desc')
+                    ->take(6)
+                    ->get();
+
+                foreach ($featured as $p) {
+                    $p->display_price = (float) ($p->final_display_price ?? 0);
+                }
+                $this->attachStockToProducts($featured, $s->default_warehouse_id);
+
+                $categorySpecificProducts = $featured->map(
+                    fn ($p) => StorefrontPresenter::product($p, $currency, $hidePrices)
+                );
+            }
+        }
+
         $viewData = [
             's' => $s,
             'blocks' => $blocks,
             'categories' => $categories,
             'banners' => $banners,
             'showCategoryBar' => true,
+            'categorySpecificProducts' => $categorySpecificProducts,
         ];
 
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'home') ?? 'store.index';
@@ -235,9 +278,17 @@ class StoreFrontController extends Controller
     {
         $s = StoreSetting::firstOrFail();
 
+        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'monochra')));
+        $restrictedCategoryCode = StorefrontThemeRegistry::restrictedCategoryCode($activeTheme);
+        $restrictedCategoryId = $restrictedCategoryCode
+            ? \App\Models\Category::where('code', $restrictedCategoryCode)->value('id')
+            : null;
+
         $q = trim((string) $request->get('q', ''));
-        $cat = $request->get('category');
-        $subCat = $request->get('sub_category');
+        // Category-specific themes ignore the request's own category/collection
+        // params and always show only their one locked category.
+        $cat = $restrictedCategoryId ?: $request->get('category');
+        $subCat = $restrictedCategoryId ? null : $request->get('sub_category');
         $minPrice = $request->get('min');
         $maxPrice = $request->get('max');
         $sort = $request->get('sort', 'latest');   // latest|price_asc|price_desc
@@ -348,7 +399,6 @@ class StoreFrontController extends Controller
         }
         $this->attachStockToProducts($products, $s->default_warehouse_id);
 
-        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'monochra')));
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'shop') ?? 'store.shop';
 
         return view($view, [

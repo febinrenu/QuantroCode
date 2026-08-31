@@ -197,7 +197,7 @@
 
             <div class="theme-gallery">
               <div
-                v-for="t in themes"
+                v-for="t in generalPurposeThemes"
                 :key="t.slug"
                 class="theme-gallery-card"
                 :class="{ active: form.theme === t.slug }"
@@ -214,6 +214,38 @@
                 <div class="theme-gallery-meta">
                   <div class="theme-gallery-name">{{ t.name }}</div>
                   <div class="theme-gallery-industry text-muted">{{ t.tagline || t.layout_persona }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="categorySpecificThemes.length" class="mt-4">
+              <h6 class="text-muted border-bottom pb-2 mb-3">
+                <lucide-icon class="mr-1" name="grid" />
+                Category-Specific Themes
+              </h6>
+              <small class="text-muted d-block mb-3">
+                Each of these shows only products from its own locked category.
+              </small>
+              <div class="theme-gallery">
+                <div
+                  v-for="t in categorySpecificThemes"
+                  :key="t.slug"
+                  class="theme-gallery-card"
+                  :class="{ active: form.theme === t.slug }"
+                  @click="selectTheme(t)"
+                >
+                  <div class="theme-gallery-thumb" :style="themeThumbStyle(t)">
+                    <span v-if="form.theme === t.slug" class="theme-gallery-check">
+                      <lucide-icon name="check" style="width:14px;height:14px" />
+                    </span>
+                    <div class="theme-gallery-swatches">
+                      <span v-for="(c, i) in (t.paletteSwatches || [])" :key="i" class="theme-gallery-swatch" :style="{ background: c }"></span>
+                    </div>
+                  </div>
+                  <div class="theme-gallery-meta">
+                    <div class="theme-gallery-name">{{ t.name }}</div>
+                    <div class="theme-gallery-industry text-muted">{{ t.tagline || t.layout_persona }}</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -542,6 +574,14 @@ export default {
       var arr = Array.isArray(this.themes) ? this.themes : []
       var found = arr.find(function (t) { return t.slug === this.form.theme }.bind(this))
       return found || null
+    },
+    generalPurposeThemes () {
+      var arr = Array.isArray(this.themes) ? this.themes : []
+      return arr.filter(function (t) { return t.themeGroup !== 'category-specific' })
+    },
+    categorySpecificThemes () {
+      var arr = Array.isArray(this.themes) ? this.themes : []
+      return arr.filter(function (t) { return t.themeGroup === 'category-specific' })
     }
   },
   mounted(){ this.fetch() },

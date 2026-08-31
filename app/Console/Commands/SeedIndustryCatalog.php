@@ -71,7 +71,7 @@ class SeedIndustryCatalog extends Command
         // same code. New products only ever get appended via
         // moreProductsDefinition(), never inserted into catalogDefinition().
         $seq = 1;
-        foreach (array_merge($this->catalogDefinition(), $this->moreProductsDefinition()) as $industry) {
+        foreach (array_merge($this->catalogDefinition(), $this->moreProductsDefinition(), $this->categorySpecificThemeProductsDefinition()) as $industry) {
             $categoryId = DB::table('categories')->where('code', $industry['code'])->value('id');
             if (! $categoryId) {
                 $categoryId = DB::table('categories')->insertGetId([
@@ -421,6 +421,29 @@ class SeedIndustryCatalog extends Command
             ['code' => 'CAT-IND-PHM', 'category' => 'Pharmacy & Medical', 'products' => [
                 ['Blood Pressure Monitor', 'blood pressure monitor medical', 39.00, 'Automatic upper-arm blood pressure monitor with irregular-heartbeat detection.'],
                 ['Hand Sanitizer Pack', 'hand sanitizer', 8.00, '3-pack of 70% alcohol hand sanitizer gel in travel-sized bottles.'],
+            ]],
+        ];
+    }
+
+    /**
+     * A third batch, added to give the new single-category storefront themes
+     * (Terra & Co., Élégance, Urbana, Marketly, FutureX) a fuller catalog in
+     * their locked category. Same append-only rule as moreProductsDefinition()
+     * -- never edit the earlier two methods, only add here.
+     *
+     * @return array<int, array{code:string, category:string, products:array<int, array{0:string,1:string,2:float,3:string}>}>
+     */
+    private function categorySpecificThemeProductsDefinition(): array
+    {
+        return [
+            // Terra & Co. (Grocery & Fresh Produce) -- gourmet pantry goods
+            ['code' => 'CAT-IND-GRC', 'category' => 'Grocery & Fresh Produce', 'products' => [
+                ['Extra Virgin Olive Oil 500ml', 'olive oil bottle', 24.99, 'Cold-pressed extra virgin olive oil from single-estate Mediterranean groves.'],
+                ['Black Truffle Sauce 90g', 'truffle sauce jar', 18.50, 'Rich black truffle sauce, ideal finished over pasta, risotto, or eggs.'],
+                ['Raw Wildflower Honey 400g', 'honey jar', 12.90, 'Unfiltered raw wildflower honey harvested from small independent apiaries.'],
+                ['Italian Artisan Pasta 500g', 'pasta package', 7.99, 'Bronze-die extruded pasta made from 100% durum wheat semolina.'],
+                ['Dark Chocolate 70% 100g', 'dark chocolate bar', 6.75, 'Single-origin dark chocolate bar, 70% cacao, dairy-free.'],
+                ['Organic Green Tea 100g', 'green tea leaves', 9.25, 'Loose-leaf organic green tea, hand-picked and lightly oxidized.'],
             ]],
         ];
     }

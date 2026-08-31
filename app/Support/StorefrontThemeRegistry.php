@@ -120,4 +120,22 @@ class StorefrontThemeRegistry
 
         return "store.themes.{$slug}.{$page}";
     }
+
+    /**
+     * The `categories.code` a category-specific theme is locked to (see
+     * theme.json's "restrict_category_code"), or null for a general-purpose
+     * theme. StoreFrontController uses this to force every product query
+     * (home, shop) to that one category regardless of request params.
+     */
+    public static function restrictedCategoryCode(?string $slug): ?string
+    {
+        if (! $slug) {
+            return null;
+        }
+
+        $theme = static::find($slug);
+        $code = $theme['restrict_category_code'] ?? null;
+
+        return is_string($code) && $code !== '' ? $code : null;
+    }
 }
