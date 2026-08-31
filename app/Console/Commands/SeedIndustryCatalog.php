@@ -245,7 +245,11 @@ class SeedIndustryCatalog extends Command
             return null;
         }
 
-        $image = Http::get($imageUrl);
+        // verify=false: local dev machines behind antivirus/corporate HTTPS
+        // inspection (e.g. Kaspersky) present a self-signed cert PHP won't
+        // trust, breaking this otherwise-harmless fetch of a public stock
+        // photo. Scoped to just this dev-only command, not the app at large.
+        $image = Http::withOptions(['verify' => false])->get($imageUrl);
         if (! $image->ok()) {
             return null;
         }
@@ -262,7 +266,8 @@ class SeedIndustryCatalog extends Command
      */
     private function searchUnsplash(string $accessKey, string $query, array $extraParams): ?array
     {
-        $search = Http::withHeaders(['Authorization' => "Client-ID {$accessKey}"])
+        $search = Http::withOptions(['verify' => false])
+            ->withHeaders(['Authorization' => "Client-ID {$accessKey}"])
             ->get('https://api.unsplash.com/search/photos', array_merge([
                 'query' => $query,
                 'per_page' => 1,
