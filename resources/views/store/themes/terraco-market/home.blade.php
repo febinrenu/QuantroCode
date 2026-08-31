@@ -10,22 +10,22 @@
 @php
   $tcHeroTitle = $s->hero_title ?? 'Discover the Art of Fine Food';
   $tcHeroSubtitle = $s->hero_subtitle ?? 'Premium ingredients sourced from the finest producers around the world.';
-  $tcHeroImg = !empty($s->hero_image_path) ? global_asset($s->hero_image_path) : 'https://picsum.photos/seed/terraco-hero/1400/700';
-  $tcTiles = [
-    ['label' => 'Olive Oils & Vinegars', 'img' => 'https://picsum.photos/seed/terraco-oils/400/500'],
-    ['label' => 'Artisan Cheese',        'img' => 'https://picsum.photos/seed/terraco-cheese/400/500'],
-    ['label' => 'Gourmet Pantry',        'img' => 'https://picsum.photos/seed/terraco-pantry/400/500'],
-    ['label' => 'Organic Beverages',     'img' => 'https://picsum.photos/seed/terraco-beverages/400/500'],
-    ['label' => 'Gift Hampers',          'img' => 'https://picsum.photos/seed/terraco-hampers/400/500'],
-  ];
+  $tcHeroImg = !empty($s->hero_image_path) ? global_asset($s->hero_image_path) : ($categorySpecificProducts->first()['image_url'] ?? null);
+  $tcTileLabels = ['Olive Oils & Vinegars', 'Artisan Cheese', 'Gourmet Pantry', 'Organic Beverages', 'Gift Hampers'];
+  $tcTileImgs = $categorySpecificProducts->pluck('image_url')->filter()->values();
+  $tcTiles = collect($tcTileLabels)->map(function ($label, $i) use ($tcTileImgs) {
+    return ['label' => $label, 'img' => $tcTileImgs->count() ? $tcTileImgs[$i % $tcTileImgs->count()] : null];
+  });
 @endphp
 
 <main class="pb-20 md:pb-0">
 
   {{-- ===== HERO ===== --}}
-  <section class="relative overflow-hidden" style="min-height:520px;">
+  <section class="relative overflow-hidden bg-tc-greenDeep" style="min-height:520px;">
     <div class="absolute inset-0">
-      <img src="{{ $tcHeroImg }}" alt="{{ $tcHeroTitle }}" class="w-full h-full object-cover">
+      @if($tcHeroImg)
+        <img src="{{ $tcHeroImg }}" alt="{{ $tcHeroTitle }}" class="w-full h-full object-cover">
+      @endif
       <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent"></div>
     </div>
     <div class="relative max-w-7xl mx-auto px-4 py-24 min-h-[520px] flex items-center">
@@ -80,7 +80,9 @@
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
       @foreach($tcTiles as $tile)
         <a href="{{ route('store.shop') }}" class="group relative aspect-[4/5] overflow-hidden bg-tc-greenDeep">
-          <img src="{{ $tile['img'] }}" alt="{{ $tile['label'] }}" class="w-full h-full object-cover opacity-70 group-hover:opacity-55 group-hover:scale-105 transition-all duration-300">
+          @if($tile['img'])
+            <img src="{{ $tile['img'] }}" alt="{{ $tile['label'] }}" class="w-full h-full object-cover opacity-70 group-hover:opacity-55 group-hover:scale-105 transition-all duration-300">
+          @endif
           <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
           <div class="absolute inset-x-0 bottom-0 p-4">
             <h3 class="font-serif text-lg text-white leading-tight">{{ $tile['label'] }}</h3>
@@ -138,9 +140,12 @@
           @endforeach
         </div>
       </div>
-      <div class="hidden md:block h-full min-h-[280px]">
-        <img src="https://picsum.photos/seed/terraco-gift/700/500" alt="Gift hamper" class="w-full h-full object-cover">
-      </div>
+      @php $tcGiftImg = $tcTileImgs->last(); @endphp
+      @if($tcGiftImg)
+        <div class="hidden md:block h-full min-h-[280px]">
+          <img src="{{ $tcGiftImg }}" alt="Gift hamper" class="w-full h-full object-cover">
+        </div>
+      @endif
     </div>
   </section>
 

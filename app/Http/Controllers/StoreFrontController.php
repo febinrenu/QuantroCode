@@ -222,6 +222,11 @@ class StoreFrontController extends Controller
         if ($restrictedCategoryCode) {
             $restrictedCategoryId = Category::where('code', $restrictedCategoryCode)->value('id');
             if ($restrictedCategoryId) {
+                // Category-specific themes only ever show their one locked
+                // category, so the header's "Shop by Category" menu should
+                // only offer that category too -- not the full store catalog.
+                $categories = $categories->where('id', $restrictedCategoryId)->values();
+
                 $hidePrices = ! Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
                 $currency = $s->currency_code ?? '$';
 
@@ -385,6 +390,9 @@ class StoreFrontController extends Controller
 
         $products = $products->paginate(12)->withQueryString();
         $categories = Category::with('subcategories')->orderBy('name')->get(['id', 'name']);
+        if ($restrictedCategoryId) {
+            $categories = $categories->where('id', $restrictedCategoryId)->values();
+        }
         $collections = Collection::orderBy('title')
             ->get(['id', 'title', 'slug'])
             ->map(function ($c) {

@@ -94,10 +94,10 @@
       </div>
       <a href="{{ route('store.index') }}" class="px-4 h-8 inline-flex items-center text-xs font-bold eyebrow text-tc-ink hover:text-tc-green">{{ __('messages.Home') }}</a>
       <a href="{{ route('store.shop') }}" class="px-4 h-8 inline-flex items-center text-xs font-bold eyebrow text-tc-ink hover:text-tc-green">{{ __('messages.Shop') }}</a>
-      <a href="{{ route('store.shop') }}" class="px-4 h-8 inline-flex items-center text-xs font-bold eyebrow text-tc-ink hover:text-tc-green">{{ 'Collections' }}</a>
-      <a href="{{ route('store.shop') }}" class="px-4 h-8 inline-flex items-center text-xs font-bold eyebrow text-tc-ink hover:text-tc-green">{{ 'Gifts' }}</a>
+      <a href="{{ route('store.shop', ['sort' => 'price_desc']) }}" class="px-4 h-8 inline-flex items-center text-xs font-bold eyebrow text-tc-ink hover:text-tc-green">{{ 'Collections' }}</a>
+      <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="px-4 h-8 inline-flex items-center text-xs font-bold eyebrow text-tc-ink hover:text-tc-green">{{ 'Gifts' }}</a>
       <a href="{{ route('store.shop', ['sort' => 'latest']) }}" class="px-4 h-8 inline-flex items-center text-xs font-bold eyebrow text-tc-ink hover:text-tc-green">{{ 'New Arrivals' }}</a>
-      <a href="{{ route('store.shop') }}" class="px-4 h-8 inline-flex items-center text-xs font-bold eyebrow text-tc-ink hover:text-tc-green">{{ 'Recipes' }}</a>
+      <a href="{{ route('store.contact') }}" class="px-4 h-8 inline-flex items-center text-xs font-bold eyebrow text-tc-ink hover:text-tc-green">{{ 'Recipes' }}</a>
       <a href="{{ route('store.contact') }}" class="px-4 h-8 inline-flex items-center text-xs font-bold eyebrow text-tc-ink hover:text-tc-green">{{ 'About Us' }}</a>
       <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="ms-auto h-8 px-4 inline-flex items-center gap-1.5 bg-tc-goldSoft text-tc-greenDeep text-xs font-bold eyebrow hover:bg-tc-gold hover:text-white">
         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82Z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
