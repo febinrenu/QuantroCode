@@ -250,14 +250,16 @@ class SeedIndustryCatalog extends Command
         // trust, breaking this otherwise-harmless fetch of a public stock
         // photo. Scoped to just this dev-only command, not the app at large.
         try {
-            $image = Http::withOptions(['verify' => false])->get($imageUrl);
+            $image = Http::withOptions(['verify' => false])
+                ->withHeaders(['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'])
+                ->get($imageUrl);
         } catch (\Throwable $e) {
             $this->warn("    Unsplash image download threw: " . $e->getMessage());
 
             return null;
         }
         if (! $image->ok()) {
-            $this->warn("    Unsplash image download failed ({$image->status()}) for {$imageUrl}");
+            $this->warn("    Unsplash image download failed ({$image->status()}): " . \Illuminate\Support\Str::limit($image->body(), 300));
 
             return null;
         }
