@@ -367,6 +367,31 @@ class StoreFrontController extends Controller
                 ->take(18)
                 ->get();
             $viewData['products'] = $products;
+        } elseif ($activeTheme === 'homely') {
+            $homCatIds = $categories->pluck('id')->all();
+            $products = Product::query()
+                ->where('products.is_active', 1)
+                ->where('products.hide_from_online_store', 0)
+                ->where(function ($q) use ($homCatIds) {
+                    $q->whereIn('products.category_id', $homCatIds)
+                      ->orWhere('products.code', 'like', 'HOM-%');
+                })
+                ->with(['variants', 'images', 'category', 'brand'])
+                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
+                    $join->on('pvmin.product_id', '=', 'products.id');
+                })
+                ->addSelect(
+                    'products.*',
+                    DB::raw("$baseExpr AS base_price"),
+                    DB::raw("$afterDiscountExpr AS after_discount"),
+                    DB::raw("$finalExpr AS final_display_price")
+                )
+                ->orderByRaw("CASE WHEN products.code LIKE 'HOM-%' THEN 0 ELSE 1 END")
+                ->orderBy('products.is_featured', 'desc')
+                ->orderBy('products.created_at', 'desc')
+                ->take(18)
+                ->get();
+            $viewData['products'] = $products;
         }
 
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'home') ?? 'store.index';
@@ -482,6 +507,12 @@ class StoreFrontController extends Controller
             $productsQuery->where(function ($q) use ($urbCatIds) {
                 $q->whereIn('products.category_id', $urbCatIds)
                   ->orWhere('products.code', 'like', 'URB-%');
+            });
+        } elseif ($activeTheme === 'homely') {
+            $homCatIds = $categories->pluck('id')->all();
+            $productsQuery->where(function ($q) use ($homCatIds) {
+                $q->whereIn('products.category_id', $homCatIds)
+                  ->orWhere('products.code', 'like', 'HOM-%');
             });
         }
 
@@ -1143,6 +1174,27 @@ class StoreFrontController extends Controller
                     'Fashion',
                 ])
                 ->orderByRaw("FIELD(name, 'T-Shirts', 'Shirts', 'Dresses', 'Jeans', 'Jackets', 'Footwear', 'Bags', 'Watches', 'Sunglasses', 'Activewear', 'Women', 'Men', 'Kids', 'Shoes', 'Accessories', 'Fashion')")
+                ->get();
+        }
+
+        if ($activeTheme === 'homely') {
+            return Category::with('subcategories')
+                ->whereIn('name', [
+                    'Home & Living',
+                    'Living Room',
+                    'Kitchen & Dining',
+                    'Bedroom',
+                    'Bathroom',
+                    'Indoor Plants',
+                    'Plants',
+                    'Decor',
+                    'Furniture',
+                    'Bath & Body',
+                    'Lighting',
+                    'Textiles',
+                    'Storage',
+                ])
+                ->orderByRaw("FIELD(name, 'Home & Living', 'Living Room', 'Kitchen & Dining', 'Bedroom', 'Bathroom', 'Indoor Plants', 'Plants', 'Decor', 'Furniture', 'Bath & Body', 'Lighting', 'Textiles', 'Storage')")
                 ->get();
         }
 
