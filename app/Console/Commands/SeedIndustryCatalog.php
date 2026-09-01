@@ -153,6 +153,7 @@ class SeedIndustryCatalog extends Command
         $this->info('Industry catalog seeded.');
 
         $this->tagFashionSubcategories($now);
+        $this->tagMarketplaceSubcategories($now);
         $this->backfillLegacyDemoImages($accessKey, $dir);
 
         return self::SUCCESS;
@@ -197,6 +198,67 @@ class SeedIndustryCatalog extends Command
             'Cashmere Knit Sweater' => ['Women'],
             'Leather Ankle Boots' => ['Women', 'Shoes'],
             'Structured Tote Handbag' => ['Women', 'Bags', 'Accessories'],
+        ];
+
+        foreach ($tags as $productName => $subNames) {
+            $productId = DB::table('products')->where('category_id', $categoryId)->where('name', $productName)->value('id');
+            if (! $productId) {
+                continue;
+            }
+            foreach ($subNames as $subName) {
+                DB::table('product_subcategory')->insertOrIgnore([
+                    'product_id' => $productId,
+                    'sub_category_id' => $subcategoryIds[$subName],
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * The Urbana theme's category sidebar (Women's Fashion / Men's Fashion /
+     * Footwear / Bags & Accessories / Watches / Beauty & Fragrance /
+     * Home & Living / Sports & Fitness / Gadgets & Tech) filters by these
+     * subcategories under Marketplace & General Retail, the same way
+     * tagFashionSubcategories() does for Élégance.
+     */
+    private function tagMarketplaceSubcategories(Carbon $now): void
+    {
+        $categoryId = DB::table('categories')->where('code', 'CAT-IND-MKT')->value('id');
+        if (! $categoryId) {
+            return;
+        }
+
+        $subcategoryNames = [
+            "Women's Fashion", "Men's Fashion", 'Footwear', 'Bags & Accessories',
+            'Watches', 'Beauty & Fragrance', 'Home & Living', 'Sports & Fitness', 'Gadgets & Tech',
+        ];
+        $subcategoryIds = [];
+        foreach ($subcategoryNames as $name) {
+            $id = DB::table('subcategories')->where('category_id', $categoryId)->where('name', $name)->value('id');
+            if (! $id) {
+                $id = DB::table('subcategories')->insertGetId([
+                    'category_id' => $categoryId, 'name' => $name, 'status' => 1,
+                    'created_at' => $now, 'updated_at' => $now,
+                ]);
+            }
+            $subcategoryIds[$name] = $id;
+        }
+
+        $tags = [
+            'Linen Blend Blazer' => ["Women's Fashion"],
+            "Men's Chino Trousers" => ["Men's Fashion"],
+            'Canvas Low-Top Sneakers' => ['Footwear'],
+            'Minimal Gold Watch' => ['Watches'],
+            'Leather Tote Bag' => ['Bags & Accessories'],
+            'Oversized Sunglasses' => ['Bags & Accessories'],
+            'Vanilla Amber Perfume' => ['Beauty & Fragrance'],
+            'Aromatic Scented Candle' => ['Home & Living'],
+            'Yoga Mat Set' => ['Sports & Fitness'],
+            'Wireless Headphones' => ['Gadgets & Tech'],
+            'Everyday Essentials Bundle' => ['Home & Living'],
+            'Home Care Value Pack' => ['Home & Living'],
         ];
 
         foreach ($tags as $productName => $subNames) {
@@ -537,6 +599,19 @@ class SeedIndustryCatalog extends Command
                 ['Cashmere Knit Sweater', 'cashmere sweater fashion', 119.00, 'Pure cashmere crewneck sweater, soft-brushed for everyday luxury.'],
                 ['Leather Ankle Boots', 'leather ankle boots fashion', 139.00, 'Block-heel leather ankle boots with a soft round toe and side zip.'],
                 ['Structured Tote Handbag', 'leather handbag fashion', 159.00, 'Structured leather tote with a detachable strap and gold-tone hardware.'],
+            ]],
+            // Urbana (Marketplace & General Retail) -- everyday lifestyle trending picks
+            ['code' => 'CAT-IND-MKT', 'category' => 'Marketplace & General Retail', 'products' => [
+                ['Linen Blend Blazer', 'linen blazer fashion', 89.00, 'Relaxed-fit linen-blend blazer, lightweight enough for everyday layering.'],
+                ['Men\'s Chino Trousers', 'chino trousers menswear', 65.00, 'Slim-tapered chino trousers in stretch cotton twill for all-day comfort.'],
+                ['Canvas Low-Top Sneakers', 'canvas sneakers shoes', 59.00, 'Everyday canvas low-top sneakers with a cushioned footbed.'],
+                ['Minimal Gold Watch', 'gold wrist watch minimal', 129.00, 'Slim gold-tone wrist watch with a minimalist dial and mesh strap.'],
+                ['Leather Tote Bag', 'brown leather tote bag', 149.00, 'Structured brown leather tote with an interior zip pocket and long strap.'],
+                ['Oversized Sunglasses', 'oversized sunglasses fashion', 49.00, 'Oversized acetate-frame sunglasses with UV400-protected lenses.'],
+                ['Vanilla Amber Perfume', 'perfume bottle fragrance', 55.00, 'Warm vanilla-amber eau de parfum in a 50ml frosted glass bottle.'],
+                ['Aromatic Scented Candle', 'scented candle jar', 24.00, 'Hand-poured soy candle in a reusable glass jar, 45-hour burn time.'],
+                ['Yoga Mat Set', 'yoga mat fitness', 39.00, 'Non-slip yoga mat with a carry strap and matching resistance band.'],
+                ['Wireless Headphones', 'wireless headphones lifestyle', 79.00, 'Over-ear wireless headphones with a foldable design and 20-hour battery.'],
             ]],
         ];
     }
