@@ -100,7 +100,8 @@ class SeedIndustryCatalog extends Command
                     continue;
                 }
 
-                $filename = $this->downloadUnsplashPhoto($accessKey, $query, $dir, Str::slug($name));
+                $filename = $this->bundledProductImage($name, $dir)
+                    ?? $this->downloadUnsplashPhoto($accessKey, $query, $dir, Str::slug($name));
                 if (! $filename) {
                     $this->warn("  \xE2\x9C\x97 {$name} — could not fetch a photo for \"{$query}\", skipped.");
                     continue;
@@ -228,6 +229,37 @@ class SeedIndustryCatalog extends Command
      * on a free "Demo" app) — the CDN image download itself does not — so
      * this stays well under that limit even for the full ~42-product catalog.
      */
+    /**
+     * The TrailPeak theme ships with real bundled photos for its 6 Outdoor &
+     * Adventure Gear products so that category doesn't depend on an
+     * Unsplash API key to look right.
+     */
+    private function bundledProductImage(string $name, string $dir): ?string
+    {
+        $bundled = [
+            'Trail Backpack 65L' => 'trailpeak/trail-backpack.jpg',
+            'Waterproof Hiking Boots' => 'trailpeak/hiking-boots.jpg',
+            'GPS Adventure Watch' => 'trailpeak/gps-watch.jpg',
+            '3-Person Camping Tent' => 'trailpeak/camping-tent.jpg',
+            'Insulated Steel Water Bottle' => 'trailpeak/water-bottle.jpg',
+            'Rechargeable LED Headlamp' => 'trailpeak/headlamp.jpg',
+        ];
+
+        if (! isset($bundled[$name])) {
+            return null;
+        }
+
+        $source = resource_path('theme-assets/'.$bundled[$name]);
+        if (! is_file($source)) {
+            return null;
+        }
+
+        $filename = Str::slug($name).'.'.pathinfo($source, PATHINFO_EXTENSION);
+        copy($source, $dir.'/'.$filename);
+
+        return $filename;
+    }
+
     private function downloadUnsplashPhoto(string $accessKey, string $query, string $dir, string $slug): ?string
     {
         // Try the constrained search first (squarish, high content filter);
