@@ -180,12 +180,18 @@
   </section>
 
   {{-- ===== BRAND STRIP ===== --}}
-  <section class="max-w-[1400px] mx-auto px-5 mt-10">
-    <div class="flex flex-wrap justify-center gap-x-10 gap-y-3">
+  <section class="max-w-[1400px] mx-auto px-5 mt-10 flex items-center gap-3">
+    <button type="button" class="hidden sm:grid shrink-0 w-8 h-8 rounded-full border border-tp-line place-items-center text-tp-mute hover:text-tp-ink hover:border-tp-ink transition-colors" aria-label="Previous">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <div class="flex-1 flex flex-wrap justify-center gap-x-10 gap-y-3">
       @foreach($brands as $brand)
         <span class="text-sm font-bold text-tp-ink/50 tracking-wide">{{ strtoupper($brand) }}</span>
       @endforeach
     </div>
+    <button type="button" class="hidden sm:grid shrink-0 w-8 h-8 rounded-full border border-tp-line place-items-center text-tp-mute hover:text-tp-ink hover:border-tp-ink transition-colors" aria-label="Next">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+    </button>
   </section>
 
   {{-- ===== SHOP BY ACTIVITY ===== --}}
@@ -207,8 +213,8 @@
 
   {{-- ===== COMMUNITY / NEWSLETTER ===== --}}
   <section class="mt-12">
-    <div class="relative bg-tp-ink text-white px-5 py-12 overflow-hidden">
-      <svg class="absolute right-8 top-1/2 -translate-y-1/2 w-32 h-32 text-white/10 hidden md:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.6"><circle cx="12" cy="12" r="10"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m14.5-6.5-1.5 1.5m-6 6-1.5 1.5m0-9 1.5 1.5m6 6 1.5 1.5"/></svg>
+    <div class="relative text-white px-5 py-14 overflow-hidden" style="background:linear-gradient(rgba(10,14,10,.88),rgba(10,14,10,.88)),url('https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=1600&q=80') center/cover;">
+      <svg class="absolute right-8 top-1/2 -translate-y-1/2 w-32 h-32 text-white/15 hidden md:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.6"><circle cx="12" cy="12" r="10"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m14.5-6.5-1.5 1.5m-6 6-1.5 1.5m0-9 1.5 1.5m6 6 1.5 1.5"/></svg>
       <div class="max-w-[1400px] mx-auto relative text-center">
         <h2 class="font-display text-2xl">JOIN THE TRAILPEAK COMMUNITY</h2>
         <p class="text-sm text-white/70 mt-2 max-w-lg mx-auto">Get adventure inspiration, gear tips, exclusive offers and early access to new arrivals.</p>

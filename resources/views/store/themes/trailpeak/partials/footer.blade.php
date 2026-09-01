@@ -6,7 +6,7 @@
   if ($tpIsAssoc) { $tpSocial = collect($tpSocial)->map(fn($u,$p)=>['platform'=>$p,'url'=>$u])->values()->all(); }
 @endphp
 <footer class="bg-tp-ink text-white/75 mt-0">
-  <div class="max-w-[1400px] mx-auto px-5 py-12 grid grid-cols-2 md:grid-cols-6 gap-8 text-[13px]">
+  <div class="max-w-[1400px] mx-auto px-5 py-12 grid grid-cols-2 md:grid-cols-7 gap-8 text-[13px]">
     <div class="col-span-2">
       <span class="inline-flex items-center gap-2">
         <svg class="w-6 h-6 text-tp-orange shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="m3 20 6-11 4 7 3-5 5 9Z"/></svg>
@@ -35,6 +35,20 @@
         @endforeach
       </div>
     @endforeach
+    <div>
+      <b class="text-white text-xs tracking-wide">STORE LOCATIONS</b>
+      <p class="text-white/60 mt-3 text-[12px] leading-5">Find a Store Near You</p>
+      <div class="relative mt-3 h-20 rounded-md overflow-hidden bg-white/10">
+        <svg class="w-full h-full text-white/15" viewBox="0 0 140 80" fill="none" stroke="currentColor" stroke-width="1">
+          @for($i=1;$i<7;$i++)<line x1="{{ $i*20 }}" y1="0" x2="{{ $i*20 }}" y2="80"/>@endfor
+          @for($i=1;$i<4;$i++)<line x1="0" y1="{{ $i*20 }}" x2="140" y2="{{ $i*20 }}"/>@endfor
+        </svg>
+        @foreach([[30,25],[70,45],[105,20],[50,60]] as $pin)
+          <svg class="absolute w-3.5 h-3.5 text-tp-orange" style="left:{{ $pin[0] }}px; top:{{ $pin[1] }}px" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22s8-9 8-14a8 8 0 1 0-16 0c0 5 8 14 8 14Zm0-11a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/></svg>
+        @endforeach
+      </div>
+      <a href="{{ route('store.shop') }}" class="block text-white/60 mt-3 hover:text-white transition-colors text-xs font-semibold">VIEW ALL STORES →</a>
+    </div>
     <div>
       <b class="text-white text-xs tracking-wide">DOWNLOAD OUR APP</b>
       <p class="text-white/60 mt-3 text-[12px] leading-5">Gear. Guides. Adventure.</p>
