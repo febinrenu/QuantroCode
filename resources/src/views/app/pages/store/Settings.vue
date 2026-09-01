@@ -195,25 +195,28 @@
               {{ $t('Storefront_Theme_Gallery_Help') }}
             </small>
 
-            <div class="theme-gallery">
-              <div
-                v-for="t in themes"
-                :key="t.slug"
-                class="theme-gallery-card"
-                :class="{ active: form.theme === t.slug }"
-                @click="selectTheme(t)"
-              >
-                <div class="theme-gallery-thumb" :style="themeThumbStyle(t)">
-                  <span v-if="form.theme === t.slug" class="theme-gallery-check">
-                    <lucide-icon name="check" style="width:14px;height:14px" />
-                  </span>
-                  <div class="theme-gallery-swatches">
-                    <span v-for="(c, i) in (t.paletteSwatches || [])" :key="i" class="theme-gallery-swatch" :style="{ background: c }"></span>
+            <div v-for="group in themeGroups" :key="group.name" class="mb-4">
+              <h6 class="theme-gallery-section-title">{{ group.name }}</h6>
+              <div class="theme-gallery">
+                <div
+                  v-for="t in group.themes"
+                  :key="t.slug"
+                  class="theme-gallery-card"
+                  :class="{ active: form.theme === t.slug }"
+                  @click="selectTheme(t)"
+                >
+                  <div class="theme-gallery-thumb" :style="themeThumbStyle(t)">
+                    <span v-if="form.theme === t.slug" class="theme-gallery-check">
+                      <lucide-icon name="check" style="width:14px;height:14px" />
+                    </span>
+                    <div class="theme-gallery-swatches">
+                      <span v-for="(c, i) in (t.paletteSwatches || [])" :key="i" class="theme-gallery-swatch" :style="{ background: c }"></span>
+                    </div>
                   </div>
-                </div>
-                <div class="theme-gallery-meta">
-                  <div class="theme-gallery-name">{{ t.name }}</div>
-                  <div class="theme-gallery-industry text-muted">{{ t.tagline || t.layout_persona }}</div>
+                  <div class="theme-gallery-meta">
+                    <div class="theme-gallery-name">{{ t.name }}</div>
+                    <div class="theme-gallery-industry text-muted">{{ t.tagline || t.layout_persona }}</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -622,6 +625,15 @@ export default {
       var arr = Array.isArray(this.themes) ? this.themes : []
       var found = arr.find(function (t) { return t.slug === this.form.theme }.bind(this))
       return found || null
+    },
+    themeGroups () {
+      var themes = Array.isArray(this.themes) ? this.themes : []
+      var categorySpecific = themes.filter(function (t) { return t.category === 'Category-Specific Themes' })
+      var general = themes.filter(function (t) { return t.category !== 'Category-Specific Themes' })
+      var groups = []
+      if (general.length) groups.push({ name: 'General Store Themes', themes: general })
+      if (categorySpecific.length) groups.push({ name: 'Category-Specific Themes', themes: categorySpecific })
+      return groups
     }
   },
   mounted(){ this.fetch() },
@@ -1042,6 +1054,14 @@ export default {
 .fade-enter, .fade-leave-to { opacity:0; transform: translateY(-4px); }
 
 /* Storefront theme gallery */
+.theme-gallery-section-title {
+  margin: 0 0 .65rem;
+  padding-bottom: .45rem;
+  border-bottom: 1px solid #e9ecef;
+  font-size: .82rem;
+  font-weight: 700;
+  color: #495057;
+}
 .theme-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));

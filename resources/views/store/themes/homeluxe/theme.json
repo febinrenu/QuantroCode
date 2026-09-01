@@ -1,0 +1,27 @@
+{
+  "slug": "homeluxe",
+  "name": "HomeLuxe",
+  "tagline": "Live beautifully.",
+  "description": "A category-specific furniture and home-decor storefront with warm ivory surfaces, deep forest-green accents and editorial serif typography.",
+  "category": "Category-Specific Themes",
+  "product_category_keywords": ["furniture", "home", "decor", "lighting", "outdoor"],
+  "version": "1.0.0",
+  "layout_persona": "Warm modern furniture editorial",
+  "layout": "category-sidebar-hero",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap",
+  "fontPairing": { "heading": "Playfair Display", "body": "DM Sans" },
+  "paletteSwatches": ["#1F3D30", "#16281F", "#C9A876", "#F8F5EE"],
+  "tokens": {
+    "color-bg-base": "#F8F5EE",
+    "color-accent-500": "#1F3D30",
+    "color-accent-600": "#16281F",
+    "color-accent-700": "#C9A876",
+    "color-accent-800": "#EFE6D3",
+    "font-heading": "'Playfair Display', serif",
+    "font-body": "'DM Sans', sans-serif",
+    "font-size-heading": "36px",
+    "font-size-body": "14px"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "color-accent-700", "color-accent-800", "font-heading", "font-body", "font-size-heading", "font-size-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}
