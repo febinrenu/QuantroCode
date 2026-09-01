@@ -256,6 +256,35 @@ class StoreFrontController extends Controller
                 $categorySpecificProducts = $featured->map(
                     fn ($p) => StorefrontPresenter::product($p, $currency, $hidePrices)
                 );
+
+                // One representative product photo per subcategory, so a
+                // theme's "Women" tile shows an actual Women's-Fashion-tagged
+                // product instead of whichever of the category's newest
+                // products happens to land on that tile by position.
+                $subcategoryImages = [];
+                foreach ($categories->first()->subcategories ?? [] as $subcat) {
+                    $image = Product::query()
+                        ->where('is_active', 1)
+                        ->where('hide_from_online_store', 0)
+                        ->whereNotNull('image')
+                        ->where('image', '!=', '')
+                        ->where('image', '!=', 'no-image.png')
+                        ->where(function ($q) use ($subcat) {
+                            $q->where('sub_category_id', $subcat->id)
+                                ->orWhereExists(function ($sub) use ($subcat) {
+                                    $sub->select(DB::raw(1))
+                                        ->from('product_subcategory')
+                                        ->whereColumn('product_subcategory.product_id', 'products.id')
+                                        ->where('product_subcategory.sub_category_id', $subcat->id);
+                                });
+                        })
+                        ->orderBy('created_at', 'desc')
+                        ->value('image');
+
+                    if ($image) {
+                        $subcategoryImages[$subcat->name] = global_asset(upload_path('products').'/'.$image);
+                    }
+                }
             }
         }
 
@@ -263,6 +292,7 @@ class StoreFrontController extends Controller
             's' => $s,
             'blocks' => $blocks,
             'categories' => $categories,
+            'subcategoryImages' => $subcategoryImages ?? [],
             'banners' => $banners,
             'showCategoryBar' => true,
             'categorySpecificProducts' => $categorySpecificProducts,

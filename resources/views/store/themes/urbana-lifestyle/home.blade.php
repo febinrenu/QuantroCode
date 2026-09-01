@@ -149,7 +149,7 @@
     <section class="max-w-7xl mx-auto px-4 py-6">
       <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
         @foreach($urbTiles as $i => [$subName, $tileLabel, $tileDesc])
-          @php $tImg = $urbImgs->count() ? $urbImgs[$i % $urbImgs->count()] : null; @endphp
+          @php $tImg = $subcategoryImages[$subName] ?? ($urbImgs->count() ? $urbImgs[$i % $urbImgs->count()] : null); @endphp
           <a href="{{ route('store.shop', ['sub_category' => $urbSubIdHome($subName)]) }}" class="group bg-white flex flex-col">
             <div class="aspect-square overflow-hidden bg-urb-creamDark">
               @if($tImg)

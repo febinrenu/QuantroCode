@@ -96,7 +96,7 @@
   <section class="max-w-7xl mx-auto px-4 py-10">
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
       @foreach($elTiles as $i => $tile)
-        @php $tImg = $elImgs->count() ? $elImgs[$i % $elImgs->count()] : null; @endphp
+        @php $tImg = $subcategoryImages[$tile['label']] ?? ($elImgs->count() ? $elImgs[$i % $elImgs->count()] : null); @endphp
         <a href="{{ route('store.shop', ['sub_category' => $tile['sub_category']]) }}" class="group relative aspect-[4/5] overflow-hidden bg-el-ink">
           @if($tImg)
             <img src="{{ $tImg }}" alt="{{ $tile['label'] }}" class="w-full h-full object-cover opacity-80 group-hover:opacity-60 group-hover:scale-105 transition-all duration-300">
