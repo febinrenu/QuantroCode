@@ -317,6 +317,31 @@ class StoreFrontController extends Controller
                 ->take(16)
                 ->get();
             $viewData['products'] = $products;
+        } elseif ($activeTheme === 'nexora') {
+            $nexCatIds = $categories->pluck('id')->all();
+            $products = Product::query()
+                ->where('products.is_active', 1)
+                ->where('products.hide_from_online_store', 0)
+                ->where(function ($q) use ($nexCatIds) {
+                    $q->whereIn('products.category_id', $nexCatIds)
+                      ->orWhere('products.code', 'like', 'NEX-%');
+                })
+                ->with(['variants', 'images', 'category', 'brand'])
+                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
+                    $join->on('pvmin.product_id', '=', 'products.id');
+                })
+                ->addSelect(
+                    'products.*',
+                    DB::raw("$baseExpr AS base_price"),
+                    DB::raw("$afterDiscountExpr AS after_discount"),
+                    DB::raw("$finalExpr AS final_display_price")
+                )
+                ->orderByRaw("CASE WHEN products.code LIKE 'NEX-%' THEN 0 ELSE 1 END")
+                ->orderBy('products.is_featured', 'desc')
+                ->orderBy('products.created_at', 'desc')
+                ->take(18)
+                ->get();
+            $viewData['products'] = $products;
         }
 
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'home') ?? 'store.index';
@@ -420,6 +445,12 @@ class StoreFrontController extends Controller
             $productsQuery->where(function ($q) use ($natCatIds) {
                 $q->whereIn('products.category_id', $natCatIds)
                   ->orWhere('products.code', 'like', 'NAT-%');
+            });
+        } elseif ($activeTheme === 'nexora') {
+            $nexCatIds = $categories->pluck('id')->all();
+            $productsQuery->where(function ($q) use ($nexCatIds) {
+                $q->whereIn('products.category_id', $nexCatIds)
+                  ->orWhere('products.code', 'like', 'NEX-%');
             });
         }
 
@@ -1041,6 +1072,22 @@ class StoreFrontController extends Controller
                     'Accessories',
                 ])
                 ->orderByRaw("FIELD(name, 'Skincare', 'Hair Care', 'Bath & Body', 'Wellness', 'Home Care', 'Organic Tea', 'Gift Sets', 'Accessories')")
+                ->get();
+        }
+
+        if ($activeTheme === 'nexora') {
+            return Category::with('subcategories')
+                ->whereIn('name', [
+                    'Electronics',
+                    'Fashion',
+                    'Home & Living',
+                    'Beauty',
+                    'Sports',
+                    'Toys & Games',
+                    'Automotive',
+                    'Accessories',
+                ])
+                ->orderByRaw("FIELD(name, 'Electronics', 'Fashion', 'Home & Living', 'Beauty', 'Sports', 'Toys & Games', 'Automotive', 'Accessories')")
                 ->get();
         }
 
