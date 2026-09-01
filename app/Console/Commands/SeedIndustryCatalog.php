@@ -155,6 +155,7 @@ class SeedIndustryCatalog extends Command
         $this->tagFashionSubcategories($now);
         $this->tagMarketplaceSubcategories($now);
         $this->tagBooksSubcategories($now);
+        $this->tagElectronicsSubcategories($now);
         $this->backfillLegacyDemoImages($accessKey, $dir);
 
         return self::SUCCESS;
@@ -343,6 +344,65 @@ class SeedIndustryCatalog extends Command
             'Canvas Book Tote Bag' => ['Desk & Study Accessories'],
             'LED Adjustable Reading Lamp' => ['Desk & Study Accessories'],
             'Kids Picture Book Collection' => ['Kids & Educational'],
+        ];
+
+        foreach ($tags as $productName => $subNames) {
+            $productId = DB::table('products')->where('category_id', $categoryId)->where('name', $productName)->value('id');
+            if (! $productId) {
+                continue;
+            }
+            foreach ($subNames as $subName) {
+                DB::table('product_subcategory')->insertOrIgnore([
+                    'product_id' => $productId,
+                    'sub_category_id' => $subcategoryIds[$subName],
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * The FutureX theme's category sidebar/tiles (Laptops & Computers /
+     * Smartphones & Tablets / Wearables / Audio & Headphones / Gaming /
+     * Cameras & Drones) filter by these subcategories under Electronics &
+     * Gadgets, same pattern as the other category-specific themes.
+     */
+    private function tagElectronicsSubcategories(Carbon $now): void
+    {
+        $categoryId = DB::table('categories')->where('code', 'CAT-IND-ELC')->value('id');
+        if (! $categoryId) {
+            return;
+        }
+
+        $subcategoryNames = [
+            'Laptops & Computers', 'Smartphones & Tablets', 'Wearables',
+            'Audio & Headphones', 'Gaming', 'Cameras & Drones',
+        ];
+        $subcategoryIds = [];
+        foreach ($subcategoryNames as $name) {
+            $id = DB::table('subcategories')->where('category_id', $categoryId)->where('name', $name)->value('id');
+            if (! $id) {
+                $id = DB::table('subcategories')->insertGetId([
+                    'category_id' => $categoryId, 'name' => $name, 'status' => 1,
+                    'created_at' => $now, 'updated_at' => $now,
+                ]);
+            }
+            $subcategoryIds[$name] = $id;
+        }
+
+        $tags = [
+            'MacBook Air M2 13"' => ['Laptops & Computers'],
+            'Samsung Galaxy S24 Ultra' => ['Smartphones & Tablets'],
+            'Sony WH-1000XM5' => ['Audio & Headphones'],
+            'Apple Watch Series 9' => ['Wearables'],
+            'Canon EOS R50' => ['Cameras & Drones'],
+            'DJI Mini 4 Pro' => ['Cameras & Drones'],
+            'Wireless Noise-Cancelling Headphones' => ['Audio & Headphones'],
+            'Smartwatch Series X' => ['Wearables'],
+            '4K Camera Drone' => ['Cameras & Drones'],
+            'Mechanical Gaming Keyboard' => ['Gaming'],
+            'Portable Bluetooth Speaker' => ['Audio & Headphones'],
         ];
 
         foreach ($tags as $productName => $subNames) {
@@ -698,6 +758,15 @@ class SeedIndustryCatalog extends Command
                 ['LED Adjustable Reading Lamp', 'reading lamp desk', 39.00, 'Dimmable LED reading lamp with an adjustable gooseneck arm.'],
                 ['Weekly Planner Notebook', 'planner notebook desk', 24.00, 'Undated weekly planner with monthly tabs and a ribbon bookmark.'],
                 ['Kids Picture Book Collection', 'childrens picture books', 34.00, 'A boxed set of six illustrated picture books for early readers.'],
+            ]],
+            // FutureX (Electronics & Gadgets) -- best-selling tech
+            ['code' => 'CAT-IND-ELC', 'category' => 'Electronics & Gadgets', 'products' => [
+                ['MacBook Air M2 13"', 'macbook laptop computer', 1099.00, 'Ultra-thin 13" laptop with the M2 chip, 18-hour battery life, and a Liquid Retina display.'],
+                ['Samsung Galaxy S24 Ultra', 'samsung galaxy smartphone', 999.00, 'Flagship Android smartphone with a 200MP camera and a built-in S Pen.'],
+                ['Sony WH-1000XM5', 'sony headphones black', 349.00, 'Industry-leading noise-cancelling over-ear headphones with 30-hour battery life.'],
+                ['Apple Watch Series 9', 'apple watch smartwatch', 399.00, 'Always-on smartwatch with advanced health tracking and a brighter display.'],
+                ['Canon EOS R50', 'canon camera mirrorless', 749.00, 'Compact mirrorless camera with 4K video and fast autofocus for hybrid shooters.'],
+                ['DJI Mini 4 Pro', 'dji drone quadcopter', 899.00, 'Sub-249g drone with omnidirectional obstacle sensing and 4K/60fps video.'],
             ]],
         ];
     }
