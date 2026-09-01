@@ -100,7 +100,8 @@ class SeedIndustryCatalog extends Command
                     continue;
                 }
 
-                $filename = $this->downloadUnsplashPhoto($accessKey, $query, $dir, Str::slug($name));
+                $filename = $this->bundledProductImage($name, $dir)
+                    ?? $this->downloadUnsplashPhoto($accessKey, $query, $dir, Str::slug($name));
                 if (! $filename) {
                     $this->warn("  \xE2\x9C\x97 {$name} — could not fetch a photo for \"{$query}\", skipped.");
                     continue;
@@ -228,6 +229,36 @@ class SeedIndustryCatalog extends Command
      * on a free "Demo" app) — the CDN image download itself does not — so
      * this stays well under that limit even for the full ~42-product catalog.
      */
+    /**
+     * The ShopIQ Electronics theme ships with real bundled photos for its 5
+     * Electronics & Gadgets products so that category doesn't depend on an
+     * Unsplash API key to look right.
+     */
+    private function bundledProductImage(string $name, string $dir): ?string
+    {
+        $bundled = [
+            'Wireless Noise-Cancelling Headphones' => 'shopiq-electronics/headphones.jpg',
+            'Smartwatch Series X' => 'shopiq-electronics/smartwatch.jpg',
+            '4K Camera Drone' => 'shopiq-electronics/drone.jpg',
+            'Mechanical Gaming Keyboard' => 'shopiq-electronics/keyboard.jpg',
+            'Portable Bluetooth Speaker' => 'shopiq-electronics/speaker.jpg',
+        ];
+
+        if (! isset($bundled[$name])) {
+            return null;
+        }
+
+        $source = resource_path('theme-assets/'.$bundled[$name]);
+        if (! is_file($source)) {
+            return null;
+        }
+
+        $filename = Str::slug($name).'.'.pathinfo($source, PATHINFO_EXTENSION);
+        copy($source, $dir.'/'.$filename);
+
+        return $filename;
+    }
+
     private function downloadUnsplashPhoto(string $accessKey, string $query, string $dir, string $slug): ?string
     {
         // Try the constrained search first (squarish, high content filter);

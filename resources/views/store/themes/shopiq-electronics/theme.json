@@ -1,0 +1,27 @@
+{
+  "slug": "shopiq-electronics",
+  "name": "ShopIQ Electronics",
+  "tagline": "Shop Smart. Live Better.",
+  "description": "A category-specific electronics and gadgets storefront with a vibrant indigo, gold and coral palette and playful rounded cards.",
+  "category": "Category-Specific Themes",
+  "product_category_keywords": ["electronics"],
+  "version": "1.0.0",
+  "layout_persona": "Vibrant electronics and gadgets marketplace",
+  "layout": "sidebar-hero",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap",
+  "fontPairing": { "heading": "Poppins", "body": "Inter" },
+  "paletteSwatches": ["#5B4FE0", "#16213E", "#F5A623", "#EDEBFC"],
+  "tokens": {
+    "color-bg-base": "#F7F7FB",
+    "color-accent-500": "#5B4FE0",
+    "color-accent-600": "#16213E",
+    "color-accent-700": "#F5A623",
+    "color-accent-800": "#EDEBFC",
+    "font-heading": "'Poppins', sans-serif",
+    "font-body": "'Inter', sans-serif",
+    "font-size-heading": "34px",
+    "font-size-body": "14px"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "color-accent-700", "color-accent-800", "font-heading", "font-body", "font-size-heading", "font-size-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}
