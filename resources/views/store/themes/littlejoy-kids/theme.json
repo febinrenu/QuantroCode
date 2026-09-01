@@ -1,0 +1,24 @@
+{
+  "slug": "littlejoy-kids",
+  "name": "LittleJoy",
+  "tagline": "for happy little ones",
+  "description": "Category-specific storefront for Baby & Kids — a playful, rounded design: pastel gradients, rainbow wordmark, friendly icon-driven category grid. Shows only Baby & Kids products.",
+  "category": "category-specific",
+  "themeGroup": "category-specific",
+  "restrict_category_code": "CAT-IND-BBY",
+  "version": "1.0.0",
+  "layout_persona": "Baby & Kids Store",
+  "layout": "single-category-editorial",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap",
+  "fontPairing": { "heading": "Baloo 2", "body": "Inter" },
+  "paletteSwatches": ["#6C63E0", "#FFF6F2", "#F76C8A", "#FFD166"],
+  "tokens": {
+    "color-bg-base": "#FFF6F2",
+    "color-accent-500": "#6C63E0",
+    "color-accent-600": "#F76C8A",
+    "font-heading": "'Baloo 2', sans-serif",
+    "font-body": "'Inter', sans-serif"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}
