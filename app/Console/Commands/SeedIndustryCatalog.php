@@ -154,6 +154,7 @@ class SeedIndustryCatalog extends Command
 
         $this->tagFashionSubcategories($now);
         $this->tagMarketplaceSubcategories($now);
+        $this->tagBooksSubcategories($now);
         $this->backfillLegacyDemoImages($accessKey, $dir);
 
         return self::SUCCESS;
@@ -298,6 +299,66 @@ class SeedIndustryCatalog extends Command
             fn ($t) => str_starts_with(mb_strtolower(trim($t)), 'pr-ind-') ? mb_strtoupper(trim($t)) : mb_strtolower(trim($t)),
             explode(',', $raw)
         );
+    }
+
+    /**
+     * The Marketly theme's category sidebar/tiles (Fiction & Bestsellers /
+     * Notebooks & Journals / Pens & Writing / Art & Craft Supplies /
+     * Desk & Study Accessories / Kids & Educational) filter by these
+     * subcategories under Books & Stationery, same pattern as
+     * tagFashionSubcategories() / tagMarketplaceSubcategories().
+     */
+    private function tagBooksSubcategories(Carbon $now): void
+    {
+        $categoryId = DB::table('categories')->where('code', 'CAT-IND-BKS')->value('id');
+        if (! $categoryId) {
+            return;
+        }
+
+        $subcategoryNames = [
+            'Fiction & Bestsellers', 'Notebooks & Journals', 'Pens & Writing',
+            'Art & Craft Supplies', 'Desk & Study Accessories', 'Kids & Educational',
+        ];
+        $subcategoryIds = [];
+        foreach ($subcategoryNames as $name) {
+            $id = DB::table('subcategories')->where('category_id', $categoryId)->where('name', $name)->value('id');
+            if (! $id) {
+                $id = DB::table('subcategories')->insertGetId([
+                    'category_id' => $categoryId, 'name' => $name, 'status' => 1,
+                    'created_at' => $now, 'updated_at' => $now,
+                ]);
+            }
+            $subcategoryIds[$name] = $id;
+        }
+
+        $tags = [
+            'Bestseller Book Bundle' => ['Fiction & Bestsellers'],
+            'Hardcover Classics Box Set' => ['Fiction & Bestsellers'],
+            'Leather Journal Notebook' => ['Notebooks & Journals'],
+            'Weekly Planner Notebook' => ['Notebooks & Journals'],
+            'Fountain Pen Set' => ['Pens & Writing'],
+            'Luxury Rollerball Pen Set' => ['Pens & Writing'],
+            'Watercolor Art Set' => ['Art & Craft Supplies'],
+            'Wooden Desk Organizer' => ['Desk & Study Accessories'],
+            'Canvas Book Tote Bag' => ['Desk & Study Accessories'],
+            'LED Adjustable Reading Lamp' => ['Desk & Study Accessories'],
+            'Kids Picture Book Collection' => ['Kids & Educational'],
+        ];
+
+        foreach ($tags as $productName => $subNames) {
+            $productId = DB::table('products')->where('category_id', $categoryId)->where('name', $productName)->value('id');
+            if (! $productId) {
+                continue;
+            }
+            foreach ($subNames as $subName) {
+                DB::table('product_subcategory')->insertOrIgnore([
+                    'product_id' => $productId,
+                    'sub_category_id' => $subcategoryIds[$subName],
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+            }
+        }
     }
 
     private function backfillLegacyDemoImages(string $accessKey, string $dir): void
@@ -628,6 +689,15 @@ class SeedIndustryCatalog extends Command
                 ['Aromatic Scented Candle', 'scented candle jar', 24.00, 'Hand-poured soy candle in a reusable glass jar, 45-hour burn time.'],
                 ['Yoga Mat Set', 'yoga mat fitness', 39.00, 'Non-slip yoga mat with a carry strap and matching resistance band.'],
                 ['Wireless Headphones', 'wireless headphones lifestyle', 79.00, 'Over-ear wireless headphones with a foldable design and 20-hour battery.'],
+            ]],
+            // Marketly (Books & Stationery) -- trending reads and desk essentials
+            ['code' => 'CAT-IND-BKS', 'category' => 'Books & Stationery', 'products' => [
+                ['Hardcover Classics Box Set', 'hardcover books collection', 79.00, 'A five-volume hardcover box set of timeless literary classics.'],
+                ['Luxury Rollerball Pen Set', 'luxury pen gift set', 129.00, 'Rollerball pen and ink gift set finished in brushed metal.'],
+                ['Canvas Book Tote Bag', 'canvas tote bag books', 59.00, 'Durable canvas tote sized for hardcovers, built for the daily commute.'],
+                ['LED Adjustable Reading Lamp', 'reading lamp desk', 39.00, 'Dimmable LED reading lamp with an adjustable gooseneck arm.'],
+                ['Weekly Planner Notebook', 'planner notebook desk', 24.00, 'Undated weekly planner with monthly tabs and a ribbon bookmark.'],
+                ['Kids Picture Book Collection', 'childrens picture books', 34.00, 'A boxed set of six illustrated picture books for early readers.'],
             ]],
         ];
     }

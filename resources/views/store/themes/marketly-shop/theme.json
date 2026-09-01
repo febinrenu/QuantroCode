@@ -1,0 +1,24 @@
+{
+  "slug": "marketly-shop",
+  "name": "Marketly",
+  "tagline": "Everything you need.",
+  "description": "Category-specific storefront for Books & Stationery — a bold marketplace design: purple-to-pink gradient hero, category sidebar, flash-deals banner, trending-products grid. Shows only Books & Stationery products.",
+  "category": "category-specific",
+  "themeGroup": "category-specific",
+  "restrict_category_code": "CAT-IND-BKS",
+  "version": "1.0.0",
+  "layout_persona": "General Marketplace",
+  "layout": "single-category-editorial",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap",
+  "fontPairing": { "heading": "Poppins", "body": "Inter" },
+  "paletteSwatches": ["#5B3FD9", "#F7F6FB", "#F5B301", "#1B1533"],
+  "tokens": {
+    "color-bg-base": "#F7F6FB",
+    "color-accent-500": "#5B3FD9",
+    "color-accent-600": "#F5B301",
+    "font-heading": "'Poppins', sans-serif",
+    "font-body": "'Inter', sans-serif"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}
