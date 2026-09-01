@@ -417,6 +417,29 @@ class StoreFrontController extends Controller
                 ->take(18)
                 ->get();
             $viewData['products'] = $products;
+        } elseif ($activeTheme === 'zanova') {
+            $znvCatIds = $categories->pluck('id')->all();
+            $products = Product::query()
+                ->where('products.is_active', 1)
+                ->where('products.hide_from_online_store', 0)
+                ->where(function ($q) use ($znvCatIds) {
+                    $q->whereIn('products.category_id', $znvCatIds)
+                      ->orWhere('products.code', 'like', 'ZNV-%');
+                })
+                ->with(['variants', 'images', 'category', 'brand'])
+                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
+                    $join->on('pvmin.product_id', '=', 'products.id');
+                })
+                ->addSelect(
+                    'products.*',
+                    DB::raw("$baseExpr AS base_price"),
+                    DB::raw("$afterDiscountExpr AS after_discount"),
+                    DB::raw("$finalExpr AS final_display_price")
+                )
+                ->orderByRaw("CASE WHEN products.code IN ('ZNV-EAR-001', 'ZNV-WAT-002', 'ZNV-CAM-003', 'ZNV-SPK-004', 'ZNV-BAK-005', 'ZNV-MIX-006', 'ZNV-LAP-007', 'ZNV-HED-008', 'ZNV-MOU-009', 'ZNV-FRY-010', 'ZNV-YOG-011', 'ZNV-SRM-012') THEN FIELD(products.code, 'ZNV-EAR-001', 'ZNV-WAT-002', 'ZNV-CAM-003', 'ZNV-SPK-004', 'ZNV-BAK-005', 'ZNV-MIX-006', 'ZNV-LAP-007', 'ZNV-HED-008', 'ZNV-MOU-009', 'ZNV-FRY-010', 'ZNV-YOG-011', 'ZNV-SRM-012') ELSE 99 END")
+                ->take(18)
+                ->get();
+            $viewData['products'] = $products;
         }
 
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'home') ?? 'store.index';
@@ -545,6 +568,12 @@ class StoreFrontController extends Controller
                 $q->whereIn('products.category_id', $vrdCatIds)
                   ->orWhere('products.code', 'like', 'VRD-%');
             });
+        } elseif ($activeTheme === 'zanova') {
+            $znvCatIds = $categories->pluck('id')->all();
+            $productsQuery->where(function ($q) use ($znvCatIds) {
+                $q->whereIn('products.category_id', $znvCatIds)
+                  ->orWhere('products.code', 'like', 'ZNV-%');
+            });
         }
 
         $products = $productsQuery
@@ -616,6 +645,57 @@ class StoreFrontController extends Controller
                     } elseif (strcasecmp($cat, 'Kids') === 0) {
                         $kidCatIds = Category::whereIn('name', ['Children'])->pluck('id')->all();
                         $qb->whereIn('products.category_id', $kidCatIds);
+                        return;
+                    }
+                }
+
+                if ($activeTheme === 'zanova') {
+                    $catSlugMap = [
+                        'electronics'          => 3,
+                        'fashion-apparel'      => 77,
+                        'fashion'              => 77,
+                        'apparel'              => 77,
+                        'home-kitchen'         => 78,
+                        'home'                 => 78,
+                        'kitchen'              => 78,
+                        'beauty-personal-care' => 28,
+                        'beauty'               => 28,
+                        'personal-care'        => 28,
+                        'toys-games'           => 11,
+                        'toys'                 => 11,
+                        'games'                => 11,
+                        'sports-outdoors'      => 30,
+                        'sports'               => 30,
+                        'outdoors'             => 30,
+                        'automotive'           => 31,
+                        'auto'                 => 31,
+                        'books-stationery'     => 32,
+                        'books'                => 32,
+                        'stationery'           => 32,
+                        'pet-supplies'         => 33,
+                        'pets'                 => 33,
+                        'pet'                  => 33,
+                        'groceries-essentials' => 79,
+                        'groceries'            => 79,
+                        'grocery'              => 79,
+                        'health-wellness'      => 80,
+                        'health'               => 80,
+                        'wellness'             => 80,
+                        'gift-ideas'           => 81,
+                        'gifts'                => 81,
+                        'gift'                 => 81,
+                    ];
+                    $normCat = strtolower(trim((string)$cat));
+                    $slugCat = str_replace([' & ', ' '], '-', $normCat);
+                    if (isset($catSlugMap[$normCat])) {
+                        $qb->where('products.category_id', $catSlugMap[$normCat]);
+                        return;
+                    } elseif (isset($catSlugMap[$slugCat])) {
+                        $qb->where('products.category_id', $catSlugMap[$slugCat]);
+                        return;
+                    } elseif (is_numeric($cat)) {
+                        $cid = (int) $cat;
+                        $qb->where('products.category_id', $cid);
                         return;
                     }
                 }
@@ -1244,6 +1324,26 @@ class StoreFrontController extends Controller
                     'Bath',
                 ])
                 ->orderByRaw("FIELD(name, 'Home & Decor', 'Cleaning Essentials', 'Bath & Body', 'Kitchen & Dining', 'Gifts & Sets', 'Beauty', 'Journal', 'Decor', 'Kitchen', 'Bath')")
+                ->get();
+        }
+
+        if ($activeTheme === 'zanova') {
+            return Category::with('subcategories')
+                ->whereIn('name', [
+                    'Electronics',
+                    'Fashion & Apparel',
+                    'Home & Kitchen',
+                    'Beauty & Personal Care',
+                    'Toys & Games',
+                    'Sports & Outdoors',
+                    'Automotive',
+                    'Books & Stationery',
+                    'Pet Supplies',
+                    'Groceries & Essentials',
+                    'Health & Wellness',
+                    'Gift Ideas'
+                ])
+                ->orderByRaw("FIELD(name, 'Electronics', 'Fashion & Apparel', 'Home & Kitchen', 'Beauty & Personal Care', 'Toys & Games', 'Sports & Outdoors', 'Automotive', 'Books & Stationery', 'Pet Supplies', 'Groceries & Essentials', 'Health & Wellness', 'Gift Ideas')")
                 ->get();
         }
 

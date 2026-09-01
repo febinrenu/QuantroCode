@@ -1,158 +1,226 @@
 @php
-  $znClient = Auth::guard('store')->user();
-  $znCategories = $categories ?? collect();
-  $znDeals = [
-    '⚡ Flash sale — up to 40% off audio & wearables',
-    '🛰️ New arrivals drop every Friday',
-    '💜 Free shipping on orders over $99',
-    '🧴 Beauty edit: buy 2 get 1 free',
-    '🛒 Grocery essentials restocked daily',
-    '👟 Sportswear clearance — while stock lasts',
-  ];
+    $previewParam = request('preview_theme') ? '?preview_theme=' . request('preview_theme') : '';
+    $previewAmp = request('preview_theme') ? '&preview_theme=' . request('preview_theme') : '';
 @endphp
-<div class="bg-zn-bg text-zn-mist text-xs border-b border-white/5">
-  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-9">
-    <span class="truncate">{{ $s->topbar_text_left ?? '🚀 Shop the future — new drops daily' }}</span>
-    <div class="hidden md:flex items-center gap-4">
-      <span>{{ $s->topbar_text_right ?? '📡 Track your order in real time' }}</span>
-      <a href="{{ route('store.contact') }}" class="hover:text-zn-cyan transition-colors">{{ __('messages.Support') }}</a>
-    </div>
-  </div>
-</div>
 
-{{-- ===== MARQUEE DEALS TICKER ===== --}}
-<div class="relative bg-gradient-to-r from-zn-violetDark via-zn-violet to-zn-cyan overflow-hidden">
-  <div class="zn-marquee-track py-1.5">
-    @for($r = 0; $r < 2; $r++)
-      <div class="flex items-center shrink-0">
-        @foreach($znDeals as $deal)
-          <span class="mx-6 text-[11px] sm:text-xs font-semibold text-white/95 tracking-wide whitespace-nowrap">{{ $deal }}</span>
-          <span class="text-white/40">•</span>
-        @endforeach
-      </div>
-    @endfor
-  </div>
-</div>
+<header class="sticky top-0 z-40 w-full transition-all shadow-md">
 
-<header class="sticky top-0 z-40 bg-zn-bg/90 backdrop-blur-md border-b border-violet-500/20">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="flex items-center gap-4 h-16">
-      <a href="{{ route('store.index') }}" class="flex items-center gap-2 shrink-0">
-        @if(!empty($s->logo_path))
-          <img src="{{ \Illuminate\Support\Str::startsWith($s->logo_path,['http://','https://','/']) ? $s->logo_path : global_asset($s->logo_path) }}" alt="{{ $s->store_name }}" class="h-9 max-w-[150px] object-contain">
-        @else
-          <span class="font-heading font-bold text-xl tracking-tight text-gradient">{{ $s->store_name ?? 'Zanova' }}</span>
-        @endif
-      </a>
-
-      <nav class="hidden lg:flex items-center gap-1 relative">
-        <div class="group relative">
-          <button type="button" class="px-3 h-10 inline-flex items-center gap-1 text-sm font-semibold text-slate-200 hover:text-zn-cyan rounded-md transition-colors">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-            {{ __('messages.Categories') ?? 'Categories' }}
-          </button>
-          @if($znCategories->count())
-            <div class="hidden group-hover:grid absolute top-full left-0 pt-2 z-30 w-[560px] grid-cols-2 gap-x-6 gap-y-1 bg-zn-surface border border-violet-500/25 rounded-xl shadow-glowLg p-5">
-              @foreach($znCategories as $cat)
-                <div class="py-1.5">
-                  <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="text-sm font-bold text-slate-100 hover:text-zn-cyan transition-colors">{{ $cat->name }}</a>
-                  @if(($cat->subcategories ?? collect())->count())
-                    <ul class="mt-1 space-y-0.5">
-                      @foreach($cat->subcategories->take(4) as $sub)
-                        <li><a href="{{ route('store.shop', ['category' => $cat->id, 'sub_category' => $sub->id]) }}" class="text-xs text-zn-mist hover:text-zn-cyan transition-colors">{{ $sub->name }}</a></li>
-                      @endforeach
-                    </ul>
-                  @endif
-                </div>
-              @endforeach
+    <!-- 1. Top Yellow Announcement Bar -->
+    <div class="bg-zanova-yellow text-zanova-navy text-xs font-bold py-2 px-4 sm:px-8 border-b border-amber-300">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
+            <!-- Left Promo & CTA -->
+            <div class="flex items-center gap-3">
+                <span class="flex items-center gap-1.5 font-extrabold text-[0.82rem]">
+                    <span>🔥</span>
+                    <span>Hot Summer Sale! Up to 70% OFF on selected items.</span>
+                </span>
+                <a href="{{ url('/online_store/shop?collection=mega-deals' . $previewAmp) }}"
+                   class="inline-flex items-center gap-1 px-3 py-1 bg-zanova-navy hover:bg-slate-900 text-white text-[0.7rem] font-black rounded-full transition-colors">
+                    <span>Shop Now</span>
+                    <span>→</span>
+                </a>
             </div>
-          @endif
-        </div>
-        <a href="{{ route('store.index') }}" class="px-3 h-10 inline-flex items-center text-sm font-medium text-zn-mist hover:text-zn-cyan transition-colors">{{ __('messages.Home') }}</a>
-        <a href="{{ route('store.shop') }}" class="px-3 h-10 inline-flex items-center text-sm font-medium text-zn-mist hover:text-zn-cyan transition-colors">{{ __('messages.Shop') }}</a>
-        <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="px-3 h-10 inline-flex items-center text-sm font-medium text-zn-mist hover:text-zn-cyan transition-colors">{{ __('messages.Deals') ?? 'Deals' }}</a>
-        <a href="{{ route('store.contact') }}" class="px-3 h-10 inline-flex items-center text-sm font-medium text-zn-mist hover:text-zn-cyan transition-colors">{{ __('messages.Support') }}</a>
-      </nav>
 
-      <div class="hidden md:flex flex-1 max-w-lg mx-2 relative" x-data="searchBox('{{ route('store.search.suggestions') }}')" @click.outside="results = []">
-        <form action="{{ route('store.shop') }}" method="GET" class="w-full relative">
-          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zn-mist" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
-          <input type="text" name="q" class="w-full h-10 pl-10 pr-3 rounded-lg border border-violet-500/20 bg-zn-surface text-sm text-slate-100 placeholder-zn-mist focus:outline-none focus:ring-2 focus:ring-zn-cyan/50 focus:border-zn-cyan/50"
-                 placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" autocomplete="off" value="{{ request('q') }}" x-model="q" @input.debounce.250ms="fetch">
-          <div x-show="results.length" x-cloak class="absolute top-full left-0 right-0 mt-1 bg-zn-surface border border-violet-500/25 rounded-lg shadow-glowLg overflow-hidden max-h-96 overflow-y-auto z-50">
-            <template x-for="p in results" :key="p.id">
-              <a :href="p.url" class="flex items-center gap-3 px-3 py-2 hover:bg-white/5">
-                <img :src="p.image_url" class="w-10 h-10 rounded object-cover">
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm font-medium truncate text-slate-100" x-text="p.name"></div>
-                  <div class="text-xs font-bold text-zn-cyan" x-text="window.__HIDE_PRICES__ ? '' : ('{{ $s->currency_code ?? '$' }}' + p.display_price)"></div>
+            <!-- Right Utilities -->
+            <div class="hidden md:flex items-center gap-5 text-[0.76rem] font-semibold text-zanova-navy/90">
+                <a href="{{ url('/online_store/account/orders' . $previewParam) }}" class="hover:text-black transition-colors">Track Order</a>
+                <span class="opacity-40">|</span>
+                <a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-black transition-colors">Help & Support</a>
+                <span class="opacity-40">|</span>
+                <a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-black transition-colors">Find a Store</a>
+                <span class="opacity-40">|</span>
+                <div class="flex items-center gap-1 cursor-pointer hover:text-black">
+                    <span>🇺🇸 EN</span>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
-              </a>
-            </template>
-          </div>
-        </form>
-      </div>
-
-      <div class="ms-auto flex items-center gap-1">
-        @if($znClient)
-          <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-10 px-3 items-center gap-1.5 text-sm font-medium text-zn-mist hover:text-zn-cyan transition-colors">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-            {{ \Illuminate\Support\Str::limit($znClient->username ?: $znClient->email, 12) }}
-          </a>
-        @else
-          <a href="{{ url('/online_store/login') }}" class="hidden md:inline-flex h-10 px-4 items-center rounded-lg text-sm font-semibold text-zn-cyan border border-zn-cyan/30 hover:bg-zn-cyan/10 transition-colors">{{ __('messages.SignIn') }}</a>
-        @endif
-        <div class="hidden md:block">
-          @include('store.partials.language-switcher')
+                <div class="flex items-center gap-1 cursor-pointer hover:text-black">
+                    <span>USD</span>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            </div>
         </div>
-        <a href="{{ route('store.cart') }}" class="btn-glass relative h-10 px-4 inline-flex items-center gap-1.5 rounded-lg text-white text-sm font-semibold">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          <span class="hidden sm:inline">{{ __('messages.Cart') }}</span>
-          <span class="cart-count absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-zn-pink text-white text-[11px] font-bold inline-flex items-center justify-center">0</span>
-        </a>
-        <button type="button" class="lg:hidden h-10 w-10 inline-flex items-center justify-center rounded-lg hover:bg-white/5 text-slate-200" onclick="document.getElementById('zn-mobile-menu').classList.toggle('hidden')" aria-label="Menu">
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-      </div>
     </div>
 
-    @if(($showCategoryBar ?? true) && $znCategories->count())
-      <div class="hidden lg:block border-t border-white/5">
-        <ul class="no-scrollbar flex flex-nowrap items-center gap-1 py-2 overflow-x-auto">
-          @foreach($znCategories as $cat)
-            <li class="shrink-0">
-              <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="px-3 h-8 inline-flex items-center text-xs font-medium text-zn-mist hover:text-zn-cyan hover:bg-white/5 rounded-md transition-colors">{{ $cat->name }}</a>
-            </li>
-          @endforeach
-        </ul>
-      </div>
-    @endif
-  </div>
+    <!-- 2. Main Deep Navy Header -->
+    <div class="bg-zanova-navy text-white border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+            <div class="flex items-center justify-between gap-4 lg:gap-8">
 
-  {{-- Mobile menu --}}
-  <div id="zn-mobile-menu" class="hidden lg:hidden border-t border-white/5 bg-zn-surface max-h-[70vh] overflow-y-auto">
-    <div class="px-4 py-3">
-      <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
-        <input type="text" name="q" class="w-full h-10 pl-3 pr-3 rounded-lg border border-violet-500/20 bg-zn-bg text-sm text-slate-100 placeholder-zn-mist" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}">
-      </form>
-      <div class="text-xs font-bold uppercase tracking-widest text-zn-mist mt-4 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
-      @include('store.partials.language-switcher', ['variant' => 'mobile'])
-      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold text-slate-100">{{ __('messages.Home') }}</a>
-      <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-semibold text-slate-100">{{ __('messages.Shop') }}</a>
-      @foreach($znCategories as $cat)
-        <details class="border-t border-white/5 py-1">
-          <summary class="flex items-center justify-between py-2 text-sm font-medium text-slate-300">
-            {{ $cat->name }}
-            <svg class="w-4 h-4 text-zn-mist" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
-          </summary>
-          <div class="pl-3 pb-2 space-y-1">
-            <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="block py-1 text-sm text-zn-cyan">{{ __('messages.ViewAll') ?? 'View all' }}</a>
-            @foreach($cat->subcategories ?? [] as $sub)
-              <a href="{{ route('store.shop', ['category' => $cat->id, 'sub_category' => $sub->id]) }}" class="block py-1 text-sm text-zn-mist">{{ $sub->name }}</a>
-            @endforeach
-          </div>
-        </details>
-      @endforeach
+                <!-- Brand Logo -->
+                <div class="flex items-center gap-3">
+                    <button type="button"
+                            class="lg:hidden p-2 rounded-lg text-white hover:bg-slate-800 transition-colors"
+                            @click="mobileMenu = true"
+                            aria-label="Open mobile menu">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+
+                    <a href="{{ url('/online_store' . $previewParam) }}" class="flex items-center gap-2.5 group">
+                        <!-- Yellow Bag Emblem with Z -->
+                        <div class="w-10 h-10 rounded-xl bg-zanova-yellow text-zanova-navy flex items-center justify-center font-black text-2xl shadow-md group-hover:scale-105 transition-transform">
+                            Z
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-black text-2xl tracking-tight text-white leading-none">ZANOVA</span>
+                            <span class="text-[0.62rem] font-bold text-amber-400 tracking-wider mt-0.5 uppercase">Shop Beyond Limits</span>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Wide Center Search Bar with Categories Dropdown -->
+                <div class="hidden md:flex flex-grow max-w-2xl mx-auto">
+                    <form action="{{ url('/online_store/shop') }}" method="GET" class="w-full flex items-center bg-white rounded-xl overflow-hidden border-2 border-zanova-yellow shadow-inner">
+                        @if(request('preview_theme'))
+                            <input type="hidden" name="preview_theme" value="{{ request('preview_theme') }}">
+                        @endif
+
+                        <!-- Category Filter Dropdown -->
+                        <div class="relative flex items-center bg-slate-50 border-r border-slate-200 px-3 py-2 text-xs font-bold text-slate-700">
+                            <select name="category" class="bg-transparent text-xs font-bold text-slate-700 focus:outline-hidden cursor-pointer pr-4">
+                                <option value="">All Categories</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="fashion-apparel">Fashion & Apparel</option>
+                                <option value="home-kitchen">Home & Kitchen</option>
+                                <option value="beauty-personal-care">Beauty & Personal Care</option>
+                                <option value="sports-outdoors">Sports & Outdoors</option>
+                            </select>
+                        </div>
+
+                        <!-- Search Input -->
+                        <input type="text"
+                               name="q"
+                               placeholder="Search for products, brands and more..."
+                               class="flex-grow px-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-hidden font-medium">
+
+                        <!-- Yellow Search Submit Button -->
+                        <button type="submit"
+                                class="px-5 py-2.5 bg-zanova-yellow hover:bg-zanova-yellowHover text-zanova-navy flex items-center justify-center transition-colors"
+                                aria-label="Search">
+                            <svg class="w-4 h-4 font-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Right Action Icons (Compare, Wishlist, Cart, Account) -->
+                <div class="flex items-center gap-4 sm:gap-6" x-data="miniCart()">
+
+                    <!-- Compare -->
+                    <a href="{{ url('/online_store/shop' . $previewParam) }}" class="hidden xl:flex items-center gap-2 group text-slate-300 hover:text-zanova-yellow transition-colors">
+                        <div class="relative">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                            </svg>
+                        </div>
+                        <span class="text-xs font-bold">Compare</span>
+                    </a>
+
+                    <!-- Wishlist -->
+                    <a href="{{ url('/online_store/shop?collection=mega-deals' . $previewAmp) }}" class="flex items-center gap-2 group text-slate-300 hover:text-zanova-yellow transition-colors">
+                        <div class="relative">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                            <span class="absolute -top-1.5 -right-2 w-4 h-4 bg-zanova-yellow text-zanova-navy text-[0.62rem] font-black rounded-full flex items-center justify-center shadow-xs">
+                                0
+                            </span>
+                        </div>
+                        <span class="text-xs font-bold hidden sm:inline">Wishlist</span>
+                    </a>
+
+                    <!-- Cart / Bag with dynamic count -->
+                    <a href="{{ url('/online_store/cart' . $previewParam) }}" class="flex items-center gap-2 group text-slate-300 hover:text-zanova-yellow transition-colors">
+                        <div class="relative">
+                            <svg class="w-6 h-6 text-white group-hover:text-zanova-yellow transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                            </svg>
+                            <span class="absolute -top-1.5 -right-2 w-4 h-4 bg-zanova-yellow text-zanova-navy text-[0.62rem] font-black rounded-full flex items-center justify-center shadow-xs"
+                                  x-text="count">
+                                0
+                            </span>
+                        </div>
+                        <span class="text-xs font-bold hidden sm:inline">Cart</span>
+                    </a>
+
+                    <!-- Account -->
+                    <a href="{{ url('/online_store/account' . $previewParam) }}" class="flex items-center gap-2 group text-slate-300 hover:text-zanova-yellow transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        <span class="text-xs font-bold hidden sm:inline">Account</span>
+                    </a>
+
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
+
+    <!-- 3. Dark Navy Category & Navigation Bar (`#0F172A`) -->
+    <div class="bg-zanova-dark border-b border-slate-800 text-white hidden lg:block">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-12">
+
+                <!-- Left: Shop By Categories Yellow Button -->
+                <div class="relative w-64">
+                    <a href="{{ url('/online_store/shop' . $previewParam) }}"
+                       class="w-full py-2.5 px-4 bg-zanova-yellow hover:bg-zanova-yellowHover text-zanova-navy font-black text-xs uppercase tracking-wider rounded-t-lg flex items-center justify-between transition-colors shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                            <span>Shop By Categories</span>
+                        </div>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Center: Navigation Links -->
+                <nav class="flex items-center gap-7 text-xs font-bold">
+                    <a href="{{ url('/online_store' . $previewParam) }}"
+                       class="text-zanova-yellow border-b-2 border-zanova-yellow pb-0.5 flex items-center">
+                        Home
+                    </a>
+                    <a href="{{ url('/online_store/shop' . $previewParam) }}"
+                       class="text-slate-200 hover:text-zanova-yellow transition-colors">
+                        Shop
+                    </a>
+                    <a href="{{ url('/online_store/shop?collection=mega-deals' . $previewAmp) }}"
+                       class="text-slate-200 hover:text-zanova-yellow transition-colors flex items-center gap-1.5">
+                        <span>Mega Deals</span>
+                        <span class="px-1.5 py-0.5 bg-zanova-purple text-white text-[0.62rem] font-black rounded-sm shadow-xs">HOT</span>
+                    </a>
+                    <a href="{{ url('/online_store/shop?collection=top-brands' . $previewAmp) }}"
+                       class="text-slate-200 hover:text-zanova-yellow transition-colors">
+                        Top Brands
+                    </a>
+                    <a href="{{ url('/online_store/shop?collection=new-arrivals' . $previewAmp) }}"
+                       class="text-slate-200 hover:text-zanova-yellow transition-colors">
+                        New Arrivals
+                    </a>
+                    <a href="{{ url('/online_store/shop?collection=blog' . $previewAmp) }}"
+                       class="text-slate-200 hover:text-zanova-yellow transition-colors">
+                        Blog
+                    </a>
+                    <a href="{{ url('/online_store/contact' . $previewParam) }}"
+                       class="text-slate-200 hover:text-zanova-yellow transition-colors">
+                        Contact Us
+                    </a>
+                </nav>
+
+                <!-- Right: Lightning Deals Purple Button -->
+                <a href="{{ url('/online_store/shop?collection=lightning-deals' . $previewAmp) }}"
+                   class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-black rounded-lg shadow-md flex items-center gap-1.5 transition-all">
+                    <span class="text-amber-300">⚡</span>
+                    <span>Lightning Deals</span>
+                </a>
+
+            </div>
+        </div>
+    </div>
+
 </header>
