@@ -152,9 +152,67 @@ class SeedIndustryCatalog extends Command
 
         $this->info('Industry catalog seeded.');
 
+        $this->tagFashionSubcategories($now);
         $this->backfillLegacyDemoImages($accessKey, $dir);
 
         return self::SUCCESS;
+    }
+
+    /**
+     * The Élégance theme's "Women / Men / Dresses / Shoes / Bags /
+     * Accessories" nav links filter by these subcategories (under Fashion
+     * & Apparel) so each one actually shows a different, relevant subset
+     * of products instead of the same 11 products in a different order.
+     * A product can carry more than one tag (e.g. a dress is both "Women"
+     * and "Dresses") via the product_subcategory pivot table.
+     */
+    private function tagFashionSubcategories(Carbon $now): void
+    {
+        $categoryId = DB::table('categories')->where('code', 'CAT-IND-FSH')->value('id');
+        if (! $categoryId) {
+            return;
+        }
+
+        $subcategoryIds = [];
+        foreach (['Women', 'Men', 'Dresses', 'Shoes', 'Bags', 'Accessories'] as $name) {
+            $id = DB::table('subcategories')->where('category_id', $categoryId)->where('name', $name)->value('id');
+            if (! $id) {
+                $id = DB::table('subcategories')->insertGetId([
+                    'category_id' => $categoryId, 'name' => $name, 'status' => 1,
+                    'created_at' => $now, 'updated_at' => $now,
+                ]);
+            }
+            $subcategoryIds[$name] = $id;
+        }
+
+        $tags = [
+            'Leather Biker Jacket' => ['Women'],
+            'Designer Sneakers' => ['Men', 'Shoes'],
+            'Summer Floral Dress' => ['Women', 'Dresses'],
+            'Classic Denim Jeans' => ['Women'],
+            'Wool Winter Coat' => ['Men'],
+            'Silk Wrap Blouse' => ['Women'],
+            'Tailored Wool Blazer' => ['Men'],
+            'Pleated Midi Skirt' => ['Women', 'Dresses'],
+            'Cashmere Knit Sweater' => ['Women'],
+            'Leather Ankle Boots' => ['Women', 'Shoes'],
+            'Structured Tote Handbag' => ['Women', 'Bags', 'Accessories'],
+        ];
+
+        foreach ($tags as $productName => $subNames) {
+            $productId = DB::table('products')->where('category_id', $categoryId)->where('name', $productName)->value('id');
+            if (! $productId) {
+                continue;
+            }
+            foreach ($subNames as $subName) {
+                DB::table('product_subcategory')->insertOrIgnore([
+                    'product_id' => $productId,
+                    'sub_category_id' => $subcategoryIds[$subName],
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+            }
+        }
     }
 
     /**

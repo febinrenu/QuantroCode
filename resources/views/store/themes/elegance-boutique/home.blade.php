@@ -16,13 +16,12 @@
   $elHeroRest = $elHeroSplit->slice(ceil($elHeroSplit->count()/2))->implode(' ');
   $elImgs = $categorySpecificProducts->pluck('image_url')->filter()->values();
   $elHeroImg = !empty($s->hero_image_path) ? global_asset($s->hero_image_path) : ($elImgs[0] ?? null);
-  $elTiles = [
-    ['label' => 'Women', 'sort' => 'sort', 'value' => 'price_desc'],
-    ['label' => 'Men', 'sort' => 'sort', 'value' => 'price_asc'],
-    ['label' => 'Shoes', 'sort' => 'q', 'value' => 'shoe'],
-    ['label' => 'Bags', 'sort' => 'q', 'value' => 'bag'],
-    ['label' => 'Accessories', 'sort' => 'q', 'value' => 'accessor'],
-  ];
+  $elHomeSubcats = optional($categories->first())->subcategories ?? collect();
+  $elHomeSubcatId = fn ($name) => optional($elHomeSubcats->firstWhere('name', $name))->id;
+  $elTiles = collect(['Women', 'Men', 'Shoes', 'Bags', 'Accessories'])
+    ->filter(fn ($name) => $elHomeSubcatId($name))
+    ->map(fn ($name) => ['label' => $name, 'sub_category' => $elHomeSubcatId($name)])
+    ->values();
 @endphp
 
 <main class="pb-20 md:pb-0">
@@ -38,10 +37,10 @@
         </h1>
         <p class="mt-5 text-white/60 max-w-sm">{{ $elHeroSubtitle }}</p>
         <div class="mt-8 flex flex-wrap items-center gap-3">
-          <a href="{{ route('store.shop', ['sort' => 'price_desc']) }}" class="h-12 px-7 inline-flex items-center bg-el-gold text-el-black text-xs font-bold eyebrow hover:bg-white">
+          <a href="{{ route('store.shop', $elHomeSubcatId('Women') ? ['sub_category' => $elHomeSubcatId('Women')] : []) }}" class="h-12 px-7 inline-flex items-center bg-el-gold text-el-black text-xs font-bold eyebrow hover:bg-white">
             {{ 'Shop Women' }}
           </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-7 inline-flex items-center border border-white/50 text-white text-xs font-bold eyebrow hover:bg-white/10">
+          <a href="{{ route('store.shop', $elHomeSubcatId('Men') ? ['sub_category' => $elHomeSubcatId('Men')] : []) }}" class="h-12 px-7 inline-flex items-center border border-white/50 text-white text-xs font-bold eyebrow hover:bg-white/10">
             {{ 'Shop Men' }}
           </a>
         </div>
@@ -98,7 +97,7 @@
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
       @foreach($elTiles as $i => $tile)
         @php $tImg = $elImgs->count() ? $elImgs[$i % $elImgs->count()] : null; @endphp
-        <a href="{{ route('store.shop', [$tile['sort'] => $tile['value']]) }}" class="group relative aspect-[4/5] overflow-hidden bg-el-ink">
+        <a href="{{ route('store.shop', ['sub_category' => $tile['sub_category']]) }}" class="group relative aspect-[4/5] overflow-hidden bg-el-ink">
           @if($tImg)
             <img src="{{ $tImg }}" alt="{{ $tile['label'] }}" class="w-full h-full object-cover opacity-80 group-hover:opacity-60 group-hover:scale-105 transition-all duration-300">
           @endif
@@ -106,7 +105,7 @@
           <div class="absolute inset-x-0 bottom-0 p-4">
             <h3 class="font-serif text-lg text-white leading-tight uppercase">{{ $tile['label'] }}</h3>
             <span class="text-[9px] eyebrow text-white/60">{{ 'Collection' }}</span>
-            <a href="{{ route('store.shop', [$tile['sort'] => $tile['value']]) }}" class="mt-2 inline-flex h-7 px-3 items-center border border-white/70 text-white text-[10px] font-bold eyebrow hover:bg-white hover:text-el-black">
+            <a href="{{ route('store.shop', ['sub_category' => $tile['sub_category']]) }}" class="mt-2 inline-flex h-7 px-3 items-center border border-white/70 text-white text-[10px] font-bold eyebrow hover:bg-white hover:text-el-black">
               {{ 'Shop Now' }}
             </a>
           </div>
@@ -166,7 +165,7 @@
         <div class="p-8">
           <h3 class="font-serif text-2xl text-el-ink">{{ 'Timeless Accessories' }}</h3>
           <p class="mt-1 text-el-inkSoft max-w-xs text-sm">{{ 'The finishing touches that complete your look.' }}</p>
-          <a href="{{ route('store.shop', ['q' => 'accessor']) }}" class="mt-5 inline-flex h-11 px-6 items-center bg-el-black text-white text-xs font-bold eyebrow hover:bg-el-gold hover:text-el-black">
+          <a href="{{ route('store.shop', $elHomeSubcatId('Accessories') ? ['sub_category' => $elHomeSubcatId('Accessories')] : []) }}" class="mt-5 inline-flex h-11 px-6 items-center bg-el-black text-white text-xs font-bold eyebrow hover:bg-el-gold hover:text-el-black">
             {{ 'Shop Accessories' }}
           </a>
         </div>

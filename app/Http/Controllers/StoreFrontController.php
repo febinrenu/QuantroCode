@@ -293,7 +293,10 @@ class StoreFrontController extends Controller
         // Category-specific themes ignore the request's own category/collection
         // params and always show only their one locked category.
         $cat = $restrictedCategoryId ?: $request->get('category');
-        $subCat = $restrictedCategoryId ? null : $request->get('sub_category');
+        // Subcategory filtering still applies for category-specific themes --
+        // it only narrows further within the one locked category, so a
+        // theme's "Women / Men / Dresses / ..." nav can filter for real.
+        $subCat = $request->get('sub_category');
         $minPrice = $request->get('min');
         $maxPrice = $request->get('max');
         $sort = $request->get('sort', 'latest');   // latest|price_asc|price_desc

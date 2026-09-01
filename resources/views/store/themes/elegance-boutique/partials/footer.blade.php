@@ -1,4 +1,7 @@
 @php
+  $elFooterCategories = $categories ?? collect();
+  $elFooterSubcats = optional($elFooterCategories->first())->subcategories ?? collect();
+  $elFooterSubcatId = fn ($name) => optional($elFooterSubcats->firstWhere('name', $name))->id;
   $elSocial = $s->social_links ?? [];
   if (is_string($elSocial)) { $d = json_decode($elSocial, true); if (json_last_error() === JSON_ERROR_NONE) $elSocial = $d; }
   if (!is_array($elSocial)) { $elSocial = []; }
@@ -30,13 +33,12 @@
       <h6 class="text-xs font-bold eyebrow text-white/40 mb-3">{{ __('messages.Shop') }}</h6>
       <ul class="space-y-2 text-sm">
         <li><a href="{{ route('store.shop', ['sort' => 'latest']) }}" class="hover:text-white">{{ 'New In' }}</a></li>
-        <li><a href="{{ route('store.shop', ['sort' => 'price_desc']) }}" class="hover:text-white">{{ 'Women' }}</a></li>
-        <li><a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="hover:text-white">{{ 'Men' }}</a></li>
-        <li><a href="{{ route('store.shop', ['q' => 'dress']) }}" class="hover:text-white">{{ 'Dresses' }}</a></li>
-        <li><a href="{{ route('store.shop', ['q' => 'shoe']) }}" class="hover:text-white">{{ 'Shoes' }}</a></li>
-        <li><a href="{{ route('store.shop', ['q' => 'bag']) }}" class="hover:text-white">{{ 'Bags' }}</a></li>
-        <li><a href="{{ route('store.shop', ['q' => 'accessor']) }}" class="hover:text-white">{{ 'Accessories' }}</a></li>
-        <li><a href="{{ route('store.shop') }}" class="hover:text-white">{{ 'Sale' }}</a></li>
+        @foreach(['Women', 'Men', 'Dresses', 'Shoes', 'Bags', 'Accessories'] as $elSubName)
+          @if($elFooterSubcatId($elSubName))
+            <li><a href="{{ route('store.shop', ['sub_category' => $elFooterSubcatId($elSubName)]) }}" class="hover:text-white">{{ $elSubName }}</a></li>
+          @endif
+        @endforeach
+        <li><a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="hover:text-white">{{ 'Sale' }}</a></li>
       </ul>
     </div>
     <div>

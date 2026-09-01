@@ -1,6 +1,8 @@
 @php
   $elClient = Auth::guard('store')->user();
   $elCategories = $categories ?? collect();
+  $elSubcats = optional($elCategories->first())->subcategories ?? collect();
+  $elSubcatId = fn ($name) => optional($elSubcats->firstWhere('name', $name))->id;
 @endphp
 <div class="bg-el-black text-white text-[11px]">
   <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-9">
@@ -74,9 +76,10 @@
 
   <nav class="hidden md:flex items-center justify-center gap-1 h-11 bg-el-black">
     <a href="{{ route('store.shop', ['sort' => 'latest']) }}" class="px-4 h-11 inline-flex items-center text-[11px] font-bold eyebrow text-white hover:text-el-gold">{{ 'New In' }}</a>
-    @php $elGroups = [['Women','sort','price_desc'], ['Men','sort','price_asc'], ['Dresses','q','dress'], ['Shoes','q','shoe'], ['Bags','q','bag'], ['Accessories','q','accessor']]; @endphp
-    @foreach($elGroups as [$label, $param, $value])
-      <a href="{{ route('store.shop', [$param => $value]) }}" class="px-4 h-11 inline-flex items-center text-[11px] font-bold eyebrow text-white hover:text-el-gold">{{ strtoupper($label) }}</a>
+    @foreach(['Women', 'Men', 'Dresses', 'Shoes', 'Bags', 'Accessories'] as $elSubName)
+      @if($elSubcatId($elSubName))
+        <a href="{{ route('store.shop', ['sub_category' => $elSubcatId($elSubName)]) }}" class="px-4 h-11 inline-flex items-center text-[11px] font-bold eyebrow text-white hover:text-el-gold">{{ strtoupper($elSubName) }}</a>
+      @endif
     @endforeach
     <a href="{{ route('store.shop') }}" class="px-4 h-11 inline-flex items-center text-[11px] font-bold eyebrow text-white hover:text-el-gold">{{ 'Brands' }}</a>
     <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="px-4 h-11 inline-flex items-center text-[11px] font-bold eyebrow text-el-gold hover:text-white">{{ 'Sale' }}</a>
@@ -92,8 +95,10 @@
       @include('store.partials.language-switcher', ['variant' => 'mobile'])
       <a href="{{ route('store.index') }}" class="block py-2 text-sm font-bold eyebrow text-el-ink">{{ __('messages.Home') }}</a>
       <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-bold eyebrow text-el-ink">{{ __('messages.Shop') }}</a>
-      @foreach($elCategories as $cat)
-        <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="block py-2 text-sm text-el-inkSoft border-t border-el-ink/10">{{ $cat->name }}</a>
+      @foreach(['Women', 'Men', 'Dresses', 'Shoes', 'Bags', 'Accessories'] as $elSubName)
+        @if($elSubcatId($elSubName))
+          <a href="{{ route('store.shop', ['sub_category' => $elSubcatId($elSubName)]) }}" class="block py-2 text-sm text-el-inkSoft border-t border-el-ink/10">{{ $elSubName }}</a>
+        @endif
       @endforeach
     </div>
   </div>
