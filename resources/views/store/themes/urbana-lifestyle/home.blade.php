@@ -157,9 +157,10 @@
               @endif
             </div>
             <div class="p-3">
-              <h3 class="font-serif text-base text-urb-ink leading-tight">{{ \Illuminate\Support\Str::of($tileLabel)->before(' ') }}</h3>
-              @if(\Illuminate\Support\Str::of($tileLabel)->after(' ') !== $tileLabel)
-                <h3 class="font-serif text-base text-urb-ink leading-tight -mt-1">{{ \Illuminate\Support\Str::of($tileLabel)->after(' ') }}</h3>
+              @php $tileWords = explode(' ', $tileLabel, 2); @endphp
+              <h3 class="font-serif text-base text-urb-ink leading-tight">{{ $tileWords[0] }}</h3>
+              @if(isset($tileWords[1]))
+                <h3 class="font-serif text-base text-urb-ink leading-tight -mt-1">{{ $tileWords[1] }}</h3>
               @endif
               <p class="text-[11px] text-urb-inkSoft mt-1">{{ $tileDesc }}</p>
               <span class="mt-2 inline-flex items-center gap-1 text-[11px] font-bold eyebrow text-urb-green group-hover:underline">
