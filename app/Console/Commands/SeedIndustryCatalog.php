@@ -27,7 +27,7 @@ use Illuminate\Support\Str;
  */
 class SeedIndustryCatalog extends Command
 {
-    protected $signature = 'demo:industry-catalog {--force : Re-download images and re-insert even if already seeded} {--only= : Only re-fetch the product with this code (e.g. PR-IND-072), leaving everything else untouched}';
+    protected $signature = 'demo:industry-catalog {--force : Re-download images and re-insert even if already seeded} {--only= : Only re-fetch these products, leaving everything else untouched. Comma-separated codes (PR-IND-072) and/or exact product names ("Linen Blend Blazer")}';
 
     protected $description = 'Seed a multi-industry product catalog with real Unsplash photos, matching the 20 storefront themes.';
 
@@ -88,8 +88,8 @@ class SeedIndustryCatalog extends Command
                 $code = self::CODE_PREFIX . str_pad((string) $seq, 3, '0', STR_PAD_LEFT);
                 $seq++;
 
-                $only = $this->option('only');
-                if ($only && $only !== $code) {
+                $only = $this->onlyTokens();
+                if ($only && ! in_array($code, $only, true) && ! in_array(mb_strtolower($name), $only, true)) {
                     continue;
                 }
 
@@ -284,6 +284,22 @@ class SeedIndustryCatalog extends Command
      * Unsplash photos too, the same way, so nothing in the demo storefront
      * is left showing a broken/placeholder image.
      */
+    /**
+     * @return array<int, string>|null Lowercased codes/names from --only, or null when not given.
+     */
+    private function onlyTokens(): ?array
+    {
+        $raw = $this->option('only');
+        if (! $raw) {
+            return null;
+        }
+
+        return array_map(
+            fn ($t) => str_starts_with(mb_strtolower(trim($t)), 'pr-ind-') ? mb_strtoupper(trim($t)) : mb_strtolower(trim($t)),
+            explode(',', $raw)
+        );
+    }
+
     private function backfillLegacyDemoImages(string $accessKey, string $dir): void
     {
         $now = Carbon::now();
@@ -435,8 +451,8 @@ class SeedIndustryCatalog extends Command
                 ['Luxury Wristwatch', 'luxury wristwatch', 399.00, 'Automatic movement watch with a sapphire crystal face and genuine leather strap.'],
             ]],
             ['code' => 'CAT-IND-FSH', 'category' => 'Fashion & Apparel', 'products' => [
-                ['Leather Biker Jacket', 'leather jacket fashion', 129.00, 'Genuine leather biker jacket with asymmetric zip and quilted shoulder panels.'],
-                ['Designer Sneakers', 'designer sneakers shoes', 89.00, 'Lightweight knit-upper sneakers with a cushioned midsole for all-day wear.'],
+                ['Leather Biker Jacket', 'woman leather jacket fashion', 129.00, 'Genuine leather biker jacket with asymmetric zip and quilted shoulder panels.'],
+                ['Designer Sneakers', 'man designer sneakers shoes', 89.00, 'Lightweight knit-upper sneakers with a cushioned midsole for all-day wear.'],
                 ['Summer Floral Dress', 'summer dress fashion', 59.00, 'Breathable floral-print midi dress with an adjustable waist tie.'],
             ]],
             ['code' => 'CAT-IND-BTY', 'category' => 'Beauty & Cosmetics', 'products' => [
@@ -517,8 +533,8 @@ class SeedIndustryCatalog extends Command
                 ['Diamond Stud Earrings', 'diamond earrings jewelry', 219.00, 'Classic round-cut diamond studs set in white gold, sold as a pair.'],
             ]],
             ['code' => 'CAT-IND-FSH', 'category' => 'Fashion & Apparel', 'products' => [
-                ['Classic Denim Jeans', 'denim jeans fashion', 69.00, 'Straight-fit denim jeans in a mid-wash, built from durable stretch cotton.'],
-                ['Wool Winter Coat', 'winter coat fashion', 159.00, 'Wool-blend overcoat with a notch lapel and quilted inner lining for warmth.'],
+                ['Classic Denim Jeans', 'woman denim jeans fashion', 69.00, 'Straight-fit denim jeans in a mid-wash, built from durable stretch cotton.'],
+                ['Wool Winter Coat', 'man winter coat fashion', 159.00, 'Wool-blend overcoat with a notch lapel and quilted inner lining for warmth.'],
             ]],
             ['code' => 'CAT-IND-BTY', 'category' => 'Beauty & Cosmetics', 'products' => [
                 ['Hydrating Face Cream', 'face cream cosmetics', 28.00, 'Lightweight daily moisturizer with hyaluronic acid for all skin types.'],
@@ -593,16 +609,16 @@ class SeedIndustryCatalog extends Command
             ]],
             // Élégance (Fashion & Apparel) -- boutique womenswear and accessories
             ['code' => 'CAT-IND-FSH', 'category' => 'Fashion & Apparel', 'products' => [
-                ['Silk Wrap Blouse', 'silk blouse fashion', 79.00, 'Fluid silk wrap blouse with a tie waist, tailored for an elegant drape.'],
-                ['Tailored Wool Blazer', 'wool blazer fashion', 149.00, 'Structured single-breasted blazer in Italian wool, fully lined.'],
-                ['Pleated Midi Skirt', 'pleated skirt fashion', 65.00, 'Satin pleated midi skirt with a fluid movement and high waistband.'],
-                ['Cashmere Knit Sweater', 'cashmere sweater fashion', 119.00, 'Pure cashmere crewneck sweater, soft-brushed for everyday luxury.'],
-                ['Leather Ankle Boots', 'leather ankle boots fashion', 139.00, 'Block-heel leather ankle boots with a soft round toe and side zip.'],
-                ['Structured Tote Handbag', 'leather handbag fashion', 159.00, 'Structured leather tote with a detachable strap and gold-tone hardware.'],
+                ['Silk Wrap Blouse', 'woman silk blouse fashion', 79.00, 'Fluid silk wrap blouse with a tie waist, tailored for an elegant drape.'],
+                ['Tailored Wool Blazer', 'man wool blazer fashion', 149.00, 'Structured single-breasted blazer in Italian wool, fully lined.'],
+                ['Pleated Midi Skirt', 'woman pleated skirt fashion', 65.00, 'Satin pleated midi skirt with a fluid movement and high waistband.'],
+                ['Cashmere Knit Sweater', 'woman cashmere sweater fashion', 119.00, 'Pure cashmere crewneck sweater, soft-brushed for everyday luxury.'],
+                ['Leather Ankle Boots', 'woman leather ankle boots fashion', 139.00, 'Block-heel leather ankle boots with a soft round toe and side zip.'],
+                ['Structured Tote Handbag', 'woman leather handbag fashion', 159.00, 'Structured leather tote with a detachable strap and gold-tone hardware.'],
             ]],
             // Urbana (Marketplace & General Retail) -- everyday lifestyle trending picks
             ['code' => 'CAT-IND-MKT', 'category' => 'Marketplace & General Retail', 'products' => [
-                ['Linen Blend Blazer', 'linen blazer fashion', 89.00, 'Relaxed-fit linen-blend blazer, lightweight enough for everyday layering.'],
+                ['Linen Blend Blazer', 'woman linen blazer fashion', 89.00, 'Relaxed-fit linen-blend blazer, lightweight enough for everyday layering.'],
                 ['Men\'s Chino Trousers', 'chino trousers menswear', 65.00, 'Slim-tapered chino trousers in stretch cotton twill for all-day comfort.'],
                 ['Canvas Low-Top Sneakers', 'canvas sneakers shoes', 59.00, 'Everyday canvas low-top sneakers with a cushioned footbed.'],
                 ['Minimal Gold Watch', 'gold wrist watch minimal', 129.00, 'Slim gold-tone wrist watch with a minimalist dial and mesh strap.'],
