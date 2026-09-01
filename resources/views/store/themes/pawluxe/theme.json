@@ -1,0 +1,27 @@
+{
+  "slug": "pawluxe",
+  "name": "PawLuxe",
+  "tagline": "Pamper. Love. Repeat.",
+  "description": "A category-specific pet supplies storefront with soft mint and coral tones, rounded pastel category badges and a playful, warm layout.",
+  "category": "Category-Specific Themes",
+  "product_category_keywords": ["pet"],
+  "version": "1.0.0",
+  "layout_persona": "Warm playful pet-care marketplace",
+  "layout": "pet-hero-split",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito+Sans:wght@400;500;600;700;800&display=swap",
+  "fontPairing": { "heading": "Baloo 2", "body": "Nunito Sans" },
+  "paletteSwatches": ["#3E8C74", "#F0725F", "#DDEFE6", "#22201D"],
+  "tokens": {
+    "color-bg-base": "#F7FBF9",
+    "color-accent-500": "#3E8C74",
+    "color-accent-600": "#22201D",
+    "color-accent-700": "#F0725F",
+    "color-accent-800": "#DDEFE6",
+    "font-heading": "'Baloo 2', cursive",
+    "font-body": "'Nunito Sans', sans-serif",
+    "font-size-heading": "34px",
+    "font-size-body": "14px"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "color-accent-700", "color-accent-800", "font-heading", "font-body", "font-size-heading", "font-size-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}
