@@ -294,6 +294,29 @@ class StoreFrontController extends Controller
                 ->take(16)
                 ->get();
             $viewData['products'] = $products;
+        } elseif ($activeTheme === 'naturae') {
+            $natCatIds = $categories->pluck('id')->all();
+            $products = Product::query()
+                ->where('products.is_active', 1)
+                ->where('products.hide_from_online_store', 0)
+                ->where(function ($q) use ($natCatIds) {
+                    $q->whereIn('products.category_id', $natCatIds)
+                      ->orWhere('products.code', 'like', 'NAT-%');
+                })
+                ->with(['variants', 'images', 'category', 'brand'])
+                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
+                    $join->on('pvmin.product_id', '=', 'products.id');
+                })
+                ->addSelect(
+                    'products.*',
+                    DB::raw("$baseExpr AS base_price"),
+                    DB::raw("$afterDiscountExpr AS after_discount"),
+                    DB::raw("$finalExpr AS final_display_price")
+                )
+                ->orderBy('products.created_at', 'desc')
+                ->take(16)
+                ->get();
+            $viewData['products'] = $products;
         }
 
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'home') ?? 'store.index';
@@ -391,6 +414,12 @@ class StoreFrontController extends Controller
             $productsQuery->where(function ($q) use ($tnvCatIds) {
                 $q->whereIn('products.category_id', $tnvCatIds)
                   ->orWhere('products.code', 'like', 'TNV-%');
+            });
+        } elseif ($activeTheme === 'naturae') {
+            $natCatIds = $categories->pluck('id')->all();
+            $productsQuery->where(function ($q) use ($natCatIds) {
+                $q->whereIn('products.category_id', $natCatIds)
+                  ->orWhere('products.code', 'like', 'NAT-%');
             });
         }
 
@@ -996,6 +1025,22 @@ class StoreFrontController extends Controller
                     'Accessories',
                 ])
                 ->orderByRaw("FIELD(name, 'Smartphones', 'Laptops', 'Tablets', 'Audio', 'Gaming', 'Cameras', 'Smart Home', 'Accessories')")
+                ->get();
+        }
+
+        if ($activeTheme === 'naturae') {
+            return Category::with('subcategories')
+                ->whereIn('name', [
+                    'Skincare',
+                    'Hair Care',
+                    'Bath & Body',
+                    'Wellness',
+                    'Home Care',
+                    'Organic Tea',
+                    'Gift Sets',
+                    'Accessories',
+                ])
+                ->orderByRaw("FIELD(name, 'Skincare', 'Hair Care', 'Bath & Body', 'Wellness', 'Home Care', 'Organic Tea', 'Gift Sets', 'Accessories')")
                 ->get();
         }
 

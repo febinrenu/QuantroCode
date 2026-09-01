@@ -1,77 +1,98 @@
 @php
-  $ntSocial = $s->social_links ?? [];
-  if (is_string($ntSocial)) { $d = json_decode($ntSocial, true); if (json_last_error() === JSON_ERROR_NONE) $ntSocial = $d; }
-  if (!is_array($ntSocial)) { $ntSocial = []; }
-  $ntIsAssoc = !empty($ntSocial) && array_keys($ntSocial) !== range(0, count($ntSocial) - 1);
-  if ($ntIsAssoc) { $ntSocial = collect($ntSocial)->map(fn($u,$p)=>['platform'=>$p,'url'=>$u])->values()->all(); }
+    $previewTheme = request('preview_theme', 'naturae');
+    $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
+    $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
 @endphp
-<footer class="mt-16 bg-leaf-deep text-cream/85">
-  <div class="max-w-7xl mx-auto px-4 py-7 border-b border-white/10">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center md:text-left">
-      <div class="flex flex-col md:flex-row items-center gap-2.5">
-        <svg class="w-7 h-7 text-terracotta-light shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/><path stroke-linecap="round" d="M12 21V9"/></svg>
-        <span class="text-xs font-semibold">Sustainably sourced</span>
-      </div>
-      <div class="flex flex-col md:flex-row items-center gap-2.5">
-        <svg class="w-7 h-7 text-terracotta-light shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M4 10c3-4 7-6 8-6s5 2 8 6c-1 5-5 9-8 10-3-1-7-5-8-10Z"/><path stroke-linecap="round" d="M12 8v8"/></svg>
-        <span class="text-xs font-semibold">Plastic-free packaging</span>
-      </div>
-      <div class="flex flex-col md:flex-row items-center gap-2.5">
-        <svg class="w-7 h-7 text-terracotta-light shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12c1-4 5-7 9-7s8 3 9 7M3 12c1 4 5 7 9 7s8-3 9-7"/><path stroke-linecap="round" d="M9 12h6"/></svg>
-        <span class="text-xs font-semibold">Carbon-neutral shipping</span>
-      </div>
-      <div class="flex flex-col md:flex-row items-center gap-2.5">
-        <svg class="w-7 h-7 text-terracotta-light shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 3v4M4 5h4M18 3v4M16 5h4M12 8v13M6 13c0 4 3 6 6 8 3-2 6-4 6-8"/></svg>
-        <span class="text-xs font-semibold">Ethical partners, always</span>
-      </div>
-    </div>
-  </div>
 
-  <div class="max-w-7xl mx-auto px-4 py-11 grid grid-cols-2 md:grid-cols-5 gap-8">
-    <div class="col-span-2">
-      <span class="inline-flex items-center gap-2 font-serif font-semibold text-xl text-white">
-        <svg class="w-6 h-6 text-terracotta-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/></svg>
-        {{ $s->store_name ?? 'Naturae' }}
-      </span>
-      <p class="text-sm text-cream/60 mt-3 max-w-xs leading-relaxed">{{ $s->footer_text ?? 'Good for you, good for the planet. A general store for electronics, fashion, home, beauty, grocery and sports — chosen with care, packed without waste, and shipped with a lighter footprint.' }}</p>
-      @if(!empty($ntSocial))
-        <div class="flex items-center gap-2 mt-4">
-          @foreach($ntSocial as $item)
-            @php $url = is_array($item) ? ($item['url'] ?? '#') : '#'; @endphp
-            <a href="{{ $url }}" target="_blank" rel="noopener" class="w-9 h-9 rounded-full bg-white/10 hover:bg-terracotta inline-flex items-center justify-center transition-colors">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
-            </a>
-          @endforeach
+<footer class="bg-naturae-dark text-naturae-bg pt-16 pb-12 border-t border-white/5 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-white/10">
+
+            <!-- Col 1 & 2: Brand Info -->
+            <div class="lg:col-span-2 space-y-4">
+                <a href="{{ $storeUrl }}" class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-full bg-white text-naturae-dark flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A9.49 9.49 0 0 0 12 21a10 10 0 0 0 10-10c0-1.5-.32-2.92-.88-4.21A10.74 10.74 0 0 0 17 8zm-4.32 10.94a7.51 7.51 0 0 1-3.68-1.57C11.39 12.87 13.9 9.5 17 8.2a8 8 0 0 1-4.32 10.74z" />
+                        </svg>
+                    </div>
+                    <span class="font-serif text-xl font-bold tracking-[0.2em] text-white uppercase">
+                        NATURAE
+                    </span>
+                </a>
+                <p class="text-xs text-naturae-bg/70 leading-relaxed max-w-sm">
+                    Thoughtfully crafted organic wellness and botanical beauty essentials. 100% plant-based, cruelty-free, and ethically formulated for holistic everyday care.
+                </p>
+                <div class="flex items-center gap-3 pt-2">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/10 text-emerald-300 border border-emerald-400/20">
+                        🌱 100% Organic Ingredients
+                    </span>
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/10 text-emerald-300 border border-emerald-400/20">
+                        🐰 Cruelty-Free Certified
+                    </span>
+                </div>
+            </div>
+
+            <!-- Col 3: Shop -->
+            <div>
+                <h4 class="font-serif text-sm font-semibold text-white uppercase tracking-wider mb-4">Shop</h4>
+                <ul class="space-y-2.5 text-xs text-naturae-bg/70">
+                    <li><a href="{{ url('online_store/shop?category=Skincare' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">Skincare</a></li>
+                    <li><a href="{{ url('online_store/shop?category=Hair+Care' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">Hair Care</a></li>
+                    <li><a href="{{ url('online_store/shop?category=Bath+%26+Body' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">Bath & Body</a></li>
+                    <li><a href="{{ url('online_store/shop?category=Wellness' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">Wellness</a></li>
+                    <li><a href="{{ url('online_store/shop?category=Organic+Tea' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">Organic Tea</a></li>
+                    <li><a href="{{ url('online_store/shop?category=Gift+Sets' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">Gift Sets</a></li>
+                </ul>
+            </div>
+
+            <!-- Col 4: Customer Care -->
+            <div>
+                <h4 class="font-serif text-sm font-semibold text-white uppercase tracking-wider mb-4">Customer Care</h4>
+                <ul class="space-y-2.5 text-xs text-naturae-bg/70">
+                    <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Shipping Policy</a></li>
+                    <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Easy Returns & Exchanges</a></li>
+                    <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Track Your Order</a></li>
+                    <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Sustainability Pledge</a></li>
+                    <li><a href="{{ $shopUrl }}" class="hover:text-white transition">FAQ & Help Center</a></li>
+                    <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Contact Us</a></li>
+                </ul>
+            </div>
+
+            <!-- Col 5: Newsletter -->
+            <div>
+                <h4 class="font-serif text-sm font-semibold text-white uppercase tracking-wider mb-4">Join Our Community</h4>
+                <p class="text-xs text-naturae-bg/70 mb-3 leading-relaxed">
+                    Subscribe for exclusive wellness rituals, seasonal discounts, and 15% off your first order.
+                </p>
+                <form onsubmit="event.preventDefault(); alert('Thank you for subscribing to Naturae wellness updates!');" class="space-y-2">
+                    <input type="email"
+                           placeholder="Enter your email"
+                           required
+                           class="w-full bg-white/10 border border-white/20 rounded-lg px-3.5 py-2 text-xs text-white placeholder-naturae-bg/50 focus:outline-none focus:border-white focus:bg-white/15 transition">
+                    <button type="submit"
+                            class="w-full bg-naturae-sage hover:bg-emerald-600 text-white font-medium text-xs py-2 rounded-lg transition uppercase tracking-wider shadow-sm">
+                        Subscribe
+                    </button>
+                </form>
+            </div>
+
         </div>
-      @endif
-    </div>
-    <div>
-      <h6 class="text-xs font-bold uppercase tracking-widest text-cream/40 mb-3">Shop</h6>
-      <ul class="space-y-2.5 text-sm">
-        <li><a href="{{ route('store.shop') }}" class="hover:text-white">All Products</a></li>
-        <li><a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="hover:text-white">Everyday Value</a></li>
-        <li><a href="{{ route('store.cart') }}" class="hover:text-white">Cart</a></li>
-      </ul>
-    </div>
-    <div>
-      <h6 class="text-xs font-bold uppercase tracking-widest text-cream/40 mb-3">Categories</h6>
-      <ul class="space-y-2.5 text-sm">
-        @foreach(($categories ?? collect())->take(4) as $cat)
-          <li><a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="hover:text-white">{{ $cat->name }}</a></li>
-        @endforeach
-      </ul>
-    </div>
-    <div>
-      <h6 class="text-xs font-bold uppercase tracking-widest text-cream/40 mb-3">Support</h6>
-      <ul class="space-y-2.5 text-sm">
-        <li><a href="{{ route('store.contact') }}" class="hover:text-white">Contact Us</a></li>
-        <li><a href="{{ url('/online_store/account/orders') }}" class="hover:text-white">Track Order</a></li>
-      </ul>
-    </div>
-  </div>
 
-  <div class="max-w-7xl mx-auto px-4 py-5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-cream/45">
-    <span>© {{ date('Y') }} {{ $s->store_name ?? 'Naturae' }}. All rights reserved.</span>
-    <span>Rooted in honest sourcing, since day one.</span>
-  </div>
+        <!-- Bottom Copyright & Badges -->
+        <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-naturae-bg/50">
+            <div>
+                &copy; {{ date('Y') }} Naturae Organic Wellness Inc. All rights reserved.
+            </div>
+            <div class="flex items-center gap-4 text-xs">
+                <span>Privacy Policy</span>
+                <span>•</span>
+                <span>Terms of Service</span>
+                <span>•</span>
+                <span>Eco-Certified 2026</span>
+            </div>
+        </div>
+
+    </div>
 </footer>
