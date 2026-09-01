@@ -1,0 +1,27 @@
+{
+  "slug": "trailpeak",
+  "name": "TrailPeak",
+  "tagline": "Built for Adventure",
+  "description": "A category-specific outdoor and adventure gear storefront with a rugged forest-green and burnt-orange palette, heavy display type and trail-ready imagery.",
+  "category": "Category-Specific Themes",
+  "product_category_keywords": ["outdoor", "adventure"],
+  "version": "1.0.0",
+  "layout_persona": "Rugged outdoor adventure gear",
+  "layout": "sidebar-hero",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800&display=swap",
+  "fontPairing": { "heading": "Archivo Black", "body": "Inter" },
+  "paletteSwatches": ["#1E3A2E", "#161A16", "#CC6B2C", "#F5F1E7"],
+  "tokens": {
+    "color-bg-base": "#F5F1E7",
+    "color-accent-500": "#1E3A2E",
+    "color-accent-600": "#161A16",
+    "color-accent-700": "#CC6B2C",
+    "color-accent-800": "#EAE3D3",
+    "font-heading": "'Archivo Black', sans-serif",
+    "font-body": "'Inter', sans-serif",
+    "font-size-heading": "36px",
+    "font-size-body": "14px"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "color-accent-700", "color-accent-800", "font-heading", "font-body", "font-size-heading", "font-size-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}

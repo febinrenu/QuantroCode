@@ -422,6 +422,14 @@ class SeedIndustryCatalog extends Command
                 ['Blood Pressure Monitor', 'blood pressure monitor medical', 39.00, 'Automatic upper-arm blood pressure monitor with irregular-heartbeat detection.'],
                 ['Hand Sanitizer Pack', 'hand sanitizer', 8.00, '3-pack of 70% alcohol hand sanitizer gel in travel-sized bottles.'],
             ]],
+            ['code' => 'CAT-IND-OUT', 'category' => 'Outdoor & Adventure Gear', 'products' => [
+                ['Trail Backpack 65L', 'hiking backpack outdoor gear', 259.95, 'Weatherproof 65-liter trekking backpack with an adjustable suspension frame for multi-day trails.'],
+                ['Waterproof Hiking Boots', 'hiking boots outdoor', 149.95, 'Grippy, waterproof hiking boots built for rocky, wet trail conditions.'],
+                ['GPS Adventure Watch', 'outdoor sports watch gps', 899.99, 'Rugged solar GPS watch with trail mapping and multi-day battery life.'],
+                ['3-Person Camping Tent', 'camping tent outdoor', 449.95, 'Freestanding 3-person tent with a full-coverage rainfly for three-season camping.'],
+                ['Insulated Steel Water Bottle', 'insulated water bottle outdoor', 44.99, 'Double-wall insulated steel bottle that keeps drinks cold for 24 hours on the trail.'],
+                ['Rechargeable LED Headlamp', 'led headlamp camping', 59.95, 'Rechargeable headlamp with adjustable beam for night hikes and campsite chores.'],
+            ]],
         ];
     }
 }
