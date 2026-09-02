@@ -1,33 +1,115 @@
-@php $ghClient = Auth::guard('store')->user(); @endphp
-<nav class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur border-t border-slate-200 shadow-navUp pb-[env(safe-area-inset-bottom)]">
-  <div class="grid grid-cols-5 h-16">
-    <a href="{{ route('store.index') }}" class="flex flex-col items-center justify-center gap-0.5 {{ request()->routeIs('store.index') ? 'text-brand-blue' : 'text-slate-500' }}">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg>
-      <span class="text-[10px] font-medium">{{ __('messages.Home') }}</span>
-    </a>
-    <a href="{{ route('store.shop') }}" class="flex flex-col items-center justify-center gap-0.5 {{ request()->routeIs('store.shop') ? 'text-brand-blue' : 'text-slate-500' }}">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      <span class="text-[10px] font-medium">{{ __('messages.Shop') }}</span>
-    </a>
-    <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="flex flex-col items-center justify-center gap-0.5 text-slate-500">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
-      <span class="text-[10px] font-medium">Deals</span>
-    </a>
-    <a href="{{ route('store.cart') }}" class="relative flex flex-col items-center justify-center gap-0.5 {{ request()->routeIs('store.cart') ? 'text-brand-blue' : 'text-slate-500' }}">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-      <span class="cart-count absolute top-1 right-6 min-w-[16px] h-4 px-1 rounded-full bg-brand-orange text-white text-[10px] font-bold inline-flex items-center justify-center">0</span>
-      <span class="text-[10px] font-medium">{{ __('messages.Cart') }}</span>
-    </a>
-    @if($ghClient)
-      <a href="{{ url('/online_store/account') }}" class="flex flex-col items-center justify-center gap-0.5 text-slate-500">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-        <span class="text-[10px] font-medium">{{ __('messages.Account') }}</span>
+{{-- GeneralHub Mobile Navigation Drawer --}}
+@php
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'generalhub');
+  $hubRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+@endphp
+
+<div id="mobile-menu-drawer" class="fixed inset-0 z-50 transform -translate-x-full transition-transform duration-300 ease-in-out lg:hidden" aria-hidden="true">
+  <!-- Backdrop -->
+  <div id="mobile-menu-backdrop" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+
+  <!-- Drawer Container -->
+  <div class="relative w-4/5 max-w-xs h-full bg-white flex flex-col z-10 overflow-y-auto shadow-2xl">
+    
+    <!-- Top Header -->
+    <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-md bg-hub-blue flex items-center justify-center text-white">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+        </div>
+        <span class="font-bold text-slate-900 text-lg">General<span class="text-hub-blue">Hub</span></span>
+      </div>
+      <button type="button" id="mobile-menu-close-btn" class="p-1.5 text-slate-500 hover:text-slate-900 rounded-md hover:bg-slate-200 transition-colors" aria-label="Close menu">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+
+    <!-- Quick Navigation Highlights -->
+    <div class="p-4 border-b border-slate-100 bg-hub-blueSoft/50 space-y-2">
+      <a href="{{ $hubRoute('store.shop', ['collection' => 'bestselling']) }}" class="flex items-center gap-2.5 text-xs font-semibold text-slate-800 hover:text-hub-blue">
+        <span class="text-amber-500">⭐</span> <span>Best Sellers</span>
       </a>
-    @else
-      <a href="{{ url('/online_store/login') }}" class="flex flex-col items-center justify-center gap-0.5 text-slate-500">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-        <span class="text-[10px] font-medium">{{ __('messages.SignIn') }}</span>
+      <a href="{{ $hubRoute('store.shop', ['sort' => 'latest']) }}" class="flex items-center gap-2.5 text-xs font-semibold text-slate-800 hover:text-hub-blue">
+        <span class="text-emerald-500">✨</span> <span>New Arrivals</span>
       </a>
-    @endif
+      <a href="{{ $hubRoute('store.shop', ['collection' => 'deals']) }}" class="flex items-center gap-2.5 text-xs font-semibold text-slate-800 hover:text-hub-blue">
+        <span class="text-rose-500">🏷️</span> <span>Deals of the Day</span>
+      </a>
+    </div>
+
+    <!-- Main Categories List -->
+    <div class="p-4 flex-1">
+      <div class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mb-3">Shop by Category</div>
+      <nav class="space-y-1 text-xs font-medium text-slate-700">
+        <a href="{{ $hubRoute('store.shop', ['category' => 'Electronics']) }}" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 hover:text-hub-blue">
+          <span>🎧 Electronics</span> <span class="text-slate-400">&rsaquo;</span>
+        </a>
+        <a href="{{ $hubRoute('store.shop', ['category' => 'Fashion']) }}" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 hover:text-hub-blue">
+          <span>👕 Fashion</span> <span class="text-slate-400">&rsaquo;</span>
+        </a>
+        <a href="{{ $hubRoute('store.shop', ['category' => 'Home & Living']) }}" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 hover:text-hub-blue">
+          <span>🛋️ Home &amp; Living</span> <span class="text-slate-400">&rsaquo;</span>
+        </a>
+        <a href="{{ $hubRoute('store.shop', ['category' => 'Beauty']) }}" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 hover:text-hub-blue">
+          <span>💄 Beauty</span> <span class="text-slate-400">&rsaquo;</span>
+        </a>
+        <a href="{{ $hubRoute('store.shop', ['category' => 'Accessories']) }}" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 hover:text-hub-blue">
+          <span>👜 Accessories</span> <span class="text-slate-400">&rsaquo;</span>
+        </a>
+        <a href="{{ $hubRoute('store.shop', ['category' => 'Sports']) }}" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 hover:text-hub-blue">
+          <span>⚽ Sports</span> <span class="text-slate-400">&rsaquo;</span>
+        </a>
+        <a href="{{ $hubRoute('store.shop', ['category' => 'Toys & Games']) }}" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 hover:text-hub-blue">
+          <span>🧸 Toys &amp; Games</span> <span class="text-slate-400">&rsaquo;</span>
+        </a>
+        <a href="{{ $hubRoute('store.shop', ['category' => 'Daily Essentials']) }}" class="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 hover:text-hub-blue">
+          <span>🧴 Daily Essentials</span> <span class="text-slate-400">&rsaquo;</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Account Footer -->
+    <div class="p-4 bg-slate-50 border-t border-slate-200 text-xs">
+      @if(Auth::guard('store')->check())
+        <a href="{{ $hubRoute('account') }}" class="block w-full text-center py-2.5 bg-hub-blue text-white font-semibold rounded-lg hover:bg-hub-blueHover transition-colors">
+          My Account
+        </a>
+      @else
+        <a href="{{ $hubRoute('store.login.show') }}" class="block w-full text-center py-2.5 bg-hub-blue text-white font-semibold rounded-lg hover:bg-hub-blueHover transition-colors">
+          Sign In / Register
+        </a>
+      @endif
+    </div>
+
   </div>
-</nav>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const openBtn = document.getElementById('mobile-menu-btn');
+    const closeBtn = document.getElementById('mobile-menu-close-btn');
+    const backdrop = document.getElementById('mobile-menu-backdrop');
+    const drawer = document.getElementById('mobile-menu-drawer');
+
+    function toggle(show) {
+      if (show) {
+        drawer.classList.remove('-translate-x-full');
+        drawer.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      } else {
+        drawer.classList.add('-translate-x-full');
+        drawer.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+    }
+
+    if (openBtn) openBtn.addEventListener('click', () => toggle(true));
+    if (closeBtn) closeBtn.addEventListener('click', () => toggle(false));
+    if (backdrop) backdrop.addEventListener('click', () => toggle(false));
+  });
+</script>

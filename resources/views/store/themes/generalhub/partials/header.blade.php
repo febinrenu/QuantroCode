@@ -1,136 +1,253 @@
+{{-- GeneralHub Header Component --}}
 @php
-  $ghClient = Auth::guard('store')->user();
-  $ghCategories = $categories ?? collect();
+  $currency = $s->currency_code ?? '$';
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'generalhub');
+  $hubRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
 @endphp
-<div class="bg-brand-navy text-white text-xs">
-  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-9">
-    <span class="truncate">{{ $s->topbar_text_left ?? '🚚 Free shipping on orders over $99' }}</span>
-    <div class="hidden md:flex items-center gap-4">
-      <span>{{ $s->topbar_text_right ?? '🔥 New deals added daily' }}</span>
-      <a href="{{ route('store.contact') }}" class="hover:text-brand-blueLight">{{ __('messages.Support') }}</a>
+
+<!-- 1. TOP PROMOTIONAL ANNOUNCEMENT BAR -->
+<div class="bg-hub-navy text-white text-[12px] py-2 px-4 border-b border-hub-navyDark">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1 sm:gap-4">
+    <div class="flex items-center gap-1.5 font-normal tracking-wide">
+      <span class="text-orange-400">🔥</span>
+      <span>Summer Sale is Live! Up to 50% Off on 1000+ products.</span>
+      <a href="{{ $hubRoute('store.shop', ['collection' => 'sale']) }}" class="underline hover:text-blue-200 font-medium ml-1">Shop Now &rarr;</a>
+    </div>
+    <div class="hidden md:flex items-center gap-4 text-slate-300 text-[11px]">
+      <span class="flex items-center gap-1">
+        <span>📦</span> Free Delivery on orders over $49
+      </span>
+      <span>|</span>
+      <span>30-Day Returns</span>
     </div>
   </div>
 </div>
 
-<header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-card">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="flex items-center gap-4 h-16">
-      <a href="{{ route('store.index') }}" class="flex items-center gap-2 shrink-0">
-        @if(!empty($s->logo_path))
-          <img src="{{ \Illuminate\Support\Str::startsWith($s->logo_path,['http://','https://','/']) ? $s->logo_path : global_asset($s->logo_path) }}" alt="{{ $s->store_name }}" class="h-9 max-w-[150px] object-contain">
-        @else
-          <span class="font-black text-xl tracking-tight text-brand-navy">{{ $s->store_name ?? 'GeneralHub' }}</span>
+<!-- 2. MAIN HEADER (Logo, Search, Actions) -->
+<header class="bg-white border-b border-hub-border sticky top-0 z-40">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4 sm:gap-8">
+    
+    <!-- Mobile Hamburger & Logo -->
+    <div class="flex items-center gap-3">
+      <button type="button" id="mobile-menu-btn" class="lg:hidden p-1.5 text-slate-700 hover:text-hub-blue rounded-lg hover:bg-slate-100 transition-colors" aria-label="Open navigation menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </button>
+
+      <!-- Brand Logo -->
+      <a href="{{ $hubRoute('store.index') }}" class="flex items-center gap-2.5 group shrink-0">
+        <div class="w-9 h-9 rounded-lg bg-hub-blue flex items-center justify-center text-white shadow-sm group-hover:bg-hub-blueHover transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+        </div>
+        <span class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 group-hover:text-hub-blue transition-colors">
+          General<span class="text-hub-blue">Hub</span>
+        </span>
+      </a>
+    </div>
+
+    <!-- Center Search Bar (Desktop) -->
+    <div class="hidden lg:flex flex-1 max-w-2xl mx-auto">
+      <form action="{{ $hubRoute('store.shop') }}" method="GET" class="w-full flex items-center bg-white border-2 border-hub-blue rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-hub-blue/20 transition-all">
+        @if($themePreview)
+          <input type="hidden" name="preview_theme" value="{{ $themePreview }}">
         @endif
+
+        <!-- Category Dropdown inside Search -->
+        <select name="category" class="bg-slate-50 text-slate-700 text-xs font-medium py-2.5 px-3 border-r border-slate-200 outline-none cursor-pointer hover:bg-slate-100 transition-colors">
+          <option value="">All Categories</option>
+          @foreach($categories ?? [] as $cat)
+            <option value="{{ $cat->id }}" @selected(request('category') == $cat->id)>{{ $cat->name }}</option>
+          @endforeach
+        </select>
+
+        <!-- Search Input -->
+        <input type="text" 
+               name="q" 
+               value="{{ request('q') }}" 
+               placeholder="Search for products, brands and more..." 
+               class="w-full text-xs sm:text-sm text-slate-800 placeholder-slate-400 px-4 py-2.5 outline-none">
+
+        <!-- Search Button -->
+        <button type="submit" class="bg-hub-blue hover:bg-hub-blueHover text-white px-5 py-2.5 flex items-center justify-center transition-colors" aria-label="Submit search">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+      </form>
+    </div>
+
+    <!-- Right Actions (Account, Wishlist, Cart) -->
+    <div class="flex items-center gap-3 sm:gap-6 shrink-0">
+      
+      <!-- Account -->
+      @if(Auth::guard('store')->check())
+        <a href="{{ $hubRoute('account') }}" class="hidden sm:flex items-center gap-2 text-slate-700 hover:text-hub-blue transition-colors">
+          <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+          <div class="text-left leading-tight hidden md:block">
+            <div class="text-[10px] text-slate-500 font-normal">Welcome</div>
+            <div class="text-xs font-semibold text-slate-800 truncate max-w-[90px]">{{ Auth::guard('store')->user()->name ?? 'My Account' }}</div>
+          </div>
+        </a>
+      @else
+        <a href="{{ $hubRoute('store.login.show') }}" class="hidden sm:flex items-center gap-2 text-slate-700 hover:text-hub-blue transition-colors">
+          <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          </div>
+          <div class="text-left leading-tight hidden md:block">
+            <div class="text-[10px] text-slate-500 font-normal">Account</div>
+            <div class="text-xs font-semibold text-slate-800">Sign In</div>
+          </div>
+        </a>
+      @endif
+
+      <!-- Wishlist -->
+      <a href="{{ $hubRoute('store.shop', ['collection' => 'featured']) }}" class="hidden sm:flex items-center gap-1.5 text-slate-700 hover:text-hub-blue transition-colors" title="Wishlist">
+        <div class="relative">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+          <span class="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">0</span>
+        </div>
+        <span class="text-xs font-semibold text-slate-800 hidden md:inline ml-1">Wishlist</span>
       </a>
 
-      <nav class="hidden lg:flex items-center gap-1 relative">
-        <div class="group relative">
-          <button type="button" class="px-3 h-10 inline-flex items-center gap-1 text-sm font-semibold text-brand-navy hover:text-brand-blue rounded-md">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-            {{ __('messages.Categories') ?? 'Categories' }}
-          </button>
-          @if($ghCategories->count())
-            <div class="hidden group-hover:grid absolute top-full left-0 pt-2 z-30 w-[560px] grid-cols-2 gap-x-6 gap-y-1 bg-white border border-slate-200 rounded-xl shadow-cardHover p-5">
-              @foreach($ghCategories as $cat)
-                <div class="py-1.5">
-                  <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="text-sm font-bold text-brand-navy hover:text-brand-blue">{{ $cat->name }}</a>
-                  @if(($cat->subcategories ?? collect())->count())
-                    <ul class="mt-1 space-y-0.5">
-                      @foreach($cat->subcategories->take(4) as $sub)
-                        <li><a href="{{ route('store.shop', ['category' => $cat->id, 'sub_category' => $sub->id]) }}" class="text-xs text-slate-500 hover:text-brand-blue">{{ $sub->name }}</a></li>
-                      @endforeach
-                    </ul>
-                  @endif
-                </div>
-              @endforeach
-            </div>
-          @endif
-        </div>
-        <a href="{{ route('store.index') }}" class="px-3 h-10 inline-flex items-center text-sm font-medium text-slate-600 hover:text-brand-blue">{{ __('messages.Home') }}</a>
-        <a href="{{ route('store.shop') }}" class="px-3 h-10 inline-flex items-center text-sm font-medium text-slate-600 hover:text-brand-blue">{{ __('messages.Shop') }}</a>
-        <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="px-3 h-10 inline-flex items-center text-sm font-medium text-slate-600 hover:text-brand-blue">{{ __('messages.Deals') ?? 'Deals' }}</a>
-        <a href="{{ route('store.contact') }}" class="px-3 h-10 inline-flex items-center text-sm font-medium text-slate-600 hover:text-brand-blue">{{ __('messages.Support') }}</a>
-      </nav>
-
-      <div class="hidden md:flex flex-1 max-w-lg mx-2 relative" x-data="searchBox('{{ route('store.search.suggestions') }}')" @click.outside="results = []">
-        <form action="{{ route('store.shop') }}" method="GET" class="w-full relative">
-          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
-          <input type="text" name="q" class="w-full h-10 pl-10 pr-3 rounded-lg border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40"
-                 placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" autocomplete="off" value="{{ request('q') }}" x-model="q" @input.debounce.250ms="fetch">
-          <div x-show="results.length" x-cloak class="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-cardHover overflow-hidden max-h-96 overflow-y-auto z-50">
-            <template x-for="p in results" :key="p.id">
-              <a :href="p.url" class="flex items-center gap-3 px-3 py-2 hover:bg-slate-50">
-                <img :src="p.image_url" class="w-10 h-10 rounded object-cover">
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm font-medium truncate" x-text="p.name"></div>
-                  <div class="text-xs font-bold text-brand-blue" x-text="window.__HIDE_PRICES__ ? '' : ('{{ $s->currency_code ?? '$' }}' + p.display_price)"></div>
-                </div>
-              </a>
-            </template>
+      <!-- Shopping Cart -->
+      <a href="{{ $hubRoute('store.cart') }}" class="flex items-center gap-2 text-slate-700 hover:text-hub-blue transition-colors" title="Shopping Cart">
+        <div class="relative">
+          <div class="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-700 hover:bg-blue-50 hover:text-hub-blue transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
           </div>
-        </form>
-      </div>
-
-      <div class="ms-auto flex items-center gap-1">
-        @if($ghClient)
-          <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-10 px-3 items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-brand-blue">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-            {{ \Illuminate\Support\Str::limit($ghClient->username ?: $ghClient->email, 12) }}
-          </a>
-        @else
-          <a href="{{ url('/online_store/login') }}" class="hidden md:inline-flex h-10 px-4 items-center rounded-lg text-sm font-semibold text-brand-blue border border-brand-blue/30 hover:bg-brand-blueLight">{{ __('messages.SignIn') }}</a>
-        @endif
-        <div class="hidden md:block">
-          @include('store.partials.language-switcher')
+          <span class="js-cart-count absolute -top-1 -right-1.5 bg-hub-blue text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-sm">0</span>
         </div>
-        <a href="{{ route('store.cart') }}" class="relative h-10 px-4 inline-flex items-center gap-1.5 rounded-lg bg-brand-blue text-white text-sm font-semibold hover:bg-brand-blueDark">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          <span class="hidden sm:inline">{{ __('messages.Cart') }}</span>
-          <span class="cart-count absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-brand-orange text-white text-[11px] font-bold inline-flex items-center justify-center">0</span>
-        </a>
-        <button type="button" class="lg:hidden h-10 w-10 inline-flex items-center justify-center rounded-lg hover:bg-slate-100" onclick="document.getElementById('gh-mobile-menu').classList.toggle('hidden')" aria-label="Menu">
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-      </div>
+        <div class="text-left leading-tight hidden lg:block">
+          <div class="text-[10px] text-slate-500 font-normal">Cart</div>
+          <div class="text-xs font-semibold text-slate-900">$0.00</div>
+        </div>
+      </a>
+
     </div>
 
-    @if(($showCategoryBar ?? true) && $ghCategories->count())
-      <div class="hidden lg:block border-t border-slate-100">
-        <ul class="no-scrollbar flex flex-nowrap items-center gap-1 py-2 overflow-x-auto">
-          @foreach($ghCategories as $cat)
-            <li class="shrink-0">
-              <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="px-3 h-8 inline-flex items-center text-xs font-medium text-slate-500 hover:text-brand-blue hover:bg-brand-blueLight rounded-md">{{ $cat->name }}</a>
-            </li>
-          @endforeach
-        </ul>
-      </div>
-    @endif
   </div>
 
-  {{-- Mobile menu --}}
-  <div id="gh-mobile-menu" class="hidden lg:hidden border-t border-slate-100 bg-white max-h-[70vh] overflow-y-auto">
-    <div class="px-4 py-3">
-      <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
-        <input type="text" name="q" class="w-full h-10 pl-3 pr-3 rounded-lg border border-slate-200 bg-slate-50 text-sm" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}">
-      </form>
-      <div class="text-xs font-bold uppercase tracking-widest text-slate-400 mt-4 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
-      @include('store.partials.language-switcher', ['variant' => 'mobile'])
-      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold text-brand-navy">{{ __('messages.Home') }}</a>
-      <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-semibold text-brand-navy">{{ __('messages.Shop') }}</a>
-      @foreach($ghCategories as $cat)
-        <details class="border-t border-slate-100 py-1">
-          <summary class="flex items-center justify-between py-2 text-sm font-medium text-slate-700">
-            {{ $cat->name }}
-            <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
-          </summary>
-          <div class="pl-3 pb-2 space-y-1">
-            <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="block py-1 text-sm text-brand-blue">{{ __('messages.ViewAll') ?? 'View all' }}</a>
-            @foreach($cat->subcategories ?? [] as $sub)
-              <a href="{{ route('store.shop', ['category' => $cat->id, 'sub_category' => $sub->id]) }}" class="block py-1 text-sm text-slate-500">{{ $sub->name }}</a>
+  <!-- 3. SECONDARY CATEGORY & NAVIGATION BAR (Desktop) -->
+  <div class="hidden lg:block bg-white border-t border-hub-borderLight">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      
+      <div class="flex items-center gap-6">
+        
+        <!-- Browse Categories Button with Dropdown -->
+        <div class="relative group">
+          <button type="button" class="h-11 px-5 bg-hub-blue hover:bg-hub-blueHover text-white text-xs font-bold tracking-wide uppercase flex items-center gap-2.5 transition-colors rounded-none">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            <span>Browse Categories</span>
+            <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+
+          <!-- Flyout Dropdown -->
+          <div class="absolute left-0 top-full w-60 bg-white border border-hub-border shadow-xl rounded-b-xl py-2 hidden group-hover:block z-50 transition-all">
+            @php
+              $catIcons = [
+                'Electronics' => '🎧',
+                'Fashion' => '👕',
+                'Home & Living' => '🛋️',
+                'Beauty' => '💄',
+                'Accessories' => '👜',
+                'Sports' => '⚽',
+                'Toys & Games' => '🧸',
+                'Daily Essentials' => '🧴',
+              ];
+            @endphp
+            @foreach($categories ?? [] as $cat)
+              <a href="{{ $hubRoute('store.shop', ['category' => $cat->id]) }}" class="flex items-center justify-between px-4 py-2 text-xs font-medium text-slate-700 hover:bg-hub-blueSoft hover:text-hub-blue">
+                <span>{{ $catIcons[$cat->name] ?? '📦' }} {{ $cat->name }}</span>
+                <span class="text-slate-400">&rsaquo;</span>
+              </a>
             @endforeach
           </div>
-        </details>
-      @endforeach
+        </div>
+
+        <!-- Primary Navigation Menu -->
+        <nav>
+          <ul class="flex items-center gap-7 text-xs font-medium text-slate-700">
+            <li>
+              <a href="{{ $hubRoute('store.index') }}" class="py-3 inline-block hover:text-hub-blue transition-colors {{ request()->routeIs('store.index') && !request('collection') && !request('sort') ? 'text-hub-blue font-semibold' : '' }}">
+                Home
+              </a>
+            </li>
+            <li>
+              <a href="{{ $hubRoute('store.shop') }}" class="py-3 inline-block hover:text-hub-blue transition-colors">
+                Shop
+              </a>
+            </li>
+            <li>
+              <a href="{{ $hubRoute('store.shop', ['collection' => 'deals']) }}" class="py-3 inline-block hover:text-hub-blue transition-colors">
+                Deals
+              </a>
+            </li>
+            <li>
+              <a href="{{ $hubRoute('store.shop', ['sort' => 'latest']) }}" class="py-3 inline-block hover:text-hub-blue transition-colors">
+                New Arrivals
+              </a>
+            </li>
+            <li>
+              <a href="{{ $hubRoute('store.shop', ['collection' => 'bestselling']) }}" class="py-3 inline-block hover:text-hub-blue transition-colors">
+                Best Sellers
+              </a>
+            </li>
+            <li>
+              <a href="#track-order-section" class="py-3 inline-block hover:text-hub-blue transition-colors">
+                Track Order
+              </a>
+            </li>
+            <li>
+              <a href="#about-section" class="py-3 inline-block hover:text-hub-blue transition-colors">
+                About Us
+              </a>
+            </li>
+            <li>
+              <a href="#contact-section" class="py-3 inline-block hover:text-hub-blue transition-colors">
+                Contact
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+      </div>
+
+      <!-- Right Fast Hotline / Order Help -->
+      <div class="text-xs text-slate-500 font-medium">
+        <span>Hotline: </span>
+        <span class="text-slate-800 font-bold">+1 (800) 123-4567</span>
+      </div>
+
     </div>
+  </div>
+
+  <!-- Mobile Search Bar (Directly below header on small viewports) -->
+  <div class="lg:hidden p-3 bg-slate-50 border-t border-slate-200">
+    <form action="{{ $hubRoute('store.shop') }}" method="GET" class="relative">
+      @if($themePreview)
+        <input type="hidden" name="preview_theme" value="{{ $themePreview }}">
+      @endif
+      <input type="text" 
+             name="q" 
+             value="{{ request('q') }}" 
+             placeholder="Search products..." 
+             class="w-full text-xs bg-white border border-slate-300 rounded-lg pl-3 pr-10 py-2.5 outline-none focus:border-hub-blue">
+      <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-hub-blue" aria-label="Search">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      </button>
+    </form>
   </div>
 </header>

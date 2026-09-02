@@ -1,95 +1,166 @@
 <!doctype html>
 <html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
 <head>
-@include('store.themes.generalhub._shell', ['pageTitle' => 'Shop — ' . ($s->store_name ?? 'GeneralHub')])
+@include('store.themes.generalhub._shell', ['pageTitle' => 'Shop All Products — ' . ($s->store_name ?? 'GeneralHub')])
 </head>
-<body class="bg-brand-cream text-brand-ink antialiased">
-
-@include('store.themes.generalhub.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
+<body class="bg-[#F8FAFC] text-slate-800 antialiased selection:bg-hub-blue selection:text-white">
 
 @php
   $currency = $s->currency_code ?? '$';
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'generalhub');
+  $hubRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+@endphp
+
+@include('store.themes.generalhub.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
+@include('store.themes.generalhub.partials.mobile-nav')
+
+@php
   $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
   $productVms = collect($products->items())->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
 @endphp
 
-<main class="pb-24 lg:pb-0">
-  <section class="bg-white border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 py-6 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <span class="eyebrow text-brand-blue text-xs font-bold">Shop</span>
-        <h1 class="text-2xl font-black text-brand-navy mt-1">All Products</h1>
-        <p class="text-sm text-slate-500 mt-1">{{ $products->total() }} products found @if($q) for "{{ $q }}" @endif</p>
-      </div>
-      <form method="get" action="{{ route('store.shop') }}" class="flex items-end gap-2">
-        @foreach(request()->except(['sort','page']) as $k => $v)
-          <input type="hidden" name="{{ $k }}" value="{{ $v }}">
-        @endforeach
-        <select name="sort" class="h-10 px-3 rounded-lg border border-slate-200 text-sm">
-          <option value="latest" @selected(($sort ?? 'latest') === 'latest')>Latest</option>
-          <option value="price_asc" @selected($sort === 'price_asc')>Price: Low to High</option>
-          <option value="price_desc" @selected($sort === 'price_desc')>Price: High to Low</option>
-        </select>
-        <button class="h-10 px-4 rounded-lg bg-brand-blue text-white text-sm font-semibold">Update</button>
-      </form>
-    </div>
-  </section>
+<main class="pb-20">
 
-  <div class="max-w-7xl mx-auto px-4 py-8 grid lg:grid-cols-[260px_1fr] gap-6">
+  <!-- Breadcrumbs & Banner -->
+  <div class="bg-white border-b border-slate-200 py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <div class="flex items-center gap-2 text-xs text-slate-500">
+        <a href="{{ $hubRoute('store.index') }}" class="hover:text-hub-blue">Home</a>
+        <span>/</span>
+        <span class="text-slate-900 font-medium">Shop</span>
+        @if($q)
+          <span>/</span>
+          <span class="text-hub-blue font-medium">&ldquo;{{ $q }}&rdquo;</span>
+        @endif
+      </div>
+      <div class="text-xs text-slate-500">
+        Showing <span class="font-semibold text-slate-900">{{ $products->total() }}</span> results
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid lg:grid-cols-[260px_1fr] gap-8">
+    
+    <!-- Left Sidebar Filters (Desktop) -->
     <aside class="hidden lg:block">
-      <div class="bg-white rounded-xl border border-slate-200 p-4 sticky top-24">
-        <form method="get" action="{{ route('store.shop') }}">
-          <div class="mb-4">
-            <div class="text-xs font-bold uppercase text-slate-500 mb-2">Search</div>
-            <input type="text" name="q" value="{{ $q }}" placeholder="Search…" class="w-full h-10 px-3 rounded-lg border border-slate-200 text-sm">
+      <div class="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-xs sticky top-24">
+        
+        <form method="get" action="{{ $hubRoute('store.shop') }}">
+          @if($themePreview)
+            <input type="hidden" name="preview_theme" value="{{ $themePreview }}">
+          @endif
+
+          <!-- Search Field -->
+          <div class="space-y-2">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900">Search</h4>
+            <input type="text" 
+                   name="q" 
+                   value="{{ $q ?? '' }}" 
+                   placeholder="Keywords..." 
+                   class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-hub-blue">
           </div>
-          <div class="mb-4">
-            <div class="text-xs font-bold uppercase text-slate-500 mb-2">Category</div>
-            <ul class="space-y-1 max-h-64 overflow-y-auto">
-              @foreach($categories as $c)
-                <li>
-                  <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                    <input type="radio" name="category" value="{{ $c->id }}" {{ (string)$cat === (string)$c->id ? 'checked' : '' }} onchange="this.form.submit()">
-                    {{ $c->name }}
-                  </label>
-                </li>
+
+          <!-- Categories List -->
+          <div class="pt-5 border-t border-slate-100 space-y-2.5">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900">Categories</h4>
+            <div class="space-y-1 text-xs text-slate-600">
+              <a href="{{ $hubRoute('store.shop') }}" class="flex items-center justify-between p-1.5 rounded-md hover:bg-slate-50 hover:text-hub-blue {{ !$cat && !$q ? 'text-hub-blue font-bold bg-blue-50/50' : '' }}">
+                <span>All Categories</span>
+              </a>
+              @foreach($categories ?? [] as $c)
+                <a href="{{ $hubRoute('store.shop', ['category' => $c->id]) }}" class="flex items-center justify-between p-1.5 rounded-md hover:bg-slate-50 hover:text-hub-blue {{ ($cat == $c->id) ? 'text-hub-blue font-bold bg-blue-50/50' : '' }}">
+                  <span>{{ $c->name }}</span>
+                </a>
               @endforeach
-            </ul>
-          </div>
-          <div class="mb-4">
-            <div class="text-xs font-bold uppercase text-slate-500 mb-2">Price Range</div>
-            <div class="flex items-center gap-2">
-              <input type="number" name="min" value="{{ $min }}" placeholder="Min" class="w-1/2 h-9 px-2 rounded-lg border border-slate-200 text-sm">
-              <input type="number" name="max" value="{{ $max }}" placeholder="Max" class="w-1/2 h-9 px-2 rounded-lg border border-slate-200 text-sm">
             </div>
           </div>
-          <button class="w-full h-10 rounded-lg bg-brand-navy text-white text-sm font-semibold">Apply Filters</button>
-          <a href="{{ route('store.shop') }}" class="block text-center mt-2 text-xs text-slate-400 hover:text-brand-blue">Clear all</a>
+
+          <!-- Price Range Filter -->
+          <div class="pt-5 border-t border-slate-100 space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900">Price Range</h4>
+            <div class="grid grid-cols-2 gap-2">
+              <input type="number" name="min" value="{{ request('min') }}" placeholder="Min $" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-hub-blue">
+              <input type="number" name="max" value="{{ request('max') }}" placeholder="Max $" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-hub-blue">
+            </div>
+            <button type="submit" class="w-full py-2 bg-hub-blue hover:bg-hub-blueHover text-white text-xs font-semibold rounded-lg shadow-sm transition-colors">
+              Apply Filters
+            </button>
+          </div>
+
         </form>
+
       </div>
     </aside>
 
+    <!-- Main Products Area -->
     <div>
+      
+      <!-- Top Toolbar (Sort, Active Filters) -->
+      <div class="bg-white border border-slate-200 rounded-xl p-4 mb-6 flex items-center justify-between shadow-xs">
+        <h1 class="text-base sm:text-lg font-bold text-slate-900">
+          {{ $q ? 'Results for "' . $q . '"' : 'All Products' }}
+        </h1>
+
+        <!-- Sort Form -->
+        <form method="get" action="{{ $hubRoute('store.shop') }}" class="flex items-center gap-2">
+          @if($themePreview)
+            <input type="hidden" name="preview_theme" value="{{ $themePreview }}">
+          @endif
+          @foreach(request()->except(['sort','page','preview_theme']) as $k => $v)
+            <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+          @endforeach
+          <label for="sort-select" class="text-xs text-slate-500 hidden sm:inline font-medium">Sort by:</label>
+          <select id="sort-select" name="sort" onchange="this.form.submit()" class="text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 py-1.5 px-3 rounded-lg outline-none focus:border-hub-blue cursor-pointer">
+            <option value="latest" @selected(($sort ?? 'latest') === 'latest')>Newest Arrivals</option>
+            <option value="price_asc" @selected(($sort ?? '') === 'price_asc')>Price: Low to High</option>
+            <option value="price_desc" @selected(($sort ?? '') === 'price_desc')>Price: High to Low</option>
+          </select>
+        </form>
+      </div>
+
+      <!-- Products Grid -->
       @if($productVms->isEmpty())
-        <div class="text-center py-24">
-          <p class="text-slate-400">No products matched your filters.</p>
-          <a href="{{ route('store.shop') }}" class="text-brand-blue font-semibold text-sm">Clear filters</a>
+        <div class="bg-white border border-slate-200 rounded-2xl p-12 text-center space-y-4 shadow-sm">
+          <div class="w-16 h-16 rounded-full bg-blue-50 text-hub-blue flex items-center justify-center mx-auto text-2xl">
+            🔍
+          </div>
+          <h3 class="text-xl font-bold text-slate-900">No products found</h3>
+          <p class="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto">
+            We couldn't find any items matching your search or filters. Try adjusting your query or browsing all categories.
+          </p>
+          <div class="pt-2">
+            <a href="{{ $hubRoute('store.shop') }}" class="inline-block px-6 py-2.5 bg-hub-blue text-white text-xs font-semibold rounded-lg hover:bg-hub-blueHover transition-colors shadow-sm">
+              View All Products
+            </a>
+          </div>
         </div>
       @else
-        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
-          @foreach($productVms as $product)
-            @include('store.themes.generalhub.partials.product-card', ['product' => $product])
+        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          @foreach($productVms as $p)
+            @include('store.themes.generalhub.partials.product-card', ['product' => $p])
           @endforeach
         </div>
-        <div class="mt-8">{{ $products->links() }}</div>
+
+        <!-- Pagination -->
+        <div class="mt-10 flex justify-center">
+          {{ $products->appends(request()->query())->links() }}
+        </div>
       @endif
+
     </div>
+
   </div>
+
 </main>
 
-@include('store.themes.generalhub.partials.footer', ['categories' => $categories])
-@include('store.themes.generalhub.partials.mobile-nav')
+@include('store.themes.generalhub.partials.footer')
 
-<script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
+<script src="/js/storefront.min.js"></script>
 </body>
 </html>
