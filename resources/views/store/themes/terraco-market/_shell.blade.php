@@ -2,6 +2,15 @@
 @php
   $tcTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'Terra & Co.');
   $tcHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+
+  $tcTokens = \App\Support\StorefrontThemeRegistry::resolveTokens('terraco-market', $s->theme_tokens ?? []);
+  $tcGreen = $tcTokens['color-accent-500'] ?? '#24331D';
+  $tcGold = $tcTokens['color-accent-600'] ?? '#C9A15B';
+  $tcGreenDeep = \App\Support\StorefrontThemeRegistry::shade($tcGreen, -0.25);
+  $tcGreenSoft = \App\Support\StorefrontThemeRegistry::shade($tcGreen, 0.35);
+  $tcGoldSoft = \App\Support\StorefrontThemeRegistry::shade($tcGold, 0.55);
+  $tcFontHeading = $tcTokens['font-heading'] ?? "'Playfair Display', serif";
+  $tcFontBody = $tcTokens['font-body'] ?? "'Inter', sans-serif";
 @endphp
 <meta charset="utf-8" />
 <title>{{ $tcTitle }}</title>
@@ -33,18 +42,18 @@
           tc: {
             cream: '#F8F4EA',
             creamDark: '#EFE7D3',
-            green: '#24331D',
-            greenDeep: '#1A2415',
-            greenSoft: '#3A4E2F',
-            gold: '#C9A15B',
-            goldSoft: '#E8DCC4',
+            green: '{{ $tcGreen }}',
+            greenDeep: '{{ $tcGreenDeep }}',
+            greenSoft: '{{ $tcGreenSoft }}',
+            gold: '{{ $tcGold }}',
+            goldSoft: '{{ $tcGoldSoft }}',
             ink: '#23281F',
             inkSoft: '#5F6857',
           }
         },
         fontFamily: {
-          serif: ['"Playfair Display"', 'serif'],
-          sans: ['Inter', 'system-ui', 'sans-serif'],
+          serif: [{!! json_encode($tcFontHeading) !!}, 'serif'],
+          sans: [{!! json_encode($tcFontBody) !!}, 'system-ui', 'sans-serif'],
         },
         boxShadow: {
           card: '0 1px 2px rgba(26,36,21,0.08), 0 1px 1px rgba(26,36,21,0.05)',
@@ -64,6 +73,6 @@
   .eyebrow { letter-spacing: .14em; text-transform: uppercase; }
   details > summary { list-style: none; cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
-  body { font-family: 'Inter', system-ui, sans-serif; background: #F8F4EA; color: #23281F; }
+  body { font-family: {{ $tcFontBody }}, system-ui, sans-serif; background: #F8F4EA; color: #23281F; }
   .tc-hero-italic { font-style: italic; font-weight: 500; }
 </style>

@@ -2,6 +2,13 @@
 @php
   $ljTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'LittleJoy');
   $ljHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+
+  $ljTokens = \App\Support\StorefrontThemeRegistry::resolveTokens('littlejoy-kids', $s->theme_tokens ?? []);
+  $ljPurple = $ljTokens['color-accent-500'] ?? '#6C63E0';
+  $ljPink = $ljTokens['color-accent-600'] ?? '#F76C8A';
+  $ljPurpleDeep = \App\Support\StorefrontThemeRegistry::shade($ljPurple, -0.3);
+  $ljFontHeading = $ljTokens['font-heading'] ?? "'Baloo 2', sans-serif";
+  $ljFontBody = $ljTokens['font-body'] ?? "'Inter', sans-serif";
 @endphp
 <meta charset="utf-8" />
 <title>{{ $ljTitle }}</title>
@@ -31,9 +38,9 @@
       extend: {
         colors: {
           lj: {
-            purple: '#6C63E0',
-            purpleDeep: '#4A42B0',
-            pink: '#F76C8A',
+            purple: '{{ $ljPurple }}',
+            purpleDeep: '{{ $ljPurpleDeep }}',
+            pink: '{{ $ljPink }}',
             gold: '#FFD166',
             mint: '#8FD9C4',
             lavender: '#EDEBFB',
@@ -44,8 +51,8 @@
           }
         },
         fontFamily: {
-          heading: ['"Baloo 2"', 'sans-serif'],
-          sans: ['Inter', 'system-ui', 'sans-serif'],
+          heading: [{!! json_encode($ljFontHeading) !!}, 'sans-serif'],
+          sans: [{!! json_encode($ljFontBody) !!}, 'system-ui', 'sans-serif'],
         },
         boxShadow: {
           card: '0 1px 2px rgba(43,38,64,0.08), 0 1px 1px rgba(43,38,64,0.05)',
@@ -60,15 +67,15 @@
 </script>
 
 <style>
-  * { scrollbar-width: thin; scrollbar-color: #6C63E0 transparent; }
+  * { scrollbar-width: thin; scrollbar-color: {{ $ljPurple }} transparent; }
   ::-webkit-scrollbar { height: 8px; width: 8px; }
-  ::-webkit-scrollbar-thumb { background: #6C63E0; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb { background: {{ $ljPurple }}; border-radius: 9999px; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   .eyebrow { letter-spacing: .08em; text-transform: uppercase; }
   details > summary { list-style: none; cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
-  body { font-family: 'Inter', system-ui, sans-serif; background: #FFF6F2; color: #2B2640; }
+  body { font-family: {{ $ljFontBody }}, system-ui, sans-serif; background: #FFF6F2; color: #2B2640; }
   .lj-rainbow span:nth-child(6n+1) { color: #F76C8A; }
   .lj-rainbow span:nth-child(6n+2) { color: #FF9F5A; }
   .lj-rainbow span:nth-child(6n+3) { color: #FFD166; }

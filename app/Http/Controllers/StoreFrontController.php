@@ -260,10 +260,17 @@ class StoreFrontController extends Controller
                 // One representative product photo per subcategory, so a
                 // theme's "Women" tile shows an actual Women's-Fashion-tagged
                 // product instead of whichever of the category's newest
-                // products happens to land on that tile by position.
+                // products happens to land on that tile by position. A
+                // product can be tagged to more than one subcategory (e.g.
+                // "Designer Sneakers" is both Men and Shoes), so this picks
+                // the newest product NOT already used by an earlier
+                // subcategory first, only reusing one if that subcategory
+                // has no other tagged product with a photo -- otherwise two
+                // sibling tiles would show the exact same picture.
                 $subcategoryImages = [];
+                $usedProductIds = [];
                 foreach ($categories->first()->subcategories ?? [] as $subcat) {
-                    $image = Product::query()
+                    $candidates = Product::query()
                         ->where('is_active', 1)
                         ->where('hide_from_online_store', 0)
                         ->whereNotNull('image')
@@ -279,10 +286,14 @@ class StoreFrontController extends Controller
                                 });
                         })
                         ->orderBy('created_at', 'desc')
-                        ->value('image');
+                        ->limit(10)
+                        ->get(['id', 'image']);
 
-                    if ($image) {
-                        $subcategoryImages[$subcat->name] = global_asset(upload_path('products').'/'.$image);
+                    $pick = $candidates->first(fn ($p) => ! in_array($p->id, $usedProductIds, true)) ?? $candidates->first();
+
+                    if ($pick) {
+                        $usedProductIds[] = $pick->id;
+                        $subcategoryImages[$subcat->name] = global_asset(upload_path('products').'/'.$pick->image);
                     }
                 }
             }

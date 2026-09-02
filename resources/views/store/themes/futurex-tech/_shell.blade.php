@@ -2,6 +2,13 @@
 @php
   $fxTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'FutureX');
   $fxHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+
+  $fxTokens = \App\Support\StorefrontThemeRegistry::resolveTokens('futurex-tech', $s->theme_tokens ?? []);
+  $fxPurple = $fxTokens['color-accent-500'] ?? '#7B3FE4';
+  $fxBlue = $fxTokens['color-accent-600'] ?? '#3F8CFF';
+  $fxPurpleDeep = \App\Support\StorefrontThemeRegistry::shade($fxPurple, -0.35);
+  $fxFontHeading = $fxTokens['font-heading'] ?? "'Poppins', sans-serif";
+  $fxFontBody = $fxTokens['font-body'] ?? "'Inter', sans-serif";
 @endphp
 <meta charset="utf-8" />
 <title>{{ $fxTitle }}</title>
@@ -33,9 +40,9 @@
           fx: {
             black: '#0B0B14',
             navy: '#161329',
-            purple: '#7B3FE4',
-            purpleDeep: '#4B2A9E',
-            blue: '#3F8CFF',
+            purple: '{{ $fxPurple }}',
+            purpleDeep: '{{ $fxPurpleDeep }}',
+            blue: '{{ $fxBlue }}',
             cyan: '#3FE0FF',
             ink: '#12101F',
             inkSoft: '#6B6478',
@@ -44,16 +51,16 @@
           }
         },
         fontFamily: {
-          heading: ['Poppins', 'sans-serif'],
-          sans: ['Inter', 'system-ui', 'sans-serif'],
+          heading: [{!! json_encode($fxFontHeading) !!}, 'sans-serif'],
+          sans: [{!! json_encode($fxFontBody) !!}, 'system-ui', 'sans-serif'],
         },
         boxShadow: {
           card: '0 1px 2px rgba(18,16,31,0.08), 0 1px 1px rgba(18,16,31,0.05)',
           cardHover: '0 18px 32px -12px rgba(18,16,31,0.3)',
         },
         backgroundImage: {
-          'fx-hero': 'linear-gradient(120deg, #0B0B14 0%, #211B4A 55%, #3B2A85 100%)',
-          'fx-badge': 'linear-gradient(135deg, #3F8CFF 0%, #7B3FE4 100%)',
+          'fx-hero': 'linear-gradient(120deg, #0B0B14 0%, #211B4A 55%, {{ $fxPurpleDeep }} 100%)',
+          'fx-badge': 'linear-gradient(135deg, {{ $fxBlue }} 0%, {{ $fxPurple }} 100%)',
         },
       }
     }
@@ -61,13 +68,13 @@
 </script>
 
 <style>
-  * { scrollbar-width: thin; scrollbar-color: #7B3FE4 transparent; }
+  * { scrollbar-width: thin; scrollbar-color: {{ $fxPurple }} transparent; }
   ::-webkit-scrollbar { height: 8px; width: 8px; }
-  ::-webkit-scrollbar-thumb { background: #7B3FE4; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb { background: {{ $fxPurple }}; border-radius: 9999px; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   .eyebrow { letter-spacing: .1em; text-transform: uppercase; }
   details > summary { list-style: none; cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
-  body { font-family: 'Inter', system-ui, sans-serif; background: #F4F5FA; color: #12101F; }
+  body { font-family: {{ $fxFontBody }}, system-ui, sans-serif; background: #F4F5FA; color: #12101F; }
 </style>

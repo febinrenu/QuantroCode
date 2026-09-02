@@ -2,6 +2,13 @@
 @php
   $mktTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'Marketly');
   $mktHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+
+  $mktTokens = \App\Support\StorefrontThemeRegistry::resolveTokens('marketly-shop', $s->theme_tokens ?? []);
+  $mktPurple = $mktTokens['color-accent-500'] ?? '#5B3FD9';
+  $mktGold = $mktTokens['color-accent-600'] ?? '#F5B301';
+  $mktPurpleDeep = \App\Support\StorefrontThemeRegistry::shade($mktPurple, -0.35);
+  $mktFontHeading = $mktTokens['font-heading'] ?? "'Poppins', sans-serif";
+  $mktFontBody = $mktTokens['font-body'] ?? "'Inter', sans-serif";
 @endphp
 <meta charset="utf-8" />
 <title>{{ $mktTitle }}</title>
@@ -31,11 +38,11 @@
       extend: {
         colors: {
           mkt: {
-            purple: '#5B3FD9',
-            purpleDeep: '#3A2680',
+            purple: '{{ $mktPurple }}',
+            purpleDeep: '{{ $mktPurpleDeep }}',
             pink: '#D63FD1',
             coral: '#FF3E6C',
-            gold: '#F5B301',
+            gold: '{{ $mktGold }}',
             ink: '#1B1533',
             inkSoft: '#6B6478',
             cream: '#F7F6FB',
@@ -43,15 +50,15 @@
           }
         },
         fontFamily: {
-          heading: ['Poppins', 'sans-serif'],
-          sans: ['Inter', 'system-ui', 'sans-serif'],
+          heading: [{!! json_encode($mktFontHeading) !!}, 'sans-serif'],
+          sans: [{!! json_encode($mktFontBody) !!}, 'system-ui', 'sans-serif'],
         },
         boxShadow: {
           card: '0 1px 2px rgba(27,21,51,0.08), 0 1px 1px rgba(27,21,51,0.05)',
           cardHover: '0 18px 32px -12px rgba(27,21,51,0.25)',
         },
         backgroundImage: {
-          'mkt-hero': 'linear-gradient(120deg, #4B2FCB 0%, #7A3FD9 45%, #D63FD1 100%)',
+          'mkt-hero': 'linear-gradient(120deg, {{ $mktPurpleDeep }} 0%, {{ $mktPurple }} 45%, #D63FD1 100%)',
         },
       }
     }
@@ -59,13 +66,13 @@
 </script>
 
 <style>
-  * { scrollbar-width: thin; scrollbar-color: #5B3FD9 transparent; }
+  * { scrollbar-width: thin; scrollbar-color: {{ $mktPurple }} transparent; }
   ::-webkit-scrollbar { height: 8px; width: 8px; }
-  ::-webkit-scrollbar-thumb { background: #5B3FD9; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb { background: {{ $mktPurple }}; border-radius: 9999px; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   .eyebrow { letter-spacing: .1em; text-transform: uppercase; }
   details > summary { list-style: none; cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
-  body { font-family: 'Inter', system-ui, sans-serif; background: #F7F6FB; color: #1B1533; }
+  body { font-family: {{ $mktFontBody }}, system-ui, sans-serif; background: #F7F6FB; color: #1B1533; }
 </style>

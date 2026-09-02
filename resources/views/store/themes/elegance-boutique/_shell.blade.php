@@ -2,6 +2,13 @@
 @php
   $elTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'Élégance');
   $elHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+
+  $elTokens = \App\Support\StorefrontThemeRegistry::resolveTokens('elegance-boutique', $s->theme_tokens ?? []);
+  $elInk = $elTokens['color-accent-500'] ?? '#111111';
+  $elGold = $elTokens['color-accent-600'] ?? '#B8935A';
+  $elGoldSoft = \App\Support\StorefrontThemeRegistry::shade($elGold, 0.55);
+  $elFontHeading = $elTokens['font-heading'] ?? "'Playfair Display', serif";
+  $elFontBody = $elTokens['font-body'] ?? "'Inter', sans-serif";
 @endphp
 <meta charset="utf-8" />
 <title>{{ $elTitle }}</title>
@@ -32,17 +39,17 @@
         colors: {
           el: {
             black: '#0A0A0A',
-            ink: '#111111',
+            ink: '{{ $elInk }}',
             inkSoft: '#6B6B6B',
             cream: '#F7F5F2',
             creamDark: '#EFEAE2',
-            gold: '#B8935A',
-            goldSoft: '#E8D9BE',
+            gold: '{{ $elGold }}',
+            goldSoft: '{{ $elGoldSoft }}',
           }
         },
         fontFamily: {
-          serif: ['"Playfair Display"', 'serif'],
-          sans: ['Inter', 'system-ui', 'sans-serif'],
+          serif: [{!! json_encode($elFontHeading) !!}, 'serif'],
+          sans: [{!! json_encode($elFontBody) !!}, 'system-ui', 'sans-serif'],
         },
         boxShadow: {
           card: '0 1px 2px rgba(10,10,10,0.06), 0 1px 1px rgba(10,10,10,0.04)',
@@ -54,14 +61,14 @@
 </script>
 
 <style>
-  * { scrollbar-width: thin; scrollbar-color: #B8935A transparent; }
+  * { scrollbar-width: thin; scrollbar-color: {{ $elGold }} transparent; }
   ::-webkit-scrollbar { height: 8px; width: 8px; }
-  ::-webkit-scrollbar-thumb { background: #B8935A; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb { background: {{ $elGold }}; border-radius: 9999px; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   .eyebrow { letter-spacing: .14em; text-transform: uppercase; }
   details > summary { list-style: none; cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
-  body { font-family: 'Inter', system-ui, sans-serif; background: #F7F5F2; color: #111111; }
-  .el-script { font-style: italic; font-weight: 500; color: #B8935A; }
+  body { font-family: {{ $elFontBody }}, system-ui, sans-serif; background: #F7F5F2; color: {{ $elInk }}; }
+  .el-script { font-style: italic; font-weight: 500; color: {{ $elGold }}; }
 </style>

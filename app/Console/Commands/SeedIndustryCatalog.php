@@ -186,7 +186,8 @@ class SeedIndustryCatalog extends Command
             'Pleated Midi Skirt' => ['Women', 'Dresses'],
             'Cashmere Knit Sweater' => ['Women'],
             'Leather Ankle Boots' => ['Women', 'Shoes'],
-            'Structured Tote Handbag' => ['Women', 'Bags', 'Accessories'],
+            'Structured Tote Handbag' => ['Women', 'Bags'],
+            'Leather Crossbody Bag' => ['Women', 'Accessories'],
         ], $now);
     }
 
@@ -737,6 +738,7 @@ class SeedIndustryCatalog extends Command
                 ['Cashmere Knit Sweater', 'woman cashmere sweater fashion', 119.00, 'Pure cashmere crewneck sweater, soft-brushed for everyday luxury.'],
                 ['Leather Ankle Boots', 'woman leather ankle boots fashion', 139.00, 'Block-heel leather ankle boots with a soft round toe and side zip.'],
                 ['Structured Tote Handbag', 'woman leather handbag fashion', 159.00, 'Structured leather tote with a detachable strap and gold-tone hardware.'],
+                ['Leather Crossbody Bag', 'woman leather crossbody bag', 89.00, 'Compact leather crossbody bag with an adjustable strap and card slots.'],
             ]],
             // Urbana (Marketplace & General Retail) -- everyday lifestyle trending picks
             ['code' => 'CAT-IND-MKT', 'category' => 'Marketplace & General Retail', 'products' => [
