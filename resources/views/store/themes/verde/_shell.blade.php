@@ -1,3 +1,15 @@
+@php
+  $activeThemeSlug = 'verde';
+  $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
+  $accent500 = $themeTokens['color-accent-500'] ?? '#2D5A27';
+  $accent600 = $themeTokens['color-accent-600'] ?? '#4E8752';
+  $accent700 = $themeTokens['color-accent-700'] ?? '#8C6239';
+  $accent800 = $themeTokens['color-accent-800'] ?? '#1A3A16';
+  $fontHeading = $themeTokens['font-heading'] ?? "\'Playfair Display\', serif";
+  $fontBody = $themeTokens['font-body'] ?? "\'Plus Jakarta Sans\', sans-serif";
+  $fontSizeHeading = $themeTokens['font-size-heading'] ?? '34px';
+  $fontSizeBody = $themeTokens['font-size-body'] ?? '15px';
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
@@ -289,3 +301,16 @@
     @stack('scripts')
 </body>
 </html>
+
+<style id="theme-tokens">
+:root {
+  --color-accent-500: {{ $accent500 }};
+  --color-accent-600: {{ $accent600 }};
+  --color-accent-700: {{ $accent700 }};
+  --color-accent-800: {{ $accent800 }};
+  --font-heading: {!! $fontHeading !!};
+  --font-body: {!! $fontBody !!};
+  --font-size-heading: {{ $fontSizeHeading }};
+  --font-size-body: {{ $fontSizeBody }};
+}
+</style>

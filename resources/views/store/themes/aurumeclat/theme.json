@@ -1,9 +1,9 @@
 {
     "slug": "aurumeclat",
-    "name": "AurumÉclat",
-    "tagline": "Fine Jewelry — Crafted to Be Treasured",
-    "description": "Exquisite high-jewelry luxury storefront featuring rich obsidian & warm gold palettes, editorial serif typography, gold rate ticker, diamond certification badges, signature collection arches, and VIP maison membership.",
-    "category": "jewelry",
+    "name": "AurumÉclat Fine Jewelry",
+    "tagline": "Fine Jewelry & Maison",
+    "description": "Fine Jewelry & Maison",
+    "category": "Category-Specific Themes",
     "version": "1.0.0",
     "layout_persona": "High Jewelry Luxury Maison",
     "layout": "luxury-maison",
@@ -44,5 +44,6 @@
         "shop": true,
         "product": true,
         "cart": true
-    }
+    },
+    "theme_type": "category-specific"
 }

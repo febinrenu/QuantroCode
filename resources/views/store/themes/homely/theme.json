@@ -1,34 +1,69 @@
 {
-  "name": "Homely",
-  "slug": "homely",
-  "version": "1.0.0",
-  "description": "Category-specific storefront theme for Home & Living, Decor, Kitchen & Dining, Furniture, Plants, and conscious organic lifestyle.",
-  "category": "Category-Specific Themes",
-  "category_badge": "Home & Living",
-  "author": "Antigravity Theme Engine",
-  "supports": {
-    "dynamic_sections": true,
-    "color_presets": true,
-    "custom_fonts": true,
-    "hero_carousel": true,
-    "cart_ls": true,
-    "category_filtering": true
-  },
-  "colors": {
-    "background": "#FBF9F5",
-    "surface": "#FFFFFF",
-    "surface_sand": "#F4F0E8",
-    "primary": "#263E2B",
-    "primary_dark": "#1E3524",
-    "accent_terracotta": "#B36B39",
-    "accent_sage": "#768A6F",
-    "text_primary": "#1F2421",
-    "text_muted": "#6B7280",
-    "border": "#EAE4DC"
-  },
-  "fonts": {
-    "heading": "'Playfair Display', Georgia, serif",
-    "body": "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif"
-  },
-  "preview_image": "/images/themes/homely/homely-hero-livingroom.jpg"
+    "name": "Homely Living & Decor",
+    "slug": "homely",
+    "version": "1.0.0",
+    "description": "Home Decor & Living",
+    "category": "Category-Specific Themes",
+    "category_badge": "Home & Living",
+    "author": "Antigravity Theme Engine",
+    "supports": {
+        "dynamic_sections": true,
+        "color_presets": true,
+        "custom_fonts": true,
+        "hero_carousel": true,
+        "cart_ls": true,
+        "category_filtering": true
+    },
+    "colors": {
+        "background": "#FBF9F5",
+        "surface": "#FFFFFF",
+        "surface_sand": "#F4F0E8",
+        "primary": "#263E2B",
+        "primary_dark": "#1E3524",
+        "accent_terracotta": "#B36B39",
+        "accent_sage": "#768A6F",
+        "text_primary": "#1F2421",
+        "text_muted": "#6B7280",
+        "border": "#EAE4DC"
+    },
+    "fonts": {
+        "heading": "'Playfair Display', Georgia, serif",
+        "body": "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif"
+    },
+    "preview_image": "/images/themes/homely/homely-hero-livingroom.jpg",
+    "theme_type": "category-specific",
+    "tagline": "Home Decor & Living",
+    "paletteSwatches": [
+        "#C86A4B",
+        "#7A9A78",
+        "#2C332D",
+        "#EFE9DF"
+    ],
+    "tokens": {
+        "color-bg-base": "#FAFAF7",
+        "color-accent-500": "#C86A4B",
+        "color-accent-600": "#7A9A78",
+        "color-accent-700": "#2C332D",
+        "color-accent-800": "#EFE9DF",
+        "font-heading": "'Playfair Display', serif",
+        "font-body": "'Plus Jakarta Sans', sans-serif",
+        "font-size-heading": "34px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
 }

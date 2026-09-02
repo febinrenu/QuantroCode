@@ -1,3 +1,15 @@
+@php
+  $activeThemeSlug = 'urbanic';
+  $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
+  $accent500 = $themeTokens['color-accent-500'] ?? '#F97316';
+  $accent600 = $themeTokens['color-accent-600'] ?? '#EA580C';
+  $accent700 = $themeTokens['color-accent-700'] ?? '#111827';
+  $accent800 = $themeTokens['color-accent-800'] ?? '#F59E0B';
+  $fontHeading = $themeTokens['font-heading'] ?? "\'Plus Jakarta Sans\', sans-serif";
+  $fontBody = $themeTokens['font-body'] ?? "\'Plus Jakarta Sans\', sans-serif";
+  $fontSizeHeading = $themeTokens['font-size-heading'] ?? '32px';
+  $fontSizeBody = $themeTokens['font-size-body'] ?? '15px';
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full scroll-smooth">
 <head>
@@ -169,3 +181,16 @@
 
 </body>
 </html>
+
+<style id="theme-tokens">
+:root {
+  --color-accent-500: {{ $accent500 }};
+  --color-accent-600: {{ $accent600 }};
+  --color-accent-700: {{ $accent700 }};
+  --color-accent-800: {{ $accent800 }};
+  --font-heading: {!! $fontHeading !!};
+  --font-body: {!! $fontBody !!};
+  --font-size-heading: {{ $fontSizeHeading }};
+  --font-size-body: {{ $fontSizeBody }};
+}
+</style>

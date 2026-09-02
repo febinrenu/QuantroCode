@@ -121,3 +121,16 @@
     border-color: rgba(212, 175, 55, 0.4);
   }
 </style>
+
+<style id="theme-tokens">
+:root {
+  --color-accent-500: {{ $accent500 }};
+  --color-accent-600: {{ $accent600 }};
+  --color-accent-700: {{ $accent700 }};
+  --color-accent-800: {{ $accent800 }};
+  --font-heading: {!! $fontHeading !!};
+  --font-body: {!! $fontBody !!};
+  --font-size-heading: {{ $fontSizeHeading }};
+  --font-size-body: {{ $fontSizeBody }};
+}
+</style>

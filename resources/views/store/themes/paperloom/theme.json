@@ -1,31 +1,43 @@
 {
-  "name": "PaperLoom",
-  "slug": "paperloom",
-  "category": "Books, Study & Stationery",
-  "description": "Warm editorial bookstore, study and creative stationery aesthetic with refined serif typography, cream backgrounds, forest green and terracotta accents.",
-  "author": "StoreX Theme Studio",
-  "version": "1.0.0",
-  "pages": {
-    "home": true,
-    "shop": true,
-    "product": true,
-    "cart": true
-  },
-  "tokens": {
-    "color-bg-base": "#F8F5EE",
-    "color-bg-card": "#FFFFFF",
-    "color-bg-elevated": "#F3EFE6",
-    "color-accent-500": "#C45D3E",
-    "color-accent-600": "#A84B2F",
-    "color-forest": "#1E3A34",
-    "color-forestDark": "#16282E",
-    "color-cream": "#F8F5EE",
-    "color-ivory": "#FAF8F5",
-    "color-sand": "#EFEAE2",
-    "color-border": "#E5DFD5",
-    "color-text-primary": "#1A202C",
-    "color-text-muted": "#718096",
-    "font-heading": "'Newsreader', 'Playfair Display', Georgia, serif",
-    "font-body": "'Plus Jakarta Sans', sans-serif"
-  }
+    "name": "PaperLoom Bookstore",
+    "slug": "paperloom",
+    "category": "Category-Specific Themes",
+    "description": "Books, Study & Stationery",
+    "author": "StoreX Theme Studio",
+    "version": "1.0.0",
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    },
+    "tokens": {
+        "color-bg-base": "#F8F5EE",
+        "color-accent-500": "#C45D3E",
+        "color-accent-600": "#A84B2F",
+        "color-accent-700": "#1E3A34",
+        "color-accent-800": "#16282E",
+        "font-heading": "'Newsreader', 'Playfair Display', Georgia, serif",
+        "font-body": "'Plus Jakarta Sans', sans-serif",
+        "font-size-heading": "36px",
+        "font-size-body": "15px"
+    },
+    "theme_type": "category-specific",
+    "tagline": "Books, Study & Stationery",
+    "paletteSwatches": [
+        "#C45D3E",
+        "#1E3A34",
+        "#EFEAE2",
+        "#F8F5EE"
+    ],
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ]
 }
