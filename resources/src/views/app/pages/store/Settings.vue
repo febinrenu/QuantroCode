@@ -215,6 +215,7 @@
                   </div>
                   <div class="theme-gallery-meta">
                     <div class="theme-gallery-name">{{ t.name }}</div>
+                    <div class="theme-gallery-category">{{ themeCategoryLabel(t) }}</div>
                     <div class="theme-gallery-industry text-muted">{{ t.tagline || t.layout_persona }}</div>
                   </div>
                 </div>
@@ -679,6 +680,13 @@ export default {
       this.form.theme = t.slug
       this.form.theme_tokens = {}
     },
+    themeCategoryLabel(t){
+      if (t.industry) return t.industry
+      if (t.category && t.category !== 'Category-Specific Themes') {
+        return t.category.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+      }
+      return ''
+    },
     themeThumbStyle(t){
       const colors = (t.paletteSwatches && t.paletteSwatches.length) ? t.paletteSwatches : ['#3B82F6', '#22D3EE']
       const stops = colors.map((c, i) => `${c} ${Math.round((i / colors.length) * 100)}%, ${c} ${Math.round(((i + 1) / colors.length) * 100)}%`).join(', ')
@@ -1087,6 +1095,7 @@ export default {
 }
 .theme-gallery-meta { padding: .5rem .6rem; }
 .theme-gallery-name { font-size: .8rem; font-weight: 600; line-height: 1.2; }
+.theme-gallery-category { font-size: .68rem; font-weight: 600; color: #6f42c1; line-height: 1.3; margin-top: 1px; }
 .theme-gallery-industry { font-size: .7rem; }
 .theme-gallery-swatches {
   position: absolute; bottom: 6px; left: 6px;
