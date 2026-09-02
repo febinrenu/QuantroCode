@@ -1,43 +1,48 @@
 {
     "slug": "naturae",
     "name": "Naturae",
-    "tagline": "Good for you, good for the planet.",
-    "description": "Warm earthy-organic marketplace persona built around sage green, terracotta and cream tones, hand-drawn leaf motifs and heavily rounded surfaces. Still a full general-merchandise store — electronics, fashion, home, beauty, grocery and sports sit side by side, just framed with a gentler, sustainability-minded voice.",
-    "category": "general-merchandise",
-    "version": "1.0.0",
-    "layout_persona": "Warm Earthy Organic",
-    "layout": "eco-colorblocked",
-    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap",
+    "tagline": "Clean. Conscious. Care.",
+    "description": "Premium organic wellness, natural beauty, and conscious lifestyle storefront theme featuring deep forest greens, warm ivory tones, and editorial botanical aesthetics.",
+    "category": "Natural Wellness / Organic Beauty & Lifestyle",
+    "version": "2.0.0",
+    "layout_persona": "Natural Organic Wellness",
+    "layout": "eco-botanical",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap",
     "fontPairing": {
-        "heading": "Fraunces",
-        "body": "Inter"
+        "heading": "Playfair Display",
+        "body": "Plus Jakarta Sans"
     },
     "paletteSwatches": [
-        "#8A9A5B",
-        "#6E7C47",
-        "#C17A4E",
-        "#4B5D3A"
+        "#182E20",
+        "#4C6B52",
+        "#F9F6F0",
+        "#E8E2D7"
     ],
     "tokens": {
-        "color-bg-base": "#F5F0E6",
-        "color-accent-500": "#8A9A5B",
-        "color-accent-600": "#6E7C47",
-        "color-accent-700": "#C17A4E",
-        "color-accent-800": "#4B5D3A",
-        "font-heading": "'Fraunces', serif",
-        "font-body": "'Inter', sans-serif",
-        "font-size-heading": "34px",
-        "font-size-body": "15px"
+        "color-bg-base": "#F9F6F0",
+        "color-surface": "#FFFFFF",
+        "color-primary": "#182E20",
+        "color-primary-hover": "#122419",
+        "color-accent-500": "#4C6B52",
+        "color-accent-600": "#38523D",
+        "color-accent-700": "#253B2A",
+        "color-accent-800": "#182E20",
+        "color-text-main": "#1A281E",
+        "color-text-muted": "#68786B",
+        "color-border": "#E8E2D7",
+        "font-heading": "'Playfair Display', Georgia, serif",
+        "font-body": "'Plus Jakarta Sans', sans-serif"
     },
     "customizable": [
+        "color-bg-base",
+        "color-surface",
+        "color-primary",
         "color-accent-500",
-        "color-accent-600",
-        "color-accent-700",
-        "color-accent-800",
+        "color-text-main",
+        "color-text-muted",
+        "color-border",
         "font-heading",
-        "font-body",
-        "font-size-heading",
-        "font-size-body"
+        "font-body"
     ],
     "pages": {
         "home": true,

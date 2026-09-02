@@ -1,142 +1,146 @@
 @php
-  $ntClient = Auth::guard('store')->user();
-  $ntCategories = $categories ?? collect();
+    $previewTheme = request('preview_theme', 'naturae');
+    $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
+    $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
+    $cartUrl = url('online_store/cart') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
 @endphp
-<div class="bg-leaf-deep text-cream text-xs">
-  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-9 gap-4">
-    <span class="truncate flex items-center gap-1.5">
-      <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/><path stroke-linecap="round" d="M12 21V9"/></svg>
-      {{ $s->topbar_text_left ?? 'Carbon-neutral shipping on every order' }}
-    </span>
-    <div class="hidden md:flex items-center gap-4">
-      <span>{{ $s->topbar_text_right ?? 'Plastic-free packaging, always' }}</span>
-      <a href="{{ route('store.contact') }}" class="hover:text-terracotta-light">{{ __('messages.Support') }}</a>
+
+<!-- Top Announcement Bar -->
+<div class="bg-naturae-dark text-naturae-bg text-xs py-2 px-4 border-b border-white/5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <div class="hidden md:block w-1/4"></div>
+        <div class="flex-1 text-center font-medium tracking-widest text-[11px] uppercase">
+            Free Shipping on Orders Over $99
+        </div>
+        <div class="w-auto md:w-1/4 text-right flex items-center justify-end gap-1 text-[11px] text-naturae-bg/80 hover:text-white cursor-pointer transition">
+            <span>Ship to: <strong class="text-white">United States</strong></span>
+            <svg class="w-3 h-3 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+        </div>
     </div>
-  </div>
 </div>
 
-<header class="sticky top-0 z-40 bg-cream/95 backdrop-blur border-b border-leaf-light shadow-soft">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="flex items-center gap-4 h-[72px]">
-      <a href="{{ route('store.index') }}" class="flex items-center gap-2 shrink-0">
-        @if(!empty($s->logo_path))
-          <img src="{{ \Illuminate\Support\Str::startsWith($s->logo_path,['http://','https://','/']) ? $s->logo_path : global_asset($s->logo_path) }}" alt="{{ $s->store_name }}" class="h-10 max-w-[160px] object-contain">
-        @else
-          <span class="inline-flex items-center gap-2">
-            <svg class="w-8 h-8 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/><path stroke-linecap="round" d="M12 21V9M12 9c0-3 2-5 5-5"/></svg>
-            <span class="font-serif font-semibold text-2xl tracking-tight text-leaf-deep">{{ $s->store_name ?? 'Naturae' }}</span>
-          </span>
-        @endif
-      </a>
+<!-- Main Sticky Header -->
+<header class="bg-white/95 backdrop-blur-md sticky top-0 z-40 border-b border-naturae-border/70 transition-all duration-300 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
 
-      <nav class="hidden lg:flex items-center gap-1 relative">
-        <div class="group relative">
-          <button type="button" class="px-3.5 h-11 inline-flex items-center gap-1.5 text-sm font-semibold text-leaf-deep hover:text-terracotta-dark rounded-full hover:bg-leaf-light/70 transition-colors">
-            <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8c2-3 5-5 8-5s6 2 8 5M4 8c1 5 4 9 8 11 4-2 7-6 8-11M4 8h16"/></svg>
-            {{ __('messages.Categories') ?? 'Categories' }}
-          </button>
-          @if($ntCategories->count())
-            <div class="hidden group-hover:grid absolute top-full left-0 pt-3 z-30 w-[600px] grid-cols-2 gap-x-7 gap-y-2 bg-white border border-leaf-light rounded-3xl shadow-softHover p-6">
-              @foreach($ntCategories as $cat)
-                <div class="py-1.5">
-                  <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="text-sm font-bold text-leaf-deep hover:text-terracotta-dark font-display">{{ $cat->name }}</a>
-                  @if(($cat->subcategories ?? collect())->count())
-                    <ul class="mt-1.5 space-y-1">
-                      @foreach($cat->subcategories->take(4) as $sub)
-                        <li><a href="{{ route('store.shop', ['category' => $cat->id, 'sub_category' => $sub->id]) }}" class="text-xs text-bark/70 hover:text-terracotta-dark">{{ $sub->name }}</a></li>
-                      @endforeach
-                    </ul>
-                  @endif
-                </div>
-              @endforeach
+            <!-- Mobile Menu Toggle -->
+            <div class="flex items-center lg:hidden">
+                <button type="button"
+                        @click="mobileMenuOpen = true"
+                        class="p-2 -ml-2 text-naturae-forest hover:text-naturae-sage transition focus:outline-none"
+                        aria-label="Open menu">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
             </div>
-          @endif
-        </div>
-        <a href="{{ route('store.index') }}" class="px-3.5 h-11 inline-flex items-center text-sm font-medium text-bark/80 hover:text-terracotta-dark rounded-full hover:bg-leaf-light/70 transition-colors">{{ __('messages.Home') }}</a>
-        <a href="{{ route('store.shop') }}" class="px-3.5 h-11 inline-flex items-center text-sm font-medium text-bark/80 hover:text-terracotta-dark rounded-full hover:bg-leaf-light/70 transition-colors">{{ __('messages.Shop') }}</a>
-        <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="px-3.5 h-11 inline-flex items-center text-sm font-medium text-bark/80 hover:text-terracotta-dark rounded-full hover:bg-leaf-light/70 transition-colors">Everyday Value</a>
-        <a href="{{ route('store.contact') }}" class="px-3.5 h-11 inline-flex items-center text-sm font-medium text-bark/80 hover:text-terracotta-dark rounded-full hover:bg-leaf-light/70 transition-colors">{{ __('messages.Support') }}</a>
-      </nav>
 
-      <div class="hidden md:flex flex-1 max-w-lg mx-2 relative" x-data="searchBox('{{ route('store.search.suggestions') }}')" @click.outside="results = []">
-        <form action="{{ route('store.shop') }}" method="GET" class="w-full relative">
-          <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-bark/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
-          <input type="text" name="q" class="w-full h-11 pl-11 pr-4 rounded-full border border-leaf-light bg-white text-sm focus:outline-none focus:ring-2 focus:ring-leaf/40"
-                 placeholder="{{ __('messages.SearchProducts') ?? 'Search for anything…' }}" autocomplete="off" value="{{ request('q') }}" x-model="q" @input.debounce.250ms="fetch">
-          <div x-show="results.length" x-cloak class="absolute top-full left-0 right-0 mt-2 bg-white border border-leaf-light rounded-2xl shadow-softHover overflow-hidden max-h-96 overflow-y-auto z-50">
-            <template x-for="p in results" :key="p.id">
-              <a :href="p.url" class="flex items-center gap-3 px-4 py-2.5 hover:bg-leaf-light/50">
-                <img :src="p.image_url" class="w-10 h-10 rounded-xl object-cover">
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm font-medium truncate" x-text="p.name"></div>
-                  <div class="text-xs font-bold text-terracotta-dark" x-text="window.__HIDE_PRICES__ ? '' : ('{{ $s->currency_code ?? '$' }}' + p.display_price)"></div>
+            <!-- Brand Logo -->
+            <div class="flex items-center">
+                <a href="{{ $storeUrl }}" class="flex items-center gap-2.5 group">
+                    <!-- Clean Leaf Mark -->
+                    <div class="w-8 h-8 rounded-full bg-naturae-forest text-white flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22l1-2.3A9.49 9.49 0 0 0 12 21a10 10 0 0 0 10-10c0-1.5-.32-2.92-.88-4.21A10.74 10.74 0 0 0 17 8zm-4.32 10.94a7.51 7.51 0 0 1-3.68-1.57C11.39 12.87 13.9 9.5 17 8.2a8 8 0 0 1-4.32 10.74z" />
+                        </svg>
+                    </div>
+                    <!-- Brand Name -->
+                    <span class="font-serif text-2xl font-bold tracking-[0.2em] text-naturae-forest uppercase group-hover:text-naturae-green transition">
+                        NATURAE
+                    </span>
+                </a>
+            </div>
+
+            <!-- Desktop Centered Navigation -->
+            <nav class="hidden lg:flex items-center space-x-7 xl:space-x-8 text-[13px] font-medium tracking-widest uppercase text-naturae-text/90">
+                <a href="{{ $shopUrl }}" class="hover:text-naturae-sage transition py-2 relative hover:after:w-full after:transition-all after:h-[1.5px] after:bg-naturae-forest after:absolute after:bottom-0 after:left-0 after:w-0">
+                    Shop All
+                </a>
+                <a href="{{ url('online_store/shop?collection=new-arrivals' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-naturae-sage transition py-2 relative hover:after:w-full after:transition-all after:h-[1.5px] after:bg-naturae-forest after:absolute after:bottom-0 after:left-0 after:w-0">
+                    New Arrivals
+                </a>
+                <a href="{{ url('online_store/shop?collection=bestsellers' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-naturae-sage transition py-2 relative hover:after:w-full after:transition-all after:h-[1.5px] after:bg-naturae-forest after:absolute after:bottom-0 after:left-0 after:w-0">
+                    Best Sellers
+                </a>
+                <a href="{{ url('online_store/shop?category=Wellness' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-naturae-sage transition py-2 relative hover:after:w-full after:transition-all after:h-[1.5px] after:bg-naturae-forest after:absolute after:bottom-0 after:left-0 after:w-0">
+                    Wellness
+                </a>
+                <a href="{{ url('online_store/shop?category=Home+Care' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-naturae-sage transition py-2 relative hover:after:w-full after:transition-all after:h-[1.5px] after:bg-naturae-forest after:absolute after:bottom-0 after:left-0 after:w-0">
+                    Home & Living
+                </a>
+                <a href="{{ url('online_store/shop?category=Skincare' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-naturae-sage transition py-2 relative hover:after:w-full after:transition-all after:h-[1.5px] after:bg-naturae-forest after:absolute after:bottom-0 after:left-0 after:w-0">
+                    Beauty
+                </a>
+                <a href="{{ url('online_store/shop?collection=deals' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="text-naturae-sage hover:text-naturae-forest font-semibold transition py-2 relative hover:after:w-full after:transition-all after:h-[1.5px] after:bg-naturae-sage after:absolute after:bottom-0 after:left-0 after:w-0">
+                    Sale
+                </a>
+            </nav>
+
+            <!-- Right Utility Actions -->
+            <div class="flex items-center space-x-4 sm:space-x-5 text-naturae-forest">
+
+                <!-- Search Toggle -->
+                <div x-data="{ searchOpen: false }" class="relative">
+                    <button type="button"
+                            @click="searchOpen = !searchOpen"
+                            class="p-2 text-naturae-forest hover:text-naturae-sage transition focus:outline-none"
+                            title="Search">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+
+                    <!-- Search Popup Input -->
+                    <div x-cloak
+                         x-show="searchOpen"
+                         @click.away="searchOpen = false"
+                         x-transition
+                         class="absolute right-0 mt-3 w-80 bg-white border border-naturae-border rounded-xl shadow-xl p-3 z-50">
+                        <form action="{{ url('online_store/shop') }}" method="GET" class="relative">
+                            @if($previewTheme)
+                                <input type="hidden" name="preview_theme" value="{{ $previewTheme }}">
+                            @endif
+                            <input type="text"
+                                   name="q"
+                                   placeholder="Search organic botanicals..."
+                                   class="w-full bg-naturae-bg/80 border border-naturae-border rounded-lg pl-3.5 pr-9 py-2 text-xs text-naturae-text focus:outline-none focus:border-naturae-forest focus:bg-white transition"
+                                   autofocus>
+                            <button type="submit" class="absolute right-2.5 top-2.5 text-naturae-muted hover:text-naturae-forest">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
                 </div>
-              </a>
-            </template>
-          </div>
-        </form>
-      </div>
 
-      <div class="ms-auto flex items-center gap-1">
-        <div class="hidden md:block">
-          @include('store.partials.language-switcher')
+                <!-- Account Icon -->
+                <a href="{{ $shopUrl }}" class="p-2 text-naturae-forest hover:text-naturae-sage transition hidden sm:block" title="My Account">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </a>
+
+                <!-- Shopping Bag / Cart with reactive cart-count -->
+                <a href="{{ $cartUrl }}"
+                   class="p-2 text-naturae-forest hover:text-naturae-sage transition relative flex items-center group"
+                   title="Shopping Bag"
+                   x-data="{ count: 0 }"
+                   x-init="count = (window.CartLS ? window.CartLS.count() : 0); window.addEventListener('cart:changed', () => { count = window.CartLS ? window.CartLS.count() : 0 })">
+                    <svg class="w-5 h-5 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span class="cart-count absolute top-1 right-1 bg-naturae-forest text-white text-[10px] font-bold min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center leading-none shadow-sm"
+                          x-text="count"
+                          x-show="count > 0">
+                        0
+                    </span>
+                </a>
+
+            </div>
         </div>
-        @if($ntClient)
-          <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-11 px-3 items-center gap-1.5 text-sm font-medium text-bark/80 hover:text-terracotta-dark">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-            {{ \Illuminate\Support\Str::limit($ntClient->username ?: $ntClient->email, 12) }}
-          </a>
-        @else
-          <a href="{{ url('/online_store/login') }}" class="hidden md:inline-flex h-11 px-4 items-center rounded-full text-sm font-semibold text-leaf-dark border border-leaf/40 hover:bg-leaf-light">{{ __('messages.SignIn') }}</a>
-        @endif
-        <a href="{{ route('store.cart') }}" class="relative h-11 px-5 inline-flex items-center gap-1.5 rounded-full bg-terracotta text-white text-sm font-semibold hover:bg-terracotta-dark transition-colors">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14l-1.4 10.2a2 2 0 0 1-2 1.8H8.4a2 2 0 0 1-2-1.8L5 8Z"/><path stroke-linecap="round" d="M8 8a4 4 0 0 1 8 0"/></svg>
-          <span class="hidden sm:inline">{{ __('messages.Cart') }}</span>
-          <span class="cart-count absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-leaf-deep text-white text-[11px] font-bold inline-flex items-center justify-center">0</span>
-        </a>
-        <button type="button" class="lg:hidden h-11 w-11 inline-flex items-center justify-center rounded-full hover:bg-leaf-light/70" onclick="document.getElementById('nt-mobile-menu').classList.toggle('hidden')" aria-label="Menu">
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-      </div>
     </div>
-
-    @if(($showCategoryBar ?? true) && $ntCategories->count())
-      <div class="hidden lg:block border-t border-leaf-light/70">
-        <ul class="no-scrollbar flex flex-nowrap items-center gap-1 py-2.5 overflow-x-auto">
-          @foreach($ntCategories as $cat)
-            <li class="shrink-0">
-              <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="px-3.5 h-8 inline-flex items-center text-xs font-medium text-bark/70 hover:text-terracotta-dark hover:bg-terracotta-light/50 rounded-full transition-colors">{{ $cat->name }}</a>
-            </li>
-          @endforeach
-        </ul>
-      </div>
-    @endif
-  </div>
-
-  {{-- Mobile menu --}}
-  <div id="nt-mobile-menu" class="hidden lg:hidden border-t border-leaf-light bg-cream max-h-[70vh] overflow-y-auto">
-    <div class="px-4 py-4">
-      <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
-        <input type="text" name="q" class="w-full h-11 pl-4 pr-4 rounded-full border border-leaf-light bg-white text-sm" placeholder="{{ __('messages.SearchProducts') ?? 'Search for anything…' }}">
-      </form>
-      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold text-leaf-deep">{{ __('messages.Home') }}</a>
-      <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-semibold text-leaf-deep">{{ __('messages.Shop') }}</a>
-      <div class="text-xs font-bold uppercase tracking-wide text-bark/50 mt-4 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
-      @include('store.partials.language-switcher', ['variant' => 'mobile'])
-      @foreach($ntCategories as $cat)
-        <details class="border-t border-leaf-light/70 py-1">
-          <summary class="flex items-center justify-between py-2 text-sm font-medium text-bark">
-            {{ $cat->name }}
-            <svg class="w-4 h-4 text-bark/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
-          </summary>
-          <div class="pl-3 pb-2 space-y-1">
-            <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="block py-1 text-sm text-terracotta-dark">{{ __('messages.ViewAll') ?? 'View all' }}</a>
-            @foreach($cat->subcategories ?? [] as $sub)
-              <a href="{{ route('store.shop', ['category' => $cat->id, 'sub_category' => $sub->id]) }}" class="block py-1 text-sm text-bark/70">{{ $sub->name }}</a>
-            @endforeach
-          </div>
-        </details>
-      @endforeach
-    </div>
-  </div>
 </header>
