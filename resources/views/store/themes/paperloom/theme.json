@@ -1,0 +1,31 @@
+{
+  "name": "PaperLoom",
+  "slug": "paperloom",
+  "category": "Books, Study & Stationery",
+  "description": "Warm editorial bookstore, study and creative stationery aesthetic with refined serif typography, cream backgrounds, forest green and terracotta accents.",
+  "author": "StoreX Theme Studio",
+  "version": "1.0.0",
+  "pages": {
+    "home": true,
+    "shop": true,
+    "product": true,
+    "cart": true
+  },
+  "tokens": {
+    "color-bg-base": "#F8F5EE",
+    "color-bg-card": "#FFFFFF",
+    "color-bg-elevated": "#F3EFE6",
+    "color-accent-500": "#C45D3E",
+    "color-accent-600": "#A84B2F",
+    "color-forest": "#1E3A34",
+    "color-forestDark": "#16282E",
+    "color-cream": "#F8F5EE",
+    "color-ivory": "#FAF8F5",
+    "color-sand": "#EFEAE2",
+    "color-border": "#E5DFD5",
+    "color-text-primary": "#1A202C",
+    "color-text-muted": "#718096",
+    "font-heading": "'Newsreader', 'Playfair Display', Georgia, serif",
+    "font-body": "'Plus Jakarta Sans', sans-serif"
+  }
+}

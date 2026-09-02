@@ -319,6 +319,12 @@ class StoreFrontController extends Controller
                 $q->whereIn('products.category_id', $vogCatIds)
                   ->orWhere('products.code', 'like', 'VOG-%');
             });
+        } elseif ($activeTheme === 'paperloom') {
+            $pplCatIds = $categories->pluck('id')->all();
+            $productsQuery->where(function ($q) use ($pplCatIds) {
+                $q->whereIn('products.category_id', $pplCatIds)
+                  ->orWhere('products.code', 'like', 'PPL-%');
+            });
         }
 
         $products = $productsQuery
@@ -327,7 +333,23 @@ class StoreFrontController extends Controller
                 $qb->where('products.name', 'like', "%{$q}%");
             })
             // Category (legacy column OR category_product pivot OR name/slug match)
-            ->when($cat, function ($qb) use ($cat) {
+            ->when($cat, function ($qb) use ($cat, $activeTheme) {
+                if ($activeTheme === 'paperloom') {
+                    if (strcasecmp($cat, 'Books') === 0) {
+                        $bookCatIds = Category::whereIn('name', ['Books', 'Fiction', 'Non-Fiction', 'Children', 'Academic'])->pluck('id')->all();
+                        $qb->whereIn('products.category_id', $bookCatIds);
+                        return;
+                    } elseif (strcasecmp($cat, 'Stationery') === 0) {
+                        $statCatIds = Category::whereIn('name', ['Stationery', 'Notebooks', 'Journals', 'Desk Accessories', 'Art Supplies'])->pluck('id')->all();
+                        $qb->whereIn('products.category_id', $statCatIds);
+                        return;
+                    } elseif (strcasecmp($cat, 'Kids') === 0) {
+                        $kidCatIds = Category::whereIn('name', ['Children'])->pluck('id')->all();
+                        $qb->whereIn('products.category_id', $kidCatIds);
+                        return;
+                    }
+                }
+
                 if (is_numeric($cat)) {
                     $cid = (int) $cat;
                     $qb->where(function ($q) use ($cid) {
@@ -381,7 +403,20 @@ class StoreFrontController extends Controller
                     if (is_numeric($coll)) {
                         $rel->where('collections.id', (int) $coll);
                     } else {
-                        $rel->where('collections.slug', (string) $coll);
+                        $slugs = [(string) $coll, str_replace('-', '_', (string) $coll), str_replace('_', '-', (string) $coll)];
+                        if (in_array($coll, ['bestselling', 'best-sellers', 'best_sellers', 'best-seller'])) {
+                            $slugs = array_merge($slugs, ['bestselling', 'best-sellers', 'best_sellers', 'top-rated']);
+                        }
+                        if (in_array($coll, ['new-arrivals', 'new_arrivals', 'new-in', 'new_in'])) {
+                            $slugs = array_merge($slugs, ['new-arrivals', 'new_arrivals', 'new-in', 'new_in']);
+                        }
+                        if (in_array($coll, ['study-essentials', 'study_essentials', 'essentials'])) {
+                            $slugs = array_merge($slugs, ['study-essentials', 'study_essentials', 'essentials']);
+                        }
+                        if (in_array($coll, ['sale', 'deals'])) {
+                            $slugs = array_merge($slugs, ['sale', 'deals']);
+                        }
+                        $rel->whereIn('collections.slug', array_unique($slugs));
                     }
                 });
             });
@@ -759,6 +794,25 @@ class StoreFrontController extends Controller
                     'Jewelry',
                 ])
                 ->orderByRaw("FIELD(name, 'Women', 'Men', 'Shoes', 'Bags', 'Accessories', 'Beauty', 'Jewelry')")
+                ->get();
+        }
+
+        if ($activeTheme === 'paperloom') {
+            return Category::with('subcategories')
+                ->whereIn('name', [
+                    'Books',
+                    'Fiction',
+                    'Non-Fiction',
+                    'Children',
+                    'Academic',
+                    'Stationery',
+                    'Notebooks',
+                    'Journals',
+                    'Art Supplies',
+                    'Desk Accessories',
+                    'Gifts',
+                ])
+                ->orderByRaw("FIELD(name, 'Books', 'Fiction', 'Non-Fiction', 'Children', 'Academic', 'Stationery', 'Notebooks', 'Journals', 'Art Supplies', 'Desk Accessories', 'Gifts')")
                 ->get();
         }
 
