@@ -313,6 +313,12 @@ class StoreFrontController extends Controller
                 $q->whereIn('products.category_id', $jwlCatIds)
                   ->orWhere('products.code', 'like', 'JWL-%');
             });
+        } elseif ($activeTheme === 'voguelane') {
+            $vogCatIds = $categories->pluck('id')->all();
+            $productsQuery->where(function ($q) use ($vogCatIds) {
+                $q->whereIn('products.category_id', $vogCatIds)
+                  ->orWhere('products.code', 'like', 'VOG-%');
+            });
         }
 
         $products = $productsQuery
@@ -336,9 +342,12 @@ class StoreFrontController extends Controller
                         }
                     });
                 } else {
-                    $matchedCat = Category::where('name', 'like', "%{$cat}%")
-                        ->orWhere('code', 'like', "%{$cat}%")
-                        ->first();
+                    $matchedCat = Category::where('name', $cat)
+                        ->orWhere('code', $cat)
+                        ->first()
+                        ?: Category::where('name', 'like', "%{$cat}%")
+                            ->orWhere('code', 'like', "%{$cat}%")
+                            ->first();
                     if ($matchedCat) {
                         $qb->where('products.category_id', $matchedCat->id);
                     }
@@ -735,6 +744,21 @@ class StoreFrontController extends Controller
                       ->orWhere('code', 'like', 'CAT-IND-JWL%');
                 })
                 ->orderBy('name')
+                ->get();
+        }
+
+        if ($activeTheme === 'voguelane') {
+            return Category::with('subcategories')
+                ->whereIn('name', [
+                    'Women',
+                    'Men',
+                    'Shoes',
+                    'Bags',
+                    'Accessories',
+                    'Beauty',
+                    'Jewelry',
+                ])
+                ->orderByRaw("FIELD(name, 'Women', 'Men', 'Shoes', 'Bags', 'Accessories', 'Beauty', 'Jewelry')")
                 ->get();
         }
 
