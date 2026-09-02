@@ -1,0 +1,34 @@
+{
+  "name": "Homely",
+  "slug": "homely",
+  "version": "1.0.0",
+  "description": "Category-specific storefront theme for Home & Living, Decor, Kitchen & Dining, Furniture, Plants, and conscious organic lifestyle.",
+  "category": "Category-Specific Themes",
+  "category_badge": "Home & Living",
+  "author": "Antigravity Theme Engine",
+  "supports": {
+    "dynamic_sections": true,
+    "color_presets": true,
+    "custom_fonts": true,
+    "hero_carousel": true,
+    "cart_ls": true,
+    "category_filtering": true
+  },
+  "colors": {
+    "background": "#FBF9F5",
+    "surface": "#FFFFFF",
+    "surface_sand": "#F4F0E8",
+    "primary": "#263E2B",
+    "primary_dark": "#1E3524",
+    "accent_terracotta": "#B36B39",
+    "accent_sage": "#768A6F",
+    "text_primary": "#1F2421",
+    "text_muted": "#6B7280",
+    "border": "#EAE4DC"
+  },
+  "fonts": {
+    "heading": "'Playfair Display', Georgia, serif",
+    "body": "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif"
+  },
+  "preview_image": "/images/themes/homely/homely-hero-livingroom.jpg"
+}
