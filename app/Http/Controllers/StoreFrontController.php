@@ -248,6 +248,31 @@ class StoreFrontController extends Controller
             'showCategoryBar' => true,
         ];
 
+        if ($activeTheme === 'veloura') {
+            $velCatIds = $categories->pluck('id')->all();
+            $products = Product::query()
+                ->where('products.is_active', 1)
+                ->where('products.hide_from_online_store', 0)
+                ->where(function ($q) use ($velCatIds) {
+                    $q->whereIn('products.category_id', $velCatIds)
+                      ->orWhere('products.code', 'like', 'VEL-%');
+                })
+                ->with(['variants', 'images', 'category'])
+                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
+                    $join->on('pvmin.product_id', '=', 'products.id');
+                })
+                ->addSelect(
+                    'products.*',
+                    DB::raw("$baseExpr AS base_price"),
+                    DB::raw("$afterDiscountExpr AS after_discount"),
+                    DB::raw("$finalExpr AS final_display_price")
+                )
+                ->orderBy('products.created_at', 'desc')
+                ->take(12)
+                ->get();
+            $viewData['products'] = $products;
+        }
+
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'home') ?? 'store.index';
 
         return view($view, $viewData);
@@ -331,6 +356,12 @@ class StoreFrontController extends Controller
             $productsQuery->where(function ($q) use ($mktCatIds) {
                 $q->whereIn('products.category_id', $mktCatIds)
                   ->orWhere('products.code', 'like', 'MKT-%');
+            });
+        } elseif ($activeTheme === 'veloura') {
+            $velCatIds = $categories->pluck('id')->all();
+            $productsQuery->where(function ($q) use ($velCatIds) {
+                $q->whereIn('products.category_id', $velCatIds)
+                  ->orWhere('products.code', 'like', 'VEL-%');
             });
         }
 
@@ -461,11 +492,11 @@ class StoreFrontController extends Controller
                         $rel->where('collections.id', (int) $coll);
                     } else {
                         $slugs = [(string) $coll, str_replace('-', '_', (string) $coll), str_replace('_', '-', (string) $coll)];
-                        if (in_array($coll, ['bestselling', 'best-sellers', 'best_sellers', 'best-seller'])) {
-                            $slugs = array_merge($slugs, ['bestselling', 'best-sellers', 'best_sellers', 'top-rated']);
+                        if (in_array($coll, ['bestselling', 'bestseller', 'bestsellers', 'best-sellers', 'best_sellers', 'best-seller', 'top-rated'])) {
+                            $slugs = array_merge($slugs, ['bestselling', 'bestseller', 'bestsellers', 'best-sellers', 'best_sellers', 'top-rated']);
                         }
-                        if (in_array($coll, ['new-arrivals', 'new_arrivals', 'new-in', 'new_in'])) {
-                            $slugs = array_merge($slugs, ['new-arrivals', 'new_arrivals', 'new-in', 'new_in']);
+                        if (in_array($coll, ['new-arrivals', 'new_arrivals', 'new-in', 'new_in', 'new', 'latest'])) {
+                            $slugs = array_merge($slugs, ['new-arrivals', 'new_arrivals', 'new-in', 'new_in', 'new', 'latest']);
                         }
                         if (in_array($coll, ['study-essentials', 'study_essentials', 'essentials'])) {
                             $slugs = array_merge($slugs, ['study-essentials', 'study_essentials', 'essentials']);
@@ -904,6 +935,22 @@ class StoreFrontController extends Controller
                     'Pet Supplies',
                 ])
                 ->orderByRaw("FIELD(name, 'Fashion', 'Electronics', 'Home & Living', 'Beauty & Personal Care', 'Grocery & Essentials', 'Sports & Outdoors', 'Toys & Games', 'Automotive', 'Books & Stationery', 'Pet Supplies')")
+                ->get();
+        }
+
+        if ($activeTheme === 'veloura') {
+            return Category::with('subcategories')
+                ->whereIn('name', [
+                    'Fragrance',
+                    'Skincare',
+                    'Makeup',
+                    'Bath & Body',
+                    'Hair Care',
+                    'Gift Sets',
+                    "Men's Grooming",
+                    'Clean Beauty',
+                ])
+                ->orderByRaw("FIELD(name, 'Fragrance', 'Skincare', 'Makeup', 'Bath & Body', 'Hair Care', 'Gift Sets', \"Men's Grooming\", 'Clean Beauty')")
                 ->get();
         }
 

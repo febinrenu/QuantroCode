@@ -1,136 +1,134 @@
 @php
-  $vlClient = Auth::guard('store')->user();
-  $vlCategories = $categories ?? collect();
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'veloura');
+  $velRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+  $homeUrl = $velRoute('store.index');
+  $shopUrl = $velRoute('store.shop');
+  $cartUrl = $velRoute('store.cart');
+  $accountUrl = url('/online_store/account' . ($themePreview ? '?preview_theme=' . $themePreview : ''));
+
+  $categoriesList = [
+      ['name' => 'Fragrance', 'category' => 'Fragrance'],
+      ['name' => 'Skincare', 'category' => 'Skincare'],
+      ['name' => 'Makeup', 'category' => 'Makeup'],
+      ['name' => 'Bath & Body', 'category' => 'Bath & Body'],
+      ['name' => 'Hair Care', 'category' => 'Hair Care'],
+      ['name' => 'Gift Sets', 'category' => 'Gift Sets'],
+      ['name' => 'New In', 'collection' => 'new-in'],
+      ['name' => 'Bestsellers', 'collection' => 'bestsellers'],
+  ];
 @endphp
-<div class="bg-vel-black text-vel-mute text-[11px] border-b border-vel-line">
-  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-9">
-    <span class="truncate eyebrow tracking-[0.18em]">{{ $s->topbar_text_left ?? 'White-glove service on every order' }}</span>
-    <div class="hidden md:flex items-center gap-5">
-      <span class="eyebrow tracking-[0.18em]">{{ $s->topbar_text_right ?? 'Insured shipping, worldwide' }}</span>
-      <a href="{{ route('store.contact') }}" class="text-vel-gold hover:text-vel-goldSoft">{{ __('messages.Support') }}</a>
-    </div>
-  </div>
-</div>
 
-<header class="sticky top-0 z-40 bg-vel-black/95 backdrop-blur border-b border-vel-line">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="flex items-center gap-4 h-20">
-      <a href="{{ route('store.index') }}" class="flex items-center gap-2 shrink-0">
-        @if(!empty($s->logo_path))
-          <img src="{{ \Illuminate\Support\Str::startsWith($s->logo_path,['http://','https://','/']) ? $s->logo_path : global_asset($s->logo_path) }}" alt="{{ $s->store_name }}" class="h-9 max-w-[150px] object-contain">
-        @else
-          <span class="font-serif font-bold text-2xl tracking-wide text-vel-ink">{{ $s->store_name ?? 'Veloura' }}</span>
-        @endif
-      </a>
+<header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-vel-border shadow-xs">
 
-      <nav class="hidden lg:flex items-center gap-1 relative ml-6">
-        <div class="group relative">
-          <button type="button" class="px-3 h-10 inline-flex items-center gap-2 text-[13px] font-medium tracking-wide text-vel-ink/90 hover:text-vel-gold">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-            {{ __('messages.Categories') ?? 'Categories' }}
-          </button>
-          @if($vlCategories->count())
-            <div class="hidden group-hover:grid absolute top-full left-0 pt-3 z-30 w-[620px] grid-cols-2 gap-x-8 gap-y-2 bg-vel-charcoal border border-vel-line rounded-none shadow-vlHover p-6">
-              @foreach($vlCategories as $cat)
-                <div class="py-2 border-b border-vel-line/60">
-                  <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="font-serif text-[15px] font-semibold text-vel-ink hover:text-vel-gold">{{ $cat->name }}</a>
-                  @if(($cat->subcategories ?? collect())->count())
-                    <ul class="mt-1.5 space-y-1">
-                      @foreach($cat->subcategories->take(4) as $sub)
-                        <li><a href="{{ route('store.shop', ['category' => $cat->id, 'sub_category' => $sub->id]) }}" class="text-xs text-vel-mute hover:text-vel-gold">{{ $sub->name }}</a></li>
-                      @endforeach
-                    </ul>
-                  @endif
-                </div>
-              @endforeach
-            </div>
-          @endif
-        </div>
-        <a href="{{ route('store.index') }}" class="px-3 h-10 inline-flex items-center text-[13px] font-medium text-vel-mute hover:text-vel-gold">{{ __('messages.Home') }}</a>
-        <a href="{{ route('store.shop') }}" class="px-3 h-10 inline-flex items-center text-[13px] font-medium text-vel-mute hover:text-vel-gold">{{ __('messages.Shop') }}</a>
-        <a href="{{ route('store.shop', ['sort' => 'price_desc']) }}" class="px-3 h-10 inline-flex items-center text-[13px] font-medium text-vel-mute hover:text-vel-gold">The Edit</a>
-        <a href="{{ route('store.contact') }}" class="px-3 h-10 inline-flex items-center text-[13px] font-medium text-vel-mute hover:text-vel-gold">{{ __('messages.Support') }}</a>
-      </nav>
+  <!-- Main Header Row -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-20 gap-4 sm:gap-8">
 
-      <div class="hidden md:flex flex-1 max-w-md mx-2 relative ml-auto" x-data="searchBox('{{ route('store.search.suggestions') }}')" @click.outside="results = []">
+      <!-- Mobile Menu Toggle -->
+      <button type="button"
+              @click="mobileNavOpen = true"
+              class="lg:hidden p-2 text-vel-charcoal hover:text-vel-rose transition-colors"
+              aria-label="Open menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+
+      <!-- Brand Logo / Wordmark -->
+      <div class="flex-shrink-0 flex items-center">
+        <a href="{{ $homeUrl }}" class="flex flex-col items-center group">
+          <span class="font-serif-luxury text-2xl sm:text-3xl font-bold tracking-widest text-vel-charcoal group-hover:text-vel-rose transition-colors">
+            VELOURA
+          </span>
+          <span class="text-[9px] font-semibold tracking-[0.25em] text-vel-muted uppercase group-hover:text-vel-roseDark transition-colors">
+            BEAUTY &bull; PARIS
+          </span>
+        </a>
+      </div>
+
+      <!-- Search Bar (Desktop) -->
+      <div class="hidden md:flex flex-1 max-w-lg mx-auto">
         <form action="{{ route('store.shop') }}" method="GET" class="w-full relative">
-          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-vel-mute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
-          <input type="text" name="q" class="w-full h-10 pl-10 pr-3 bg-vel-charcoal border border-vel-line text-sm text-vel-ink placeholder:text-vel-mute focus:outline-none focus:border-vel-gold/60"
-                 placeholder="Search the collection…" autocomplete="off" value="{{ request('q') }}" x-model="q" @input.debounce.250ms="fetch">
-          <div x-show="results.length" x-cloak class="absolute top-full left-0 right-0 mt-1 bg-vel-charcoal border border-vel-line shadow-vlHover overflow-hidden max-h-96 overflow-y-auto z-50">
-            <template x-for="p in results" :key="p.id">
-              <a :href="p.url" class="flex items-center gap-3 px-3 py-2 hover:bg-vel-black/60">
-                <img :src="p.image_url" class="w-10 h-10 object-cover">
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm font-medium text-vel-ink truncate" x-text="p.name"></div>
-                  <div class="text-xs font-bold text-vel-gold" x-text="window.__HIDE_PRICES__ ? '' : ('{{ $s->currency_code ?? '$' }}' + p.display_price)"></div>
-                </div>
-              </a>
-            </template>
-          </div>
+          @if($themePreview)
+            <input type="hidden" name="preview_theme" value="{{ $themePreview }}">
+          @endif
+          <input type="search"
+                 name="q"
+                 value="{{ request('q') }}"
+                 placeholder="Search fragrances, skincare, makeup..."
+                 class="w-full bg-vel-blush/80 border border-vel-border rounded-full pl-11 pr-5 py-2.5 text-xs text-vel-charcoal placeholder-vel-muted focus:outline-none focus:border-vel-rose focus:bg-white focus:ring-1 focus:ring-vel-rose transition-all">
+          <span class="absolute left-4 top-1/2 -translate-y-1/2 text-vel-muted pointer-events-none">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </span>
         </form>
       </div>
 
-      <div class="ms-auto md:ms-0 flex items-center gap-1">
-        @if($vlClient)
-          <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-10 px-3 items-center gap-1.5 text-[13px] font-medium text-vel-mute hover:text-vel-gold">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-            {{ \Illuminate\Support\Str::limit($vlClient->username ?: $vlClient->email, 12) }}
-          </a>
-        @else
-          <a href="{{ url('/online_store/login') }}" class="hidden md:inline-flex h-10 px-4 items-center border border-vel-gold/40 text-[13px] font-semibold text-vel-gold hover:bg-vel-gold hover:text-vel-black transition-colors">{{ __('messages.SignIn') }}</a>
-        @endif
-        <div class="hidden md:block">
-          @include('store.partials.language-switcher')
-        </div>
-        <a href="{{ route('store.cart') }}" class="relative h-10 px-4 inline-flex items-center gap-1.5 bg-vel-gold text-vel-black text-[13px] font-bold hover:bg-vel-goldSoft transition-colors">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          <span class="hidden sm:inline">{{ __('messages.Cart') }}</span>
-          <span class="cart-count absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-vel-burgundy text-vel-ink text-[11px] font-bold inline-flex items-center justify-center border border-vel-black">0</span>
+      <!-- Header Action Icons -->
+      <div class="flex items-center gap-4 sm:gap-6 text-vel-charcoal">
+
+        <!-- Account -->
+        <a href="{{ $accountUrl }}"
+           class="hidden sm:flex items-center gap-1.5 text-xs font-semibold hover:text-vel-rose transition-colors"
+           title="Account">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          <span class="hidden lg:inline">Sign In</span>
         </a>
-        <button type="button" class="lg:hidden h-10 w-10 inline-flex items-center justify-center text-vel-ink hover:text-vel-gold" onclick="document.getElementById('vl-mobile-menu').classList.toggle('hidden')" aria-label="Menu">
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-      </div>
-    </div>
 
-    @if(($showCategoryBar ?? true) && $vlCategories->count())
-      <div class="hidden lg:block border-t border-vel-line">
-        <ul class="no-scrollbar flex flex-nowrap items-center gap-1 py-2.5 overflow-x-auto">
-          @foreach($vlCategories as $cat)
-            <li class="shrink-0">
-              <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="px-3 h-8 inline-flex items-center text-[11px] eyebrow font-medium text-vel-mute hover:text-vel-gold">{{ $cat->name }}</a>
-            </li>
-          @endforeach
-        </ul>
-      </div>
-    @endif
-  </div>
+        <!-- Wishlist -->
+        <a href="{{ $shopUrl }}"
+           class="hidden sm:flex items-center gap-1.5 text-xs font-semibold hover:text-vel-rose transition-colors"
+           title="Wishlist">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        </a>
 
-  {{-- Mobile menu --}}
-  <div id="vl-mobile-menu" class="hidden lg:hidden border-t border-vel-line bg-vel-charcoal max-h-[70vh] overflow-y-auto">
-    <div class="px-4 py-3">
-      <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
-        <input type="text" name="q" class="w-full h-10 pl-3 pr-3 bg-vel-black border border-vel-line text-sm text-vel-ink" placeholder="Search the collection…">
-      </form>
-      <div class="text-xs font-bold uppercase tracking-widest text-vel-mute mt-4 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
-      @include('store.partials.language-switcher', ['variant' => 'mobile'])
-      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold text-vel-ink">{{ __('messages.Home') }}</a>
-      <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-semibold text-vel-ink">{{ __('messages.Shop') }}</a>
-      @foreach($vlCategories as $cat)
-        <details class="border-t border-vel-line py-1">
-          <summary class="flex items-center justify-between py-2 text-sm font-medium text-vel-ink/90">
-            {{ $cat->name }}
-            <svg class="w-4 h-4 text-vel-mute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
-          </summary>
-          <div class="pl-3 pb-2 space-y-1">
-            <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="block py-1 text-sm text-vel-gold">{{ __('messages.ViewAll') ?? 'View all' }}</a>
-            @foreach($cat->subcategories ?? [] as $sub)
-              <a href="{{ route('store.shop', ['category' => $cat->id, 'sub_category' => $sub->id]) }}" class="block py-1 text-sm text-vel-mute">{{ $sub->name }}</a>
-            @endforeach
+        <!-- Shopping Bag / Cart with reactive Alpine miniCart -->
+        <a href="{{ $cartUrl }}"
+           class="flex items-center gap-2 p-1.5 text-vel-charcoal hover:text-vel-rose transition-colors group"
+           x-data="{ count: 0 }"
+           x-init="count = (window.CartLS ? window.CartLS.count() : 0); window.addEventListener('cart-updated', () => { count = window.CartLS ? window.CartLS.count() : 0 })">
+          <div class="relative">
+            <svg class="w-6 h-6 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            <span x-show="count > 0"
+                  x-text="count"
+                  class="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 bg-vel-rose text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-xs">
+              0
+            </span>
           </div>
-        </details>
-      @endforeach
+          <span class="hidden sm:inline text-xs font-bold text-vel-charcoal group-hover:text-vel-rose transition-colors">
+            Bag
+          </span>
+        </a>
+
+      </div>
+
     </div>
   </div>
+
+  <!-- Primary Navigation Bar (Desktop) -->
+  <nav class="hidden lg:block border-t border-vel-borderLight bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-center gap-8 py-3 text-xs font-semibold tracking-wider uppercase text-vel-charcoal">
+        @foreach($categoriesList as $catItem)
+          @php
+            $linkUrl = isset($catItem['category'])
+                ? $velRoute('store.shop', ['category' => $catItem['category']])
+                : $velRoute('store.shop', ['collection' => $catItem['collection']]);
+            $isActive = (isset($catItem['category']) && request('category') === $catItem['category'])
+                     || (isset($catItem['collection']) && request('collection') === $catItem['collection']);
+          @endphp
+          <a href="{{ $linkUrl }}"
+             class="relative py-1 hover:text-vel-rose transition-colors {{ $isActive ? 'text-vel-rose font-extrabold' : '' }}">
+            {{ $catItem['name'] }}
+            @if($isActive)
+              <span class="absolute bottom-0 left-0 w-full h-0.5 bg-vel-rose"></span>
+            @endif
+          </a>
+        @endforeach
+      </div>
+    </div>
+  </nav>
+
 </header>
