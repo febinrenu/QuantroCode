@@ -1,0 +1,18 @@
+{
+    "name": "Verde Living",
+    "theme_id": "verde",
+    "version": "1.0.0",
+    "category": "Category-Specific Themes",
+    "author": "QuantroCode Design Team",
+    "description": "Verde Living — Sustainable lifestyle & organic home decor storefront theme featuring natural textures, botanical accents, and conscious living curation.",
+    "colors": {
+        "primary": "#3A472D",
+        "secondary": "#556844",
+        "accent": "#7D8C6C",
+        "background": "#FBF9F5",
+        "surface": "#FFFFFF",
+        "sand": "#F3EFEA",
+        "text": "#1F2818",
+        "footer": "#182215"
+    }
+}

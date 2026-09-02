@@ -392,6 +392,31 @@ class StoreFrontController extends Controller
                 ->take(18)
                 ->get();
             $viewData['products'] = $products;
+        } elseif ($activeTheme === 'verde') {
+            $vrdCatIds = $categories->pluck('id')->all();
+            $products = Product::query()
+                ->where('products.is_active', 1)
+                ->where('products.hide_from_online_store', 0)
+                ->where(function ($q) use ($vrdCatIds) {
+                    $q->whereIn('products.category_id', $vrdCatIds)
+                      ->orWhere('products.code', 'like', 'VRD-%');
+                })
+                ->with(['variants', 'images', 'category', 'brand'])
+                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
+                    $join->on('pvmin.product_id', '=', 'products.id');
+                })
+                ->addSelect(
+                    'products.*',
+                    DB::raw("$baseExpr AS base_price"),
+                    DB::raw("$afterDiscountExpr AS after_discount"),
+                    DB::raw("$finalExpr AS final_display_price")
+                )
+                ->orderByRaw("CASE WHEN products.code LIKE 'VRD-%' THEN 0 ELSE 1 END")
+                ->orderBy('products.is_featured', 'desc')
+                ->orderBy('products.created_at', 'desc')
+                ->take(18)
+                ->get();
+            $viewData['products'] = $products;
         }
 
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'home') ?? 'store.index';
@@ -513,6 +538,12 @@ class StoreFrontController extends Controller
             $productsQuery->where(function ($q) use ($homCatIds) {
                 $q->whereIn('products.category_id', $homCatIds)
                   ->orWhere('products.code', 'like', 'HOM-%');
+            });
+        } elseif ($activeTheme === 'verde') {
+            $vrdCatIds = $categories->pluck('id')->all();
+            $productsQuery->where(function ($q) use ($vrdCatIds) {
+                $q->whereIn('products.category_id', $vrdCatIds)
+                  ->orWhere('products.code', 'like', 'VRD-%');
             });
         }
 
@@ -1195,6 +1226,24 @@ class StoreFrontController extends Controller
                     'Storage',
                 ])
                 ->orderByRaw("FIELD(name, 'Home & Living', 'Living Room', 'Kitchen & Dining', 'Bedroom', 'Bathroom', 'Indoor Plants', 'Plants', 'Decor', 'Furniture', 'Bath & Body', 'Lighting', 'Textiles', 'Storage')")
+                ->get();
+        }
+
+        if ($activeTheme === 'verde') {
+            return Category::with('subcategories')
+                ->whereIn('name', [
+                    'Home & Decor',
+                    'Cleaning Essentials',
+                    'Bath & Body',
+                    'Kitchen & Dining',
+                    'Gifts & Sets',
+                    'Beauty',
+                    'Journal',
+                    'Decor',
+                    'Kitchen',
+                    'Bath',
+                ])
+                ->orderByRaw("FIELD(name, 'Home & Decor', 'Cleaning Essentials', 'Bath & Body', 'Kitchen & Dining', 'Gifts & Sets', 'Beauty', 'Journal', 'Decor', 'Kitchen', 'Bath')")
                 ->get();
         }
 
