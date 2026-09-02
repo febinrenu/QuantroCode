@@ -15,7 +15,10 @@
   $elHeroFirst = $elHeroSplit->slice(0, ceil($elHeroSplit->count()/2))->implode(' ');
   $elHeroRest = $elHeroSplit->slice(ceil($elHeroSplit->count()/2))->implode(' ');
   $elImgs = $categorySpecificProducts->pluck('image_url')->filter()->values();
-  $elHeroImg = !empty($s->hero_image_path) ? global_asset($s->hero_image_path) : ($elImgs[0] ?? null);
+  // Category-specific themes always lead with their own category's product
+  // photo -- the admin's store-wide hero_image_path (set for a different,
+  // general-purpose theme) would otherwise show an unrelated image here.
+  $elHeroImg = $elImgs[0] ?? (!empty($s->hero_image_path) ? global_asset($s->hero_image_path) : null);
   $elHomeSubcats = optional($categories->first())->subcategories ?? collect();
   $elHomeSubcatId = fn ($name) => optional($elHomeSubcats->firstWhere('name', $name))->id;
   $elTiles = collect(['Women', 'Men', 'Shoes', 'Bags', 'Accessories'])

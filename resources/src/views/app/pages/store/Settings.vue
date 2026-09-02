@@ -245,6 +245,7 @@
                   <div class="theme-gallery-meta">
                     <div class="theme-gallery-name">{{ t.name }}</div>
                     <div class="theme-gallery-industry text-muted">{{ t.tagline || t.layout_persona }}</div>
+                    <div v-if="t.categoryLabel" class="theme-gallery-category">{{ t.categoryLabel }}</div>
                   </div>
                 </div>
               </div>
@@ -1000,6 +1001,11 @@ export default {
 .theme-gallery-meta { padding: .5rem .6rem; }
 .theme-gallery-name { font-size: .8rem; font-weight: 600; line-height: 1.2; }
 .theme-gallery-industry { font-size: .7rem; }
+.theme-gallery-category {
+  font-size: .65rem; font-weight: 600; margin-top: .2rem;
+  display: inline-block; padding: .1rem .45rem; border-radius: 999px;
+  background: #f1eefe; color: #6c5ce7;
+}
 .theme-gallery-swatches {
   position: absolute; bottom: 6px; left: 6px;
   display: flex; gap: 4px;

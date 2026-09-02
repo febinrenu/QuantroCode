@@ -4,6 +4,7 @@
   "tagline": "Timeless fashion, modern edit.",
   "description": "Category-specific storefront for Fashion & Apparel — a monochrome luxury-boutique design: black header/nav, gold accents, editorial fashion photography, serif wordmark. Shows only fashion & apparel products.",
   "category": "category-specific",
+  "categoryLabel": "Fashion & Apparel",
   "themeGroup": "category-specific",
   "restrict_category_code": "CAT-IND-FSH",
   "version": "1.0.0",

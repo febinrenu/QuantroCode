@@ -11,7 +11,10 @@
   $ljHeroTitle = $s->hero_title ?? 'Little Ones\' Big Smiles';
   $ljHeroSubtitle = $s->hero_subtitle ?? 'Safe, quality products for every stage of your child\'s journey.';
   $ljImgs = $categorySpecificProducts->pluck('image_url')->filter()->values();
-  $ljHeroImg = !empty($s->hero_image_path) ? global_asset($s->hero_image_path) : ($ljImgs[0] ?? null);
+  // Category-specific themes always lead with their own category's product
+  // photo -- the admin's store-wide hero_image_path (set for a different,
+  // general-purpose theme) would otherwise show an unrelated image here.
+  $ljHeroImg = $ljImgs[0] ?? (!empty($s->hero_image_path) ? global_asset($s->hero_image_path) : null);
 
   $ljSubcatsHome = optional($categories->first())->subcategories ?? collect();
   $ljSubIdHome = fn ($name) => optional($ljSubcatsHome->firstWhere('name', $name))->id;

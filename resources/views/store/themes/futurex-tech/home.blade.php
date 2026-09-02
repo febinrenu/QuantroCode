@@ -12,7 +12,10 @@
   $fxHeroTitle = $s->hero_title ?? 'Next Gen Technology';
   $fxHeroSubtitle = $s->hero_subtitle ?? 'For work, play and everything in between.';
   $fxImgs = $categorySpecificProducts->pluck('image_url')->filter()->values();
-  $fxHeroImg = !empty($s->hero_image_path) ? global_asset($s->hero_image_path) : ($fxImgs[0] ?? null);
+  // Category-specific themes always lead with their own category's product
+  // photo -- the admin's store-wide hero_image_path (set for a different,
+  // general-purpose theme) would otherwise show an unrelated image here.
+  $fxHeroImg = $fxImgs[0] ?? (!empty($s->hero_image_path) ? global_asset($s->hero_image_path) : null);
 
   $fxSubcatsHome = optional($categories->first())->subcategories ?? collect();
   $fxSubIdHome = fn ($name) => optional($fxSubcatsHome->firstWhere('name', $name))->id;

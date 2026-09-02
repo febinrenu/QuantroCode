@@ -4,6 +4,7 @@
   "tagline": "Live stylish. Every day.",
   "description": "Category-specific storefront for Marketplace & General Retail — an everyday lifestyle marketplace design: dark green sidebar category menu, warm cream backgrounds, gold accents, trending-picks grid. Shows only Marketplace & General Retail products.",
   "category": "category-specific",
+  "categoryLabel": "Marketplace & General Retail",
   "themeGroup": "category-specific",
   "restrict_category_code": "CAT-IND-MKT",
   "version": "1.0.0",

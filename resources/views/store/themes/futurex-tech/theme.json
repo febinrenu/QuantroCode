@@ -4,6 +4,7 @@
   "tagline": "Tech Store",
   "description": "Category-specific storefront for Electronics & Gadgets — a dark, neon-accented tech-store design: blue-to-purple gradient hero, category sidebar, deal-of-the-day countdown, best-sellers grid. Shows only Electronics & Gadgets products.",
   "category": "category-specific",
+  "categoryLabel": "Electronics & Gadgets",
   "themeGroup": "category-specific",
   "restrict_category_code": "CAT-IND-ELC",
   "version": "1.0.0",

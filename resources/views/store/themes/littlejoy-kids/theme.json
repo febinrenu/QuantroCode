@@ -4,6 +4,7 @@
   "tagline": "for happy little ones",
   "description": "Category-specific storefront for Baby & Kids — a playful, rounded design: pastel gradients, rainbow wordmark, friendly icon-driven category grid. Shows only Baby & Kids products.",
   "category": "category-specific",
+  "categoryLabel": "Baby & Kids",
   "themeGroup": "category-specific",
   "restrict_category_code": "CAT-IND-BBY",
   "version": "1.0.0",

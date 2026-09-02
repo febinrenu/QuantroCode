@@ -10,7 +10,10 @@
 @php
   $tcHeroTitle = $s->hero_title ?? 'Discover the Art of Fine Food';
   $tcHeroSubtitle = $s->hero_subtitle ?? 'Premium ingredients sourced from the finest producers around the world.';
-  $tcHeroImg = !empty($s->hero_image_path) ? global_asset($s->hero_image_path) : ($categorySpecificProducts->first()['image_url'] ?? null);
+  // Category-specific themes always lead with their own category's product
+  // photo -- the admin's store-wide hero_image_path (set for a different,
+  // general-purpose theme) would otherwise show an unrelated image here.
+  $tcHeroImg = $categorySpecificProducts->first()['image_url'] ?? (!empty($s->hero_image_path) ? global_asset($s->hero_image_path) : null);
   $tcTileLabels = ['Olive Oils & Vinegars', 'Artisan Cheese', 'Gourmet Pantry', 'Organic Beverages', 'Gift Hampers'];
   $tcTileImgs = $categorySpecificProducts->pluck('image_url')->filter()->values();
   $tcTiles = collect($tcTileLabels)->map(function ($label, $i) use ($tcTileImgs) {

@@ -4,6 +4,7 @@
   "tagline": "Handpicked quality, authentic flavors.",
   "description": "Category-specific storefront for Grocery & Fresh Produce — a warm, editorial fine-food-market design: dark food photography, serif wordmark, cream backgrounds, deep forest-green accents. Shows only grocery products.",
   "category": "category-specific",
+  "categoryLabel": "Grocery & Fresh Produce",
   "themeGroup": "category-specific",
   "restrict_category_code": "CAT-IND-GRC",
   "version": "1.0.0",

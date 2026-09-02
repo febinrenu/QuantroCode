@@ -4,6 +4,7 @@
   "tagline": "Everything you need.",
   "description": "Category-specific storefront for Books & Stationery — a bold marketplace design: purple-to-pink gradient hero, category sidebar, flash-deals banner, trending-products grid. Shows only Books & Stationery products.",
   "category": "category-specific",
+  "categoryLabel": "Books & Stationery",
   "themeGroup": "category-specific",
   "restrict_category_code": "CAT-IND-BKS",
   "version": "1.0.0",
