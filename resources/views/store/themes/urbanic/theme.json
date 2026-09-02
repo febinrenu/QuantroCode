@@ -1,0 +1,52 @@
+{
+    "slug": "urbanic",
+    "name": "Urbanic",
+    "tagline": "Stay Stylish",
+    "description": "Editorial fashion & lifestyle storefront theme featuring top category quick access, dynamic summer hero campaign, soft pastel category collection cards, countdown deals, and high-impact product presentation.",
+    "category": "Category-Specific Themes",
+    "version": "1.0.0",
+    "layout_persona": "Fashion & Lifestyle Editorial",
+    "layout": "fashion-lifestyle",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600;1,700&family=Playfair+Display:ital,wght@1,600;1,700&display=swap",
+    "fontPairing": {
+        "heading": "Plus Jakarta Sans",
+        "body": "Plus Jakarta Sans",
+        "accent": "Playfair Display"
+    },
+    "paletteSwatches": [
+        "#F97316",
+        "#111827",
+        "#FFFFFF",
+        "#FEF3C7",
+        "#F3F4F6"
+    ],
+    "tokens": {
+        "color-bg-base": "#FFFFFF",
+        "color-surface": "#FFFFFF",
+        "color-primary": "#F97316",
+        "color-primary-dark": "#EA580C",
+        "color-dark": "#111827",
+        "color-dark-surface": "#0F172A",
+        "color-coral": "#FB923C",
+        "color-amber": "#F59E0B",
+        "color-text-main": "#111827",
+        "color-text-muted": "#6B7280",
+        "color-border": "#E5E7EB",
+        "font-heading": "'Plus Jakarta Sans', sans-serif",
+        "font-body": "'Plus Jakarta Sans', sans-serif",
+        "font-accent": "'Playfair Display', serif"
+    },
+    "customizable": [
+        "color-primary",
+        "color-dark",
+        "color-bg-base",
+        "font-heading",
+        "font-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
+}

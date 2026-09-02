@@ -342,6 +342,31 @@ class StoreFrontController extends Controller
                 ->take(18)
                 ->get();
             $viewData['products'] = $products;
+        } elseif ($activeTheme === 'urbanic') {
+            $urbCatIds = $categories->pluck('id')->all();
+            $products = Product::query()
+                ->where('products.is_active', 1)
+                ->where('products.hide_from_online_store', 0)
+                ->where(function ($q) use ($urbCatIds) {
+                    $q->whereIn('products.category_id', $urbCatIds)
+                      ->orWhere('products.code', 'like', 'URB-%');
+                })
+                ->with(['variants', 'images', 'category', 'brand'])
+                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
+                    $join->on('pvmin.product_id', '=', 'products.id');
+                })
+                ->addSelect(
+                    'products.*',
+                    DB::raw("$baseExpr AS base_price"),
+                    DB::raw("$afterDiscountExpr AS after_discount"),
+                    DB::raw("$finalExpr AS final_display_price")
+                )
+                ->orderByRaw("CASE WHEN products.code LIKE 'URB-%' THEN 0 ELSE 1 END")
+                ->orderBy('products.is_featured', 'desc')
+                ->orderBy('products.created_at', 'desc')
+                ->take(18)
+                ->get();
+            $viewData['products'] = $products;
         }
 
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'home') ?? 'store.index';
@@ -451,6 +476,12 @@ class StoreFrontController extends Controller
             $productsQuery->where(function ($q) use ($nexCatIds) {
                 $q->whereIn('products.category_id', $nexCatIds)
                   ->orWhere('products.code', 'like', 'NEX-%');
+            });
+        } elseif ($activeTheme === 'urbanic') {
+            $urbCatIds = $categories->pluck('id')->all();
+            $productsQuery->where(function ($q) use ($urbCatIds) {
+                $q->whereIn('products.category_id', $urbCatIds)
+                  ->orWhere('products.code', 'like', 'URB-%');
             });
         }
 
@@ -1088,6 +1119,30 @@ class StoreFrontController extends Controller
                     'Accessories',
                 ])
                 ->orderByRaw("FIELD(name, 'Electronics', 'Fashion', 'Home & Living', 'Beauty', 'Sports', 'Toys & Games', 'Automotive', 'Accessories')")
+                ->get();
+        }
+
+        if ($activeTheme === 'urbanic') {
+            return Category::with('subcategories')
+                ->whereIn('name', [
+                    'T-Shirts',
+                    'Shirts',
+                    'Dresses',
+                    'Jeans',
+                    'Jackets',
+                    'Footwear',
+                    'Bags',
+                    'Watches',
+                    'Sunglasses',
+                    'Activewear',
+                    'Women',
+                    'Men',
+                    'Kids',
+                    'Shoes',
+                    'Accessories',
+                    'Fashion',
+                ])
+                ->orderByRaw("FIELD(name, 'T-Shirts', 'Shirts', 'Dresses', 'Jeans', 'Jackets', 'Footwear', 'Bags', 'Watches', 'Sunglasses', 'Activewear', 'Women', 'Men', 'Kids', 'Shoes', 'Accessories', 'Fashion')")
                 ->get();
         }
 
