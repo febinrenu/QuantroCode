@@ -1,136 +1,170 @@
-@php
-  $ntClient = Auth::guard('store')->user();
-  $ntCategories = $categories ?? collect();
-@endphp
-<div class="bg-nova-bgDeep text-nova-violetLight text-xs border-b border-white/5">
-  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-9">
-    <span class="truncate">{{ $s->topbar_text_left ?? '⚡ Free shipping on orders over $99' }}</span>
-    <div class="hidden md:flex items-center gap-4">
-      <span>{{ $s->topbar_text_right ?? '✨ New tech drops every week' }}</span>
-      <a href="{{ route('store.contact') }}" class="hover:text-white">{{ __('messages.Support') }}</a>
-    </div>
-  </div>
-</div>
-
-<header class="sticky top-0 z-40 bg-nova-bg/90 backdrop-blur-xl border-b border-white/10">
-  <div class="max-w-7xl mx-auto px-4">
-    <div class="flex items-center gap-4 h-16">
-      <a href="{{ route('store.index') }}" class="flex items-center gap-2 shrink-0">
-        @if(!empty($s->logo_path))
-          <img src="{{ \Illuminate\Support\Str::startsWith($s->logo_path,['http://','https://','/']) ? $s->logo_path : global_asset($s->logo_path) }}" alt="{{ $s->store_name }}" class="h-9 max-w-[150px] object-contain">
-        @else
-          <span class="font-black text-xl tracking-tight text-white">{{ $s->store_name ?? 'NovaTech' }}<span class="text-nova-violet">.</span></span>
-        @endif
-      </a>
-
-      <nav class="hidden lg:flex items-center gap-1 relative">
-        <div class="group relative">
-          <button type="button" class="px-3 h-10 inline-flex items-center gap-1 text-sm font-semibold text-slate-200 hover:text-white rounded-md">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-            {{ __('messages.Categories') ?? 'Categories' }}
-          </button>
-          @if($ntCategories->count())
-            <div class="hidden group-hover:grid absolute top-full left-0 pt-2 z-30 w-[580px] grid-cols-2 gap-x-6 gap-y-1 nt-glass-strong rounded-2xl shadow-glowLg p-5">
-              @foreach($ntCategories as $cat)
-                <div class="py-1.5">
-                  <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="text-sm font-bold text-white hover:text-nova-violetLight">{{ $cat->name }}</a>
-                  @if(($cat->subcategories ?? collect())->count())
-                    <ul class="mt-1 space-y-0.5">
-                      @foreach($cat->subcategories->take(4) as $sub)
-                        <li><a href="{{ route('store.shop', ['category' => $cat->id, 'sub_category' => $sub->id]) }}" class="text-xs text-slate-400 hover:text-nova-violetLight">{{ $sub->name }}</a></li>
-                      @endforeach
-                    </ul>
-                  @endif
-                </div>
-              @endforeach
+<header class="w-full bg-white sticky top-0 z-40 shadow-sm" x-data="{ browseCategoriesOpen: false, searchCat: 'All Categories' }">
+    <!-- 1. Top Announcement Bar -->
+    <div class="bg-gradient-to-r from-[#1E1B4B] via-[#4338CA] to-[#6366F1] text-white text-xs py-2 px-4 sm:px-6 lg:px-8 border-b border-indigo-900/40">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div class="flex items-center space-x-3 text-center sm:text-left">
+                <span class="flex items-center gap-1.5 font-medium text-slate-100">
+                    <span class="text-amber-300">🔥</span>
+                    <strong>TECH WEEK SALE:</strong> Up to 30% OFF on selected items!
+                </span>
+                <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-white text-indigo-900 font-bold text-[11px] hover:bg-indigo-50 transition-colors shadow-sm">
+                    Shop Deals
+                </a>
             </div>
-          @endif
-        </div>
-        <a href="{{ route('store.index') }}" class="px-3 h-10 inline-flex items-center text-sm font-medium text-slate-300 hover:text-white">{{ __('messages.Home') }}</a>
-        <a href="{{ route('store.shop') }}" class="px-3 h-10 inline-flex items-center text-sm font-medium text-slate-300 hover:text-white">{{ __('messages.Shop') }}</a>
-        <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="px-3 h-10 inline-flex items-center text-sm font-medium text-slate-300 hover:text-white">{{ __('messages.Deals') ?? 'Deals' }}</a>
-        <a href="{{ route('store.contact') }}" class="px-3 h-10 inline-flex items-center text-sm font-medium text-slate-300 hover:text-white">{{ __('messages.Support') }}</a>
-      </nav>
-
-      <div class="hidden md:flex flex-1 max-w-lg mx-2 relative" x-data="searchBox('{{ route('store.search.suggestions') }}')" @click.outside="results = []">
-        <form action="{{ route('store.shop') }}" method="GET" class="w-full relative">
-          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
-          <input type="text" name="q" class="w-full h-10 pl-10 pr-3 rounded-full nt-glass text-sm text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-nova-violet/50"
-                 placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" autocomplete="off" value="{{ request('q') }}" x-model="q" @input.debounce.250ms="fetch">
-          <div x-show="results.length" x-cloak class="absolute top-full left-0 right-0 mt-2 nt-glass-strong rounded-xl shadow-glowLg overflow-hidden max-h-96 overflow-y-auto z-50">
-            <template x-for="p in results" :key="p.id">
-              <a :href="p.url" class="flex items-center gap-3 px-3 py-2 hover:bg-white/10">
-                <img :src="p.image_url" class="w-10 h-10 rounded-lg object-cover">
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm font-medium truncate text-white" x-text="p.name"></div>
-                  <div class="text-xs font-bold text-nova-violetLight" x-text="window.__HIDE_PRICES__ ? '' : ('{{ $s->currency_code ?? '$' }}' + p.display_price)"></div>
+            <div class="flex items-center space-x-6 text-slate-200 text-[11px]">
+                <a href="#" class="hover:text-white transition-colors">Support</a>
+                <span class="text-indigo-300/40">|</span>
+                <a href="#" class="hover:text-white transition-colors">Store Locator</a>
+                <span class="text-indigo-300/40">|</span>
+                <div class="flex items-center space-x-1 cursor-pointer hover:text-white transition-colors">
+                    <span>Eng</span>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
                 </div>
-              </a>
-            </template>
-          </div>
-        </form>
-      </div>
-
-      <div class="ms-auto flex items-center gap-1">
-        @if($ntClient)
-          <a href="{{ url('/online_store/account') }}" class="hidden md:inline-flex h-10 px-3 items-center gap-1.5 text-sm font-medium text-slate-300 hover:text-white">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-            {{ \Illuminate\Support\Str::limit($ntClient->username ?: $ntClient->email, 12) }}
-          </a>
-        @else
-          <a href="{{ url('/online_store/login') }}" class="hidden md:inline-flex h-10 px-4 items-center rounded-full text-sm font-semibold text-white nt-glass hover:bg-white/10">{{ __('messages.SignIn') }}</a>
-        @endif
-        <div class="hidden md:block">
-          @include('store.partials.language-switcher')
+            </div>
         </div>
-        <a href="{{ route('store.cart') }}" class="relative h-10 px-4 inline-flex items-center gap-1.5 rounded-full bg-nova-violet text-white text-sm font-semibold hover:bg-nova-violetDark shadow-glow transition-colors">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          <span class="hidden sm:inline">{{ __('messages.Cart') }}</span>
-          <span class="cart-count absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-nova-amber text-nova-ink text-[11px] font-bold inline-flex items-center justify-center">0</span>
-        </a>
-        <button type="button" class="lg:hidden h-10 w-10 inline-flex items-center justify-center rounded-lg text-slate-200 hover:bg-white/10" onclick="document.getElementById('nt-mobile-menu').classList.toggle('hidden')" aria-label="Menu">
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-      </div>
     </div>
 
-    @if(($showCategoryBar ?? true) && $ntCategories->count())
-      <div class="hidden lg:block border-t border-white/5">
-        <ul class="no-scrollbar flex flex-nowrap items-center gap-1 py-2 overflow-x-auto">
-          @foreach($ntCategories as $cat)
-            <li class="shrink-0">
-              <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="px-3 h-8 inline-flex items-center text-xs font-medium text-slate-400 hover:text-white hover:bg-white/5 rounded-full">{{ $cat->name }}</a>
-            </li>
-          @endforeach
-        </ul>
-      </div>
-    @endif
-  </div>
+    <!-- 2. Main Header (Logo, Search, Actions) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex items-center justify-between gap-4 lg:gap-8">
+            <!-- Mobile Menu Toggle Button -->
+            <button @click="mobileNavOpen = true" class="lg:hidden p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors" aria-label="Open mobile menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
 
-  {{-- Mobile menu --}}
-  <div id="nt-mobile-menu" class="hidden lg:hidden border-t border-white/10 bg-nova-bg max-h-[70vh] overflow-y-auto">
-    <div class="px-4 py-3">
-      <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
-        <input type="text" name="q" class="w-full h-10 pl-3 pr-3 rounded-full nt-glass text-sm text-white placeholder:text-slate-400" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}">
-      </form>
-      <div class="text-xs font-bold uppercase tracking-widest text-slate-400 mt-4 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
-      @include('store.partials.language-switcher', ['variant' => 'mobile'])
-      <a href="{{ route('store.index') }}" class="block py-2 text-sm font-semibold text-white">{{ __('messages.Home') }}</a>
-      <a href="{{ route('store.shop') }}" class="block py-2 text-sm font-semibold text-white">{{ __('messages.Shop') }}</a>
-      @foreach($ntCategories as $cat)
-        <details class="border-t border-white/5 py-1">
-          <summary class="flex items-center justify-between py-2 text-sm font-medium text-slate-300">
-            {{ $cat->name }}
-            <svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
-          </summary>
-          <div class="pl-3 pb-2 space-y-1">
-            <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="block py-1 text-sm text-nova-violetLight">{{ __('messages.ViewAll') ?? 'View all' }}</a>
-            @foreach($cat->subcategories ?? [] as $sub)
-              <a href="{{ route('store.shop', ['category' => $cat->id, 'sub_category' => $sub->id]) }}" class="block py-1 text-sm text-slate-400">{{ $sub->name }}</a>
-            @endforeach
-          </div>
-        </details>
-      @endforeach
+            <!-- Brand Logo -->
+            <a href="{{ route('store.index', ['preview_theme' => 'novatech']) }}" class="flex items-center space-x-3 flex-shrink-0 group">
+                <!-- Geometric Stylized Gradient N Logo -->
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-400 p-0.5 shadow-md shadow-indigo-500/20 flex items-center justify-center">
+                    <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center p-1.5">
+                        <svg class="w-full h-full" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 22V6L13 18V6H17V22L9 10V22H5Z" fill="url(#novatech_logo_grad)" />
+                            <path d="M19 6H23V22H19V6Z" fill="#06B6D4" opacity="0.9" />
+                            <defs>
+                                <linearGradient id="novatech_logo_grad" x1="5" y1="6" x2="23" y2="22" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#818CF8" />
+                                    <stop offset="0.5" stop-color="#6366F1" />
+                                    <stop offset="1" stop-color="#06B6D4" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xl font-black tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors leading-none">NOVATECH</span>
+                    <span class="text-[9px] font-bold tracking-widest text-slate-400 uppercase mt-0.5">SMARTER EVERYDAY</span>
+                </div>
+            </a>
+
+            <!-- Search Bar with Category Dropdown -->
+            <div class="hidden md:flex flex-1 max-w-2xl relative">
+                <form action="{{ route('store.shop') }}" method="GET" class="w-full flex items-center rounded-full border-2 border-slate-200 hover:border-indigo-400 focus-within:border-indigo-600 transition-all bg-white p-1 shadow-sm">
+                    <input type="hidden" name="preview_theme" value="novatech">
+
+                    <!-- Category Selector Dropdown -->
+                    <div class="relative flex-shrink-0" x-data="{ open: false }">
+                        <button type="button" @click="open = !open" @click.away="open = false" class="flex items-center space-x-1.5 text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 py-2 px-3.5 rounded-full transition-colors">
+                            <span x-text="searchCat">All Categories</span>
+                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        <div x-show="open" x-cloak class="absolute left-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50 text-xs font-medium">
+                            <a href="#" @click.prevent="searchCat = 'All Categories'; open = false" class="block px-4 py-2 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600">All Categories</a>
+                            <a href="#" @click.prevent="searchCat = 'Laptops'; open = false" class="block px-4 py-2 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600">Laptops</a>
+                            <a href="#" @click.prevent="searchCat = 'Smartphones'; open = false" class="block px-4 py-2 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600">Smartphones</a>
+                            <a href="#" @click.prevent="searchCat = 'Wearables'; open = false" class="block px-4 py-2 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600">Wearables</a>
+                            <a href="#" @click.prevent="searchCat = 'Audio'; open = false" class="block px-4 py-2 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600">Audio</a>
+                            <a href="#" @click.prevent="searchCat = 'Gaming'; open = false" class="block px-4 py-2 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600">Gaming</a>
+                            <a href="#" @click.prevent="searchCat = 'Cameras'; open = false" class="block px-4 py-2 text-slate-700 hover:bg-indigo-50 hover:text-indigo-600">Cameras</a>
+                        </div>
+                    </div>
+
+                    <!-- Search Input -->
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Search for products, brands..." class="flex-1 px-4 py-2 text-xs text-slate-900 placeholder-slate-400 bg-transparent border-none focus:outline-none">
+
+                    <!-- Search Submit Button -->
+                    <button type="submit" class="w-9 h-9 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center flex-shrink-0 transition-colors shadow-sm" aria-label="Search">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Header Actions: Compare, Wishlist, Cart -->
+            <div class="flex items-center space-x-5 sm:space-x-7">
+                <!-- Compare -->
+                <a href="#" class="hidden sm:flex flex-col items-center text-slate-700 hover:text-indigo-600 transition-colors group">
+                    <svg class="w-6 h-6 text-slate-700 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                    </svg>
+                    <span class="text-[11px] font-semibold mt-1">Compare</span>
+                </a>
+
+                <!-- Wishlist -->
+                <a href="#" class="flex flex-col items-center text-slate-700 hover:text-indigo-600 transition-colors relative group">
+                    <div class="relative">
+                        <svg class="w-6 h-6 text-slate-700 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        <span class="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">3</span>
+                    </div>
+                    <span class="text-[11px] font-semibold mt-1 hidden sm:inline">Wishlist</span>
+                </a>
+
+                <!-- Cart -->
+                <button @click="miniCartOpen = true" class="flex flex-col items-center text-slate-700 hover:text-indigo-600 transition-colors relative group">
+                    <div class="relative">
+                        <svg class="w-6 h-6 text-slate-700 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span class="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center" x-text="cartCount > 0 ? cartCount : 2"></span>
+                    </div>
+                    <span class="text-[11px] font-semibold mt-1 hidden sm:inline">Cart</span>
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
+
+    <!-- 3. Navigation Bar -->
+    <div class="border-t border-slate-100 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-12">
+                <!-- Left: Browse Categories Button -->
+                <div class="relative" x-data="{ catOpen: false }">
+                    <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="flex items-center space-x-2.5 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-t-lg font-bold text-xs uppercase tracking-wider transition-colors shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <span>Browse Categories</span>
+                        <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="hidden lg:flex items-center space-x-8 text-xs font-bold tracking-wider text-slate-800 uppercase">
+                    <a href="{{ route('store.index', ['preview_theme' => 'novatech']) }}" class="text-indigo-600 hover:text-indigo-700 transition-colors py-3 border-b-2 border-indigo-600">HOME</a>
+                    <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="hover:text-indigo-600 transition-colors py-3">SHOP</a>
+                    <a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'new-arrivals']) }}" class="hover:text-indigo-600 transition-colors py-3">NEW ARRIVALS</a>
+                    <a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'best-sellers']) }}" class="hover:text-indigo-600 transition-colors py-3">BEST SELLERS</a>
+                    <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="hover:text-indigo-600 transition-colors py-3">BRANDS</a>
+                    <a href="#" class="hover:text-indigo-600 transition-colors py-3">BLOG</a>
+                </nav>
+
+                <!-- Right: Today's Deals Pill Button -->
+                <a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'deals']) }}" class="hidden sm:inline-flex items-center space-x-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-purple-500/20">
+                    <span class="text-amber-300">⚡</span>
+                    <span>TODAY'S DEALS</span>
+                </a>
+            </div>
+        </div>
+    </div>
 </header>

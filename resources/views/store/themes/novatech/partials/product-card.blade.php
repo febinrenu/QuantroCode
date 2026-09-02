@@ -1,68 +1,94 @@
-{{-- Pure presentation — $product is the StorefrontPresenter::product() view-model. No pricing/business logic here. --}}
-<article class="product-card group nt-glass rounded-2xl hover:shadow-glow hover:border-nova-violet/40 transition-all overflow-hidden flex flex-col">
-  <a href="{{ $product['url'] }}" class="relative block aspect-square overflow-hidden" style="{{ !$product['image_url'] ? 'background:'.$product['placeholder_color'].'22' : '' }}">
-    @if($product['image_url'])
-      <img src="{{ $product['image_url'] }}" alt="{{ $product['name'] }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-    @else
-      <div class="w-full h-full flex items-center justify-center text-3xl font-black" style="color: {{ $product['placeholder_color'] }}">
-        {{ strtoupper(substr($product['name'], 0, 1)) }}
-      </div>
-    @endif
-    <div class="absolute inset-0 bg-gradient-to-t from-nova-bgDeep/40 via-transparent to-transparent pointer-events-none"></div>
+@php
+    $previewParam = '?preview_theme=novatech';
+    $productImage = $product->image ?? '';
+    if (empty($productImage)) {
+        $imageUrl = '/images/themes/novatech/nvt-wireless-earbuds.jpg';
+    } elseif (str_starts_with($productImage, 'http') || str_starts_with($productImage, '/')) {
+        $imageUrl = $productImage;
+    } else {
+        $imageUrl = '/images/themes/novatech/' . $productImage;
+    }
 
-    @if($product['is_on_sale'])
-      <span class="absolute top-2 left-2 bg-nova-violet text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow-glow">-{{ $product['discount_percent'] }}%</span>
-    @elseif($product['stock_status'] === 'preorder')
-      <span class="absolute top-2 left-2 bg-nova-cyan text-nova-ink text-[11px] font-bold px-2 py-0.5 rounded-full">Pre-order</span>
-    @elseif($product['stock_status'] === 'out_of_stock')
-      <span class="absolute top-2 left-2 bg-black/60 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">Out of stock</span>
-    @endif
-  </a>
+    $id = $product->id ?? null;
+    $code = $product->code ?? '';
+    $productKey = !empty($code) ? $code : $id;
 
-  <div class="product-body p-3 flex flex-col flex-1">
-    @if($product['category_name'])
-      <span class="text-[11px] font-semibold text-nova-violetLight uppercase tracking-wide">{{ $product['category_name'] }}</span>
-    @endif
-    <a href="{{ $product['url'] }}" class="product-title text-sm font-semibold text-white mt-0.5 line-clamp-2 hover:text-nova-violetLight" title="{{ $product['name'] }}">
-      {{ $product['name'] }}
+    $price = $product->final_display_price ?? $product->price ?? 0;
+    $basePrice = $product->base_price ?? $product->price ?? 0;
+    $hasDiscount = $basePrice > $price;
+
+    $rating = 5.0;
+    $reviewsCount = 100 + (abs(crc32($product->name ?? 'novatech')) % 350);
+@endphp
+
+<div class="group relative bg-white rounded-2xl border border-slate-200 hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 p-4 flex flex-col justify-between h-full">
+    <!-- Top Action Bar: Wishlist & Discount Badge -->
+    <div class="flex items-center justify-between mb-2">
+        <div>
+            @if($hasDiscount)
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-50 text-rose-600 border border-rose-200">
+                    SALE
+                </span>
+            @endif
+        </div>
+        <button type="button" class="w-8 h-8 rounded-full bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-500 flex items-center justify-center transition-colors shadow-sm" aria-label="Add to wishlist">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Product Image -->
+    <a href="{{ url('/online_store/product/' . $productKey . $previewParam) }}" class="relative block w-full h-44 mb-3 rounded-xl overflow-hidden bg-slate-50/50 p-2 flex items-center justify-center">
+        <img src="{{ $imageUrl }}"
+             alt="{{ $product->name }}"
+             loading="lazy"
+             class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+             onerror="this.onerror=null; this.src='/images/products/{{ $product->image ?? '' }}';">
     </a>
 
-    <div class="mt-auto pt-2">
-      @if(!$product['hide_prices'])
-        <div class="flex items-baseline gap-1.5">
-          <span class="price text-base font-bold text-white">{{ $product['final_price_formatted'] }}</span>
-          @if($product['compare_at_price_formatted'])
-            <span class="text-xs text-slate-500 line-through">{{ $product['compare_at_price_formatted'] }}</span>
-          @endif
+    <!-- Product Details -->
+    <div class="flex-1 flex flex-col justify-between">
+        <div>
+            <a href="{{ url('/online_store/product/' . $productKey . $previewParam) }}" class="block">
+                <h3 class="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                    {{ $product->name }}
+                </h3>
+            </a>
+
+            <!-- Price -->
+            <div class="mt-1.5 flex items-baseline space-x-2">
+                <span class="text-base font-extrabold text-slate-900">
+                    ${{ number_format($price, 2) }}
+                </span>
+                @if($hasDiscount)
+                    <span class="text-xs font-semibold text-slate-400 line-through">
+                        ${{ number_format($basePrice, 2) }}
+                    </span>
+                @endif
+            </div>
+
+            <!-- Rating -->
+            <div class="mt-2 flex items-center space-x-1.5">
+                <div class="flex text-indigo-600">
+                    @for($i = 0; $i < 5; $i++)
+                        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                    @endfor
+                </div>
+                <span class="text-xs font-semibold text-slate-400">({{ $reviewsCount }})</span>
+            </div>
         </div>
 
-        @if(count($product['variants']) > 0)
-          <a href="{{ $product['url'] }}" class="mt-2 w-full inline-flex items-center justify-center gap-1.5 h-9 rounded-full nt-glass text-nova-violetLight text-sm font-semibold hover:bg-nova-violet hover:text-white transition-colors">
-            View options
-          </a>
-        @else
-          <button type="button"
-                  class="js-add-to-cart mt-2 w-full inline-flex items-center justify-center gap-1.5 h-9 rounded-full bg-nova-violet text-white text-sm font-semibold hover:bg-nova-violetDark disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  @if(!$product['is_available']) disabled @endif
-                  data-out-of-stock="{{ $product['is_available'] ? '0' : '1' }}"
-                  data-is-preorder="{{ $product['is_preorder_active'] ? '1' : '0' }}"
-                  data-id="{{ $product['id'] }}"
-                  data-slug="{{ $product['slug'] }}"
-                  data-name="{{ e($product['name']) }}"
-                  data-price="{{ number_format($product['final_price'], 2, '.', '') }}"
-                  data-image="{{ $product['image_url'] }}"
-                  data-currency="{{ $product['currency'] }}"
-                  data-qty="1"
-                  data-stock="{{ $product['stock'] !== null ? $product['stock'] : '' }}"
-                  data-added-label="{{ __('messages.Added') }}">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            {{ $product['is_preorder_active'] ? 'Pre-order' : __('messages.AddToCart') }}
-          </button>
-        @endif
-      @else
-        <a href="{{ url('/online_store/login') }}" class="text-xs font-semibold text-nova-violetLight underline">Sign in for price</a>
-      @endif
-      <div class="js-add-status text-[11px] text-slate-500 min-h-[1rem] mt-1"></div>
+        <!-- Add to Cart CTA -->
+        <button type="button"
+                @click="CartLS.add({ id: {{ $product->id }}, name: '{{ addslashes($product->name) }}', price: {{ $price }}, image: '{{ $product->image ?? 'nvt-wireless-earbuds.jpg' }}', code: '{{ $product->code ?? '' }}' })"
+                class="mt-4 w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold transition-all flex items-center justify-center space-x-2 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Add to Cart</span>
+        </button>
     </div>
-  </div>
-</article>
+</div>

@@ -1,33 +1,92 @@
-@php $ntClient = Auth::guard('store')->user(); @endphp
-<nav class="lg:hidden fixed bottom-0 inset-x-0 z-30 nt-glass-strong border-t border-white/10 pb-[env(safe-area-inset-bottom)]">
-  <div class="grid grid-cols-5 h-16">
-    <a href="{{ route('store.index') }}" class="flex flex-col items-center justify-center gap-0.5 {{ request()->routeIs('store.index') ? 'text-nova-violetLight' : 'text-slate-400' }}">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg>
-      <span class="text-[10px] font-medium">{{ __('messages.Home') }}</span>
-    </a>
-    <a href="{{ route('store.shop') }}" class="flex flex-col items-center justify-center gap-0.5 {{ request()->routeIs('store.shop') ? 'text-nova-violetLight' : 'text-slate-400' }}">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-      <span class="text-[10px] font-medium">{{ __('messages.Shop') }}</span>
-    </a>
-    <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="flex flex-col items-center justify-center gap-0.5 text-slate-400">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24H4a1 1 0 0 0-1 1v5.59a2 2 0 0 0 .59 1.41l9.58 9.59a2 2 0 0 0 2.83 0l4.59-4.59a2 2 0 0 0 0-2.83Z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
-      <span class="text-[10px] font-medium">Deals</span>
-    </a>
-    <a href="{{ route('store.cart') }}" class="relative flex flex-col items-center justify-center gap-0.5 {{ request()->routeIs('store.cart') ? 'text-nova-violetLight' : 'text-slate-400' }}">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-      <span class="cart-count absolute top-1 right-6 min-w-[16px] h-4 px-1 rounded-full bg-nova-amber text-nova-ink text-[10px] font-bold inline-flex items-center justify-center">0</span>
-      <span class="text-[10px] font-medium">{{ __('messages.Cart') }}</span>
-    </a>
-    @if($ntClient)
-      <a href="{{ url('/online_store/account') }}" class="flex flex-col items-center justify-center gap-0.5 text-slate-400">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-        <span class="text-[10px] font-medium">{{ __('messages.Account') }}</span>
-      </a>
-    @else
-      <a href="{{ url('/online_store/login') }}" class="flex flex-col items-center justify-center gap-0.5 text-slate-400">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-        <span class="text-[10px] font-medium">{{ __('messages.SignIn') }}</span>
-      </a>
-    @endif
-  </div>
-</nav>
+<div x-show="mobileNavOpen" class="fixed inset-0 z-50 overflow-hidden lg:hidden" x-cloak>
+    <!-- Backdrop -->
+    <div x-show="mobileNavOpen"
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="mobileNavOpen = false"
+         class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity"></div>
+
+    <div class="fixed inset-y-0 left-0 max-w-full flex pr-10">
+        <div x-show="mobileNavOpen"
+             x-transition:enter="transform transition ease-in-out duration-300"
+             x-transition:enter-start="-translate-x-full"
+             x-transition:enter-end="translate-x-0"
+             x-transition:leave="transform transition ease-in-out duration-300"
+             x-transition:leave-start="translate-x-0"
+             x-transition:leave-end="-translate-x-full"
+             class="w-screen max-w-xs bg-slate-900 text-white shadow-2xl flex flex-col">
+
+            <!-- Mobile Drawer Header -->
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+                <a href="{{ route('store.index', ['preview_theme' => 'novatech']) }}" class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-cyan-400 p-0.5 flex items-center justify-center">
+                        <div class="w-full h-full bg-slate-950 rounded-[6px] flex items-center justify-center p-1">
+                            <span class="font-black text-indigo-400 text-xs">N</span>
+                        </div>
+                    </div>
+                    <span class="text-base font-black tracking-tight text-white">NOVATECH</span>
+                </a>
+                <button @click="mobileNavOpen = false" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Search -->
+            <div class="p-4 border-b border-slate-800">
+                <form action="{{ route('store.shop') }}" method="GET" class="relative">
+                    <input type="hidden" name="preview_theme" value="novatech">
+                    <input type="text" name="q" placeholder="Search tech & gadgets..." class="w-full bg-slate-800 border border-slate-700 rounded-xl py-2 pl-3 pr-10 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500">
+                    <button type="submit" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Mobile Nav Links -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-6">
+                <div>
+                    <h5 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Navigation</h5>
+                    <ul class="space-y-1 text-sm font-semibold text-slate-200">
+                        <li><a href="{{ route('store.index', ['preview_theme' => 'novatech']) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-800 text-indigo-400">Home</a></li>
+                        <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-800">Shop All</a></li>
+                        <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'new-arrivals']) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-800">New Arrivals</a></li>
+                        <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'best-sellers']) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-800">Best Sellers</a></li>
+                        <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'deals']) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-800 text-purple-400">⚡ Today's Deals</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h5 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Categories</h5>
+                    <ul class="space-y-1 text-xs text-slate-300">
+                        <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'category' => 'laptops']) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-800">💻 Laptops</a></li>
+                        <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'category' => 'smartphones']) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-800">📱 Smartphones</a></li>
+                        <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'category' => 'wearables']) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-800">⌚ Wearables</a></li>
+                        <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'category' => 'audio']) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-800">🎧 Audio & Headphones</a></li>
+                        <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'category' => 'gaming']) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-800">🎮 Gaming</a></li>
+                        <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'category' => 'accessories']) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-800">🔌 Accessories</a></li>
+                        <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'category' => 'cameras']) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-800">📷 Cameras</a></li>
+                        <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'category' => 'smart-home']) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-800">🏠 Smart Home</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Drawer Footer -->
+            <div class="p-4 border-t border-slate-800 bg-slate-950 text-center">
+                <a href="{{ route('store.cart', ['preview_theme' => 'novatech']) }}" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold flex items-center justify-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                    <span>View Cart (<span x-text="cartCount"></span>)</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

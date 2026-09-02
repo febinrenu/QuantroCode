@@ -440,6 +440,29 @@ class StoreFrontController extends Controller
                 ->take(18)
                 ->get();
             $viewData['products'] = $products;
+        } elseif ($activeTheme === 'novatech') {
+            $nvtCatIds = $categories->pluck('id')->all();
+            $products = Product::query()
+                ->where('products.is_active', 1)
+                ->where('products.hide_from_online_store', 0)
+                ->where(function ($q) use ($nvtCatIds) {
+                    $q->whereIn('products.category_id', $nvtCatIds)
+                      ->orWhere('products.code', 'like', 'NVT-%');
+                })
+                ->with(['variants', 'images', 'category', 'brand'])
+                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
+                    $join->on('pvmin.product_id', '=', 'products.id');
+                })
+                ->addSelect(
+                    'products.*',
+                    DB::raw("$baseExpr AS base_price"),
+                    DB::raw("$afterDiscountExpr AS after_discount"),
+                    DB::raw("$finalExpr AS final_display_price")
+                )
+                ->orderByRaw("CASE WHEN products.code IN ('NVT-EAR-001', 'NVT-WAT-002', 'NVT-LAP-003', 'NVT-PHN-004', 'NVT-CAM-005', 'NVT-SPK-006', 'NVT-GAM-007', 'NVT-HED-008', 'NVT-BAN-009', 'NVT-LAP-010', 'NVT-PHN-011', 'NVT-CAM-012', 'NVT-MOU-013', 'NVT-ACC-014', 'NVT-ACC-015', 'NVT-SMH-016') THEN FIELD(products.code, 'NVT-EAR-001', 'NVT-WAT-002', 'NVT-LAP-003', 'NVT-PHN-004', 'NVT-CAM-005', 'NVT-SPK-006', 'NVT-GAM-007', 'NVT-HED-008', 'NVT-BAN-009', 'NVT-LAP-010', 'NVT-PHN-011', 'NVT-CAM-012', 'NVT-MOU-013', 'NVT-ACC-014', 'NVT-ACC-015', 'NVT-SMH-016') ELSE 99 END")
+                ->take(18)
+                ->get();
+            $viewData['products'] = $products;
         }
 
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'home') ?? 'store.index';
@@ -574,6 +597,12 @@ class StoreFrontController extends Controller
                 $q->whereIn('products.category_id', $znvCatIds)
                   ->orWhere('products.code', 'like', 'ZNV-%');
             });
+        } elseif ($activeTheme === 'novatech') {
+            $nvtCatIds = $categories->pluck('id')->all();
+            $productsQuery->where(function ($q) use ($nvtCatIds) {
+                $q->whereIn('products.category_id', $nvtCatIds)
+                  ->orWhere('products.code', 'like', 'NVT-%');
+            });
         }
 
         $products = $productsQuery
@@ -684,6 +713,50 @@ class StoreFrontController extends Controller
                         'gift-ideas'           => 81,
                         'gifts'                => 81,
                         'gift'                 => 81,
+                    ];
+                    $normCat = strtolower(trim((string)$cat));
+                    $slugCat = str_replace([' & ', ' '], '-', $normCat);
+                    if (isset($catSlugMap[$normCat])) {
+                        $qb->where('products.category_id', $catSlugMap[$normCat]);
+                        return;
+                    } elseif (isset($catSlugMap[$slugCat])) {
+                        $qb->where('products.category_id', $catSlugMap[$slugCat]);
+                        return;
+                    } elseif (is_numeric($cat)) {
+                        $cid = (int) $cat;
+                        $qb->where('products.category_id', $cid);
+                        return;
+                    }
+                }
+
+                if ($activeTheme === 'novatech') {
+                    $catSlugMap = [
+                        'laptops'             => 43,
+                        'laptop'              => 43,
+                        'computers-laptops'   => 43,
+                        'computers'           => 43,
+                        'smartphones'         => 42,
+                        'smartphone'          => 42,
+                        'mobiles-tablets'     => 42,
+                        'mobiles'             => 42,
+                        'phones'              => 42,
+                        'wearables'           => 82,
+                        'wearable'            => 82,
+                        'smart-watch'         => 82,
+                        'smartwatch'          => 82,
+                        'audio'               => 45,
+                        'audio-headphones'    => 45,
+                        'headphones'          => 45,
+                        'gaming'              => 46,
+                        'accessories'         => 9,
+                        'cameras'             => 47,
+                        'camera'              => 47,
+                        'camera-photo'        => 47,
+                        'smart-home'          => 48,
+                        'smarthome'           => 48,
+                        'software'            => 83,
+                        'home-appliances'     => 84,
+                        'electronics'         => 3,
                     ];
                     $normCat = strtolower(trim((string)$cat));
                     $slugCat = str_replace([' & ', ' '], '-', $normCat);
@@ -1344,6 +1417,25 @@ class StoreFrontController extends Controller
                     'Gift Ideas'
                 ])
                 ->orderByRaw("FIELD(name, 'Electronics', 'Fashion & Apparel', 'Home & Kitchen', 'Beauty & Personal Care', 'Toys & Games', 'Sports & Outdoors', 'Automotive', 'Books & Stationery', 'Pet Supplies', 'Groceries & Essentials', 'Health & Wellness', 'Gift Ideas')")
+                ->get();
+        }
+
+        if ($activeTheme === 'novatech') {
+            return Category::with('subcategories')
+                ->whereIn('name', [
+                    'Laptops',
+                    'Smartphones',
+                    'Wearables',
+                    'Audio',
+                    'Gaming',
+                    'Accessories',
+                    'Cameras',
+                    'Smart Home',
+                    'Software',
+                    'Home Appliances',
+                    'Electronics'
+                ])
+                ->orderByRaw("FIELD(name, 'Laptops', 'Smartphones', 'Wearables', 'Audio', 'Gaming', 'Accessories', 'Cameras', 'Smart Home', 'Software', 'Home Appliances', 'Electronics')")
                 ->get();
         }
 
