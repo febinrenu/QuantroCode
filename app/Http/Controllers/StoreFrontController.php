@@ -17,13 +17,41 @@ use Illuminate\Http\Request;
 class StoreFrontController extends Controller
 {
     /**
-     * Homepage â€” blocks driven by StoreSetting->homepage_lineup.
+     * Resolve the active theme, honoring query preview and persisting in session.
+     */
+    protected function resolveActiveTheme(Request $request, ?StoreSetting $s = null): string
+    {
+        $s = $s ?: StoreSetting::first();
+        $defaultTheme = $s->theme ?? 'monochra';
+
+        $preview = $request->get('preview_theme') ?: $request->get('theme');
+        if ($preview !== null && $preview !== '') {
+            if (in_array($preview, ['none', 'reset', 'default', 'clear'], true)) {
+                session()->forget('preview_theme');
+                return $defaultTheme;
+            }
+            session(['preview_theme' => (string) $preview]);
+            return (string) $preview;
+        }
+
+        if (session()->has('preview_theme')) {
+            $saved = (string) session('preview_theme');
+            if (StorefrontThemeRegistry::find($saved)) {
+                return $saved;
+            }
+        }
+
+        return $defaultTheme;
+    }
+
+    /**
+     * Homepage — blocks driven by StoreSetting->homepage_lineup.
      */
     public function index(Request $request)
     {
         $s = StoreSetting::firstOrFail();
 
-        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'monochra')));
+        $activeTheme = $this->resolveActiveTheme($request, $s);
 
         // Theme switch: when the Real Estate theme is active, the storefront
         // homepage is served by the dedicated real estate controller. This keeps
@@ -348,7 +376,7 @@ class StoreFrontController extends Controller
         }
         $this->attachStockToProducts($products, $s->default_warehouse_id);
 
-        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'monochra')));
+        $activeTheme = $this->resolveActiveTheme($request, $s);
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'shop') ?? 'store.shop';
 
         return view($view, [
@@ -419,7 +447,7 @@ class StoreFrontController extends Controller
         $productVm = StorefrontPresenter::product($product, $currency, $hidePrices);
         $relatedVm = $related->map(fn ($rp) => StorefrontPresenter::product($rp, $currency, $hidePrices))->values()->all();
 
-        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'monochra')));
+        $activeTheme = $this->resolveActiveTheme($request, $s);
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'product') ?? 'store.product';
 
         return view($view, [
@@ -442,7 +470,7 @@ class StoreFrontController extends Controller
     {
         $s = StoreSetting::firstOrFail();
 
-        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'monochra')));
+        $activeTheme = $this->resolveActiveTheme($request, $s);
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'cart') ?? 'store.cart';
 
         return view($view, [
