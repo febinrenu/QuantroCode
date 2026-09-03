@@ -1,279 +1,317 @@
-<!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
-<head>
-@include('store.themes.naturae._shell', ['pageTitle' => ($s->seo_meta_title ?? $s->store_name ?? 'Naturae') . ' — Good for you, good for the planet'])
-</head>
-<body class="bg-cream text-ink antialiased">
+@extends('store.themes.naturae._shell')
 
-@include('store.themes.naturae.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
+@section('title', 'Naturae — Clean. Conscious. Care. Pure Essentials for a Better You')
 
+@section('content')
 @php
-  $currency = $s->currency_code ?? '$';
-  $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
-  $byPos = collect($banners ?? [])->groupBy('position');
-  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
-  $tileBg = ['bg-leaf-light','bg-terracotta-light','bg-[#EFE6D6]','bg-[#E3E9D3]','bg-[#F1DCC7]','bg-[#DCE6D9]','bg-[#F5E3D0]','bg-[#E6E0CE]'];
+    $previewTheme = request('preview_theme', 'naturae');
+    $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
 @endphp
 
-<main class="pb-24 lg:pb-0">
+<!-- ==========================================
+     HERO SECTION
+     ========================================== -->
+<section class="relative bg-naturae-sand/70 border-b border-naturae-border/80 overflow-hidden py-12 md:py-20 lg:py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
 
-  {{-- ===== HERO ===== --}}
-  <section class="relative overflow-hidden bg-leaf-light">
-    <div class="absolute -top-20 -right-24 w-96 h-96 rounded-full bg-terracotta-light/60 blur-2xl"></div>
-    <div class="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-leaf/20 blur-2xl"></div>
-    <div class="relative max-w-7xl mx-auto px-4 py-14 lg:py-20 grid lg:grid-cols-2 gap-10 items-center">
-      <div>
-        <span class="inline-flex items-center gap-2 eyebrow text-terracotta-dark text-xs font-bold bg-white/70 px-3 py-1.5 rounded-full">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/></svg>
-          One basket, every category
-        </span>
-        <h1 class="mt-4 text-4xl sm:text-5xl lg:text-[3.4rem] font-display font-semibold text-leaf-deep leading-[1.08]">
-          {{ $s->hero_title ?? 'Good for you, good for the planet.' }}
-        </h1>
-        <p class="mt-5 text-bark/80 max-w-lg leading-relaxed text-[15px]">
-          {{ $s->hero_subtitle ?? 'From noise-cancelling headphones to organic cotton knitwear, oak side tables to skincare oils — Naturae gathers electronics, fashion, home, beauty, grocery and sporting goods that are made responsibly, priced fairly, and packed without the plastic.' }}
-        </p>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a href="{{ route('store.shop') }}" class="h-13 px-7 py-3.5 inline-flex items-center gap-2 rounded-full bg-leaf-dark text-white font-semibold hover:bg-leaf-deep transition-colors shadow-soft">
-            Browse the whole store
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-13 px-7 py-3.5 inline-flex items-center gap-2 rounded-full border-2 border-leaf-dark/30 text-leaf-deep font-semibold hover:bg-white/60 transition-colors">
-            Everyday value picks
-          </a>
-        </div>
-        <div class="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3 text-bark/70 text-xs font-medium">
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg> Sustainably sourced</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg> Plastic-free packaging</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg> Carbon-neutral shipping</span>
-        </div>
-      </div>
-      <div class="hidden lg:grid grid-cols-2 gap-5">
-        <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover shadow-softHover" alt="Electronics">
-        <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover mt-10 shadow-softHover" alt="Fashion">
-        <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover -mt-5 shadow-softHover" alt="Home goods">
-        <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover shadow-softHover" alt="Beauty">
-      </div>
-    </div>
-  </section>
+            <!-- Left Hero Content (7 Cols) -->
+            <div class="lg:col-span-6 space-y-6 text-left">
 
-  {{-- ===== TOP BANNERS ===== --}}
-  @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
-    <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
-      @foreach($byPos['top_left'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block rounded-3xl overflow-hidden shadow-soft hover:shadow-softHover transition-shadow">
-          <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
-        </a>
-      @endforeach
-      @foreach($byPos['top_right'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block rounded-3xl overflow-hidden shadow-soft hover:shadow-softHover transition-shadow">
-          <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
-        </a>
-      @endforeach
-    </section>
-  @endif
+                <!-- Tagline Badge -->
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-naturae-forest/10 border border-naturae-forest/20 text-naturae-forest text-xs font-bold tracking-widest uppercase">
+                    <span>Clean. Conscious. Care.</span>
+                </div>
 
-  {{-- ===== ECO TRUST BAR (reframed, not generic) ===== --}}
-  <section class="max-w-7xl mx-auto px-4 py-2">
-    <div class="rounded-3xl bg-white border border-leaf-light shadow-soft grid grid-cols-2 md:grid-cols-4 divide-x divide-leaf-light/70">
-      @foreach([
-        ['icon' => 'leaf', 'title' => 'Sustainably sourced', 'sub' => 'Vetted suppliers, every category'],
-        ['icon' => 'sprout', 'title' => 'Plastic-free packaging', 'sub' => 'Recycled or compostable, always'],
-        ['icon' => 'loop', 'title' => 'Carbon-neutral shipping', 'sub' => 'Offset on every single order'],
-        ['icon' => 'seed', 'title' => 'Ethical partners', 'sub' => 'Fair wages, audited factories'],
-      ] as $item)
-        <div class="p-5 flex flex-col items-center text-center gap-2">
-          <div class="w-11 h-11 rounded-full bg-leaf-light flex items-center justify-center">
-            @if($item['icon']==='leaf')
-              <svg class="w-5 h-5 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/><path stroke-linecap="round" d="M12 21V9"/></svg>
-            @elseif($item['icon']==='sprout')
-              <svg class="w-5 h-5 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M4 10c3-4 7-6 8-6s5 2 8 6c-1 5-5 9-8 10-3-1-7-5-8-10Z"/><path stroke-linecap="round" d="M12 8v8"/></svg>
-            @elseif($item['icon']==='loop')
-              <svg class="w-5 h-5 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12c1-4 5-7 9-7s8 3 9 7M3 12c1 4 5 7 9 7s8-3 9-7"/><path stroke-linecap="round" d="M9 12h6"/></svg>
-            @else
-              <svg class="w-5 h-5 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="9" r="3.2"/><path stroke-linecap="round" d="M12 12.2V21M8 21h8"/></svg>
-            @endif
-          </div>
-          <div class="text-sm font-bold text-leaf-deep font-display">{{ $item['title'] }}</div>
-          <div class="text-xs text-bark/60">{{ $item['sub'] }}</div>
-        </div>
-      @endforeach
-    </div>
-  </section>
+                <!-- Main Heading -->
+                <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-naturae-forest tracking-tight leading-[1.15]">
+                    Pure Essentials for a Better You
+                </h1>
 
-  {{-- ===== CATEGORY GRID — color-blocked tiles ===== --}}
-  @if(($categories ?? collect())->count())
-    <section class="max-w-7xl mx-auto px-4 py-12">
-      <div class="flex items-end justify-between mb-6">
-        <div>
-          <span class="eyebrow text-terracotta-dark text-xs font-bold">Explore</span>
-          <h2 class="text-2xl lg:text-3xl font-display font-semibold text-leaf-deep mt-1">Shop by category</h2>
-        </div>
-        <a href="{{ route('store.shop') }}" class="text-sm font-semibold text-terracotta-dark nt-wiggle-underline">View all</a>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        @foreach($categories->take(8) as $i => $cat)
-          <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="group relative flex flex-col justify-between gap-6 p-5 rounded-3xl {{ $tileBg[$i % count($tileBg)] }} hover:shadow-softHover transition-shadow min-h-[136px] overflow-hidden">
-            <span class="w-11 h-11 rounded-full bg-white/70 flex items-center justify-center font-display font-bold text-leaf-deep text-lg group-hover:bg-white transition-colors">
-              <x-store.icon :name="category_icon_name($cat->name)" class="w-5 h-5" />
-            </span>
-            <span class="text-sm font-bold text-ink/90 font-display leading-snug">{{ $cat->name }}</span>
-            <svg class="absolute -bottom-4 -right-4 w-20 h-20 text-black/5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/></svg>
-          </a>
-        @endforeach
-      </div>
-    </section>
-  @endif
+                <!-- Subtitle -->
+                <p class="text-base sm:text-lg text-naturae-text/80 leading-relaxed max-w-xl">
+                    Thoughtfully crafted products made with natural ingredients for your everyday wellness and conscious living.
+                </p>
 
-  {{-- ===== CONTENT BLOCKS (collections from homepage_lineup) ===== --}}
-  @foreach($blocks as $block)
-    @if(($block['type'] ?? '') === 'collection')
-      @php
-        $products = collect($block['products'] ?? []);
-        $collection = $block['collection'] ?? null;
-        $colTitle = $block['title'] ?? ($collection->title ?? $collection->name ?? 'Featured Picks');
-        $productVms = $products->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
-      @endphp
-      @if($productVms->count())
-        <section class="max-w-7xl mx-auto px-4 py-10">
-          <div class="flex items-end justify-between mb-6">
-            <div>
-              <span class="eyebrow text-terracotta-dark text-xs font-bold">Curated for you</span>
-              <h2 class="text-2xl lg:text-3xl font-display font-semibold text-leaf-deep mt-1">{{ $colTitle }}</h2>
+                <!-- Shop Now CTA Button -->
+                <div class="pt-2 flex items-center gap-4">
+                    <a href="{{ $shopUrl }}"
+                       class="inline-flex items-center gap-2 px-8 py-4 bg-naturae-forest hover:bg-naturae-green text-white font-semibold text-xs sm:text-sm uppercase tracking-widest rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                        <span>Shop Now</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </a>
+                </div>
+
+                <!-- Feature Benefits Icons -->
+                <div class="pt-6 border-t border-naturae-border/80 grid grid-cols-3 gap-4">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-naturae-forest/10 text-naturae-forest flex items-center justify-center flex-shrink-0 text-sm">
+                            🌿
+                        </div>
+                        <span class="text-xs font-semibold text-naturae-text">Natural Ingredients</span>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-naturae-forest/10 text-naturae-forest flex items-center justify-center flex-shrink-0 text-sm">
+                            ✨
+                        </div>
+                        <span class="text-xs font-semibold text-naturae-text">No Harsh Chemicals</span>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-naturae-forest/10 text-naturae-forest flex items-center justify-center flex-shrink-0 text-sm">
+                            🐰
+                        </div>
+                        <span class="text-xs font-semibold text-naturae-text">Cruelty Free</span>
+                    </div>
+                </div>
+
             </div>
-            @if($collection && $collection->slug)
-              <a href="{{ route('store.shop', ['collection' => $collection->slug]) }}" class="text-sm font-semibold text-terracotta-dark nt-wiggle-underline">View all</a>
-            @endif
-          </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            @foreach($productVms as $product)
-              @include('store.themes.naturae.partials.product-card', ['product' => $product])
+
+            <!-- Right Hero Image (5 Cols) -->
+            <div class="lg:col-span-6 relative">
+                <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white/80 aspect-[4/3] sm:aspect-[16/11]">
+                    <img src="{{ global_asset('images/themes/naturae/naturae-hero-main.jpg') }}"
+                         alt="Naturae Pure Essentials Still Life"
+                         class="w-full h-full object-cover object-center transform hover:scale-102 transition-transform duration-700">
+
+                    <div class="absolute inset-0 bg-gradient-to-t from-naturae-dark/20 via-transparent to-transparent pointer-events-none"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<!-- ==========================================
+     CIRCULAR CATEGORY ICONS
+     ========================================== -->
+<section class="py-14 bg-white border-b border-naturae-border/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="text-center mb-10">
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-naturae-forest uppercase tracking-wider">
+                Shop By Category
+            </h2>
+            <p class="text-xs sm:text-sm text-naturae-muted mt-1">
+                Explore our pure organic collections created for everyday wellbeing
+            </p>
+        </div>
+
+        @php
+            $catItems = [
+                ['name' => 'Skincare', 'img' => 'cat-skincare.jpg', 'slug' => 'Skincare'],
+                ['name' => 'Hair Care', 'img' => 'cat-haircare.jpg', 'slug' => 'Hair+Care'],
+                ['name' => 'Bath & Body', 'img' => 'cat-bathbody.jpg', 'slug' => 'Bath+%26+Body'],
+                ['name' => 'Wellness', 'img' => 'cat-wellness.jpg', 'slug' => 'Wellness'],
+                ['name' => 'Home Care', 'img' => 'cat-homecare.jpg', 'slug' => 'Home+Care'],
+                ['name' => 'Organic Tea', 'img' => 'cat-organictea.jpg', 'slug' => 'Organic+Tea'],
+                ['name' => 'Gift Sets', 'img' => 'cat-giftsets.jpg', 'slug' => 'Gift+Sets'],
+                ['name' => 'Accessories', 'img' => 'cat-accessories.jpg', 'slug' => 'Accessories'],
+            ];
+        @endphp
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-6 text-center">
+            @foreach($catItems as $c)
+                @php
+                    $catLink = url('online_store/shop?category=' . $c['slug']) . ($previewTheme ? '&preview_theme=' . $previewTheme : '');
+                @endphp
+                <a href="{{ $catLink }}" class="group flex flex-col items-center">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-naturae-border group-hover:border-naturae-forest transition-all duration-300 p-1 bg-naturae-sand/40 group-hover:shadow-md">
+                        <img src="{{ global_asset('images/themes/naturae/' . $c['img']) }}"
+                             alt="{{ $c['name'] }}"
+                             class="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <span class="mt-3 font-medium text-xs text-naturae-text group-hover:text-naturae-forest uppercase tracking-wider transition">
+                        {{ $c['name'] }}
+                    </span>
+                </a>
             @endforeach
-          </div>
-        </section>
-      @endif
-    @endif
-  @endforeach
+        </div>
 
-  {{-- ===== "ROOTED IN GOOD PRACTICE" FEATURE STRIP ===== --}}
-  <section class="bg-leaf-deep">
-    <div class="max-w-7xl mx-auto px-4 py-14 grid lg:grid-cols-3 gap-8 items-start text-cream">
-      <div>
-        <span class="eyebrow text-terracotta-light text-xs font-bold">Our promise</span>
-        <h2 class="text-2xl lg:text-3xl font-display font-semibold mt-2 leading-tight">Rooted in good practice, not just good marketing</h2>
-        <p class="mt-4 text-cream/70 text-sm leading-relaxed max-w-sm">Every category on Naturae — from kitchen electronics to running shoes — is screened against the same standard: made well, sourced honestly, and shipped with the smallest footprint we can manage.</p>
-      </div>
-      <div class="lg:col-span-2 grid sm:grid-cols-2 gap-5">
-        <div class="p-5 rounded-3xl bg-white/5 border border-white/10">
-          <svg class="w-8 h-8 text-terracotta-light mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M4 10c3-4 7-6 8-6s5 2 8 6c-1 5-5 9-8 10-3-1-7-5-8-10Z"/><path stroke-linecap="round" d="M12 8v8"/></svg>
-          <h3 class="font-display font-semibold text-white">Woven-basket sourcing</h3>
-          <p class="text-cream/65 text-sm mt-1 leading-relaxed">We work directly with small manufacturers and co-ops across electronics, textiles and food — fewer middlemen, fairer prices at the source.</p>
-        </div>
-        <div class="p-5 rounded-3xl bg-white/5 border border-white/10">
-          <svg class="w-8 h-8 text-terracotta-light mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/><path stroke-linecap="round" d="M12 21V9"/></svg>
-          <h3 class="font-display font-semibold text-white">Packaging that composts</h3>
-          <p class="text-cream/65 text-sm mt-1 leading-relaxed">Every box ships in recycled cardboard, plant-based mailers, and paper tape — no single-use plastic, ever, on any order.</p>
-        </div>
-        <div class="p-5 rounded-3xl bg-white/5 border border-white/10">
-          <svg class="w-8 h-8 text-terracotta-light mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12c1-4 5-7 9-7s8 3 9 7M3 12c1 4 5 7 9 7s8-3 9-7"/><path stroke-linecap="round" d="M9 12h6"/></svg>
-          <h3 class="font-display font-semibold text-white">Offset delivery routes</h3>
-          <p class="text-cream/65 text-sm mt-1 leading-relaxed">We calculate the footprint of every shipment and fund verified reforestation and clean-energy projects to balance it out.</p>
-        </div>
-        <div class="p-5 rounded-3xl bg-white/5 border border-white/10">
-          <svg class="w-8 h-8 text-terracotta-light mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="9" r="3.2"/><path stroke-linecap="round" d="M12 12.2V21M8 21h8"/></svg>
-          <h3 class="font-display font-semibold text-white">Audited, always</h3>
-          <p class="text-cream/65 text-sm mt-1 leading-relaxed">Every factory and farm partner passes third-party labor and safety audits before a single product reaches our shelves.</p>
-        </div>
-      </div>
     </div>
-  </section>
+</section>
 
-  {{-- ===== PROMO STRIP ===== --}}
-  <section class="max-w-7xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-5">
-    <div class="relative rounded-4xl overflow-hidden h-60 flex items-end p-7">
-      <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="Home goods">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent"></div>
-      <div class="relative">
-        <span class="text-terracotta-light text-xs font-bold uppercase">Home Edit</span>
-        <h3 class="text-white text-2xl font-display font-semibold mt-1">Warm the house, not the planet</h3>
-        <a href="{{ route('store.shop') }}" class="mt-3 inline-flex text-sm font-semibold text-white underline">Shop home &amp; living</a>
-      </div>
-    </div>
-    <div class="relative rounded-4xl overflow-hidden h-60 flex items-end p-7">
-      <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="Tech">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent"></div>
-      <div class="relative">
-        <span class="text-leaf-light text-xs font-bold uppercase">Tech &amp; Audio</span>
-        <h3 class="text-white text-2xl font-display font-semibold mt-1">Refurbished-friendly electronics</h3>
-        <a href="{{ route('store.shop') }}" class="mt-3 inline-flex text-sm font-semibold text-white underline">Shop electronics</a>
-      </div>
-    </div>
-  </section>
 
-  {{-- ===== TESTIMONIALS ===== --}}
-  <section class="bg-white border-y border-leaf-light">
-    <div class="max-w-7xl mx-auto px-4 py-14">
-      <div class="text-center mb-9">
-        <span class="eyebrow text-terracotta-dark text-xs font-bold">Community</span>
-        <h2 class="text-2xl lg:text-3xl font-display font-semibold text-leaf-deep mt-2">Loved by shoppers who care where things come from</h2>
-      </div>
-      <div class="grid md:grid-cols-3 gap-6">
-        @foreach([
-          ['name' => 'Marisol T.', 'role' => 'Verified buyer', 'quote' => 'I ordered a blender, a wool sweater and a bag of single-origin coffee in the same cart — everything arrived in cardboard and paper, no plastic in sight. That detail matters to me.'],
-          ['name' => 'Owen F.', 'role' => 'Verified buyer', 'quote' => 'The sustainability claims here actually check out — the packaging insert explains exactly which farm the cotton in my shirt came from. Rare to see that level of transparency.'],
-          ['name' => 'Ines D.', 'role' => 'Verified buyer', 'quote' => 'Bought running shoes and skincare together and both brands had ethical sourcing badges I could actually verify. Prices were fair too, not a "green tax" markup.'],
-        ] as $t)
-          <div class="p-7 rounded-3xl bg-cream border border-leaf-light">
-            <div class="flex gap-0.5 text-terracotta mb-4">
-              @for($i=0;$i<5;$i++)<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01z"/></svg>@endfor
+<!-- ==========================================
+     3 PROMO BANNERS
+     ========================================== -->
+<section class="py-14 bg-naturae-bg border-b border-naturae-border/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <!-- Banner 1: New Arrivals -->
+            <div class="group relative rounded-2xl overflow-hidden shadow-md bg-white border border-naturae-border flex flex-col">
+                <div class="relative h-48 sm:h-56 overflow-hidden">
+                    <img src="{{ global_asset('images/themes/naturae/promo-new-arrivals.jpg') }}"
+                         alt="New Arrivals"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-naturae-dark/70 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <span class="text-[10px] font-bold uppercase tracking-widest bg-naturae-forest/80 px-2 py-0.5 rounded backdrop-blur-sm">New Arrivals</span>
+                        <h3 class="font-serif text-lg font-bold mt-1">Fresh Picks You'll Love</h3>
+                    </div>
+                </div>
+                <div class="p-4 flex items-center justify-between bg-white mt-auto">
+                    <p class="text-xs text-naturae-muted">Botanical additions to elevate your ritual.</p>
+                    <a href="{{ url('online_store/shop?collection=new-arrivals' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}"
+                       class="inline-flex items-center gap-1 text-xs font-bold text-naturae-forest hover:text-naturae-sage uppercase tracking-wider transition">
+                        <span>Explore</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
             </div>
-            <p class="text-sm text-bark/80 leading-relaxed">&ldquo;{{ $t['quote'] }}&rdquo;</p>
-            <div class="mt-4 flex items-center gap-2">
-              <div class="w-8 h-8 rounded-full bg-leaf-light flex items-center justify-center font-display font-bold text-leaf-dark text-xs">{{ strtoupper(substr($t['name'],0,1)) }}</div>
-              <div>
-                <div class="text-sm font-bold text-leaf-deep font-display">{{ $t['name'] }}</div>
-                <div class="text-[11px] text-bark/50">{{ $t['role'] }}</div>
-              </div>
+
+            <!-- Banner 2: Bundle & Save -->
+            <div class="group relative rounded-2xl overflow-hidden shadow-md bg-white border border-naturae-border flex flex-col">
+                <div class="relative h-48 sm:h-56 overflow-hidden">
+                    <img src="{{ global_asset('images/themes/naturae/promo-bundle-save.jpg') }}"
+                         alt="Bundle & Save"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-naturae-dark/70 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <span class="text-[10px] font-bold uppercase tracking-widest bg-emerald-700/80 px-2 py-0.5 rounded backdrop-blur-sm">Save Up To 25%</span>
+                        <h3 class="font-serif text-lg font-bold mt-1">Wellness Bundles</h3>
+                    </div>
+                </div>
+                <div class="p-4 flex items-center justify-between bg-white mt-auto">
+                    <p class="text-xs text-naturae-muted">Complete regimes with bundled savings.</p>
+                    <a href="{{ url('online_store/shop?category=Gift+Sets' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}"
+                       class="inline-flex items-center gap-1 text-xs font-bold text-naturae-forest hover:text-naturae-sage uppercase tracking-wider transition">
+                        <span>Shop Bundles</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
             </div>
-          </div>
-        @endforeach
-      </div>
+
+            <!-- Banner 3: Eco-Friendly Living -->
+            <div class="group relative rounded-2xl overflow-hidden shadow-md bg-white border border-naturae-border flex flex-col">
+                <div class="relative h-48 sm:h-56 overflow-hidden">
+                    <img src="{{ global_asset('images/themes/naturae/promo-eco-living.jpg') }}"
+                         alt="Eco-Friendly Living"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-naturae-dark/70 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <span class="text-[10px] font-bold uppercase tracking-widest bg-naturae-forest/80 px-2 py-0.5 rounded backdrop-blur-sm">Sustainable</span>
+                        <h3 class="font-serif text-lg font-bold mt-1">Eco-Friendly Living</h3>
+                    </div>
+                </div>
+                <div class="p-4 flex items-center justify-between bg-white mt-auto">
+                    <p class="text-xs text-naturae-muted">Conscious choices for a peaceful home.</p>
+                    <a href="{{ url('online_store/shop?category=Home+Care' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}"
+                       class="inline-flex items-center gap-1 text-xs font-bold text-naturae-forest hover:text-naturae-sage uppercase tracking-wider transition">
+                        <span>Discover</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+        </div>
     </div>
-  </section>
+</section>
 
-  {{-- ===== NEWSLETTER ===== --}}
-  <section class="max-w-7xl mx-auto px-4 py-14">
-    <div class="relative rounded-4xl bg-terracotta-light overflow-hidden p-9 lg:p-14 grid lg:grid-cols-5 gap-7 items-center">
-      <svg class="absolute -top-10 -left-10 w-56 h-56 text-terracotta/15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.8"><path d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/></svg>
-      <div class="lg:col-span-2 relative">
-        <h3 class="text-2xl lg:text-3xl font-display font-semibold text-leaf-deep">Join the good-for-the-planet list</h3>
-        <p class="text-bark/70 text-sm mt-2 leading-relaxed">Early access to new arrivals across every category, plus the occasional note on where your favorite products actually come from.</p>
-      </div>
-      <form action="#" method="post" class="lg:col-span-3 relative flex flex-col sm:flex-row gap-3">
-        @csrf
-        <input type="email" required placeholder="you@example.com" class="flex-1 h-13 px-5 py-3.5 rounded-full border-0 text-sm shadow-soft">
-        <button type="submit" class="h-13 px-7 py-3.5 rounded-full bg-leaf-dark text-white font-bold hover:bg-leaf-deep transition-colors">Subscribe</button>
-      </form>
+
+<!-- ==========================================
+     BEST SELLERS SECTION
+     ========================================== -->
+<section class="py-16 bg-white border-b border-naturae-border/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Header Strip -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10 pb-4 border-b border-naturae-border">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-widest text-naturae-sage">Loved By Community</span>
+                <h2 class="font-serif text-3xl sm:text-4xl font-bold text-naturae-forest mt-1">
+                    Best Sellers
+                </h2>
+                <p class="text-xs sm:text-sm text-naturae-muted mt-1">
+                    Our most cherished organic formulas and botanical essentials.
+                </p>
+            </div>
+
+            <a href="{{ $shopUrl }}" class="mt-4 sm:mt-0 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-naturae-forest hover:text-naturae-sage transition">
+                <span>View All Products</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Products Grid (6 Columns on desktop) -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
+            @forelse($products as $product)
+                @include('store.themes.naturae.partials.product-card', ['product' => $product])
+            @empty
+                <div class="col-span-full text-center py-12 text-naturae-muted text-sm">
+                    No organic products found.
+                </div>
+            @endforelse
+        </div>
+
     </div>
-  </section>
+</section>
 
-  {{-- ===== FOOTER BANNERS ===== --}}
-  @if(($byPos['footer_left'] ?? collect())->count() || ($byPos['footer_right'] ?? collect())->count())
-    <section class="max-w-7xl mx-auto px-4 pb-10 grid md:grid-cols-2 gap-4">
-      @foreach($byPos['footer_left'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block rounded-3xl overflow-hidden shadow-soft"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
-      @endforeach
-      @foreach($byPos['footer_right'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block rounded-3xl overflow-hidden shadow-soft"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
-      @endforeach
-    </section>
-  @endif
 
-</main>
+<!-- ==========================================
+     TRUST / BENEFITS STRIP
+     ========================================== -->
+<section class="py-12 bg-naturae-sand/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 text-center sm:text-left">
 
-@include('store.themes.naturae.partials.footer', ['categories' => $categories])
-@include('store.themes.naturae.partials.mobile-nav')
+            <!-- Benefit 1 -->
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-3.5">
+                <div class="w-12 h-12 rounded-full bg-naturae-forest text-white flex items-center justify-center flex-shrink-0 text-xl shadow-sm">
+                    📦
+                </div>
+                <div>
+                    <h4 class="font-serif text-sm font-bold text-naturae-forest uppercase tracking-wider">Sustainable Packaging</h4>
+                    <p class="text-xs text-naturae-muted mt-0.5">100% recyclable & plastic-free shipping boxes.</p>
+                </div>
+            </div>
 
-<script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
-</body>
-</html>
+            <!-- Benefit 2 -->
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-3.5">
+                <div class="w-12 h-12 rounded-full bg-naturae-forest text-white flex items-center justify-center flex-shrink-0 text-xl shadow-sm">
+                    🔒
+                </div>
+                <div>
+                    <h4 class="font-serif text-sm font-bold text-naturae-forest uppercase tracking-wider">Secure Payments</h4>
+                    <p class="text-xs text-naturae-muted mt-0.5">256-bit encrypted safe payment processing.</p>
+                </div>
+            </div>
+
+            <!-- Benefit 3 -->
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-3.5">
+                <div class="w-12 h-12 rounded-full bg-naturae-forest text-white flex items-center justify-center flex-shrink-0 text-xl shadow-sm">
+                    🔄
+                </div>
+                <div>
+                    <h4 class="font-serif text-sm font-bold text-naturae-forest uppercase tracking-wider">Hassle-Free Returns</h4>
+                    <p class="text-xs text-naturae-muted mt-0.5">30-day organic purity satisfaction guarantee.</p>
+                </div>
+            </div>
+
+            <!-- Benefit 4 -->
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-3.5">
+                <div class="w-12 h-12 rounded-full bg-naturae-forest text-white flex items-center justify-center flex-shrink-0 text-xl shadow-sm">
+                    💬
+                </div>
+                <div>
+                    <h4 class="font-serif text-sm font-bold text-naturae-forest uppercase tracking-wider">Customer Support</h4>
+                    <p class="text-xs text-naturae-muted mt-0.5">Dedicated botanical team ready to guide you.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+@endsection

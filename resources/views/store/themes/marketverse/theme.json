@@ -1,48 +1,30 @@
 {
-    "slug": "marketverse",
-    "name": "MarketVerse",
-    "tagline": "Your world of shopping, in one cart.",
-    "description": "Dense marketplace-grid persona with a persistent left category rail, a scrolling trending-now ticker, and seller/brand badge chips on tight 5-6 column product grids. General merchandise across electronics, fashion, home, beauty, grocery and sports, priced with a data-terminal mono typeface.",
-    "category": "general-merchandise",
-    "version": "1.0.0",
-    "layout_persona": "Marketplace Data Grid",
-    "layout": "rail-grid-dense",
-    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap",
-    "fontPairing": {
-        "heading": "Inter",
-        "body": "Inter"
-    },
-    "paletteSwatches": [
-        "#F0800F",
-        "#C4670C",
-        "#1F2937",
-        "#FFE7CC"
-    ],
-    "tokens": {
-        "color-bg-base": "#F7F5F2",
-        "color-accent-500": "#F0800F",
-        "color-accent-600": "#C4670C",
-        "color-accent-700": "#1F2937",
-        "color-accent-800": "#FFE7CC",
-        "font-heading": "'Inter', sans-serif",
-        "font-body": "'Inter', sans-serif",
-        "font-size-heading": "32px",
-        "font-size-body": "15px"
-    },
-    "customizable": [
-        "color-accent-500",
-        "color-accent-600",
-        "color-accent-700",
-        "color-accent-800",
-        "font-heading",
-        "font-body",
-        "font-size-heading",
-        "font-size-body"
-    ],
-    "pages": {
-        "home": true,
-        "shop": true,
-        "product": true,
-        "cart": true
-    }
+  "name": "MarketVerse",
+  "slug": "marketverse",
+  "category": "Multi-Vendor Marketplace",
+  "description": "Vibrant, high-energy multi-store e-commerce marketplace featuring bold royal purple navigation, top store storefronts, flash deals with live countdowns, trending departments, and seller spotlights.",
+  "author": "StoreX Theme Studio",
+  "version": "1.0.0",
+  "pages": {
+    "home": true,
+    "shop": true,
+    "product": true,
+    "cart": true
+  },
+  "tokens": {
+    "color-bg-base": "#F4F6F8",
+    "color-bg-card": "#FFFFFF",
+    "color-bg-elevated": "#FFFFFF",
+    "color-primary": "#4F28D9",
+    "color-primary-dark": "#371B97",
+    "color-primary-deep": "#220F63",
+    "color-accent": "#FF5722",
+    "color-accent-hover": "#E64A19",
+    "color-gold": "#FFB800",
+    "color-border": "#E2E8F0",
+    "color-text-primary": "#0F172A",
+    "color-text-muted": "#64748B",
+    "font-heading": "'Inter', 'Plus Jakarta Sans', sans-serif",
+    "font-body": "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+  }
 }

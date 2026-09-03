@@ -1,71 +1,130 @@
-<!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
-<head>
-@include('store.themes.novatech._shell', ['pageTitle' => 'Your Cart — ' . ($s->store_name ?? 'NovaTech')])
-</head>
-<body class="bg-nova-bg text-slate-100 antialiased bg-nova-radial bg-no-repeat">
+@extends('store.themes.novatech._shell')
 
-@include('store.themes.novatech.partials.header', ['categories' => $categories, 'showCategoryBar' => false])
+@section('title', 'Your Shopping Cart — NOVATECH')
 
-<main class="pb-24 lg:pb-0">
-  <div class="max-w-4xl mx-auto px-4 py-8">
-    <h1 class="text-2xl font-black text-white mb-6 flex items-center gap-2">
-      <svg class="w-6 h-6 text-nova-violetLight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-      Your Cart
-    </h1>
+@section('content')
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10" x-data="{ items: [], total: 0, coupon: '', discount: 0 }" x-init="items = CartLS.get(); total = CartLS.total(); window.addEventListener('cart-updated', () => { items = CartLS.get(); total = CartLS.total(); })">
 
-    <div x-data="miniCart()">
-      <template x-if="!items.length">
-        <div class="text-center py-20 nt-glass rounded-2xl">
-          <svg class="w-14 h-14 mx-auto text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          <p class="mt-4 text-slate-400">Your cart is empty.</p>
-          <a href="{{ route('store.shop') }}" class="mt-4 inline-flex h-11 px-6 rounded-full bg-nova-violet text-white font-semibold items-center hover:bg-nova-violetDark">Start Shopping</a>
-        </div>
-      </template>
-
-      <div class="nt-glass rounded-2xl divide-y divide-white/10">
-        <template x-for="it in items" :key="it.id">
-          <div class="flex items-center gap-4 p-4">
-            <img :src="it.image || '{{ global_asset(upload_path('products').'/no-image.png') }}'" class="w-16 h-16 rounded-lg object-cover border border-white/10">
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-semibold text-white truncate" x-text="it.name"></div>
-              <div class="text-sm font-bold text-nova-violetLight" x-text="hidePrices ? '' : money(it.price)"></div>
-            </div>
-            <div class="flex items-center border border-white/10 rounded-full h-9">
-              <button type="button" class="w-8 h-full text-slate-300" @click="dec(it)">−</button>
-              <input type="number" class="w-10 text-center h-full text-sm bg-transparent text-white" :value="it.qty" min="1" @change="setQty(it, $event.target.value)">
-              <button type="button" class="w-8 h-full text-slate-300" @click="inc(it)">+</button>
-            </div>
-            <div class="w-20 text-right text-sm font-bold text-white" x-text="lineTotal(it)"></div>
-            <button type="button" class="text-slate-500 hover:text-nova-violet" @click="remove(it)" aria-label="Remove">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
-            </button>
-          </div>
-        </template>
-      </div>
-
-      <div class="nt-glass rounded-2xl p-5 mt-4" x-show="items.length">
-        <div class="flex justify-between text-sm text-slate-400"><span>Subtotal</span><strong class="text-white" x-text="money(subtotal)"></strong></div>
-        <div class="flex justify-between text-base mt-2"><span class="font-bold text-white">Total</span><strong class="text-nova-violetLight text-lg" x-text="money(grand)"></strong></div>
-        <div class="flex gap-2 mt-5">
-          <button type="button" class="h-11 px-5 rounded-full border border-white/10 text-sm font-semibold text-slate-300" @click="clear">Clear Cart</button>
-          <button type="button" class="flex-1 h-11 rounded-full bg-nova-violet text-white font-bold hover:bg-nova-violetDark hover:shadow-glow transition-all" @click="checkout('{{ route('checkout') }}')">
-            Proceed to Checkout →
-          </button>
-        </div>
-      </div>
+    <!-- Page Header -->
+    <div class="pb-6 border-b border-slate-200 mb-8">
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight uppercase">Your Shopping Cart</h1>
+        <p class="text-xs text-slate-500 mt-1">Review your selected items and proceed to secure checkout.</p>
     </div>
 
-    <a href="{{ route('store.shop') }}" class="inline-flex items-center gap-1.5 mt-6 text-sm font-semibold text-nova-violetLight">
-      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5m7 7-7-7 7-7"/></svg>
-      Continue Shopping
-    </a>
-  </div>
-</main>
+    <!-- Empty State -->
+    <template x-if="items.length === 0">
+        <div class="bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm max-w-lg mx-auto my-12 space-y-5">
+            <div class="w-20 h-20 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900">Your cart is currently empty</h2>
+            <p class="text-xs text-slate-500">Explore our wide selection of tech, smartphones, laptops and accessories to find your gear.</p>
+            <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md">
+                <span>Start Shopping</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
+        </div>
+    </template>
 
-@include('store.themes.novatech.partials.footer', ['categories' => $categories])
-@include('store.themes.novatech.partials.mobile-nav')
+    <!-- Cart Layout with Items & Summary -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8" x-show="items.length > 0">
 
-<script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
-</body>
-</html>
+        <!-- Cart Items (Col span 2) -->
+        <div class="lg:col-span-2 space-y-4">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm divide-y divide-slate-100 overflow-hidden">
+                <template x-for="item in items" :key="item.id">
+                    <div class="p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center space-x-4 w-full sm:w-auto">
+                            <div class="w-20 h-20 rounded-xl bg-slate-50 p-2 border border-slate-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                                <img :src="item.image.startsWith('http') || item.image.startsWith('/') ? item.image : '/images/themes/novatech/' + item.image"
+                                     :alt="item.name"
+                                     class="w-full h-full object-contain">
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-900 line-clamp-1" x-text="item.name"></h3>
+                                <p class="text-xs font-mono text-slate-400 mt-0.5" x-text="item.code ? 'SKU: ' + item.code : ''"></p>
+                                <p class="text-sm font-extrabold text-indigo-600 mt-1" x-text="'$' + parseFloat(item.price).toFixed(2)"></p>
+                            </div>
+                        </div>
+
+                        <!-- Quantity Controller & Subtotal -->
+                        <div class="flex items-center justify-between sm:justify-end space-x-6 w-full sm:w-auto">
+                            <div class="flex items-center rounded-xl border border-slate-200 bg-slate-50 p-1">
+                                <button @click="CartLS.updateQty(item.id, item.quantity - 1)" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center hover:bg-slate-100">-</button>
+                                <span class="w-8 text-center text-xs font-bold text-slate-900" x-text="item.quantity"></span>
+                                <button @click="CartLS.updateQty(item.id, item.quantity + 1)" class="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center hover:bg-slate-100">+</button>
+                            </div>
+
+                            <span class="text-sm font-black text-slate-900 w-20 text-right" x-text="'$' + (parseFloat(item.price) * item.quantity).toFixed(2)"></span>
+
+                            <!-- Remove item button -->
+                            <button @click="CartLS.remove(item.id)" class="text-slate-400 hover:text-rose-500 p-1.5 transition-colors" aria-label="Remove item">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="flex items-center justify-between pt-2">
+                <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center space-x-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    <span>Continue Shopping</span>
+                </a>
+                <button @click="CartLS.clear()" class="text-xs font-semibold text-rose-500 hover:text-rose-700 transition-colors">
+                    Clear Entire Cart
+                </button>
+            </div>
+        </div>
+
+        <!-- Order Summary (Col span 1) -->
+        <div class="space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
+                <h2 class="text-base font-black text-slate-900 uppercase tracking-wider">Order Summary</h2>
+
+                <div class="space-y-3 text-xs divide-y divide-slate-100">
+                    <div class="flex items-center justify-between pt-2">
+                        <span class="text-slate-500">Items Subtotal</span>
+                        <span class="font-bold text-slate-900" x-text="'$' + parseFloat(total).toFixed(2)"></span>
+                    </div>
+                    <div class="flex items-center justify-between pt-3">
+                        <span class="text-slate-500">Shipping</span>
+                        <span class="font-bold text-emerald-600" x-text="total >= 75 ? 'FREE' : '$9.99'"></span>
+                    </div>
+                    <div class="flex items-center justify-between pt-3" x-show="discount > 0">
+                        <span class="text-slate-500">Promo Discount</span>
+                        <span class="font-bold text-rose-600" x-text="'-$' + parseFloat(discount).toFixed(2)"></span>
+                    </div>
+                    <div class="flex items-center justify-between pt-4 text-sm font-black">
+                        <span class="text-slate-900 uppercase">Estimated Total</span>
+                        <span class="text-xl text-indigo-600" x-text="'$' + (total >= 75 ? total - discount : total + 9.99 - discount).toFixed(2)"></span>
+                    </div>
+                </div>
+
+                <!-- Coupon Code Widget -->
+                <div class="pt-2">
+                    <div class="flex gap-2">
+                        <input type="text" x-model="coupon" placeholder="Discount code (e.g. NOVATECH15)" class="flex-1 px-3 py-2 text-xs border border-slate-200 rounded-xl uppercase focus:outline-none focus:border-indigo-600">
+                        <button type="button" @click="if (coupon.trim().toUpperCase() === 'NOVATECH15') { discount = total * 0.15; CartLS.showToast('Promo code NOVATECH15 applied! (15% OFF)'); } else { CartLS.showToast('Invalid promo code', 'error'); }" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-colors">
+                            Apply
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Checkout Button -->
+                <a href="{{ url('/online_store/checkout?preview_theme=novatech') }}" class="w-full block py-3.5 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs uppercase tracking-wider text-center transition-all shadow-lg shadow-indigo-500/25">
+                    Proceed to Checkout
+                </a>
+
+                <!-- Security Assurance -->
+                <div class="flex items-center justify-center space-x-2 text-[11px] font-semibold text-slate-400 text-center pt-2">
+                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    <span>256-Bit SSL Encrypted Checkout</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+@endsection

@@ -1,158 +1,254 @@
-{{-- Zanova theme shell — Tailwind CDN + config + fonts, included once per page --}}
-@php
-  $themeTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'Zanova');
-  $themeHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
-  $activeThemeSlug = 'zanova';
-  $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
-  $accent500 = $themeTokens['color-accent-500'] ?? '{{ $accent500 }}';
-  $accent600 = $themeTokens['color-accent-600'] ?? '{{ $accent600 }}';
-  $accent700 = $themeTokens['color-accent-700'] ?? '{{ $accent700 }}';
-  $accent800 = $themeTokens['color-accent-800'] ?? '{{ $accent800 }}';
-  $fontHeading = $themeTokens['font-heading'] ?? "'Space Grotesk', sans-serif";
-  $fontBody = $themeTokens['font-body'] ?? "'Inter', sans-serif";
-  $fontSizeHeading = $themeTokens['font-size-heading'] ?? '34px';
-  $fontSizeBody = $themeTokens['font-size-body'] ?? '15px';
-@endphp
-<meta charset="utf-8" />
-<title>{{ $themeTitle }}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="{{ $s->seo_meta_description ?? 'Shop the future — electronics, fashion, home, beauty, grocery and more, curated in one neon-lit marketplace.' }}" />
-<meta name="csrf-token" content="{{ csrf_token() }}">
-<meta name="currency" content="{{ $s->currency_code ?? '$' }}">
-<script>window.__LOGGED_IN__ = @json(Auth::guard('store')->check());</script>
-<script>window.__ALLOW_OVERSELLING__ = @json($s->allow_overselling ?? true);</script>
-<script>window.__HIDE_PRICES__ = @json($themeHidePrices);</script>
-<script>window.__SHOW_STOCK__ = @json($s->show_stock ?? true);</script>
-<script>
-  window.__MSG_ONLY_X_STOCK__ = @json(__('messages.Only_x_available_in_stock'));
-  window.__MSG_MAX_ADDED__    = @json(__('messages.Max_stock_added_to_cart'));
-  window.__MSG_ALREADY_MAX__  = @json(__('messages.Already_max_in_cart'));
-  window.__MSG_ADDED__        = @json(__('messages.Added'));
-</script>
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'ZANOVA — Shop Beyond Limits | Modern Marketplace')</title>
+    <meta name="description" content="@yield('meta_description', 'ZANOVA: Discover top tech, fashion, home essentials, beauty, and sports at unbeatable prices with mega deals and fast shipping.')">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap">
+    <!-- Google Fonts: Plus Jakarta Sans + Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    darkMode: 'class',
-    theme: {
-      extend: {
-        colors: {
-          zn: {
-            bg: '#0B0B12',
-            surface: '#12121C',
-            surface2: '#181826',
-            violet: '{{ $accent500 }}',
-            violetDark: '#6D28D9',
-            cyan: '{{ $accent700 }}',
-            pink: '{{ $accent800 }}',
-            ink: '#0B0B12',
-            mist: '#A1A1AE',
-          }
-        },
-        fontFamily: {
-          heading: ['Space Grotesk', 'sans-serif'],
-          sans: ['Inter', 'system-ui', 'sans-serif'],
-        },
-        boxShadow: {
-          glow: '0 0 24px -4px rgba(139,92,246,.5), 0 0 8px rgba(34,211,238,.3)',
-          glowLg: '0 0 48px -8px rgba(139,92,246,.55), 0 0 16px rgba(34,211,238,.35)',
-          navUp: '0 -8px 24px -12px rgba(0,0,0,0.6)',
-        },
-      }
-    }
-  }
-</script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zanova: {
+                            navy: '#0B111E',
+                            dark: '#0F172A',
+                            slate: '#1E293B',
+                            yellow: '#FFCC00',
+                            yellowDark: '#E6B800',
+                            yellowHover: '#F5C200',
+                            purple: '#7C3AED',
+                            purpleDark: '#5B21B6',
+                            bg: '#F8FAFC',
+                            surface: '#FFFFFF',
+                            text: '#0F172A',
+                            muted: '#64748B',
+                            border: '#E2E8F0',
+                            borderLight: '#F1F5F9',
+                            red: '#EF4444'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
 
-<style>
-  :root {
-    --color-accent-500: {{ $accent500 }};
-    --color-accent-600: {{ $accent600 }};
-    --color-accent-700: {{ $accent700 }};
-    --color-accent-800: {{ $accent800 }};
-    --font-heading: {!! $fontHeading !!};
-    --font-body: {!! $fontBody !!};
-    --font-size-heading: {{ $fontSizeHeading }};
-    --font-size-body: {{ $fontSizeBody }};
-  }
-  body {
-    font-family: {!! $fontBody !!} !important;
-    font-size: {{ $fontSizeBody }} !important;
-  }
-  h1, .hero-title, [class*="-hero"] h1, .font-display, .font-head, .font-serif {
-    font-size: {{ $fontSizeHeading }};
-    font-family: {!! $fontHeading !!};
-  }
+    <!-- Alpine.js Core & Collapse Plugins -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-  * { scrollbar-width: thin; scrollbar-color: #8B5CF6 #12121C; }
-  ::-webkit-scrollbar { height: 8px; width: 8px; }
-  ::-webkit-scrollbar-track { background: #12121C; }
-  ::-webkit-scrollbar-thumb { background: linear-gradient(#8B5CF6, #22D3EE); border-radius: 9999px; }
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  .eyebrow { letter-spacing: .16em; text-transform: uppercase; }
-  details > summary { list-style: none; cursor: pointer; }
-  details > summary::-webkit-details-marker { display: none; }
-  body { font-family: 'Inter', system-ui, sans-serif; background: #0B0B12; }
-  h1, h2, h3, h4, .font-heading { font-family: 'Space Grotesk', sans-serif; }
+    <style>
+        [x-cloak] { display: none !important; }
 
-  .text-gradient {
-    background-image: linear-gradient(90deg, #8B5CF6 0%, #22D3EE 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
+        body {
+            background-color: #F8FAFC;
+            color: #0F172A;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
 
-  .glow-card {
-    box-shadow: 0 0 0 1px rgba(139,92,246,0.12);
-    transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
-  }
-  .glow-card:hover {
-    box-shadow: 0 0 24px -4px rgba(139,92,246,.5), 0 0 8px rgba(34,211,238,.3);
-    transform: translateY(-2px);
-  }
+        /* Smooth custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+    </style>
 
-  .btn-glass {
-    position: relative;
-    background: linear-gradient(135deg, rgba(139,92,246,0.95), rgba(34,211,238,0.85));
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 0 24px -6px rgba(139,92,246,.6);
-    transition: box-shadow .25s ease, transform .15s ease, filter .2s ease;
-  }
-  .btn-glass:hover { filter: brightness(1.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 0 32px -4px rgba(34,211,238,.7); transform: translateY(-1px); }
-  .btn-glass:active { transform: translateY(0); }
+    <!-- Global CartLS helper script -->
+    <script>
+        window.CartLS = {
+            STORAGE_KEY: 'zanova_cart_items',
+            get() {
+                try {
+                    const raw = localStorage.getItem(this.STORAGE_KEY);
+                    return raw ? JSON.parse(raw) : [];
+                } catch (e) {
+                    console.error('Failed to read cart from localStorage', e);
+                    return [];
+                }
+            },
+            save(items) {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(items));
+                    window.dispatchEvent(new CustomEvent('cart-updated', { detail: { items } }));
+                } catch (e) {
+                    console.error('Failed to save cart to localStorage', e);
+                }
+            },
+            add(product, qty = 1, variant = null) {
+                const items = this.get();
+                const vId = variant ? (variant.id || variant.name) : null;
+                const vName = variant ? (variant.name || '') : '';
+                const code = product.code || product.id;
 
-  .btn-outline-glow {
-    background: rgba(139,92,246,0.06);
-    border: 1px solid rgba(139,92,246,0.4);
-    transition: all .2s ease;
-  }
-  .btn-outline-glow:hover {
-    border-color: rgba(34,211,238,0.7);
-    box-shadow: 0 0 16px -4px rgba(34,211,238,.5);
-    background: rgba(34,211,238,0.08);
-  }
+                const existingIndex = items.findIndex(i => i.id === product.id && i.variant_id === vId);
 
-  /* Marquee ticker */
-  .zn-marquee-track {
-    display: flex;
-    width: max-content;
-    animation: zn-scroll 28s linear infinite;
-  }
-  .zn-marquee-track:hover { animation-play-state: paused; }
-  @keyframes zn-scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
+                if (existingIndex > -1) {
+                    items[existingIndex].quantity += qty;
+                } else {
+                    const price = (variant && variant.price) ? Number(variant.price) : (Number(product.final_display_price) || Number(product.price) || 0);
+                    items.push({
+                        id: product.id,
+                        code: code,
+                        name: product.name,
+                        price: price,
+                        original_price: Number(product.base_price) || price,
+                        image: product.image || '',
+                        quantity: qty,
+                        variant_id: vId,
+                        variant_name: vName,
+                        category: (product.category && product.category.name) ? product.category.name : 'Electronics'
+                    });
+                }
+                this.save(items);
 
-  .zn-noise-grid {
-    background-image:
-      linear-gradient(rgba(139,92,246,0.07) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(139,92,246,0.07) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-</style>
+                // Dispatch toast event
+                window.dispatchEvent(new CustomEvent('toast-notify', {
+                    detail: {
+                        message: `Added "${product.name}" to your cart.`,
+                        image: product.image || '',
+                        type: 'success'
+                    }
+                }));
+            },
+            updateQty(id, variantId, qty) {
+                let items = this.get();
+                if (qty <= 0) {
+                    items = items.filter(i => !(i.id === id && i.variant_id === variantId));
+                } else {
+                    const index = items.findIndex(i => i.id === id && i.variant_id === variantId);
+                    if (index > -1) {
+                        items[index].quantity = qty;
+                    }
+                }
+                this.save(items);
+            },
+            remove(id, variantId = null) {
+                const items = this.get().filter(i => !(i.id === id && i.variant_id === variantId));
+                this.save(items);
+            },
+            clear() {
+                this.save([]);
+            },
+            count() {
+                return this.get().reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+            },
+            subtotal() {
+                return this.get().reduce((sum, item) => sum + ((Number(item.price) || 0) * (Number(item.quantity) || 0)), 0);
+            }
+        };
+
+        // Mini Cart Alpine Component
+        function miniCart() {
+            return {
+                isOpen: false,
+                items: [],
+                freeShippingThreshold: 59.00,
+                init() {
+                    this.items = CartLS.get();
+                    window.addEventListener('cart-updated', (e) => {
+                        this.items = e.detail.items || CartLS.get();
+                    });
+                },
+                get count() {
+                    return this.items.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+                },
+                get subtotal() {
+                    return this.items.reduce((sum, item) => sum + ((Number(item.price) || 0) * (Number(item.quantity) || 0)), 0);
+                },
+                get progress() {
+                    return Math.min(100, (this.subtotal / this.freeShippingThreshold) * 100);
+                },
+                get freeShippingRemaining() {
+                    const rem = this.freeShippingThreshold - this.subtotal;
+                    return rem > 0 ? rem.toFixed(2) : 0;
+                },
+                updateQty(id, variantId, qty) {
+                    CartLS.updateQty(id, variantId, qty);
+                },
+                removeItem(id, variantId) {
+                    CartLS.remove(id, variantId);
+                }
+            }
+        }
+    </script>
+    @stack('head')
+</head>
+<body class="bg-zanova-bg text-zanova-text min-h-screen flex flex-col antialiased selection:bg-zanova-yellow selection:text-zanova-navy"
+      x-data="{
+          mobileMenu: false,
+          searchOpen: false,
+          searchQuery: '',
+          toast: { show: false, message: '', image: '', type: 'success' }
+      }"
+      @toast-notify.window="
+          toast.message = $event.detail.message;
+          toast.image = $event.detail.image || '';
+          toast.type = $event.detail.type || 'success';
+          toast.show = true;
+          setTimeout(() => { toast.show = false; }, 4000);
+      ">
+
+    <!-- Top Yellow Announcement Bar & Main Dark Navy Header -->
+    @include('store.themes.zanova.partials.header')
+
+    <!-- Mobile Navigation Drawer -->
+    @include('store.themes.zanova.partials.mobile-nav')
+
+    <!-- Main Content Container -->
+    <main class="flex-grow">
+        @yield('content')
+    </main>
+
+    <!-- Dark Navy Footer -->
+    @include('store.themes.zanova.partials.footer')
+
+    <!-- Floating Toast Notification -->
+    <div x-cloak
+         x-show="toast.show"
+         x-transition:enter="transform ease-out duration-300 transition"
+         x-transition:enter-start="translate-y-4 opacity-0 sm:translate-y-0 sm:translate-x-4"
+         x-transition:enter-end="translate-y-0 opacity-100 sm:translate-x-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         class="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-white rounded-2xl p-4 shadow-2xl border border-zanova-border flex items-center gap-3.5">
+        <template x-if="toast.image">
+            <img :src="'/images/themes/zanova/' + toast.image" class="w-12 h-12 rounded-xl object-contain bg-slate-50 p-1" alt="Product thumbnail">
+        </template>
+        <div class="flex-grow">
+            <p class="text-xs font-bold text-emerald-600 tracking-wide uppercase">Cart Updated</p>
+            <p class="text-sm text-slate-800 font-semibold line-clamp-1" x-text="toast.message"></p>
+        </div>
+        <a href="{{ url('/online_store/cart' . (request('preview_theme') ? '?preview_theme=' . request('preview_theme') : '')) }}"
+           class="px-3 py-1.5 bg-zanova-yellow hover:bg-zanova-yellowHover text-zanova-navy text-xs font-black rounded-lg transition-colors whitespace-nowrap shadow-xs">
+            View Cart
+        </a>
+    </div>
+
+    @stack('scripts')
+</body>
+</html>

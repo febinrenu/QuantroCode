@@ -1,33 +1,33 @@
 {
     "slug": "technova",
-    "name": "Technova",
-    "tagline": "Shop the terminal.",
-    "description": "Terminal/monospace dev-aesthetic persona on a pure-black canvas with green and amber CRT accents, scanline texture, bracket motifs, and a command-line search bar. General merchandise across electronics, fashion, home, beauty, grocery and sports.",
-    "category": "general-merchandise",
+    "name": "TechNova",
+    "tagline": "Upgrade Your Tech Lifestyle.",
+    "description": "Premium modern electronics marketplace and storefront featuring a clean white/light-gray foundation, electric blue accents, sleek rounded cards, and high-fidelity tech photography.",
+    "category": "electronics",
     "version": "1.0.0",
-    "layout_persona": "Terminal Monospace",
-    "layout": "terminal-console",
-    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap",
+    "layout_persona": "Premium Electronics Retail",
+    "layout": "modern-electronics",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap",
     "fontPairing": {
-        "heading": "JetBrains Mono",
-        "body": "JetBrains Mono"
+        "heading": "Outfit",
+        "body": "Plus Jakarta Sans"
     },
     "paletteSwatches": [
-        "#39FF88",
-        "#FFB000",
-        "#1F8F52",
-        "#8F6300"
+        "#2563EB",
+        "#06B6D4",
+        "#1E293B",
+        "#F8FAFC"
     ],
     "tokens": {
-        "color-bg-base": "#050505",
-        "color-accent-500": "#39FF88",
-        "color-accent-600": "#FFB000",
-        "color-accent-700": "#1F8F52",
-        "color-accent-800": "#8F6300",
-        "font-heading": "'JetBrains Mono', monospace",
-        "font-body": "'JetBrains Mono', monospace",
+        "color-bg-base": "#F8FAFC",
+        "color-accent-500": "#2563EB",
+        "color-accent-600": "#1D4ED8",
+        "color-accent-700": "#06B6D4",
+        "color-accent-800": "#0F172A",
+        "font-heading": "'Outfit', sans-serif",
+        "font-body": "'Plus Jakarta Sans', sans-serif",
         "font-size-heading": "32px",
-        "font-size-body": "14px"
+        "font-size-body": "15px"
     },
     "customizable": [
         "color-accent-500",

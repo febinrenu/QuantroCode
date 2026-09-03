@@ -1,48 +1,31 @@
 {
-    "slug": "generalhub",
-    "name": "GeneralHub",
-    "tagline": "Everything you need, all in one place",
-    "description": "Confident corporate-trust blue marketplace persona with a dense multi-category mega-menu, trust badges, and a wide product grid. General merchandise across electronics, fashion, home, beauty, grocery and sports.",
-    "category": "general-merchandise",
-    "version": "1.0.0",
-    "layout_persona": "Corporate Trust Blue",
-    "layout": "dense-multicategory",
-    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap",
-    "fontPairing": {
-        "heading": "Inter",
-        "body": "Inter"
-    },
-    "paletteSwatches": [
-        "#2857E0",
-        "#1E3FA6",
-        "#1CB672",
-        "#F5A623"
-    ],
-    "tokens": {
-        "color-bg-base": "#F8FAFC",
-        "color-accent-500": "#2857E0",
-        "color-accent-600": "#1E3FA6",
-        "color-accent-700": "#1CB672",
-        "color-accent-800": "#F5A623",
-        "font-heading": "'Inter', sans-serif",
-        "font-body": "'Inter', sans-serif",
-        "font-size-heading": "32px",
-        "font-size-body": "15px"
-    },
-    "customizable": [
-        "color-accent-500",
-        "color-accent-600",
-        "color-accent-700",
-        "color-accent-800",
-        "font-heading",
-        "font-body",
-        "font-size-heading",
-        "font-size-body"
-    ],
-    "pages": {
-        "home": true,
-        "shop": true,
-        "product": true,
-        "cart": true
-    }
+  "name": "GeneralHub",
+  "slug": "generalhub",
+  "version": "1.0.0",
+  "category": "general",
+  "description": "Clean, high-conversion multi-category retail marketplace and general storefront theme with light blue hero, category browsing, and promotional banners.",
+  "author": "StoreX Team",
+  "colors": {
+    "primary": "#1E60D0",
+    "primaryHover": "#1650B0",
+    "secondary": "#0B286D",
+    "accent": "#FF5722",
+    "background": "#FFFFFF",
+    "surface": "#F8FAFC",
+    "heroBg": "#EBF3FE",
+    "border": "#E2E8F0",
+    "text": "#0F172A",
+    "textMuted": "#64748B"
+  },
+  "fonts": {
+    "sans": "Plus Jakarta Sans, Inter, sans-serif"
+  },
+  "features": [
+    "multi-category-navigation",
+    "promotional-banners",
+    "summer-sale-announcement",
+    "trust-metrics-strip",
+    "customer-testimonials-carousel",
+    "interactive-cart-drawer"
+  ]
 }
