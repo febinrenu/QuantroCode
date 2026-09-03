@@ -70,6 +70,7 @@ class StoreFrontController extends Controller
         $s = StoreSetting::firstOrFail();
 
         $activeTheme = $this->resolveActiveTheme($request, $s);
+        $themeCategoryIds = $this->themeCategoryIds($activeTheme);
 
         // Theme switch: when the Real Estate theme is active, the storefront
         // homepage is served by the dedicated real estate controller. This keeps
@@ -173,6 +174,7 @@ class StoreFrontController extends Controller
                 // === Use the same SQL pipeline as shop(), scoped to this collection ===
                 $products = Product::query()
                     ->where('products.is_active', 1)
+                    ->tap(fn ($query) => $this->scopeToThemeCategories($query, $themeCategoryIds))
                     ->where('products.hide_from_online_store', 0)
                     ->with([
                         'variants:id,product_id,name,price,image',
@@ -242,6 +244,28 @@ class StoreFrontController extends Controller
                     ],
                 ];
             }
+        }
+
+        // A category-specific storefront must still show its own products
+        // when the merchant has not yet curated a homepage collection.
+        if ($themeCategoryIds !== null && ! collect($blocks)->contains(fn ($block) => ($block['type'] ?? '') === 'collection' && ! empty($block['products']))) {
+            $featuredProducts = Product::query()
+                ->where('products.is_active', 1)
+                ->tap(fn ($query) => $this->scopeToThemeCategories($query, $themeCategoryIds))
+                ->where('products.hide_from_online_store', 0)
+                ->with(['variants:id,product_id,name,price,image', 'images:id,product_id,image_path,is_main,sort_order'])
+                ->leftJoinSub($minVariantSub, 'pvmin', fn ($join) => $join->on('pvmin.product_id', '=', 'products.id'))
+                ->addSelect('products.*', DB::raw("$finalExpr AS final_display_price"))
+                ->latest('products.created_at')->take(6)->get();
+
+            foreach ($featuredProducts as $product) {
+                $product->display_price = (float) ($product->final_display_price ?? 0);
+            }
+            $this->attachStockToProducts($featuredProducts, $s->default_warehouse_id);
+            if ($s->hide_out_of_stock ?? false) {
+                $featuredProducts = $featuredProducts->filter(fn ($product) => $this->productHasStock($product));
+            }
+            $blocks[] = ['type' => 'collection', 'title' => 'Trending Now', 'collection' => null, 'products' => $featuredProducts, 'cfg' => ['layout' => 'grid']];
         }
 
         // 4) Active banners
@@ -498,6 +522,8 @@ class StoreFrontController extends Controller
     {
         $s = StoreSetting::firstOrFail();
 
+        $activeTheme = $this->resolveActiveTheme($request, $s);
+        $themeCategoryIds = $this->themeCategoryIds($activeTheme);
         $q = trim((string) $request->get('q', ''));
         $cat = $request->get('category');
         $subCat = $request->get('sub_category');
@@ -512,6 +538,7 @@ class StoreFrontController extends Controller
 
         $productsQuery = Product::query()
             ->where('deleted_at', '=', null)
+            ->tap(fn ($query) => $this->scopeToThemeCategories($query, $themeCategoryIds))
             ->where('is_active', 1)
             ->where('hide_from_online_store', 0)
             // Note: product_variants table doesn't have a `qty` column; stock comes from product_warehouse.qte
@@ -534,7 +561,6 @@ class StoreFrontController extends Controller
             $productsQuery->whereIn('products.id', $inStockIds);
         }
 
-        $activeTheme = $this->resolveActiveTheme($request, $s);
         $categories = $this->getThemedCategories($activeTheme);
 
         if ($activeTheme === 'generalhub-store' || $activeTheme === 'generalhub') {
@@ -917,7 +943,10 @@ class StoreFrontController extends Controller
     {
         $s = StoreSetting::firstOrFail();
 
+        $activeTheme = $this->resolveActiveTheme($request, $s);
+        $themeCategoryIds = $this->themeCategoryIds($activeTheme);
         $query = Product::query()
+            ->tap(fn ($query) => $this->scopeToThemeCategories($query, $themeCategoryIds))
             ->where('is_active', 1)
             ->where('hide_from_online_store', 0)
             ->with(['variants', 'images' => fn ($q) => $q->orderBy('sort_order')->orderBy('id'), 'category', 'brand']);
@@ -952,6 +981,7 @@ class StoreFrontController extends Controller
         $this->attachStockToProducts(collect([$product]), $s->default_warehouse_id);
 
         $related = Product::query()
+            ->tap(fn ($query) => $this->scopeToThemeCategories($query, $themeCategoryIds))
             ->where('is_active', 1)
             ->where('hide_from_online_store', 0)
             ->where('id', '!=', $product->id)
@@ -972,7 +1002,6 @@ class StoreFrontController extends Controller
         $productVm = StorefrontPresenter::product($product, $currency, $hidePrices);
         $relatedVm = $related->map(fn ($rp) => StorefrontPresenter::product($rp, $currency, $hidePrices))->values()->all();
 
-        $activeTheme = $this->resolveActiveTheme($request, $s);
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'product') ?? 'store.product';
 
         return view($view, [
@@ -1010,6 +1039,47 @@ class StoreFrontController extends Controller
         $s = StoreSetting::first();
 
         return view('store.contact', compact('s'));
+    }
+
+    /**
+     * Resolve the category ids allowed by a category-specific storefront theme.
+     * Themes without product_category_keywords intentionally remain unrestricted.
+     */
+    private function themeCategoryIds(string $themeSlug): ?array
+    {
+        $keywords = StorefrontThemeRegistry::find($themeSlug)['product_category_keywords'] ?? [];
+        if (! is_array($keywords) || $keywords === []) {
+            return null;
+        }
+
+        return Category::query()->where(function ($query) use ($keywords) {
+            foreach ($keywords as $keyword) {
+                $query->orWhereRaw('LOWER(name) LIKE ?', ['%'.strtolower($keyword).'%']);
+            }
+        })->pluck('id')->map(fn ($id) => (int) $id)->all();
+    }
+
+    /** Apply an allowed-category constraint to primary and pivot category assignments. */
+    private function scopeToThemeCategories($query, ?array $categoryIds): void
+    {
+        if ($categoryIds === null) {
+            return;
+        }
+        if ($categoryIds === []) {
+            $query->whereRaw('1 = 0');
+            return;
+        }
+
+        $query->where(function ($query) use ($categoryIds) {
+            $query->whereIn('products.category_id', $categoryIds);
+            if (Schema::hasTable('category_product')) {
+                $query->orWhereExists(function ($sub) use ($categoryIds) {
+                    $sub->select(DB::raw(1))->from('category_product')
+                        ->whereColumn('category_product.product_id', 'products.id')
+                        ->whereIn('category_product.category_id', $categoryIds);
+                });
+            }
+        });
     }
 
     /**
@@ -1185,8 +1255,11 @@ class StoreFrontController extends Controller
 
         $s = StoreSetting::first();
         $warehouseId = $s->default_warehouse_id ?? null;
+        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'monochra')));
+        $themeCategoryIds = $this->themeCategoryIds($activeTheme);
 
         $products = Product::query()
+            ->tap(fn ($query) => $this->scopeToThemeCategories($query, $themeCategoryIds))
             ->where('is_active', 1)
             ->where('hide_from_online_store', 0)
             ->where(function ($query) use ($q) {
@@ -1457,6 +1530,14 @@ class StoreFrontController extends Controller
                 ->get();
         }
 
-        return Category::with('subcategories')->orderBy('name')->get();
+        // Generic fallback for category-specific themes that declare
+        // product_category_keywords in their theme.json (e.g. HomeLuxe,
+        // PawLuxe, TrailPeak, ShopIQ Electronics) rather than a hardcoded
+        // category name list above.
+        $themeCategoryIds = $this->themeCategoryIds($activeTheme);
+
+        return Category::with('subcategories')
+            ->when($themeCategoryIds !== null, fn ($query) => $query->whereIn('id', $themeCategoryIds))
+            ->orderBy('name')->get();
     }
 }
