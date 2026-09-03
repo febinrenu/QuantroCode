@@ -1,72 +1,181 @@
-<!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
-<head>
-@include('store.themes.veloura._shell', ['pageTitle' => 'Your Cart — ' . ($s->store_name ?? 'Veloura')])
-</head>
-<body class="bg-vel-black text-vel-ink antialiased">
+@extends('store.themes.veloura._shell')
 
-@include('store.themes.veloura.partials.header', ['categories' => $categories, 'showCategoryBar' => false])
+@section('title', 'Shopping Bag — ' . ($s->store_name ?? 'Veloura Beauty'))
 
-<main class="pb-24 lg:pb-0">
-  <div class="max-w-4xl mx-auto px-4 py-10">
-    <span class="eyebrow text-vel-gold text-xs font-bold">Your Selections</span>
-    <h1 class="font-serif text-3xl font-bold text-vel-ink mt-2 mb-8 flex items-center gap-3">
-      <svg class="w-7 h-7 text-vel-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-      Your Cart
-    </h1>
+@section('content')
+@php
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'veloura');
+  $velRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+  $shopUrl = $velRoute('store.shop');
+  $checkoutUrl = url('/online_store/checkout' . ($themePreview ? '?preview_theme=' . $themePreview : ''));
+@endphp
 
-    <div x-data="miniCart()">
-      <template x-if="!items.length">
-        <div class="text-center py-24 bg-vel-charcoal border border-vel-line">
-          <svg class="w-14 h-14 mx-auto text-vel-line" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          <p class="mt-4 text-vel-mute font-serif text-lg">Your cart is currently empty.</p>
-          <a href="{{ route('store.shop') }}" class="mt-6 inline-flex h-11 px-7 bg-vel-gold text-vel-black font-semibold text-sm items-center hover:bg-vel-goldSoft transition-colors">Continue Browsing</a>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" x-data="miniCart()" x-cloak>
+
+  <!-- Breadcrumbs & Heading -->
+  <div class="mb-8 space-y-2">
+    <nav class="flex items-center gap-2 text-xs text-vel-muted font-medium">
+      <a href="{{ $velRoute('store.index') }}" class="hover:text-vel-rose transition-colors">Home</a>
+      <span>/</span>
+      <span class="text-vel-charcoal font-bold">Shopping Bag</span>
+    </nav>
+
+    <div class="flex items-baseline justify-between border-b border-vel-border pb-5">
+      <h1 class="font-serif-luxury text-3xl sm:text-4xl font-bold text-vel-charcoal tracking-tight">
+        Your Shopping Bag
+      </h1>
+      <span class="text-xs text-vel-muted font-medium">
+        <span x-text="count">0</span> items selected
+      </span>
+    </div>
+  </div>
+
+  <!-- Populated Bag State -->
+  <template x-if="items.length > 0">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- Items Table List -->
+      <div class="lg:col-span-8 bg-white rounded-3xl border border-vel-border p-6 sm:p-8 shadow-sm space-y-6">
+
+        <div class="space-y-6 divide-y divide-vel-border">
+          <template x-for="item in items" :key="item.id">
+            <div class="pt-6 first:pt-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+
+              <!-- Product Info & Thumb -->
+              <div class="flex items-center gap-4 flex-1">
+                <div class="w-20 h-20 rounded-2xl bg-vel-blush border border-vel-border overflow-hidden flex items-center justify-center p-2 shrink-0">
+                  <img :src="item.image || '{{ global_asset('images/themes/veloura/generic-beauty.jpg') }}'"
+                       :alt="item.name"
+                       class="max-w-full max-h-full object-contain">
+                </div>
+                <div class="space-y-1">
+                  <h3 class="font-serif-luxury text-sm font-bold text-vel-charcoal" x-text="item.name"></h3>
+                  <div class="text-xs text-vel-muted font-medium">
+                    Unit Price: <span class="font-bold text-vel-charcoal" x-text="formatPrice(item.price)"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quantity Controls & Line Total -->
+              <div class="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
+
+                <!-- Stepper -->
+                <div class="flex items-center border border-vel-border rounded-xl bg-vel-blush">
+                  <button type="button"
+                          @click="updateQty(item.id, item.qty - 1)"
+                          class="px-3 py-1 text-xs font-bold hover:text-vel-rose transition-colors">
+                    &minus;
+                  </button>
+                  <span x-text="item.qty" class="px-3 py-1 text-xs font-bold text-vel-charcoal min-w-[2rem] text-center"></span>
+                  <button type="button"
+                          @click="updateQty(item.id, item.qty + 1)"
+                          class="px-3 py-1 text-xs font-bold hover:text-vel-rose transition-colors">
+                    +
+                  </button>
+                </div>
+
+                <!-- Total -->
+                <div class="text-right min-w-[5rem]">
+                  <span class="text-sm font-bold text-vel-charcoal" x-text="formatPrice(item.price * item.qty)"></span>
+                </div>
+
+                <!-- Remove -->
+                <button type="button"
+                        @click="remove(item.id)"
+                        class="p-2 text-slate-400 hover:text-rose-600 transition-colors"
+                        title="Remove item">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+
+              </div>
+
+            </div>
+          </template>
         </div>
-      </template>
 
-      <div class="bg-vel-charcoal border border-vel-line divide-y divide-vel-line">
-        <template x-for="it in items" :key="it.id">
-          <div class="flex items-center gap-4 p-4">
-            <img :src="it.image || '{{ global_asset(upload_path('products').'/no-image.png') }}'" class="w-16 h-16 object-cover border border-vel-line">
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-semibold text-vel-ink truncate" x-text="it.name"></div>
-              <div class="text-sm font-bold text-vel-gold" x-text="hidePrices ? '' : money(it.price)"></div>
-            </div>
-            <div class="flex items-center border border-vel-line h-9">
-              <button type="button" class="w-8 h-full text-vel-mute hover:text-vel-gold" @click="dec(it)">−</button>
-              <input type="number" class="w-10 text-center h-full text-sm bg-vel-black text-vel-ink" :value="it.qty" min="1" @change="setQty(it, $event.target.value)">
-              <button type="button" class="w-8 h-full text-vel-mute hover:text-vel-gold" @click="inc(it)">+</button>
-            </div>
-            <div class="w-20 text-right text-sm font-bold text-vel-ink" x-text="lineTotal(it)"></div>
-            <button type="button" class="text-vel-line hover:text-vel-burgundy" @click="remove(it)" aria-label="Remove">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
-            </button>
-          </div>
-        </template>
-      </div>
-
-      <div class="bg-vel-charcoal border border-vel-line p-6 mt-5" x-show="items.length">
-        <div class="flex justify-between text-sm text-vel-mute"><span>Subtotal</span><strong class="text-vel-ink" x-text="money(subtotal)"></strong></div>
-        <div class="flex justify-between text-base mt-3"><span class="font-bold text-vel-ink">Total</span><strong class="text-vel-gold text-lg font-serif" x-text="money(grand)"></strong></div>
-        <div class="flex gap-3 mt-6">
-          <button type="button" class="h-11 px-5 border border-vel-line text-sm font-semibold text-vel-mute hover:text-vel-ink" @click="clear">Clear Cart</button>
-          <button type="button" class="flex-1 h-11 bg-vel-gold text-vel-black font-bold hover:bg-vel-goldSoft transition-colors" @click="checkout('{{ route('checkout') }}')">
-            Proceed to Checkout →
+        <!-- Bag Action Links -->
+        <div class="pt-6 border-t border-vel-border flex items-center justify-between text-xs">
+          <a href="{{ $shopUrl }}" class="font-bold text-vel-rose hover:underline flex items-center gap-1">
+            &larr; Continue Shopping
+          </a>
+          <button type="button"
+                  @click="clear()"
+                  class="text-slate-400 hover:text-rose-600 font-medium transition-colors">
+            Clear Shopping Bag
           </button>
         </div>
+
+      </div>
+
+      <!-- Order Summary Card -->
+      <div class="lg:col-span-4 bg-white rounded-3xl border border-vel-border p-6 sm:p-8 shadow-sm space-y-6 sticky top-28">
+
+        <h2 class="font-serif-luxury text-xl font-bold text-vel-charcoal border-b border-vel-border pb-4">
+          Order Summary
+        </h2>
+
+        <div class="space-y-3 text-xs text-vel-muted">
+          <div class="flex items-center justify-between">
+            <span>Bag Subtotal</span>
+            <span class="font-bold text-vel-charcoal text-sm" x-text="formatPrice(subtotal)">$0.00</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>Complimentary Shipping</span>
+            <span class="text-emerald-600 font-bold">FREE</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>3 Luxury Samples</span>
+            <span class="text-vel-rose font-bold">Included</span>
+          </div>
+          <div class="pt-3 border-t border-vel-border flex items-center justify-between text-sm font-bold text-vel-charcoal">
+            <span>Estimated Total</span>
+            <span class="text-xl font-serif-luxury text-vel-roseDeep" x-text="formatPrice(total)">$0.00</span>
+          </div>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <a href="{{ $checkoutUrl }}"
+             class="block w-full py-4 bg-vel-charcoal hover:bg-vel-espresso text-white font-bold text-xs rounded-full shadow-lg active:scale-95 transition-all uppercase tracking-widest text-center">
+            Proceed to Checkout &rarr;
+          </a>
+
+          <p class="text-[11px] text-center text-vel-muted font-light">
+            🔒 Safe & Secure 256-Bit Encrypted Checkout
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </template>
+
+  <!-- Empty Bag State -->
+  <template x-if="items.length === 0">
+    <div class="bg-white rounded-3xl border border-vel-border p-12 sm:p-16 text-center space-y-6 max-w-xl mx-auto shadow-sm">
+      <div class="w-20 h-20 rounded-full bg-vel-roseLight flex items-center justify-center text-3xl mx-auto shadow-inner">
+        🌸
+      </div>
+      <div class="space-y-2">
+        <h2 class="font-serif-luxury text-2xl sm:text-3xl font-bold text-vel-charcoal">
+          Your Shopping Bag is Empty
+        </h2>
+        <p class="text-xs sm:text-sm text-vel-muted font-light max-w-md mx-auto">
+          Explore our collection of haute parfums, botanical skincare, and silken cosmetics to build your personalized beauty ritual.
+        </p>
+      </div>
+      <div>
+        <a href="{{ $shopUrl }}"
+           class="inline-block px-8 py-4 bg-vel-rose hover:bg-vel-roseDark text-white font-bold text-xs rounded-full shadow-md active:scale-95 transition-all uppercase tracking-widest">
+          Discover Beauty Rituals &rarr;
+        </a>
       </div>
     </div>
+  </template>
 
-    <a href="{{ route('store.shop') }}" class="inline-flex items-center gap-1.5 mt-8 text-sm font-semibold text-vel-gold hover:text-vel-goldSoft">
-      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5m7 7-7-7 7-7"/></svg>
-      Continue Shopping
-    </a>
-  </div>
-</main>
-
-@include('store.themes.veloura.partials.footer', ['categories' => $categories])
-@include('store.themes.veloura.partials.mobile-nav')
-
-<script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
-</body>
-</html>
+</div>
+@endsection

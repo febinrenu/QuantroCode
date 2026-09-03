@@ -1,104 +1,111 @@
-{{-- MarketVerse theme shell — Tailwind CDN + config + fonts, included once per page --}}
-@php
-  $themeTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'MarketVerse');
-  $themeHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
-  $activeThemeSlug = 'marketverse';
-  $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
-  $accent500 = $themeTokens['color-accent-500'] ?? '{{ $accent500 }}';
-  $accent600 = $themeTokens['color-accent-600'] ?? '{{ $accent600 }}';
-  $accent700 = $themeTokens['color-accent-700'] ?? '{{ $accent700 }}';
-  $accent800 = $themeTokens['color-accent-800'] ?? '{{ $accent800 }}';
-  $fontHeading = $themeTokens['font-heading'] ?? "'Inter', sans-serif";
-  $fontBody = $themeTokens['font-body'] ?? "'Inter', sans-serif";
-  $fontSizeHeading = $themeTokens['font-size-heading'] ?? '32px';
-  $fontSizeBody = $themeTokens['font-size-body'] ?? '15px';
-@endphp
-<meta charset="utf-8" />
-<title>{{ $themeTitle }}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="{{ $s->seo_meta_description ?? 'Your world of shopping, in one cart — electronics, fashion, home, beauty, grocery and sports, all in dense marketplace grids.' }}" />
-<meta name="csrf-token" content="{{ csrf_token() }}">
-<meta name="currency" content="{{ $s->currency_code ?? '$' }}">
-<script>window.__LOGGED_IN__ = @json(Auth::guard('store')->check());</script>
-<script>window.__ALLOW_OVERSELLING__ = @json($s->allow_overselling ?? true);</script>
-<script>window.__HIDE_PRICES__ = @json($themeHidePrices);</script>
-<script>window.__SHOW_STOCK__ = @json($s->show_stock ?? true);</script>
-<script>
-  window.__MSG_ONLY_X_STOCK__ = @json(__('messages.Only_x_available_in_stock'));
-  window.__MSG_MAX_ADDED__    = @json(__('messages.Max_stock_added_to_cart'));
-  window.__MSG_ALREADY_MAX__  = @json(__('messages.Already_max_in_cart'));
-  window.__MSG_ADDED__        = @json(__('messages.Added'));
-</script>
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="currency" content="{{ $s->currency_code ?? '$' }}">
+  <title>@yield('title', 'MarketVerse — Everything from Every Store, All in One Marketplace')</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+  <!-- Global Storefront State Initialization -->
+  <script>window.__LOGGED_IN__ = @json(Auth::guard('store')->check());</script>
+  <script>window.__ALLOW_OVERSELLING__ = @json($s->allow_overselling ?? true);</script>
+  <script>window.__HIDE_PRICES__ = @json(!Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false));</script>
+  <script>window.__SHOW_STOCK__ = @json($s->show_stock ?? true);</script>
+  <script>
+    window.__MSG_ONLY_X_STOCK__ = @json(__('messages.Only_x_available_in_stock'));
+    window.__MSG_MAX_ADDED__    = @json(__('messages.Max_stock_added_to_cart'));
+    window.__MSG_ALREADY_MAX__  = @json(__('messages.Already_max_in_cart'));
+    window.__MSG_ADDED__        = @json(__('messages.Added'));
+  </script>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          mv: {
-            ink: '{{ $accent700 }}',
-            inkDark: '#111827',
-            accent: '{{ $accent500 }}',
-            accentDark: '{{ $accent600 }}',
-            accentLight: '{{ $accent800 }}',
-            accentSoft: '#FFF3E6',
-            cream: '#F7F5F2',
-            line: '#E7E2DB',
-            slate: '#6B7280',
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            mv: {
+              purple: '#4F28D9',
+              purpleDark: '#371B97',
+              purpleDeep: '#220F63',
+              purpleLight: '#F3EFFF',
+              purpleBadge: '#7C3AED',
+              orange: '#FF5722',
+              orangeHover: '#E64A19',
+              gold: '#FFB800',
+              goldDark: '#D97706',
+              bg: '#F4F6F8',
+              card: '#FFFFFF',
+              border: '#E2E8F0',
+              borderLight: '#EDF2F7',
+              slateDark: '#0F172A',
+              slateMuted: '#64748B',
+            }
+          },
+          fontFamily: {
+            sans: ['"Inter"', '"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
           }
-        },
-        fontFamily: {
-          sans: ['Inter', 'system-ui', 'sans-serif'],
-          mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
-        },
-        boxShadow: {
-          tile: '0 1px 2px rgba(31,41,55,0.06), 0 1px 1px rgba(31,41,55,0.05)',
-          tileHover: '0 10px 22px -10px rgba(31,41,55,0.28)',
-          railUp: '0 -8px 20px -12px rgba(31,41,55,0.18)',
-        },
+        }
       }
     }
-  }
-</script>
+  </script>
 
-<style>
-  :root {
-    --color-accent-500: {{ $accent500 }};
-    --color-accent-600: {{ $accent600 }};
-    --color-accent-700: {{ $accent700 }};
-    --color-accent-800: {{ $accent800 }};
-    --font-heading: {!! $fontHeading !!};
-    --font-body: {!! $fontBody !!};
-    --font-size-heading: {{ $fontSizeHeading }};
-    --font-size-body: {{ $fontSizeBody }};
-  }
-  body {
-    font-family: {!! $fontBody !!} !important;
-    font-size: {{ $fontSizeBody }} !important;
-  }
-  h1, .hero-title, [class*="-hero"] h1, .font-display, .font-head, .font-serif {
-    font-size: {{ $fontSizeHeading }};
-    font-family: {!! $fontHeading !!};
-  }
+  <!-- Storefront Core JS (bundles Alpine.js, CartLS, and UI components) -->
+  <script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
 
-  * { scrollbar-width: thin; scrollbar-color: #D8CFC2 transparent; }
-  ::-webkit-scrollbar { height: 7px; width: 7px; }
-  ::-webkit-scrollbar-thumb { background: #D8CFC2; border-radius: 9999px; }
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  .eyebrow { letter-spacing: .14em; text-transform: uppercase; }
-  details > summary { list-style: none; cursor: pointer; }
-  details > summary::-webkit-details-marker { display: none; }
-  body { font-family: 'Inter', system-ui, sans-serif; background: #F7F5F2; }
-  .mv-mono { font-family: '"JetBrains Mono"', ui-monospace, monospace; }
-  .mv-ticker-track { animation: mv-scroll 32s linear infinite; }
-  .mv-ticker-track:hover { animation-play-state: paused; }
-  @keyframes mv-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  .mv-chip { font-family: '"JetBrains Mono"', ui-monospace, monospace; letter-spacing: .01em; }
-  .mv-grid-dense { display: grid; gap: 0.75rem; }
-</style>
+  <style>
+    [x-cloak] { display: none !important; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #F4F6F8;
+      color: #0F172A;
+      -webkit-font-smoothing: antialiased;
+    }
+    .mv-transition {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mv-card {
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mv-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px -5px rgba(79, 40, 217, 0.1);
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+
+  @stack('styles')
+</head>
+<body class="min-h-full flex flex-col antialiased selection:bg-[#4F28D9] selection:text-white" x-data="{ mobileMenuOpen: false, searchOpen: false }">
+
+  <!-- Header -->
+  @include('store.themes.marketverse.partials.header')
+
+  <!-- Mobile Drawer -->
+  @include('store.themes.marketverse.partials.mobile-nav')
+
+  <!-- Main Content -->
+  <main class="flex-1 w-full">
+    @yield('content')
+  </main>
+
+  <!-- Footer -->
+  @include('store.themes.marketverse.partials.footer')
+
+  @stack('scripts')
+</body>
+</html>

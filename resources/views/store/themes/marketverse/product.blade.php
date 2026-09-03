@@ -1,182 +1,213 @@
-<!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
-<head>
-@include('store.themes.marketverse._shell', ['pageTitle' => $product['name'] . ' — ' . ($s->store_name ?? 'MarketVerse')])
-</head>
-<body class="bg-mv-cream text-mv-ink antialiased">
-
-@include('store.themes.marketverse.partials.header', ['categories' => $categories, 'showCategoryBar' => false])
+@extends('store.themes.marketverse._shell')
 
 @php
-  $gallery = array_values(array_filter(array_merge([$product['image_url']], $product['gallery_urls'] ?? []) ));
-  if (empty($gallery)) { $gallery = [null]; }
+  use App\Models\Product;
+
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'marketverse');
+  $mvRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+  $shopUrl = $mvRoute('store.shop');
+
+  $prodObj = is_array($product) ? (object) $product : $product;
+  $productId = $prodObj->id ?? ($p->id ?? 1);
+  $title = $prodObj->name ?? ($p->name ?? 'Product Details');
+  $productPrice = (float) ($prodObj->final_price ?? ($prodObj->display_price ?? ($p->price ?? 0)));
+  $basePrice = (float) ($prodObj->base_price ?? ($p->base_price ?? $productPrice));
+
+  $discount = 0;
+  if ($basePrice > $productPrice && $basePrice > 0) {
+      $discount = (int) round((($basePrice - $productPrice) / $basePrice) * 100);
+  } elseif (!empty($p->discount_percent)) {
+      $discount = (int) $p->discount_percent;
+  }
+
+  $primaryFile = method_exists($p, 'primaryProductImageFilename') ? $p->primaryProductImageFilename() : ($p->image ?? '');
+  if (!empty($primaryFile)) {
+      $imgSrc = global_asset('images/themes/marketverse/' . $primaryFile);
+      if (!file_exists(public_path('images/themes/marketverse/' . $primaryFile))) {
+          $imgSrc = global_asset(upload_path('products') . '/' . $primaryFile);
+      }
+  } else {
+      $imgSrc = global_asset('images/themes/marketverse/generic-product.jpg');
+  }
+
+  $sellerName = $p->brand->name ?? 'Verified Marketplace Seller';
+  $categoryName = $p->category->name ?? 'Marketplace';
+  $currency = $s->currency_code ?? '$';
+
+  // Related products
+  $relatedProducts = Product::where('code', 'like', 'MKT-%')
+      ->where('id', '!=', $productId)
+      ->take(6)
+      ->get();
 @endphp
 
-<main class="pb-24 lg:pb-0">
-  <div class="max-w-[1600px] mx-auto px-4 py-3 text-xs text-mv-slate flex items-center gap-2 mv-mono">
-    <a href="{{ route('store.index') }}" class="hover:text-mv-accentDark">HOME</a> /
-    <a href="{{ route('store.shop') }}" class="hover:text-mv-accentDark">SHOP</a>
-    @if($product['category_name'])
-      / <a href="{{ route('store.shop', ['category' => $p->category_id]) }}" class="hover:text-mv-accentDark">{{ strtoupper($product['category_name']) }}</a>
-    @endif
-    / <span class="text-mv-ink">{{ $product['name'] }}</span>
-  </div>
+@section('title', $title . ' — MarketVerse')
 
-  <div class="max-w-[1600px] mx-auto px-4 py-6 grid lg:grid-cols-2 gap-10"
-       x-data='{ variantIdx: 0, variants: @json($product["variants"], JSON_HEX_APOS | JSON_HEX_QUOT), gallery: @json($gallery, JSON_HEX_APOS | JSON_HEX_QUOT), activeImg: 0 }'>
+@section('content')
 
-    {{-- Gallery --}}
-    <div>
-      <div class="aspect-square rounded-lg overflow-hidden bg-white border-2 border-mv-line flex items-center justify-center">
-        <template x-if="gallery[activeImg]">
-          <img :src="gallery[activeImg]" class="w-full h-full object-cover" alt="{{ $product['name'] }}">
-        </template>
-        <template x-if="!gallery[activeImg]">
-          <div class="text-6xl font-black" style="color: {{ $product['placeholder_color'] }}">{{ strtoupper(substr($product['name'],0,1)) }}</div>
-        </template>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12" x-data="{ qty: 1 }">
+
+  <!-- Breadcrumbs -->
+  <nav class="flex items-center gap-2 text-xs text-slate-500 font-medium mb-8">
+    <a href="{{ $mvRoute('store.index') }}" class="hover:text-mv-purple transition-colors">Home</a>
+    <span>/</span>
+    <a href="{{ $mvRoute('store.shop', ['category' => $categoryName]) }}" class="hover:text-mv-purple transition-colors">{{ $categoryName }}</a>
+    <span>/</span>
+    <span class="text-slate-900 font-bold truncate max-w-xs">{{ $title }}</span>
+  </nav>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 bg-white rounded-3xl border border-mv-border p-6 sm:p-10 shadow-xs">
+
+    <!-- Image Gallery (5 cols) -->
+    <div class="lg:col-span-5 space-y-4">
+      <div class="aspect-square w-full rounded-2xl bg-slate-50 border border-slate-100 overflow-hidden flex items-center justify-center p-6 relative">
+        @if($discount > 0)
+          <span class="absolute top-4 left-4 z-10 px-2.5 py-1 bg-red-600 text-white text-xs font-black rounded-md shadow-xs">
+            -{{ $discount }}% OFF
+          </span>
+        @endif
+        <img src="{{ $imgSrc }}"
+             alt="{{ $title }}"
+             class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
       </div>
-      @if(count($gallery) > 1)
-        <div class="flex gap-2 mt-3">
-          <template x-for="(img, i) in gallery" :key="i">
-            <button type="button" @click="activeImg = i" class="w-16 h-16 rounded-md overflow-hidden border-2" :class="activeImg === i ? 'border-mv-accent' : 'border-mv-line'">
-              <img :src="img" class="w-full h-full object-cover">
+    </div>
+
+    <!-- Product Details (7 cols) -->
+    <div class="lg:col-span-7 flex flex-col justify-between space-y-6">
+
+      <div class="space-y-4">
+
+        <!-- Seller Store Info -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 bg-mv-purpleLight text-mv-purple font-extrabold text-xs rounded-full">
+              Verified Seller
+            </span>
+            <span class="text-xs font-bold text-slate-700">Sold by {{ $sellerName }}</span>
+          </div>
+          <div class="flex items-center gap-1 text-amber-500 font-bold text-xs">
+            <span>★ 4.8</span>
+            <span class="text-slate-400 font-normal">(1.2k ratings)</span>
+          </div>
+        </div>
+
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+          {{ $title }}
+        </h1>
+
+        <!-- Price Display -->
+        <div class="flex items-baseline gap-3 pt-2">
+          <span class="text-3xl font-black text-slate-900">
+            {{ $currency }}{{ number_format($productPrice, 2) }}
+          </span>
+          @if($basePrice > $productPrice)
+            <span class="text-base text-slate-400 line-through">
+              {{ $currency }}{{ number_format($basePrice, 2) }}
+            </span>
+            <span class="text-xs font-extrabold text-red-600 bg-red-50 px-2 py-0.5 rounded">
+              Save {{ $currency }}{{ number_format($basePrice - $productPrice, 2) }}
+            </span>
+          @endif
+        </div>
+
+        <!-- Description -->
+        <div class="prose prose-sm text-slate-600 text-xs sm:text-sm leading-relaxed border-t border-slate-100 pt-4">
+          <p>
+            {{ $p->description ?? 'Experience premium marketplace quality backed by buyer protection, fast tracked delivery, and 100% authenticity guarantee.' }}
+          </p>
+        </div>
+
+        <!-- Stock Status -->
+        <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span>In Stock • Ready to ship from verified warehouse</span>
+        </div>
+
+      </div>
+
+      <!-- Actions (Quantity + Add to Cart) -->
+      <div class="pt-6 border-t border-slate-100 space-y-4">
+
+        <div class="flex flex-wrap items-center gap-4">
+
+          <!-- Quantity Controls -->
+          <div class="flex items-center border border-mv-border rounded-xl bg-slate-50 p-1">
+            <button type="button"
+                    @click="qty = Math.max(1, qty - 1)"
+                    class="w-8 h-8 rounded-lg bg-white shadow-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center justify-center">
+              -
             </button>
-          </template>
-        </div>
-      @endif
-    </div>
-
-    {{-- Buy box --}}
-    <div>
-      <div class="flex items-center gap-2 flex-wrap">
-        @if($product['brand_name'])
-          <span class="bg-mv-ink text-mv-accentLight text-[10px] font-bold px-2 py-0.5 rounded mv-chip uppercase">{{ $product['brand_name'] }}</span>
-        @endif
-        @if($product['category_name'])
-          <span class="bg-mv-accentSoft text-mv-accentDark text-[10px] font-bold px-2 py-0.5 rounded mv-chip uppercase">{{ $product['category_name'] }}</span>
-        @endif
-      </div>
-      <h1 class="text-2xl lg:text-3xl font-black text-mv-ink mt-2">{{ $product['name'] }}</h1>
-      <div class="text-xs text-mv-slate mt-1 mv-mono">SKU: {{ $product['sku'] }}</div>
-
-      <div class="flex items-center gap-2 mt-4">
-        <div class="flex gap-0.5 text-mv-accent">
-          @for($i=0;$i<5;$i++)<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01z"/></svg>@endfor
-        </div>
-        <span class="text-xs text-mv-slate">(based on verified purchases)</span>
-      </div>
-
-      @if(!$product['hide_prices'])
-        <div class="flex items-baseline gap-2 mt-4">
-          <span class="mv-mono text-3xl font-black text-mv-ink" x-show="!variants.length" x-text="'{{ $product['final_price_formatted'] }}'"></span>
-          <template x-if="variants.length">
-            <span class="mv-mono text-3xl font-black text-mv-ink" x-text="variants[variantIdx].display_price_formatted"></span>
-          </template>
-          @if($product['compare_at_price_formatted'])
-            <span class="mv-mono text-base text-mv-slate line-through">{{ $product['compare_at_price_formatted'] }}</span>
-          @endif
-          @if($product['is_on_sale'])
-            <span class="bg-mv-accent text-white text-xs font-bold px-2 py-0.5 rounded mv-mono">-{{ $product['discount_percent'] }}%</span>
-          @endif
-        </div>
-      @else
-        <a href="{{ url('/online_store/login') }}" class="block mt-4 text-mv-accentDark font-bold underline">Sign in to see pricing</a>
-      @endif
-
-      @if(count($product['variants']))
-        <div class="mt-5">
-          <div class="text-xs font-bold uppercase text-mv-slate mb-2 mv-mono">Options</div>
-          <div class="flex flex-wrap gap-2">
-            <template x-for="(v, i) in variants" :key="v.id">
-              <button type="button" @click="variantIdx = i"
-                      class="h-10 px-4 rounded-md border-2 text-sm font-bold"
-                      :class="variantIdx === i ? 'border-mv-accent bg-mv-accentSoft text-mv-accentDark' : 'border-mv-line text-mv-ink'"
-                      x-text="v.name"></button>
-            </template>
+            <input type="number"
+                   x-model.number="qty"
+                   min="1"
+                   class="w-12 text-center text-xs font-bold bg-transparent text-slate-900 focus:outline-none">
+            <button type="button"
+                    @click="qty = qty + 1"
+                    class="w-8 h-8 rounded-lg bg-white shadow-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center justify-center">
+              +
+            </button>
           </div>
-        </div>
-      @endif
 
-      <div class="mt-4 flex items-center gap-2 text-sm">
-        @if($product['stock_status'] === 'in_stock')
-          <span class="w-2 h-2 rounded-full bg-green-600"></span><span class="text-green-700 font-bold mv-mono">IN STOCK</span>
-        @elseif($product['stock_status'] === 'low_stock')
-          <span class="w-2 h-2 rounded-full bg-amber-500"></span><span class="text-amber-700 font-bold mv-mono">LOW STOCK — {{ $product['stock'] }} LEFT</span>
-        @elseif($product['stock_status'] === 'preorder')
-          <span class="w-2 h-2 rounded-full bg-mv-accent"></span><span class="text-mv-accentDark font-bold mv-mono">AVAILABLE FOR PRE-ORDER</span>
-        @else
-          <span class="w-2 h-2 rounded-full bg-slate-400"></span><span class="text-slate-500 font-bold mv-mono">OUT OF STOCK</span>
-        @endif
-      </div>
-
-      @if(!$product['hide_prices'])
-        <div class="mt-6 flex gap-3">
-          <div class="flex items-center border-2 border-mv-line rounded-md h-12">
-            <button type="button" class="w-10 h-full text-mv-slate" onclick="const i=document.getElementById('mv-qty'); i.value = Math.max(1, parseInt(i.value||1)-1)">−</button>
-            <input id="mv-qty" type="number" value="1" min="1" class="w-12 text-center h-full border-x-2 border-mv-line mv-mono">
-            <button type="button" class="w-10 h-full text-mv-slate" onclick="const i=document.getElementById('mv-qty'); i.value = parseInt(i.value||1)+1">+</button>
-          </div>
+          <!-- Add to Cart (Working .js-add-to-cart) -->
           <button type="button"
-                  class="js-add-to-cart product-card flex-1 h-12 rounded-md bg-mv-ink text-white font-bold hover:bg-mv-accentDark disabled:opacity-40 transition-colors"
-                  @if(!$product['is_available']) disabled @endif
-                  data-out-of-stock="{{ $product['is_available'] ? '0' : '1' }}"
-                  data-is-preorder="{{ $product['is_preorder_active'] ? '1' : '0' }}"
-                  data-id="{{ $product['id'] }}"
-                  data-slug="{{ $product['slug'] }}"
-                  data-name="{{ e($product['name']) }}"
-                  :data-price="variants.length ? variants[variantIdx].price : {{ $product['final_price'] }}"
-                  data-image="{{ $product['image_url'] }}"
-                  data-currency="{{ $product['currency'] }}"
-                  x-bind:data-qty="document.getElementById('mv-qty') ? document.getElementById('mv-qty').value : 1"
-                  data-stock="{{ $product['stock'] !== null ? $product['stock'] : '' }}"
-                  data-added-label="{{ __('messages.Added') }}">
-            {{ $product['is_preorder_active'] ? 'Pre-order Now' : 'Add to Cart' }}
+                  class="js-add-to-cart flex-1 px-8 py-3.5 bg-mv-purple hover:bg-mv-purpleDark text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2"
+                  data-id="{{ $productId }}"
+                  data-name="{{ $title }}"
+                  data-price="{{ $productPrice }}"
+                  data-image="{{ $imgSrc }}"
+                  data-currency="{{ $currency }}"
+                  :data-qty="qty"
+                  data-stock="100"
+                  data-added-label="Added to Cart!">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            <span>Add to Cart</span>
           </button>
-        </div>
-        <div class="js-add-status text-xs text-mv-slate mt-2"></div>
-      @endif
 
-      @if($product['warranty_text'])
-        <div class="mt-6 flex items-center gap-2 text-sm text-mv-ink">
-          <svg class="w-5 h-5 text-mv-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
-          {{ $product['warranty_text'] }}
-        </div>
-      @endif
+          <!-- Buy Now -->
+          <a href="{{ $mvRoute('store.cart') }}"
+             class="px-8 py-3.5 bg-mv-orange hover:bg-mv-orangeHover text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg active:scale-95 transition-all text-center">
+            Buy Now
+          </a>
 
-      @if($product['description'])
-        <div class="mt-8 pt-6 border-t-2 border-mv-line">
-          <h3 class="text-sm font-bold uppercase text-mv-slate mb-2 mv-mono">Description</h3>
-          <p class="text-sm text-mv-ink/80 leading-relaxed">{{ $product['description'] }}</p>
         </div>
-      @endif
 
-      <div class="mt-6 pt-6 border-t-2 border-mv-line grid grid-cols-2 gap-4 text-sm">
-        <div class="flex items-center gap-2 text-mv-ink"><svg class="w-5 h-5 text-mv-accentDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 5v3h-7z"/></svg>Free delivery over $99</div>
-        <div class="flex items-center gap-2 text-mv-ink"><svg class="w-5 h-5 text-mv-accentDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6-8.485"/><path d="M21 3v6h-6"/></svg>30-day easy returns</div>
+        <!-- Trust Badges -->
+        <div class="grid grid-cols-3 gap-2 pt-2 text-center text-[10px] text-slate-500">
+          <div class="p-2 bg-slate-50 rounded-xl">🛡️ Buyer Protection</div>
+          <div class="p-2 bg-slate-50 rounded-xl">🚚 Fast Tracked Delivery</div>
+          <div class="p-2 bg-slate-50 rounded-xl">🔄 30-Day Hassle-Free Returns</div>
+        </div>
+
       </div>
 
-      @if($product['weight'])
-        <div class="mt-4 text-xs text-mv-slate mv-mono">WEIGHT: {{ $product['weight'] }}</div>
-      @endif
     </div>
+
   </div>
 
-  {{-- Related products --}}
-  @if(count($related))
-    <section class="max-w-[1600px] mx-auto px-4 py-10 border-t-2 border-mv-line">
-      <h2 class="text-xl font-black text-mv-ink mb-5">You may also like</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
-        @foreach($related as $rp)
-          @include('store.themes.marketverse.partials.product-card', ['product' => $rp])
+  <!-- Related Marketplace Products -->
+  @if(isset($relatedProducts) && count($relatedProducts) > 0)
+    <div class="mt-14 space-y-6">
+      <div class="flex items-center justify-between border-b border-mv-border pb-4">
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          More from this Department
+        </h2>
+        <a href="{{ $shopUrl }}" class="text-xs font-bold text-mv-purple hover:underline">
+          View All &rarr;
+        </a>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        @foreach($relatedProducts as $rel)
+          @include('store.themes.marketverse.partials.product-card', ['product' => $rel])
         @endforeach
       </div>
-    </section>
+    </div>
   @endif
-</main>
 
-@include('store.themes.marketverse.partials.footer', ['categories' => $categories])
-@include('store.themes.marketverse.partials.mobile-nav')
-
-<script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
-</body>
-</html>
+</div>
+@endsection

@@ -1,0 +1,53 @@
+{
+    "name": "Zanova Flash Deals",
+    "theme_id": "zanova",
+    "version": "1.0.0",
+    "category": "Category-Specific Themes",
+    "author": "QuantroCode Design Team",
+    "description": "High-Energy Flash Deals",
+    "colors": {
+        "primary": "#0F172A",
+        "secondary": "#FACC15",
+        "accent": "#8B5CF6",
+        "background": "#F8FAFC",
+        "surface": "#FFFFFF",
+        "text": "#0F172A",
+        "footer": "#0B111E"
+    },
+    "slug": "zanova-flash",
+    "theme_type": "category-specific",
+    "tagline": "High-Energy Flash Deals",
+    "paletteSwatches": [
+        "#FF3B30",
+        "#00F0FF",
+        "#7C3AED",
+        "#0B0B14"
+    ],
+    "tokens": {
+        "color-bg-base": "#0B0B14",
+        "color-accent-500": "#FF3B30",
+        "color-accent-600": "#00F0FF",
+        "color-accent-700": "#7C3AED",
+        "color-accent-800": "#0B0B14",
+        "font-heading": "'Space Grotesk', sans-serif",
+        "font-body": "'Plus Jakarta Sans', sans-serif",
+        "font-size-heading": "34px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
+}
