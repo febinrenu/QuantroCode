@@ -1,103 +1,173 @@
-<!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
-<head>
-@include('store.themes.naturae._shell', ['pageTitle' => 'Shop — ' . ($s->store_name ?? 'Naturae')])
-</head>
-<body class="bg-cream text-ink antialiased">
+@extends('store.themes.naturae._shell')
 
-@include('store.themes.naturae.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
+@section('title', 'Shop Natural Wellness & Organic Beauty — Naturae')
 
+@section('content')
 @php
-  $currency = $s->currency_code ?? '$';
-  $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
-  $productVms = collect($products->items())->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+    $previewTheme = request('preview_theme', 'naturae');
+    $currentCat = request('category', '');
+    $currentSort = request('sort', 'featured');
+    $currentQ = request('q', '');
+    $currentCollection = request('collection', '');
 @endphp
 
-<main class="pb-24 lg:pb-0">
-  <section class="bg-leaf-light">
-    <div class="max-w-7xl mx-auto px-4 py-8 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <span class="eyebrow text-terracotta-dark text-xs font-bold">Full catalog</span>
-        <h1 class="text-2xl lg:text-3xl font-display font-semibold text-leaf-deep mt-1">Everything, sourced with care</h1>
-        <p class="text-sm text-bark/70 mt-1">{{ $products->total() }} products found @if($q) for "{{ $q }}" @endif</p>
-      </div>
-      <form method="get" action="{{ route('store.shop') }}" class="flex items-end gap-2">
-        @foreach(request()->except(['sort','page']) as $k => $v)
-          <input type="hidden" name="{{ $k }}" value="{{ $v }}">
-        @endforeach
-        <select name="sort" class="h-11 px-4 rounded-full border border-leaf-light bg-white text-sm">
-          <option value="latest" @selected(($sort ?? 'latest') === 'latest')>Latest</option>
-          <option value="price_asc" @selected($sort === 'price_asc')>Price: Low to High</option>
-          <option value="price_desc" @selected($sort === 'price_desc')>Price: High to Low</option>
-        </select>
-        <button class="h-11 px-5 rounded-full bg-leaf-dark text-white text-sm font-semibold hover:bg-leaf-deep transition-colors">Update</button>
-      </form>
+<!-- Hero Banner -->
+<div class="bg-naturae-sand/80 border-b border-naturae-border/80 py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <span class="text-xs font-bold uppercase tracking-widest text-naturae-sage">100% Pure & Certified</span>
+        <h1 class="font-serif text-3xl sm:text-4xl font-bold text-naturae-forest mt-1">
+            @if($currentCat)
+                {{ $currentCat }}
+            @elseif($currentCollection === 'new-arrivals')
+                New Arrivals
+            @elseif($currentCollection === 'bestsellers')
+                Best Sellers
+            @elseif($currentCollection === 'deals')
+                Special Offers & Bundles
+            @elseif($currentQ)
+                Search Results for "{{ $currentQ }}"
+            @else
+                Botanical Wellness Catalog
+            @endif
+        </h1>
+        <p class="text-xs sm:text-sm text-naturae-muted max-w-xl mx-auto mt-2">
+            Formulated without toxins, synthetic parabens, or artificial fragrances. Pure care for body and soul.
+        </p>
     </div>
-  </section>
+</div>
 
-  <div class="max-w-7xl mx-auto px-4 py-10 grid lg:grid-cols-[270px_1fr] gap-7">
-    <aside class="hidden lg:block">
-      <div class="bg-white rounded-3xl border border-leaf-light p-5 sticky top-24 shadow-soft">
-        <form method="get" action="{{ route('store.shop') }}">
-          <div class="mb-5">
-            <div class="text-xs font-bold uppercase tracking-wide text-bark/50 mb-2 flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
-              Search
-            </div>
-            <input type="text" name="q" value="{{ $q }}" placeholder="Search everything…" class="w-full h-11 px-4 rounded-full border border-leaf-light text-sm">
-          </div>
-          <div class="mb-5">
-            <div class="text-xs font-bold uppercase tracking-wide text-bark/50 mb-2">Category</div>
-            <ul class="space-y-1.5 max-h-64 overflow-y-auto">
-              @foreach($categories as $c)
-                <li>
-                  <label class="flex items-center gap-2 text-sm text-bark/80 cursor-pointer">
-                    <input type="radio" name="category" value="{{ $c->id }}" {{ (string)$cat === (string)$c->id ? 'checked' : '' }} onchange="this.form.submit()" class="accent-leaf-dark">
-                    {{ $c->name }}
-                  </label>
-                </li>
-              @endforeach
-            </ul>
-          </div>
-          <div class="mb-5">
-            <div class="text-xs font-bold uppercase tracking-wide text-bark/50 mb-2">Price Range</div>
-            <div class="flex items-center gap-2">
-              <input type="number" name="min" value="{{ $min }}" placeholder="Min" class="w-1/2 h-10 px-3 rounded-xl border border-leaf-light text-sm">
-              <input type="number" name="max" value="{{ $max }}" placeholder="Max" class="w-1/2 h-10 px-3 rounded-xl border border-leaf-light text-sm">
-            </div>
-          </div>
-          <button class="w-full h-11 rounded-full bg-leaf-dark text-white text-sm font-semibold hover:bg-leaf-deep transition-colors">Apply Filters</button>
-          <a href="{{ route('store.shop') }}" class="block text-center mt-3 text-xs text-bark/50 hover:text-terracotta-dark">Clear all</a>
-        </form>
-        <div class="mt-6 pt-5 border-t border-leaf-light/70 flex items-start gap-2.5">
-          <svg class="w-5 h-5 text-leaf-dark shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/></svg>
-          <p class="text-xs text-bark/60 leading-relaxed">Every listing here — no matter the category — ships in plastic-free packaging with carbon-neutral delivery.</p>
-        </div>
-      </div>
-    </aside>
+<!-- Catalog Content -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-    <div>
-      @if($productVms->isEmpty())
-        <div class="text-center py-24 bg-white rounded-3xl border border-leaf-light">
-          <svg class="w-12 h-12 mx-auto text-bark/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 10c3-4 7-6 8-6s5 2 8 6c-1 5-5 9-8 10-3-1-7-5-8-10Z"/></svg>
-          <p class="mt-4 text-bark/50">No products matched your filters.</p>
-          <a href="{{ route('store.shop') }}" class="text-terracotta-dark font-semibold text-sm">Clear filters</a>
+        <!-- Left Sidebar Filters (1 Col) -->
+        <div class="space-y-6">
+
+            <!-- Category Filter Box -->
+            <div class="bg-white p-5 rounded-2xl border border-naturae-border shadow-sm">
+                <h3 class="font-serif text-sm font-bold text-naturae-forest uppercase tracking-wider mb-3 pb-2 border-b border-naturae-border">
+                    Categories
+                </h3>
+                <ul class="space-y-1.5 text-xs">
+                    <li>
+                        <a href="{{ url('online_store/shop' . ($previewTheme ? '?preview_theme=' . $previewTheme : '')) }}"
+                           class="flex items-center justify-between py-1.5 px-2 rounded-lg transition {{ empty($currentCat) && empty($currentCollection) ? 'bg-naturae-forest text-white font-semibold' : 'text-naturae-text/80 hover:bg-naturae-sand hover:text-naturae-forest' }}">
+                            <span>All Products</span>
+                        </a>
+                    </li>
+                    @php
+                        $natCats = [
+                            'Skincare',
+                            'Hair Care',
+                            'Bath & Body',
+                            'Wellness',
+                            'Home Care',
+                            'Organic Tea',
+                            'Gift Sets',
+                            'Accessories',
+                        ];
+                    @endphp
+                    @foreach($natCats as $catName)
+                        @php
+                            $isActive = (strcasecmp($currentCat, $catName) === 0);
+                            $catParam = urlencode($catName);
+                            $url = url("online_store/shop?category={$catParam}" . ($previewTheme ? "&preview_theme={$previewTheme}" : ''));
+                        @endphp
+                        <li>
+                            <a href="{{ $url }}"
+                               class="flex items-center justify-between py-1.5 px-2 rounded-lg transition {{ $isActive ? 'bg-naturae-forest text-white font-semibold' : 'text-naturae-text/80 hover:bg-naturae-sand hover:text-naturae-forest' }}">
+                                <span>{{ $catName }}</span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+
+            <!-- Collections Filter Box -->
+            <div class="bg-white p-5 rounded-2xl border border-naturae-border shadow-sm">
+                <h3 class="font-serif text-sm font-bold text-naturae-forest uppercase tracking-wider mb-3 pb-2 border-b border-naturae-border">
+                    Curated Edits
+                </h3>
+                <ul class="space-y-1.5 text-xs">
+                    <li>
+                        <a href="{{ url('online_store/shop?collection=new-arrivals' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}"
+                           class="flex items-center justify-between py-1.5 px-2 rounded-lg transition {{ $currentCollection === 'new-arrivals' ? 'bg-naturae-forest text-white font-semibold' : 'text-naturae-text/80 hover:bg-naturae-sand hover:text-naturae-forest' }}">
+                            <span>✨ New Arrivals</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url('online_store/shop?collection=bestsellers' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}"
+                           class="flex items-center justify-between py-1.5 px-2 rounded-lg transition {{ $currentCollection === 'bestsellers' ? 'bg-naturae-forest text-white font-semibold' : 'text-naturae-text/80 hover:bg-naturae-sand hover:text-naturae-forest' }}">
+                            <span>⭐ Best Sellers</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url('online_store/shop?collection=deals' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}"
+                           class="flex items-center justify-between py-1.5 px-2 rounded-lg transition {{ $currentCollection === 'deals' ? 'bg-naturae-forest text-white font-semibold' : 'text-naturae-text/80 hover:bg-naturae-sand hover:text-naturae-forest' }}">
+                            <span>🌿 Bundles & Deals</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
         </div>
-      @else
-        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
-          @foreach($productVms as $product)
-            @include('store.themes.naturae.partials.product-card', ['product' => $product])
-          @endforeach
+
+        <!-- Right Products Grid Area (3 Cols) -->
+        <div class="lg:col-span-3 space-y-6">
+
+            <!-- Top Controls Strip -->
+            <div class="bg-white p-4 rounded-2xl border border-naturae-border flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+                <div class="text-xs text-naturae-muted">
+                    Showing <strong class="text-naturae-forest">{{ count($products) }}</strong> pure organic products
+                </div>
+
+                <!-- Sorting Dropdown -->
+                <form method="GET" action="{{ url('online_store/shop') }}" class="flex items-center gap-2">
+                    @if($previewTheme)<input type="hidden" name="preview_theme" value="{{ $previewTheme }}">@endif
+                    @if($currentCat)<input type="hidden" name="category" value="{{ $currentCat }}">@endif
+                    @if($currentCollection)<input type="hidden" name="collection" value="{{ $currentCollection }}">@endif
+                    @if($currentQ)<input type="hidden" name="q" value="{{ $currentQ }}">@endif
+
+                    <label for="sort" class="text-xs text-naturae-muted font-medium">Sort by:</label>
+                    <select name="sort"
+                            id="sort"
+                            onchange="this.form.submit()"
+                            class="bg-naturae-bg border border-naturae-border rounded-lg text-xs py-1.5 pl-2.5 pr-7 text-naturae-text focus:outline-none focus:border-naturae-forest">
+                        <option value="featured" {{ $currentSort === 'featured' ? 'selected' : '' }}>Featured</option>
+                        <option value="price_asc" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+                        <option value="price_desc" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                        <option value="name_asc" {{ $currentSort === 'name_asc' ? 'selected' : '' }}>Name: A-Z</option>
+                    </select>
+                </form>
+            </div>
+
+            <!-- Products Grid (4 cols on desktop) -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+                @forelse($products as $product)
+                    @include('store.themes.naturae.partials.product-card', ['product' => $product])
+                @empty
+                    <div class="col-span-full bg-white rounded-2xl p-12 text-center border border-naturae-border">
+                        <div class="text-3xl mb-2">🌿</div>
+                        <h3 class="font-serif text-base font-bold text-naturae-forest">No products found</h3>
+                        <p class="text-xs text-naturae-muted mt-1">Try selecting another category or clear your search filters.</p>
+                        <a href="{{ url('online_store/shop' . ($previewTheme ? '?preview_theme=' . $previewTheme : '')) }}"
+                           class="inline-block mt-4 px-4 py-2 bg-naturae-forest text-white rounded-lg text-xs font-semibold uppercase tracking-wider">
+                            View All Products
+                        </a>
+                    </div>
+                @endforelse
+            </div>
+
+            <!-- Pagination Links if available -->
+            @if(method_exists($products, 'links'))
+                <div class="pt-6">
+                    {{ $products->appends(request()->query())->links() }}
+                </div>
+            @endif
+
         </div>
-        <div class="mt-9">{{ $products->links() }}</div>
-      @endif
+
     </div>
-  </div>
-</main>
+</div>
 
-@include('store.themes.naturae.partials.footer', ['categories' => $categories])
-@include('store.themes.naturae.partials.mobile-nav')
-
-<script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
-</body>
-</html>
+@endsection

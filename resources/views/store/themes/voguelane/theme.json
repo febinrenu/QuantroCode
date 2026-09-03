@@ -1,48 +1,33 @@
 {
-    "slug": "voguelane",
-    "name": "Voguelane",
-    "tagline": "Style has no single lane.",
-    "description": "Bold, asymmetric high-fashion-adjacent general-merchandise storefront in black, white and hot magenta, with a diagonal split-screen hero, oversized condensed display type, and asymmetric section layouts across electronics, fashion, home, beauty, grocery and sports.",
-    "category": "general-merchandise",
-    "version": "1.0.0",
-    "layout_persona": "Bold Asymmetric Editorial",
-    "layout": "split-diagonal-asymmetric",
-    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap",
-    "fontPairing": {
-        "heading": "Bebas Neue",
-        "body": "Inter"
-    },
-    "paletteSwatches": [
-        "#E4006F",
-        "#B8005A",
-        "#111111",
-        "#6B6B6B"
-    ],
-    "tokens": {
-        "color-bg-base": "#FFFFFF",
-        "color-accent-500": "#E4006F",
-        "color-accent-600": "#B8005A",
-        "color-accent-700": "#111111",
-        "color-accent-800": "#6B6B6B",
-        "font-heading": "'Bebas Neue', sans-serif",
-        "font-body": "'Inter', sans-serif",
-        "font-size-heading": "38px",
-        "font-size-body": "15px"
-    },
-    "customizable": [
-        "color-accent-500",
-        "color-accent-600",
-        "color-accent-700",
-        "color-accent-800",
-        "font-heading",
-        "font-body",
-        "font-size-heading",
-        "font-size-body"
-    ],
-    "pages": {
-        "home": true,
-        "shop": true,
-        "product": true,
-        "cart": true
-    }
+  "name": "VogueLane",
+  "slug": "voguelane",
+  "category": "fashion",
+  "description": "Clean luxury fashion and apparel storefront with editorial aesthetic, refined typography, and minimal luxury styling.",
+  "version": "1.0.0",
+  "author": "Antigravity",
+  "preview_image": "images/themes/voguelane/hero-model.jpg",
+  "colors": {
+    "primary": "#111111",
+    "secondary": "#C49A6C",
+    "accent": "#E53E3E",
+    "background": "#FFFFFF",
+    "surface": "#F9F8F6",
+    "border": "#EAE8E4",
+    "text": "#1A1A1A",
+    "text_muted": "#75726B"
+  },
+  "typography": {
+    "font_family": "Plus Jakarta Sans, sans-serif",
+    "heading_font": "Playfair Display, serif"
+  },
+  "features": {
+    "curated_grid": true,
+    "lookbook": true,
+    "trending_tabs": true,
+    "promo_editorial_grid": true,
+    "category_strip": true,
+    "testimonials": true,
+    "newsletter_bar": true,
+    "mobile_responsive": true
+  }
 }

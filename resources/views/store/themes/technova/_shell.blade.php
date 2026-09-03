@@ -1,110 +1,108 @@
-{{-- Technova theme shell — Tailwind CDN + config + fonts, included once per page --}}
-@php
-  $themeTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'Technova');
-  $themeHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
-  $activeThemeSlug = 'technova';
-  $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
-  $accent500 = $themeTokens['color-accent-500'] ?? '{{ $accent500 }}';
-  $accent600 = $themeTokens['color-accent-600'] ?? '{{ $accent600 }}';
-  $accent700 = $themeTokens['color-accent-700'] ?? '{{ $accent700 }}';
-  $accent800 = $themeTokens['color-accent-800'] ?? '{{ $accent800 }}';
-  $fontHeading = $themeTokens['font-heading'] ?? "'JetBrains Mono', monospace";
-  $fontBody = $themeTokens['font-body'] ?? "'JetBrains Mono', monospace";
-  $fontSizeHeading = $themeTokens['font-size-heading'] ?? '32px';
-  $fontSizeBody = $themeTokens['font-size-body'] ?? '14px';
-@endphp
-<meta charset="utf-8" />
-<title>{{ $themeTitle }}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="{{ $s->seo_meta_description ?? 'Shop the terminal — electronics, fashion, home, beauty and more, compiled into one catalog.' }}" />
-<meta name="csrf-token" content="{{ csrf_token() }}">
-<meta name="currency" content="{{ $s->currency_code ?? '$' }}">
-<script>window.__LOGGED_IN__ = @json(Auth::guard('store')->check());</script>
-<script>window.__ALLOW_OVERSELLING__ = @json($s->allow_overselling ?? true);</script>
-<script>window.__HIDE_PRICES__ = @json($themeHidePrices);</script>
-<script>window.__SHOW_STOCK__ = @json($s->show_stock ?? true);</script>
-<script>
-  window.__MSG_ONLY_X_STOCK__ = @json(__('messages.Only_x_available_in_stock'));
-  window.__MSG_MAX_ADDED__    = @json(__('messages.Max_stock_added_to_cart'));
-  window.__MSG_ALREADY_MAX__  = @json(__('messages.Already_max_in_cart'));
-  window.__MSG_ADDED__        = @json(__('messages.Added'));
-</script>
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap">
+  <title>@yield('title', ($s->store_name ?? 'TechNova') . ' | Premium Electronics & Smart Devices')</title>
+  <meta name="description" content="@yield('meta_description', 'Upgrade your tech lifestyle with TechNova. Shop the latest flagship smartphones, laptops, audio, gaming, and smart home innovation.')">
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          tn: {
-            bg: '#050505',
-            panel: '#0D0D0D',
-            panel2: '#111111',
-            border: '#1F2A22',
-            border2: '#2A2318',
-            green: '{{ $accent500 }}',
-            greenDim: '{{ $accent700 }}',
-            amber: '{{ $accent600 }}',
-            amberDim: '{{ $accent800 }}',
-            ink: '#D7F5E3',
-            mute: '#5F7A69',
+  <!-- Google Fonts: Outfit & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            technova: {
+              blue: '#2563EB',
+              blueHover: '#1D4ED8',
+              blueLight: '#EFF6FF',
+              cyan: '#06B6D4',
+              dark: '#0F172A',
+              slate: '#1E293B',
+              muted: '#64748B',
+              border: '#E2E8F0',
+              bg: '#F8FAFC',
+              card: '#FFFFFF',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            heading: ['"Outfit"', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            'tech-sm': '0 1px 3px 0 rgba(15, 23, 42, 0.05)',
+            'tech-md': '0 4px 14px 0 rgba(15, 23, 42, 0.07)',
+            'tech-lg': '0 10px 25px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.03)',
+            'tech-hover': '0 14px 30px -4px rgba(37, 99, 235, 0.12), 0 6px 12px -2px rgba(15, 23, 42, 0.06)',
           }
-        },
-        fontFamily: {
-          mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
-        },
+        }
       }
     }
-  }
-</script>
+  </script>
 
-<style>
-  :root {
-    --color-accent-500: {{ $accent500 }};
-    --color-accent-600: {{ $accent600 }};
-    --color-accent-700: {{ $accent700 }};
-    --color-accent-800: {{ $accent800 }};
-    --font-heading: {!! $fontHeading !!};
-    --font-body: {!! $fontBody !!};
-    --font-size-heading: {{ $fontSizeHeading }};
-    --font-size-body: {{ $fontSizeBody }};
-  }
-  body {
-    font-family: {!! $fontBody !!} !important;
-    font-size: {{ $fontSizeBody }} !important;
-  }
-  h1, .hero-title, [class*="-hero"] h1, .font-display, .font-head, .font-serif {
-    font-size: {{ $fontSizeHeading }};
-    font-family: {!! $fontHeading !!};
-  }
+  <style>
+    [x-cloak] { display: none !important; }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+      background-color: #F8FAFC;
+      color: #0F172A;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, h4, h5, h6, .font-heading {
+      font-family: 'Outfit', system-ui, sans-serif !important;
+      letter-spacing: -0.02em;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 
-  * { scrollbar-width: thin; scrollbar-color: #39FF88 #050505; }
-  ::-webkit-scrollbar { height: 8px; width: 8px; }
-  ::-webkit-scrollbar-thumb { background: #39FF88; border-radius: 0; }
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  details > summary { list-style: none; cursor: pointer; }
-  details > summary::-webkit-details-marker { display: none; }
-  body { font-family: 'JetBrains Mono', ui-monospace, monospace; background: #050505; }
-  .tn-scanlines {
-    position: fixed; inset: 0; pointer-events: none; z-index: 60;
-    background: repeating-linear-gradient(180deg, rgba(57,255,136,0.035) 0px, rgba(57,255,136,0.035) 1px, transparent 1px, transparent 3px);
-    mix-blend-mode: overlay;
-  }
-  .tn-window { position: relative; border: 1px solid #1F2A22; background: #0D0D0D; }
-  .tn-window::before {
-    content: ''; position: absolute; top: 10px; left: 12px; width: 8px; height: 8px; border-radius: 9999px;
-    background: #39FF88; box-shadow: 14px 0 0 #FFB000, 28px 0 0 #1F2A22;
-  }
-  .tn-window-pad { padding-top: 2rem; }
-  .tn-cursor::after { content: '_'; animation: tn-blink 1s step-end infinite; color: #39FF88; }
-  @keyframes tn-blink { 50% { opacity: 0; } }
-  .tn-glow-btn { transition: box-shadow .2s ease, transform .2s ease; }
-  .tn-glow-btn:hover { box-shadow: 0 0 0 1px #39FF88, 0 0 18px -2px rgba(57,255,136,0.6); transform: translateY(-1px); }
-  .tn-bracket::before { content: '['; color: #39FF88; margin-right: 2px; }
-  .tn-bracket::after { content: ']'; color: #39FF88; margin-left: 2px; }
-</style>
+  <!-- Global Storefront Flags -->
+  <script>
+    window.__STORE_CURRENCY__ = @json($s->currency_code ?? '$');
+    window.__STORE_DECIMALS__ = @json((int) ($s->currency_decimals ?? 2));
+    window.__DECIMAL_SEPARATOR__ = @json($s->decimal_separator ?? '.');
+    window.__THOUSANDS_SEPARATOR__ = @json($s->thousands_separator ?? ',');
+    window.__CURRENCY_POSITION__ = @json($s->currency_position ?? 'before');
+    window.__LOGGED_IN__ = @json(auth('store')->check());
+    window.__ALLOW_OVERSELLING__ = @json((bool) ($s->allow_overselling ?? true));
+    window.__HIDE_PRICES__ = @json(!auth('store')->check() && ($s->hide_prices_for_guests ?? false));
+    window.__SHOW_STOCK__ = @json((bool) ($s->show_stock ?? true));
+    window.__ACTIVE_THEME__ = 'technova';
+    window.__MSG_ONLY_X_STOCK__ = @json(__('messages.Only_x_available_in_stock'));
+    window.__MSG_MAX_ADDED__    = @json(__('messages.Max_stock_added_to_cart'));
+    window.__MSG_ALREADY_MAX__  = @json(__('messages.Already_max_in_cart'));
+    window.__MSG_ADDED__        = @json(__('messages.Added'));
+  </script>
+
+  @stack('head')
+</head>
+<body class="min-h-full flex flex-col antialiased bg-slate-50 text-slate-900" x-data="{ mobileNavOpen: false }">
+
+  <!-- Header -->
+  @include('store.themes.technova.partials.header')
+
+  <!-- Mobile Drawer Navigation -->
+  @include('store.themes.technova.partials.mobile-nav')
+
+  <!-- Main Content Area -->
+  <main class="flex-1">
+    @yield('content')
+  </main>
+
+  <!-- Footer -->
+  @include('store.themes.technova.partials.footer')
+
+  <!-- Storefront Single Bundled Alpine Runtime -->
+  <script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
+
+  @stack('scripts')
+</body>
+</html>
