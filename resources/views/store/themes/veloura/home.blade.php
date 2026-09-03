@@ -1,292 +1,615 @@
-<!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
-<head>
-@include('store.themes.veloura._shell', ['pageTitle' => ($s->seo_meta_title ?? $s->store_name ?? 'Veloura') . ' — Curated for those who notice'])
-</head>
-<body class="bg-vel-black text-vel-ink antialiased">
+@extends('store.themes.veloura._shell')
 
-@include('store.themes.veloura.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
+@section('title', ($s->store_name ?? 'Veloura Beauty') . ' — Scent. Glow. Indulge.')
 
+@section('content')
 @php
-  $currency = $s->currency_code ?? '$';
-  $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
-  $byPos = collect($banners ?? [])->groupBy('position');
-  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'veloura');
+  $velRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+  $shopUrl = $velRoute('store.shop');
+  $accountUrl = url('/online_store/account' . ($themePreview ? '?preview_theme=' . $themePreview : ''));
+
+  $rituals = [
+      ['name' => 'Perfume', 'category' => 'Fragrance', 'img' => 'cat-perfume.jpg', 'desc' => 'Haute Parfumerie'],
+      ['name' => 'Skincare', 'category' => 'Skincare', 'img' => 'cat-skincare.jpg', 'desc' => 'Radiant Glow'],
+      ['name' => 'Makeup', 'category' => 'Makeup', 'img' => 'cat-makeup.jpg', 'desc' => 'Silken Textures'],
+      ['name' => 'Bath & Body', 'category' => 'Bath & Body', 'img' => 'cat-bath-body.jpg', 'desc' => 'Aromatherapy'],
+      ['name' => 'Hair Care', 'category' => 'Hair Care', 'img' => 'cat-haircare.jpg', 'desc' => 'Gloss & Repair'],
+      ['name' => 'Gift Sets', 'category' => 'Gift Sets', 'img' => 'cat-giftsets.jpg', 'desc' => 'Luxury Coffrets'],
+      ['name' => "Men's Grooming", 'category' => "Men's Grooming", 'img' => 'cat-mens-grooming.jpg', 'desc' => 'Refined Care'],
+      ['name' => 'Clean Beauty', 'category' => 'Clean Beauty', 'img' => 'cat-clean-beauty.jpg', 'desc' => '100% Botanical'],
+  ];
+
+  $promoBanners = [
+      [
+          'title' => 'Fragrance Wardrobe',
+          'tagline' => 'Find a scent for every mood and season.',
+          'cta' => 'Discover Scents',
+          'category' => 'Fragrance',
+          'img' => 'promo-fragrance-wardrobe.jpg',
+      ],
+      [
+          'title' => 'Hydration Essentials',
+          'tagline' => 'Deep multi-layer hydration for dewy, radiant skin.',
+          'cta' => 'Explore Skincare',
+          'category' => 'Skincare',
+          'img' => 'promo-hydration-essentials.jpg',
+      ],
+      [
+          'title' => 'Glow Makeup Edit',
+          'tagline' => 'Flawless everyday looks, crafted effortlessly.',
+          'cta' => 'Shop Makeup',
+          'category' => 'Makeup',
+          'img' => 'promo-glow-makeup.jpg',
+      ],
+  ];
+
+  $routineSteps = [
+      [
+          'step' => '01',
+          'title' => 'Cleanse',
+          'product' => 'Purifying Gentle Foam Cleanser',
+          'desc' => 'Melt impurities while respecting skin barrier.',
+          'price' => '$36.00',
+          'img' => 'purifying-foam-cleanser.jpg',
+          'category' => 'Skincare',
+      ],
+      [
+          'step' => '02',
+          'title' => 'Treat',
+          'product' => 'Glow Elixir 15% Vitamin C Serum',
+          'desc' => 'Brighten, firm, and protect against oxidation.',
+          'price' => '$68.00',
+          'img' => 'glow-elixir-serum.jpg',
+          'category' => 'Skincare',
+      ],
+      [
+          'step' => '03',
+          'title' => 'Moisturize',
+          'product' => 'Rose Hydration Replenishing Crème',
+          'desc' => '24-hour continuous moisture infusion.',
+          'price' => '$58.00',
+          'img' => 'rose-hydration-moisturizer.jpg',
+          'category' => 'Skincare',
+      ],
+      [
+          'step' => '04',
+          'title' => 'Finish',
+          'product' => 'Invisible Sheer Glow Daily SPF 50+',
+          'desc' => 'Ultra-light mineral shield with subtle sheen.',
+          'price' => '$42.00',
+          'img' => 'mineral-glow-spf.jpg',
+          'category' => 'Skincare',
+      ],
+  ];
+
+  $featuredCollections = [
+      ['title' => 'Veloura Rose Collection', 'desc' => 'Rare Grasse rose infusions', 'img' => 'col-veloura-rose.jpg', 'category' => 'Skincare'],
+      ['title' => 'Golden Hour Glow', 'desc' => 'Sun-kissed botanical body oils', 'img' => 'col-golden-hour.jpg', 'category' => 'Bath & Body'],
+      ['title' => 'The Signature Scents', 'desc' => 'Iconic artisanal perfumes', 'img' => 'col-signature-scents.jpg', 'category' => 'Fragrance'],
+      ['title' => 'Ultimate Hydration', 'desc' => 'Hyaluronic & ceramide rituals', 'img' => 'col-ultimate-hydration.jpg', 'category' => 'Skincare'],
+      ['title' => 'Bridal Beauty Edit', 'desc' => 'Luminous wedding-day perfection', 'img' => 'col-bridal-edit.jpg', 'category' => 'Makeup'],
+      ['title' => 'Self-Care Rituals', 'desc' => 'Evening wind-down bath luxuries', 'img' => 'col-self-care.jpg', 'category' => 'Bath & Body'],
+  ];
+
+  $ingredients = [
+      ['name' => 'Hyaluronic Acid', 'benefit' => 'Multi-depth intense hydration', 'img' => 'ing-hyaluronic-acid.jpg'],
+      ['name' => 'Rose Extract', 'benefit' => 'Soothes & balances skin tone', 'img' => 'ing-rose-extract.jpg'],
+      ['name' => 'Vitamin C', 'benefit' => 'Visibly brightens and evens tone', 'img' => 'ing-vitamin-c.jpg'],
+      ['name' => 'Argan Oil', 'benefit' => 'Nourishing essential fatty acids', 'img' => 'ing-argan-oil.jpg'],
+  ];
+
+  $articles = [
+      [
+          'title' => 'How to Find Your Signature Scent',
+          'readTime' => '4 min read',
+          'date' => 'May 2026',
+          'img' => 'journal-signature-scent.jpg',
+          'excerpt' => 'Decode top notes, dry-down profiles, and fragrance layering secrets with our master perfumers.'
+      ],
+      [
+          'title' => 'The Ultimate Guide to Glowing Skin',
+          'readTime' => '5 min read',
+          'date' => 'April 2026',
+          'img' => 'journal-glowing-skin.jpg',
+          'excerpt' => 'How clean botanical actives and targeted hydration build a long-lasting, glass-skin complexion.'
+      ],
+      [
+          'title' => '5 Makeup Looks for Every Occasion',
+          'readTime' => '6 min read',
+          'date' => 'March 2026',
+          'img' => 'journal-makeup-looks.jpg',
+          'excerpt' => 'From French-girl effortless minimal glow to sultry sunset velvet glam in five effortless steps.'
+      ],
+  ];
+
+  $testimonials = [
+      [
+          'name' => 'Elena Rostova',
+          'role' => 'Beauty Editor & Verified VIP',
+          'text' => 'The Veloura Élan perfume has become my unmistakable signature. It lasts effortlessly for over 14 hours with the most intoxicating rose and amber dry-down.',
+          'avatar' => 'avatar-elena.jpg',
+      ],
+      [
+          'name' => 'Sophia Laurent',
+          'role' => 'Certified Esthetician',
+          'text' => 'The Glow Elixir Vitamin C completely transformed my client skin routines. Incredible gentle formulation without any irritation, just pure luminosity.',
+          'avatar' => 'avatar-sophia.jpg',
+      ],
+      [
+          'name' => 'Charlotte Hayes',
+          'role' => 'Verified Buyer',
+          'text' => 'Unboxing the Rose Glow Ritual Box felt like receiving a gift from a Parisian boutique. Exquisite textures, divine packaging, and truly high-performance results.',
+          'avatar' => 'avatar-charlotte.jpg',
+      ],
+  ];
 @endphp
 
-<main class="pb-24 lg:pb-0">
+<div class="space-y-16 sm:space-y-24 pb-16">
 
-  {{-- ===== ASYMMETRIC EDITORIAL HERO ===== --}}
-  <section class="relative overflow-hidden bg-vel-black border-b border-vel-line">
-    <div class="max-w-7xl mx-auto px-4 grid lg:grid-cols-12 min-h-[560px] lg:min-h-[640px]">
+  <!-- =========================================================================
+       1. HERO SECTION
+       ========================================================================= -->
+  <section class="relative overflow-hidden vel-gradient-hero border-b border-vel-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 lg:py-24">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
 
-      {{-- Left: tall image column, offset --}}
-      <div class="hidden lg:block lg:col-span-5 relative order-2">
-        <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=70"
-             alt="" class="absolute inset-0 w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-vel-black via-transparent to-transparent"></div>
-        <div class="absolute left-6 bottom-24 w-40 h-52 border border-vel-gold/40 overflow-hidden shadow-vlHover translate-y-8">
-          <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=400&q=70" class="w-full h-full object-cover" alt="">
-        </div>
-        <div class="absolute right-8 top-14 w-36 h-36 border border-vel-gold/40 overflow-hidden shadow-vlHover">
-          <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=400&q=70" class="w-full h-full object-cover" alt="">
-        </div>
-      </div>
+        <!-- Hero Text / Copy -->
+        <div class="lg:col-span-6 space-y-6 sm:space-y-8 text-center lg:text-left">
 
-      {{-- Right: offset headline block, generous negative space --}}
-      <div class="lg:col-span-7 order-1 flex flex-col justify-center py-16 lg:py-0 lg:pl-14">
-        <span class="eyebrow text-vel-gold text-xs font-bold">Volume Twelve — The Considered Edit</span>
-        <h1 class="mt-5 font-serif font-extrabold text-white leading-[1.05] text-4xl sm:text-5xl lg:text-[3.6rem] max-w-2xl">
-          {{ $s->hero_title ?? 'Curated for those who notice.' }}
-        </h1>
-        <p class="mt-6 text-vel-mute max-w-md text-[15px] leading-relaxed">
-          {{ $s->hero_subtitle ?? 'From considered electronics to fine fashion, from the home to the vanity — every piece in our collection is chosen for its craft, not its category. This is shopping treated as a quiet pleasure, not a chore.' }}
-        </p>
-        <div class="mt-9 flex flex-wrap items-center gap-5">
-          <a href="{{ route('store.shop') }}" class="h-12 px-7 inline-flex items-center gap-2 bg-vel-gold text-vel-black font-semibold text-sm hover:bg-vel-goldSoft transition-colors">
-            Explore the Collection
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_desc']) }}" class="text-sm font-semibold text-vel-ink border-b border-vel-gold/50 pb-0.5 hover:text-vel-gold hover:border-vel-gold transition-colors">
-            View the Edit
-          </a>
-        </div>
-        <div class="mt-10 flex items-center gap-8 text-vel-mute text-xs eyebrow">
-          <span>No. 01 — Electronics</span>
-          <span>No. 02 — Fashion</span>
-          <span>No. 03 — Home &amp; Beauty</span>
-        </div>
-      </div>
-    </div>
-  </section>
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-xs border border-vel-border text-vel-roseDeep text-xs font-bold uppercase tracking-widest shadow-xs">
+            <span>✨</span> Maison Veloura Paris
+          </div>
 
-  <div class="vl-rule"></div>
+          <h1 class="font-serif-luxury text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-vel-charcoal leading-[1.15]">
+            Scent.<br>
+            <span class="text-vel-roseDark">Glow.</span><br>
+            Indulge.
+          </h1>
 
-  {{-- ===== TRUST BAR (understated, luxury framing) ===== --}}
-  <section class="bg-vel-black">
-    <div class="max-w-7xl mx-auto px-4 py-10 grid sm:grid-cols-3 gap-8 text-center sm:text-left">
-      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-3">
-        <svg class="w-6 h-6 text-vel-gold shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>
-        <div>
-          <div class="font-serif text-base font-semibold text-vel-ink">White-glove service</div>
-          <p class="text-xs text-vel-mute mt-1 leading-relaxed max-w-[220px]">A dedicated concierge reviews every order before it leaves our hands — nothing ships without a second look.</p>
-        </div>
-      </div>
-      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-3">
-        <svg class="w-6 h-6 text-vel-gold shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="15" height="13"/><path d="M16 8h4l3 5v3h-7z"/></svg>
-        <div>
-          <div class="font-serif text-base font-semibold text-vel-ink">Insured shipping</div>
-          <p class="text-xs text-vel-mute mt-1 leading-relaxed max-w-[220px]">Every parcel travels fully insured, door to door, with discreet packaging worthy of what's inside.</p>
-        </div>
-      </div>
-      <div class="flex flex-col sm:flex-row items-center sm:items-start gap-3">
-        <svg class="w-6 h-6 text-vel-gold shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        <div>
-          <div class="font-serif text-base font-semibold text-vel-ink">Lifetime support</div>
-          <p class="text-xs text-vel-mute mt-1 leading-relaxed max-w-[220px]">Our relationship with you doesn't end at delivery — reach us anytime for care, repair or advice.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+          <p class="text-sm sm:text-base text-vel-muted leading-relaxed max-w-lg mx-auto lg:mx-0 font-normal">
+            Immerse yourself in clean botanical skincare, haute French parfumerie, and bespoke beauty rituals crafted to elevate your daily routine.
+          </p>
 
-  <div class="vl-rule"></div>
+          <!-- CTAs -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            <a href="{{ $velRoute('store.shop', ['collection' => 'bestsellers']) }}"
+               class="w-full sm:w-auto px-8 py-4 bg-vel-charcoal hover:bg-vel-espresso text-white font-bold text-xs rounded-full shadow-lg active:scale-95 transition-all uppercase tracking-widest text-center">
+              Shop Bestsellers &rarr;
+            </a>
+            <a href="#rituals"
+               class="w-full sm:w-auto px-8 py-4 bg-white/90 hover:bg-white text-vel-charcoal hover:text-vel-rose font-bold text-xs rounded-full border border-vel-border shadow-xs active:scale-95 transition-all uppercase tracking-widest text-center">
+              Explore Rituals
+            </a>
+          </div>
 
-  {{-- ===== TOP BANNERS ===== --}}
-  @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
-    <section class="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-2 gap-4">
-      @foreach($byPos['top_left'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block border border-vel-line overflow-hidden hover:border-vel-gold/50 transition-colors">
-          <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
-        </a>
-      @endforeach
-      @foreach($byPos['top_right'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block border border-vel-line overflow-hidden hover:border-vel-gold/50 transition-colors">
-          <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
-        </a>
-      @endforeach
-    </section>
-    <div class="vl-rule"></div>
-  @endif
-
-  {{-- ===== CATEGORY GRID ===== --}}
-  @if(($categories ?? collect())->count())
-    <section class="max-w-7xl mx-auto px-4 py-14">
-      <div class="flex items-end justify-between mb-7">
-        <div>
-          <span class="eyebrow text-vel-gold text-xs font-bold">Browse</span>
-          <h2 class="font-serif text-2xl lg:text-3xl font-bold text-vel-ink mt-1">Shop by Category</h2>
-        </div>
-        <a href="{{ route('store.shop') }}" class="text-sm font-semibold text-vel-gold hover:text-vel-goldSoft border-b border-vel-gold/40 pb-0.5">View all →</a>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-        @foreach($categories->take(8) as $cat)
-          <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="group flex flex-col items-center gap-3 p-4 bg-vel-charcoal border border-vel-line hover:border-vel-gold/60 transition-colors">
-            <span class="w-11 h-11 rounded-full border border-vel-gold/40 text-vel-gold flex items-center justify-center font-serif font-bold text-lg group-hover:bg-vel-gold group-hover:text-vel-black transition-colors">
-              <x-store.icon :name="category_icon_name($cat->name)" class="w-5 h-5" />
+          <!-- Feature Micro-Badges -->
+          <div class="pt-6 border-t border-vel-border/60 flex items-center justify-center lg:justify-start gap-6 sm:gap-8 text-xs text-vel-muted font-medium">
+            <span class="flex items-center gap-1.5">
+              <span class="text-vel-rose">✓</span> Cruelty-Free
             </span>
-            <span class="text-xs font-medium text-center text-vel-ink/90 line-clamp-2">{{ $cat->name }}</span>
-          </a>
-        @endforeach
-      </div>
-    </section>
-    <div class="vl-rule"></div>
-  @endif
-
-  {{-- ===== CONTENT BLOCKS (collections from homepage_lineup) ===== --}}
-  @foreach($blocks as $block)
-    @if(($block['type'] ?? '') === 'collection')
-      @php
-        $products = collect($block['products'] ?? []);
-        $collection = $block['collection'] ?? null;
-        $colTitle = $block['title'] ?? ($collection->title ?? $collection->name ?? 'Featured Selections');
-        $productVms = $products->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
-      @endphp
-      @if($productVms->count())
-        <section class="max-w-7xl mx-auto px-4 py-14">
-          <div class="flex items-end justify-between mb-7">
-            <div>
-              <span class="eyebrow text-vel-gold text-xs font-bold">Selected for you</span>
-              <h2 class="font-serif text-2xl lg:text-3xl font-bold text-vel-ink mt-1">{{ $colTitle }}</h2>
-            </div>
-            @if($collection && $collection->slug)
-              <a href="{{ route('store.shop', ['collection' => $collection->slug]) }}" class="text-sm font-semibold text-vel-gold hover:text-vel-goldSoft border-b border-vel-gold/40 pb-0.5">View all →</a>
-            @endif
+            <span class="flex items-center gap-1.5">
+              <span class="text-vel-rose">✓</span> 100% Clean
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="text-vel-rose">✓</span> Haute Formulations
+            </span>
           </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            @foreach($productVms as $product)
-              @include('store.themes.veloura.partials.product-card', ['product' => $product])
-            @endforeach
-          </div>
-        </section>
-        <div class="vl-rule"></div>
-      @endif
-    @endif
-  @endforeach
 
-  {{-- ===== EDITORIAL PROMO STRIP (asymmetric, 3-across mixed categories) ===== --}}
-  <section class="max-w-7xl mx-auto px-4 py-14">
-    <div class="flex items-end justify-between mb-7">
-      <div>
-        <span class="eyebrow text-vel-gold text-xs font-bold">Three Ways to Notice</span>
-        <h2 class="font-serif text-2xl lg:text-3xl font-bold text-vel-ink mt-1">Stories Worth a Second Look</h2>
-      </div>
-    </div>
-    <div class="grid md:grid-cols-3 gap-4">
-      <div class="relative overflow-hidden h-72 flex items-end p-6 group">
-        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=700&q=70" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
-        <div class="relative">
-          <span class="text-vel-gold text-[11px] font-bold eyebrow">Technology</span>
-          <h3 class="font-serif text-white text-xl font-bold mt-2">Precision, quietly engineered</h3>
-          <a href="{{ route('store.shop') }}" class="mt-3 inline-flex text-xs font-semibold text-white border-b border-white/50 pb-0.5">Discover →</a>
         </div>
-      </div>
-      <div class="relative overflow-hidden h-72 flex items-end p-6 group">
-        <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=700&q=70" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
-        <div class="relative">
-          <span class="text-vel-gold text-[11px] font-bold eyebrow">Fashion</span>
-          <h3 class="font-serif text-white text-xl font-bold mt-2">Tailoring that holds its shape</h3>
-          <a href="{{ route('store.shop') }}" class="mt-3 inline-flex text-xs font-semibold text-white border-b border-white/50 pb-0.5">Discover →</a>
-        </div>
-      </div>
-      <div class="relative overflow-hidden h-72 flex items-end p-6 group">
-        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=700&q=70" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
-        <div class="relative">
-          <span class="text-vel-gold text-[11px] font-bold eyebrow">Home &amp; Beauty</span>
-          <h3 class="font-serif text-white text-xl font-bold mt-2">Everyday objects, elevated</h3>
-          <a href="{{ route('store.shop') }}" class="mt-3 inline-flex text-xs font-semibold text-white border-b border-white/50 pb-0.5">Discover →</a>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <div class="vl-rule"></div>
+        <!-- Hero Image Composition -->
+        <div class="lg:col-span-6 relative">
+          <div class="relative mx-auto max-w-lg lg:max-w-none rounded-3xl overflow-hidden shadow-2xl border-4 border-white/80">
+            <img src="{{ global_asset('images/themes/veloura/veloura-hero-main.jpg') }}"
+                 alt="Veloura Luxury Beauty Rituals"
+                 class="w-full h-auto max-h-[540px] object-cover hover:scale-105 transition-transform duration-700">
 
-  {{-- ===== CENTER BANNERS ===== --}}
-  @if(($byPos['center_left'] ?? collect())->count() || ($byPos['center_right'] ?? collect())->count())
-    <section class="max-w-7xl mx-auto px-4 py-14 grid md:grid-cols-2 gap-4">
-      @foreach($byPos['center_left'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block border border-vel-line overflow-hidden hover:border-vel-gold/50 transition-colors">
-          <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
-        </a>
-      @endforeach
-      @foreach($byPos['center_right'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block border border-vel-line overflow-hidden hover:border-vel-gold/50 transition-colors">
-          <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
-        </a>
-      @endforeach
-    </section>
-    <div class="vl-rule"></div>
-  @endif
-
-  {{-- ===== TESTIMONIALS — SERIF PULL-QUOTE STYLE ===== --}}
-  <section class="bg-vel-charcoal">
-    <div class="max-w-7xl mx-auto px-4 py-16">
-      <div class="text-center mb-12">
-        <span class="eyebrow text-vel-gold text-xs font-bold">In Their Words</span>
-        <h2 class="font-serif text-2xl lg:text-3xl font-bold text-vel-ink mt-2">What Clients Tell Us</h2>
-      </div>
-      <div class="grid md:grid-cols-3 gap-10">
-        @foreach([
-          ['name' => 'Amara K.', 'role' => 'Repeat client since 2022', 'quote' => 'I ordered a set of noise-cancelling headphones and a cashmere scarf in the same week — both arrived exactly as described, and someone actually called to confirm my delivery window. That kind of attention is rare now.'],
-          ['name' => 'Daniel R.', 'role' => 'Verified purchaser', 'quote' => 'What struck me was the range without the compromise. Running shoes, a countertop appliance, skincare — every single item felt like it had been chosen by someone who actually cared, not just stocked.'],
-          ['name' => 'Priya S.', 'role' => 'Verified purchaser', 'quote' => 'The packaging alone told me this wasn\'t a typical order. Everything arrived insured and beautifully presented, and when I had a question afterward, a real person answered within the hour.'],
-        ] as $t)
-          <div class="relative px-2">
-            <svg class="w-10 h-10 text-vel-gold/30 mb-2" viewBox="0 0 40 40" fill="currentColor"><path d="M12.9 20.6c-2.4 0-4.3-.8-5.7-2.4-1.4-1.6-2.1-3.6-2.1-6 0-3.1 1-5.9 3-8.4 2-2.5 4.6-4.3 7.8-5.4l1.4 2.7c-2.1 1-3.8 2.2-5 3.8-1.2 1.5-1.9 3-2 4.5.5-.2 1.1-.3 1.8-.3 1.8 0 3.3.6 4.5 1.9 1.2 1.3 1.8 2.8 1.8 4.6 0 1.9-.6 3.5-1.9 4.8-1.3 1.2-2.8 1.9-4.6 1.9zm18.2 0c-2.4 0-4.3-.8-5.7-2.4-1.4-1.6-2.1-3.6-2.1-6 0-3.1 1-5.9 3-8.4 2-2.5 4.6-4.3 7.8-5.4l1.4 2.7c-2.1 1-3.8 2.2-5 3.8-1.2 1.5-1.9 3-2 4.5.5-.2 1.1-.3 1.8-.3 1.8 0 3.3.6 4.5 1.9 1.2 1.3 1.8 2.8 1.8 4.6 0 1.9-.6 3.5-1.9 4.8-1.3 1.2-2.8 1.9-4.6 1.9z"/></svg>
-            <p class="font-serif text-[17px] leading-relaxed text-vel-ink/95 italic">{{ $t['quote'] }}</p>
-            <div class="mt-5 flex items-center gap-2">
-              <span class="w-8 h-px bg-vel-gold/50"></span>
-              <div>
-                <div class="text-sm font-semibold text-vel-ink">{{ $t['name'] }}</div>
-                <div class="text-[11px] text-vel-mute">{{ $t['role'] }}</div>
+            <!-- Floating Floating Badge -->
+            <div class="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 bg-white/95 backdrop-blur-md rounded-2xl p-4 border border-vel-border shadow-xl max-w-xs flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-vel-roseLight flex items-center justify-center text-xl shrink-0">
+                🌸
+              </div>
+              <div class="text-left">
+                <span class="text-[10px] font-bold text-vel-rose uppercase tracking-wider block">Signature Release</span>
+                <span class="font-serif-luxury text-xs font-bold text-vel-charcoal block">Élan Eau de Parfum</span>
+                <span class="text-[11px] text-vel-muted">$135.00 &bull; 100ml</span>
               </div>
             </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       2. SHOP BY BEAUTY RITUAL (8 Categories)
+       ========================================================================= -->
+  <section id="rituals" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-12 space-y-2">
+      <span class="text-xs font-bold text-vel-rose uppercase tracking-widest">
+        Curated Categories
+      </span>
+      <h2 class="font-serif-luxury text-2xl sm:text-3xl lg:text-4xl font-bold text-vel-charcoal tracking-tight">
+        Shop by Beauty Ritual
+      </h2>
+      <p class="text-xs sm:text-sm text-vel-muted">
+        Select a luxury ritual designed to nourish, revitalize, and awaken the senses.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
+      @foreach($rituals as $r)
+        <a href="{{ $velRoute('store.shop', ['category' => $r['category']]) }}"
+           class="group bg-white rounded-2xl border border-vel-border p-3 text-center flex flex-col items-center justify-between vel-card hover:border-vel-rose">
+
+          <div class="aspect-square w-full rounded-xl overflow-hidden bg-vel-blush mb-3 flex items-center justify-center p-2">
+            <img src="{{ global_asset('images/themes/veloura/' . $r['img']) }}"
+                 alt="{{ $r['name'] }}"
+                 loading="lazy"
+                 class="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500">
+          </div>
+
+          <div>
+            <h3 class="font-serif-luxury text-xs font-bold text-vel-charcoal group-hover:text-vel-rose transition-colors">
+              {{ $r['name'] }}
+            </h3>
+            <span class="text-[10px] text-vel-muted block">
+              {{ $r['desc'] }}
+            </span>
+          </div>
+
+        </a>
+      @endforeach
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       3. CURATED BEAUTY BESTSELLERS (Product Grid)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 sm:mb-10 pb-4 border-b border-vel-border">
+      <div>
+        <span class="text-xs font-bold text-vel-rose uppercase tracking-widest">
+          Award-Winning Favorites
+        </span>
+        <h2 class="font-serif-luxury text-2xl sm:text-3xl font-bold text-vel-charcoal tracking-tight">
+          Curated Beauty Sellers
+        </h2>
+      </div>
+
+      <a href="{{ $velRoute('store.shop', ['collection' => 'bestsellers']) }}"
+         class="text-xs font-bold text-vel-roseDeep hover:text-vel-rose transition-colors flex items-center gap-1 uppercase tracking-wider">
+        <span>View All Bestsellers</span>
+        <span>&rarr;</span>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+      @forelse($products->take(8) as $product)
+        @include('store.themes.veloura.partials.product-card', ['product' => $product])
+      @empty
+        <div class="col-span-full py-12 text-center text-vel-muted">
+          No beauty items found in catalog.
+        </div>
+      @endforelse
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       4. PROMOTIONAL COLLECTIONS (3 Banner Cards)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      @foreach($promoBanners as $promo)
+        <div class="group relative rounded-3xl overflow-hidden border border-vel-border shadow-md bg-vel-charcoal min-h-[360px] flex flex-col justify-end p-6 sm:p-8">
+
+          <!-- Background Image with Overlay -->
+          <img src="{{ global_asset('images/themes/veloura/' . $promo['img']) }}"
+               alt="{{ $promo['title'] }}"
+               class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 group-hover:opacity-75 transition-all duration-700">
+
+          <div class="absolute inset-0 bg-gradient-to-t from-vel-charcoal via-vel-charcoal/40 to-transparent"></div>
+
+          <!-- Content -->
+          <div class="relative z-10 space-y-2">
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-rose-200 block">
+              Curated Edit
+            </span>
+            <h3 class="font-serif-luxury text-xl sm:text-2xl font-bold text-white tracking-wide">
+              {{ $promo['title'] }}
+            </h3>
+            <p class="text-xs text-slate-200 leading-relaxed font-light">
+              {{ $promo['tagline'] }}
+            </p>
+            <div class="pt-3">
+              <a href="{{ $velRoute('store.shop', ['category' => $promo['category']]) }}"
+                 class="inline-block px-5 py-2.5 bg-white hover:bg-vel-rose text-vel-charcoal hover:text-white font-bold text-xs rounded-full shadow-md active:scale-95 transition-all uppercase tracking-wider">
+                {{ $promo['cta'] }} &rarr;
+              </a>
+            </div>
+          </div>
+
+        </div>
+      @endforeach
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       5. BUILD YOUR ROUTINE (4 Step Beauty Ritual)
+       ========================================================================= -->
+  <section class="bg-vel-cream py-16 sm:py-20 border-y border-vel-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+
+      <div class="text-center max-w-2xl mx-auto space-y-2">
+        <span class="text-xs font-bold text-vel-rose uppercase tracking-widest">
+          The 4-Step Regimen
+        </span>
+        <h2 class="font-serif-luxury text-2xl sm:text-3xl lg:text-4xl font-bold text-vel-charcoal tracking-tight">
+          Build Your Daily Beauty Routine
+        </h2>
+        <p class="text-xs sm:text-sm text-vel-muted">
+          Synergistic clean actives formulated to layer seamlessly for lasting cellular radiance.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        @foreach($routineSteps as $step)
+          <div class="bg-white rounded-2xl border border-vel-border p-6 vel-card flex flex-col justify-between relative group">
+
+            <!-- Step Number Badge -->
+            <div class="flex items-center justify-between mb-4">
+              <span class="font-serif-luxury text-2xl font-bold text-vel-roseDeep">
+                {{ $step['step'] }}
+              </span>
+              <span class="px-2.5 py-1 bg-vel-roseLight text-vel-roseDeep text-[10px] font-bold rounded-full uppercase tracking-wider">
+                {{ $step['title'] }}
+              </span>
+            </div>
+
+            <!-- Step Image -->
+            <div class="aspect-square w-full rounded-xl bg-vel-blush overflow-hidden mb-4 p-4 flex items-center justify-center">
+              <img src="{{ global_asset('images/themes/veloura/' . $step['img']) }}"
+                   alt="{{ $step['product'] }}"
+                   class="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500">
+            </div>
+
+            <!-- Details -->
+            <div class="space-y-2">
+              <h4 class="font-serif-luxury text-sm font-bold text-vel-charcoal line-clamp-1 group-hover:text-vel-rose transition-colors">
+                {{ $step['product'] }}
+              </h4>
+              <p class="text-xs text-vel-muted line-clamp-2">
+                {{ $step['desc'] }}
+              </p>
+              <div class="pt-2 flex items-center justify-between border-t border-vel-borderLight">
+                <span class="text-xs font-bold text-vel-charcoal">
+                  {{ $step['price'] }}
+                </span>
+                <a href="{{ $velRoute('store.shop', ['category' => $step['category']]) }}"
+                   class="text-xs font-bold text-vel-rose hover:underline">
+                  Explore Step &rarr;
+                </a>
+              </div>
+            </div>
+
+          </div>
+        @endforeach
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       6. FEATURED COLLECTIONS (6 Editorial Cards)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-2xl mx-auto mb-10 space-y-2">
+      <span class="text-xs font-bold text-vel-rose uppercase tracking-widest">
+        Themed Edits
+      </span>
+      <h2 class="font-serif-luxury text-2xl sm:text-3xl font-bold text-vel-charcoal tracking-tight">
+        Featured Collections
+      </h2>
+      <p class="text-xs sm:text-sm text-vel-muted">
+        Bespoke assortments curated by our Parisian creative studio.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      @foreach($featuredCollections as $col)
+        <a href="{{ $velRoute('store.shop', ['category' => $col['category']]) }}"
+           class="group bg-white rounded-2xl border border-vel-border overflow-hidden vel-card flex flex-col justify-between">
+          <div class="aspect-square w-full bg-vel-blush overflow-hidden">
+            <img src="{{ global_asset('images/themes/veloura/' . $col['img']) }}"
+                 alt="{{ $col['title'] }}"
+                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+          </div>
+          <div class="p-3 text-center">
+            <h4 class="font-serif-luxury text-xs font-bold text-vel-charcoal group-hover:text-vel-rose transition-colors line-clamp-1">
+              {{ $col['title'] }}
+            </h4>
+            <span class="text-[10px] text-vel-muted block mt-0.5 line-clamp-1">
+              {{ $col['desc'] }}
+            </span>
+          </div>
+        </a>
+      @endforeach
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       7. INGREDIENT SPOTLIGHT (4 Ingredients)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-3xl border border-vel-border p-8 sm:p-12 shadow-sm space-y-8">
+      <div class="text-center max-w-xl mx-auto space-y-1">
+        <span class="text-xs font-bold text-vel-rose uppercase tracking-widest">
+          Science & Nature
+        </span>
+        <h2 class="font-serif-luxury text-2xl sm:text-3xl font-bold text-vel-charcoal">
+          Ingredient Spotlight
+        </h2>
+        <p class="text-xs text-vel-muted">
+          Clinically validated, sustainably harvested botanical actives.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        @foreach($ingredients as $ing)
+          <div class="flex items-center gap-4 p-4 rounded-2xl bg-vel-blush border border-vel-border">
+            <img src="{{ global_asset('images/themes/veloura/' . $ing['img']) }}"
+                 alt="{{ $ing['name'] }}"
+                 class="w-14 h-14 rounded-xl object-cover shrink-0 shadow-xs">
+            <div>
+              <h4 class="font-serif-luxury text-xs font-bold text-vel-charcoal">
+                {{ $ing['name'] }}
+              </h4>
+              <p class="text-[11px] text-vel-muted leading-tight mt-0.5">
+                {{ $ing['benefit'] }}
+              </p>
+            </div>
           </div>
         @endforeach
       </div>
     </div>
   </section>
 
-  <div class="vl-rule"></div>
-
-  {{-- ===== NEWSLETTER ===== --}}
-  <section class="max-w-7xl mx-auto px-4 py-16">
-    <div class="border border-vel-gold/30 bg-vel-charcoal p-8 lg:p-14 grid lg:grid-cols-5 gap-8 items-center relative overflow-hidden">
-      <div class="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-vel-burgundy/30 blur-3xl pointer-events-none"></div>
-      <div class="lg:col-span-2 relative">
-        <span class="eyebrow text-vel-gold text-xs font-bold">Join the List</span>
-        <h3 class="font-serif text-2xl lg:text-3xl font-bold text-vel-ink mt-3">The first word on new arrivals</h3>
-        <p class="text-vel-mute text-sm mt-3 leading-relaxed">Twice a month, a short note on what's newly arrived across the collection — no noise, no daily blasts, just what's genuinely worth your attention.</p>
+  <!-- =========================================================================
+       8. BEAUTY JOURNAL (3 Editorial Articles)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-8 pb-4 border-b border-vel-border">
+      <div>
+        <span class="text-xs font-bold text-vel-rose uppercase tracking-widest">
+          Editorial Notes
+        </span>
+        <h2 class="font-serif-luxury text-2xl sm:text-3xl font-bold text-vel-charcoal">
+          The Beauty Journal
+        </h2>
       </div>
-      <form action="#" method="post" class="lg:col-span-3 flex flex-col sm:flex-row gap-3 relative">
-        @csrf
-        <input type="email" required placeholder="you@example.com" class="flex-1 h-12 px-4 bg-vel-black border border-vel-line text-sm text-vel-ink placeholder:text-vel-mute focus:outline-none focus:border-vel-gold/60">
-        <button type="submit" class="h-12 px-7 bg-vel-gold text-vel-black font-bold text-sm hover:bg-vel-goldSoft transition-colors">Subscribe</button>
-      </form>
+      <a href="{{ $shopUrl }}" class="text-xs font-bold text-vel-rose hover:underline uppercase tracking-wider">
+        Read All Articles &rarr;
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      @foreach($articles as $art)
+        <div class="group bg-white rounded-2xl border border-vel-border overflow-hidden vel-card flex flex-col justify-between">
+          <div class="aspect-video w-full overflow-hidden bg-vel-blush">
+            <img src="{{ global_asset('images/themes/veloura/' . $art['img']) }}"
+                 alt="{{ $art['title'] }}"
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+          </div>
+          <div class="p-6 space-y-3">
+            <div class="flex items-center justify-between text-[11px] text-vel-muted font-medium">
+              <span>{{ $art['date'] }}</span>
+              <span>&bull;</span>
+              <span>{{ $art['readTime'] }}</span>
+            </div>
+            <h3 class="font-serif-luxury text-base font-bold text-vel-charcoal leading-snug group-hover:text-vel-rose transition-colors">
+              <a href="{{ $shopUrl }}">{{ $art['title'] }}</a>
+            </h3>
+            <p class="text-xs text-vel-muted leading-relaxed line-clamp-2">
+              {{ $art['excerpt'] }}
+            </p>
+            <div class="pt-2">
+              <a href="{{ $shopUrl }}" class="text-xs font-bold text-vel-roseDeep group-hover:text-vel-rose transition-colors">
+                Read Story &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+      @endforeach
     </div>
   </section>
 
-  {{-- ===== FOOTER BANNERS ===== --}}
-  @if(($byPos['footer_left'] ?? collect())->count() || ($byPos['footer_right'] ?? collect())->count())
-    <div class="vl-rule"></div>
-    <section class="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-2 gap-4">
-      @foreach($byPos['footer_left'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block border border-vel-line overflow-hidden"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
+  <!-- =========================================================================
+       9. VELOURA CLUB (Membership Banner)
+       ========================================================================= -->
+  <section id="veloura-club" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="relative rounded-3xl overflow-hidden bg-vel-charcoal text-white p-8 sm:p-12 lg:p-16 border border-vel-espresso shadow-2xl">
+
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+
+        <div class="lg:col-span-7 space-y-4 text-center lg:text-left">
+          <span class="px-3 py-1 bg-rose-900/60 text-rose-200 text-[10px] font-extrabold uppercase tracking-widest rounded-full border border-rose-700/50">
+            VIP Inner Circle
+          </span>
+          <h2 class="font-serif-luxury text-3xl sm:text-4xl font-bold tracking-tight text-white">
+            VELOURA CLUB
+          </h2>
+          <p class="text-sm text-slate-300 font-light max-w-lg leading-relaxed">
+            &ldquo;More than beauty. It's an artful lifestyle.&rdquo; Enjoy complimentary birthday gifts, private concierge access, double points, and priority invitations to exclusive fragrance launches.
+          </p>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs font-semibold text-rose-100">
+            <div>✨ Exclusive Offers</div>
+            <div>🎁 Birthday Coffret</div>
+            <div>⚡ Early Access</div>
+            <div>★ Double Points</div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 flex flex-col items-center justify-center gap-4">
+          <a href="{{ $accountUrl }}"
+             class="w-full sm:w-auto px-10 py-4 bg-vel-rose hover:bg-vel-roseDark text-white font-bold text-xs rounded-full shadow-lg active:scale-95 transition-all uppercase tracking-widest text-center">
+            Join The Club Now
+          </a>
+          <span class="text-[11px] text-slate-400">Complimentary membership &bull; Cancel anytime</span>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       10. CUSTOMER TESTIMONIALS (Loved by Our Beauty Community)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-2xl mx-auto mb-10 space-y-2">
+      <span class="text-xs font-bold text-vel-rose uppercase tracking-widest">
+        Client Experiences
+      </span>
+      <h2 class="font-serif-luxury text-2xl sm:text-3xl font-bold text-vel-charcoal tracking-tight">
+        Loved by Our Beauty Community
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      @foreach($testimonials as $t)
+        <div class="bg-white rounded-2xl border border-vel-border p-6 vel-card flex flex-col justify-between space-y-4">
+          <div class="flex items-center gap-1 text-amber-500 text-sm">
+            ★★★★★
+          </div>
+          <p class="text-xs text-vel-charcoal leading-relaxed italic">
+            &ldquo;{{ $t['text'] }}&rdquo;
+          </p>
+          <div class="flex items-center gap-3 pt-3 border-t border-vel-borderLight">
+            <img src="{{ global_asset('images/themes/veloura/' . $t['avatar']) }}"
+                 alt="{{ $t['name'] }}"
+                 class="w-10 h-10 rounded-full object-cover border border-vel-border">
+            <div>
+              <h4 class="font-serif-luxury text-xs font-bold text-vel-charcoal">
+                {{ $t['name'] }}
+              </h4>
+              <span class="text-[10px] text-vel-muted block">
+                {{ $t['role'] }}
+              </span>
+            </div>
+          </div>
+        </div>
       @endforeach
-      @foreach($byPos['footer_right'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block border border-vel-line overflow-hidden"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
-      @endforeach
-    </section>
-  @endif
+    </div>
+  </section>
 
-</main>
-
-@include('store.themes.veloura.partials.footer', ['categories' => $categories])
-@include('store.themes.veloura.partials.mobile-nav')
-
-<script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
-</body>
-</html>
+</div>
+@endsection

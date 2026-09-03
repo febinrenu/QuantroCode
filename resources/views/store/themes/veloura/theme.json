@@ -1,48 +1,24 @@
 {
-    "slug": "veloura",
-    "name": "Veloura",
-    "tagline": "Curated for those who notice.",
-    "description": "A dark luxury editorial persona for a general-merchandise storefront — near-black backgrounds, gold accents and serif headlines frame an assortment spanning electronics, fashion, home, beauty and more, presented with the restraint of a print magazine rather than a discount catalog.",
-    "category": "general-merchandise",
-    "version": "1.0.0",
-    "layout_persona": "Dark Luxury Editorial",
-    "layout": "asymmetric-editorial",
-    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap",
-    "fontPairing": {
-        "heading": "Playfair Display",
-        "body": "Inter"
+  "name": "Veloura",
+  "slug": "veloura",
+  "version": "1.0.0",
+  "description": "Premium luxury beauty, cosmetics, skincare, and fragrance storefront theme.",
+  "author": "QuantroCode Studio",
+  "tokens": {
+    "colors": {
+      "primary": "#C99A82",
+      "primaryDark": "#A36D55",
+      "primaryLight": "#F7EDE6",
+      "secondary": "#2D2426",
+      "accent": "#CBA135",
+      "bgLight": "#FAF6F0",
+      "surface": "#FFFFFF",
+      "border": "#EBE0D5",
+      "muted": "#7D726D"
     },
-    "paletteSwatches": [
-        "#C9A15B",
-        "#B08947",
-        "#3D1A24",
-        "#5A2534"
-    ],
-    "tokens": {
-        "color-bg-base": "#0F0D0A",
-        "color-accent-500": "#C9A15B",
-        "color-accent-600": "#B08947",
-        "color-accent-700": "#3D1A24",
-        "color-accent-800": "#5A2534",
-        "font-heading": "'Playfair Display', serif",
-        "font-body": "'Inter', sans-serif",
-        "font-size-heading": "34px",
-        "font-size-body": "15px"
-    },
-    "customizable": [
-        "color-accent-500",
-        "color-accent-600",
-        "color-accent-700",
-        "color-accent-800",
-        "font-heading",
-        "font-body",
-        "font-size-heading",
-        "font-size-body"
-    ],
-    "pages": {
-        "home": true,
-        "shop": true,
-        "product": true,
-        "cart": true
+    "typography": {
+      "fontHeading": "'Playfair Display', serif",
+      "fontBody": "'Plus Jakarta Sans', sans-serif"
     }
+  }
 }

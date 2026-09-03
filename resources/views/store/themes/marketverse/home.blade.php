@@ -1,272 +1,665 @@
-<!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
-<head>
-@include('store.themes.marketverse._shell', ['pageTitle' => ($s->seo_meta_title ?? $s->store_name ?? 'MarketVerse') . ' — Your World Of Shopping'])
-</head>
-<body class="bg-mv-cream text-mv-ink antialiased">
+@extends('store.themes.marketverse._shell')
 
-@include('store.themes.marketverse.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
+@section('title', 'MarketVerse — Everything from Every Store, All in One Marketplace')
+
+@section('content')
 
 @php
-  $currency = $s->currency_code ?? '$';
-  $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
-  $byPos = collect($banners ?? [])->groupBy('position');
-  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+  use App\Models\Product;
+  use App\Models\Category;
 
-  $mvTicker = [
-    'Wireless ANC Headphones', 'Ceramic Non-Stick Cookware Set', 'Organic Cold-Pressed Olive Oil',
-    'Running Shoes — Trail Grip', 'Vitamin C Brightening Serum', '4K Smart Monitor 27"',
-    'Linen Blend Blazer', 'Stainless Steel Yoga Mat Roller', 'Robot Vacuum with Mapping',
-    'Cast Iron Dutch Oven', 'Bluetooth Fitness Tracker', 'Merino Wool Crew Socks 3-Pack',
-    'Espresso Machine — 15 Bar', 'Retinol Night Repair Cream', 'Adjustable Dumbbell Set',
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'marketverse');
+  $mvRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+  $shopUrl = $mvRoute('store.shop');
+
+  // Query MarketVerse products
+  $flashSaleProducts = Product::where('code', 'like', 'MKT-%')
+      ->whereIn('code', [
+          'MKT-EAR-001', 'MKT-WAT-001', 'MKT-MIX-001',
+          'MKT-SHU-001', 'MKT-SRM-001', 'MKT-MOU-001'
+      ])
+      ->take(6)
+      ->get();
+
+  $recommendedProducts = Product::where('code', 'like', 'MKT-%')
+      ->whereIn('code', [
+          'MKT-BAG-001', 'MKT-VAC-001', 'MKT-CLK-001',
+          'MKT-TRK-001', 'MKT-CKW-001', 'MKT-CAS-001'
+      ])
+      ->take(6)
+      ->get();
+
+  $newArrivals = Product::where('code', 'like', 'MKT-%')
+      ->whereIn('code', [
+          'MKT-BUD-002', 'MKT-PHN-001', 'MKT-SHU-002',
+          'MKT-DRY-001', 'MKT-SPK-001', 'MKT-MUG-001'
+      ])
+      ->take(6)
+      ->get();
+
+  // If specific codes are not yet seeded, fallback to any MarketVerse products
+  if ($flashSaleProducts->isEmpty()) {
+      $flashSaleProducts = Product::where('code', 'like', 'MKT-%')->take(6)->get();
+  }
+  if ($recommendedProducts->isEmpty()) {
+      $recommendedProducts = Product::where('code', 'like', 'MKT-%')->skip(6)->take(6)->get();
+  }
+  if ($newArrivals->isEmpty()) {
+      $newArrivals = Product::where('code', 'like', 'MKT-%')->skip(12)->take(6)->get();
+  }
+
+  $departmentsList = [
+      ['name' => "Women's Fashion", 'category' => 'Fashion'],
+      ['name' => "Men's Fashion", 'category' => 'Fashion'],
+      ['name' => "Electronics", 'category' => 'Electronics'],
+      ['name' => "Home & Living", 'category' => 'Home & Living'],
+      ['name' => "Beauty & Personal Care", 'category' => 'Beauty & Personal Care'],
+      ['name' => "Grocery & Essentials", 'category' => 'Grocery & Essentials'],
+      ['name' => "Sports & Outdoors", 'category' => 'Sports & Outdoors'],
+      ['name' => "Toys & Games", 'category' => 'Toys & Games'],
+      ['name' => "Automotive", 'category' => 'Automotive'],
+      ['name' => "Books & Stationery", 'category' => 'Books & Stationery'],
+      ['name' => "Pet Supplies", 'category' => 'Pet Supplies'],
+  ];
+
+  $topStores = [
+      ['name' => 'TrendyHub', 'category' => 'Fashion Store', 'rating' => '4.8', 'sales' => '12.5k Sales', 'logo' => 'store-trendyhub.png', 'color' => 'from-pink-500 to-rose-600'],
+      ['name' => 'TechWorld', 'category' => 'Electronics', 'rating' => '4.9', 'sales' => '18.2k Sales', 'logo' => 'store-techworld.png', 'color' => 'from-blue-600 to-indigo-700'],
+      ['name' => 'HomeNest', 'category' => 'Home & Living', 'rating' => '4.7', 'sales' => '9.3k Sales', 'logo' => 'store-homenest.png', 'color' => 'from-amber-500 to-orange-600'],
+      ['name' => 'BeautyBliss', 'category' => 'Beauty Store', 'rating' => '4.8', 'sales' => '15.6k Sales', 'logo' => 'store-beautybliss.png', 'color' => 'from-purple-500 to-fuchsia-600'],
+      ['name' => 'Sportify', 'category' => 'Sports & Outdoors', 'rating' => '4.6', 'sales' => '11.2k Sales', 'logo' => 'store-sportify.png', 'color' => 'from-emerald-500 to-teal-700'],
+      ['name' => 'ToyLand', 'category' => 'Toys & Games', 'rating' => '4.9', 'sales' => '8.5k Sales', 'logo' => 'store-toyland.png', 'color' => 'from-cyan-500 to-blue-600'],
+  ];
+
+  $trendingCategories = [
+      ['name' => 'Fashion', 'category' => 'Fashion', 'icon' => 'cat-fashion.jpg'],
+      ['name' => 'Electronics', 'category' => 'Electronics', 'icon' => 'cat-electronics.jpg'],
+      ['name' => 'Home & Living', 'category' => 'Home & Living', 'icon' => 'cat-home-living.jpg'],
+      ['name' => 'Beauty', 'category' => 'Beauty & Personal Care', 'icon' => 'cat-beauty.jpg'],
+      ['name' => 'Grocery', 'category' => 'Grocery & Essentials', 'icon' => 'cat-grocery.jpg'],
+      ['name' => 'Toys & Games', 'category' => 'Toys & Games', 'icon' => 'cat-toys.jpg'],
+      ['name' => 'Sports', 'category' => 'Sports & Outdoors', 'icon' => 'cat-sports.jpg'],
+      ['name' => 'Automotive', 'category' => 'Automotive', 'icon' => 'cat-automotive.jpg'],
+  ];
+
+  $coupons = [
+      ['discount' => '20% OFF', 'desc' => 'Min. $50 Order', 'code' => 'SAVE20', 'bg' => 'bg-emerald-50 border-emerald-200 text-emerald-800'],
+      ['discount' => '15% OFF', 'desc' => 'Fashion Items', 'code' => 'FASHION15', 'bg' => 'bg-rose-50 border-rose-200 text-rose-800'],
+      ['discount' => '10% OFF', 'desc' => 'Electronics', 'code' => 'TECH10', 'bg' => 'bg-blue-50 border-blue-200 text-blue-800'],
+      ['discount' => '$10 OFF', 'desc' => 'Home & Living', 'code' => 'HOME10', 'bg' => 'bg-amber-50 border-amber-200 text-amber-800'],
+      ['discount' => '5% OFF', 'desc' => 'Storewide', 'code' => 'MV5', 'bg' => 'bg-purple-50 border-purple-200 text-purple-800'],
+  ];
+
+  $brands = [
+      ['name' => 'Nike', 'logo' => 'marketverse-brand-nike.png'],
+      ['name' => 'Samsung', 'logo' => 'marketverse-brand-samsung.png'],
+      ['name' => 'boAt', 'logo' => 'marketverse-brand-boat.png'],
+      ['name' => 'Puma', 'logo' => 'marketverse-brand-puma.png'],
+      ['name' => 'Philips', 'logo' => 'marketverse-brand-philips.png'],
+      ['name' => 'realme', 'logo' => 'marketverse-brand-realme.png'],
+      ['name' => 'Lenovo', 'logo' => 'marketverse-brand-lenovo.png'],
+      ['name' => 'Xiaomi', 'logo' => 'marketverse-brand-xiaomi.png'],
+  ];
+
+  $testimonials = [
+      ['name' => 'Sarah Johnson', 'role' => 'Verified Buyer', 'rating' => 5, 'text' => 'Amazing variety and great prices! Everything arrived from three different stores in one neat package.'],
+      ['name' => 'Michael Brown', 'role' => 'Verified Buyer', 'rating' => 5, 'text' => 'Fast delivery and excellent customer service. The vendor spotlight discounts saved me over $80.'],
+      ['name' => 'Priya Sharma', 'role' => 'Verified Buyer', 'rating' => 5, 'text' => 'Love the seller offers and authenticity guarantee. Best multi-vendor marketplace I have used.'],
+      ['name' => 'David Wilson', 'role' => 'Verified Buyer', 'rating' => 5, 'text' => 'Seamless checkout experience and quick tracking updates. Highly recommended marketplace.'],
   ];
 @endphp
 
-<main class="pb-24 lg:pb-0">
+<div class="space-y-10 sm:space-y-14 pb-16">
 
-  {{-- ===== HERO ===== --}}
-  <section class="relative overflow-hidden bg-mv-ink">
-    <div class="absolute inset-0">
-      <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=70"
-           alt="" class="w-full h-full object-cover opacity-25">
-      <div class="absolute inset-0 bg-gradient-to-r from-mv-inkDark via-mv-inkDark/92 to-mv-inkDark/50"></div>
-    </div>
-    <div class="relative max-w-[1600px] mx-auto px-4 py-14 lg:py-20 grid lg:grid-cols-2 gap-8 items-center">
-      <div>
-        <span class="eyebrow text-mv-accent text-xs font-bold mv-mono">MARKETPLACE.ALL_CATEGORIES</span>
-        <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
-          {{ $s->hero_title ?? 'Your world of shopping, in one cart.' }}
-        </h1>
-        <p class="mt-4 text-slate-300 max-w-lg">
-          {{ $s->hero_subtitle ?? 'Electronics, fashion, home, beauty, grocery and sports — thousands of listings from verified sellers, priced transparently and delivered fast.' }}
-        </p>
-        <div class="mt-7 flex flex-wrap gap-3">
-          <a href="{{ route('store.shop') }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-md bg-mv-accent text-white font-bold hover:bg-mv-accentDark transition-colors">
-            Browse the grid
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-md border-2 border-white/25 text-white font-bold hover:bg-white/10 transition-colors">
-            Today's lowest prices
-          </a>
-        </div>
-        <div class="mt-8 flex items-center gap-5 text-slate-300 text-xs flex-wrap">
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-mv-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Verified seller network</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-mv-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Real-time stock data</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-mv-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Buyer protection on every order</span>
+  <!-- =========================================================================
+       1. HERO SECTION (Left Department Sidebar + Center Gradient Banner + Right Promo Cards)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+
+      <!-- Left Departments Drawer Menu (Hidden on mobile, 3 cols on desktop) -->
+      <div class="hidden lg:block lg:col-span-3 bg-white rounded-3xl border border-mv-border p-4 shadow-xs">
+        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 px-3 py-2 border-b border-slate-100">
+          Browse Departments
+        </h3>
+        <div class="py-2 space-y-0.5 text-xs font-semibold text-slate-700">
+          @foreach($departmentsList as $dept)
+            <a href="{{ $mvRoute('store.shop', ['category' => $dept['category']]) }}"
+               class="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-mv-purpleLight hover:text-mv-purple transition-colors group">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-slate-300 group-hover:bg-mv-purple transition-colors"></span>
+                <span>{{ $dept['name'] }}</span>
+              </div>
+              <span class="text-slate-300 group-hover:text-mv-purple transition-colors">&rarr;</span>
+            </a>
+          @endforeach
+          <div class="pt-2 border-t border-slate-100">
+            <a href="{{ $shopUrl }}" class="block text-center py-2 text-xs font-bold text-mv-purple hover:underline">
+              View All Categories &rarr;
+            </a>
+          </div>
         </div>
       </div>
-      <div class="hidden lg:grid grid-cols-3 gap-3">
-        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover shadow-tileHover" alt="Electronics">
-        <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover mt-6 shadow-tileHover" alt="Fashion">
-        <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover shadow-tileHover" alt="Beauty">
-        <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover -mt-4 shadow-tileHover" alt="Grocery">
-        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover shadow-tileHover" alt="Home">
-        <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover mt-6 shadow-tileHover" alt="Sports">
-      </div>
-    </div>
-  </section>
 
-  {{-- ===== TRENDING NOW TICKER ===== --}}
-  <section class="bg-mv-ink border-b-2 border-mv-accent overflow-hidden">
-    <div class="flex items-center h-11">
-      <span class="shrink-0 px-4 h-full inline-flex items-center bg-mv-accent text-white text-[11px] font-bold uppercase tracking-wider mv-mono z-10">🔥 Trending Now</span>
-      <div class="relative flex-1 overflow-hidden no-scrollbar">
-        <div class="flex items-center gap-6 whitespace-nowrap mv-ticker-track w-max">
-          @for($r = 0; $r < 2; $r++)
-            @foreach($mvTicker as $t)
-              <span class="inline-flex items-center gap-2 text-xs text-slate-200 mv-mono">
-                <span class="w-1 h-1 rounded-full bg-mv-accent"></span>{{ $t }}
+      <!-- Center Hero Banner (6 cols on desktop) -->
+      <div class="lg:col-span-6 rounded-3xl overflow-hidden relative bg-gradient-to-tr from-[#371B97] via-[#4F28D9] to-[#6D38E0] text-white p-6 sm:p-10 flex flex-col justify-between shadow-lg min-h-[380px] sm:min-h-[440px]">
+        <!-- Background Decorative Illustration -->
+        <img src="{{ global_asset('images/themes/marketverse/hero-marketverse-main.jpg') }}"
+             alt="MarketVerse Marketplace"
+             class="absolute right-0 bottom-0 w-3/5 h-4/5 object-contain object-bottom opacity-85 pointer-events-none">
+
+        <!-- Gradient Readability Shield -->
+        <div class="absolute inset-0 bg-gradient-to-r from-[#371B97]/90 via-[#4F28D9]/70 to-transparent w-4/5 pointer-events-none"></div>
+
+        <!-- Banner Content -->
+        <div class="relative z-10 space-y-4 max-w-sm my-auto">
+          <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-xs rounded-full text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
+            ★ All In One Mega Marketplace
+          </span>
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15]">
+            Everything from <span class="text-amber-300">Every Store</span>, All in One Marketplace.
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
+            Millions of products. Thousands of stores. Endless choices. One trusted marketplace.
+          </p>
+          <div class="pt-2 flex flex-wrap items-center gap-3">
+            <a href="{{ $shopUrl }}"
+               class="px-6 py-3 bg-mv-orange hover:bg-mv-orangeHover text-white text-xs sm:text-sm font-extrabold rounded-full shadow-lg active:scale-95 transition-all">
+              Shop All Categories
+            </a>
+            <a href="{{ $mvRoute('store.shop', ['collection' => 'top-deals']) }}"
+               class="px-6 py-3 bg-white/15 hover:bg-white/25 text-white border border-white/20 text-xs sm:text-sm font-bold rounded-full backdrop-blur-xs active:scale-95 transition-all">
+              Explore Top Stores
+            </a>
+          </div>
+        </div>
+
+        <!-- Carousel Indicators -->
+        <div class="relative z-10 flex items-center gap-1.5 pt-4">
+          <span class="w-6 h-1.5 bg-amber-400 rounded-full"></span>
+          <span class="w-2 h-1.5 bg-white/40 rounded-full"></span>
+          <span class="w-2 h-1.5 bg-white/40 rounded-full"></span>
+        </div>
+      </div>
+
+      <!-- Right 3 Promo Cards (3 cols on desktop) -->
+      <div class="lg:col-span-3 flex flex-col gap-4">
+
+        <!-- Card 1: Flash Deals -->
+        <div class="flex-1 rounded-3xl bg-white border border-mv-border p-4 sm:p-5 flex flex-col justify-between shadow-xs relative overflow-hidden group">
+          <div class="space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-red-600 flex items-center gap-1">
+                <span>⚡</span> Flash Deals
               </span>
-            @endforeach
-          @endfor
+              <span class="px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-black rounded-md">
+                Up to 70% OFF
+              </span>
+            </div>
+            <h4 class="text-sm font-bold text-slate-900 leading-tight">Top Electronics & Audio</h4>
+          </div>
+
+          <!-- Live Countdown -->
+          <div class="my-2 flex items-center gap-1 text-center font-mono font-black text-xs">
+            <span class="px-2 py-1 bg-slate-900 text-white rounded-md">02</span> :
+            <span class="px-2 py-1 bg-slate-900 text-white rounded-md">45</span> :
+            <span class="px-2 py-1 bg-slate-900 text-white rounded-md">18</span>
+          </div>
+
+          <div>
+            <a href="{{ $mvRoute('store.shop', ['collection' => 'flash-sale']) }}" class="text-xs font-bold text-mv-purple hover:underline flex items-center justify-between">
+              <span>Shop Deals</span>
+              <span>&rarr;</span>
+            </a>
+          </div>
         </div>
+
+        <!-- Card 2: New Seller Offers -->
+        <div class="flex-1 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white p-4 sm:p-5 flex flex-col justify-between shadow-xs relative overflow-hidden">
+          <div class="space-y-1 relative z-10">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-100">Welcome Bonus</span>
+            <h4 class="text-sm font-bold leading-tight">New Seller Offers<br><span class="text-amber-300">Extra 20% OFF</span></h4>
+          </div>
+          <div class="pt-2 relative z-10">
+            <span class="inline-block px-3 py-1 bg-white/20 rounded-full text-[10px] font-mono font-bold tracking-wider">
+              Code: NEW20
+            </span>
+          </div>
+        </div>
+
+        <!-- Card 3: Weekend Coupons -->
+        <div class="flex-1 rounded-3xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 p-4 sm:p-5 flex flex-col justify-between shadow-xs relative overflow-hidden">
+          <div class="space-y-1 relative z-10">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-800">Limited Time</span>
+            <h4 class="text-sm font-black leading-tight">Weekend Coupons<br>Save More This Weekend!</h4>
+          </div>
+          <div class="pt-2 relative z-10">
+            <a href="#coupons-section" class="inline-flex items-center gap-1 text-xs font-bold text-slate-900 hover:underline">
+              <span>Get Coupons</span>
+              <span>&rarr;</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       2. TRUST & VALUE STRIP (5 items)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-2xl border border-mv-border p-4 sm:p-5 shadow-xs">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+
+        <div class="flex items-center gap-3 pt-2 md:pt-0 md:px-4 first:pt-0 first:px-0">
+          <div class="w-10 h-10 rounded-xl bg-mv-purpleLight text-mv-purple flex items-center justify-center text-lg shrink-0">
+            🛡️
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-900 leading-tight">Buyer Protection</h4>
+            <p class="text-[11px] text-slate-500">Shop with confidence</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2 md:pt-0 md:px-4">
+          <div class="w-10 h-10 rounded-xl bg-mv-purpleLight text-mv-purple flex items-center justify-center text-lg shrink-0">
+            🚚
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-900 leading-tight">Fast Shipping</h4>
+            <p class="text-[11px] text-slate-500">Quick marketplace delivery</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2 md:pt-0 md:px-4">
+          <div class="w-10 h-10 rounded-xl bg-mv-purpleLight text-mv-purple flex items-center justify-center text-lg shrink-0">
+            🔒
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-900 leading-tight">Secure Payments</h4>
+            <p class="text-[11px] text-slate-500">100% secure checkout</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2 md:pt-0 md:px-4">
+          <div class="w-10 h-10 rounded-xl bg-mv-purpleLight text-mv-purple flex items-center justify-center text-lg shrink-0">
+            🔄
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-900 leading-tight">Easy Returns</h4>
+            <p class="text-[11px] text-slate-500">Hassle-free guarantee</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2 md:pt-0 md:px-4">
+          <div class="w-10 h-10 rounded-xl bg-mv-purpleLight text-mv-purple flex items-center justify-center text-lg shrink-0">
+            ⭐
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-900 leading-tight">Verified Sellers</h4>
+            <p class="text-[11px] text-slate-500">Trusted stores network</p>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
 
-  {{-- ===== TOP BANNERS ===== --}}
-  @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
-    <section class="max-w-[1600px] mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
-      @foreach($byPos['top_left'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block rounded-lg overflow-hidden border border-mv-line shadow-tile hover:shadow-tileHover transition-shadow">
-          <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
-        </a>
-      @endforeach
-      @foreach($byPos['top_right'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block rounded-lg overflow-hidden border border-mv-line shadow-tile hover:shadow-tileHover transition-shadow">
-          <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
-        </a>
-      @endforeach
-    </section>
-  @endif
-
-  {{-- ===== MAIN: LEFT CATEGORY RAIL + CONTENT ===== --}}
-  <div class="max-w-[1600px] mx-auto px-4 py-8 grid lg:grid-cols-[240px_1fr] gap-6">
-
-    {{-- Persistent left category rail --}}
-    <aside class="hidden lg:block">
-      <div id="mv-rail-toggle-note" class="bg-white rounded-lg border-2 border-mv-line sticky top-24 overflow-hidden">
-        <div class="bg-mv-ink text-white text-[11px] font-bold uppercase tracking-wider px-4 py-3 mv-mono">Browse Categories</div>
-        <ul class="divide-y divide-mv-line max-h-[560px] overflow-y-auto">
-          @forelse(($categories ?? collect()) as $cat)
-            <li>
-              <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold text-mv-ink hover:bg-mv-accentSoft hover:text-mv-accentDark transition-colors">
-                <span class="truncate">{{ $cat->name }}</span>
-                <svg class="w-3.5 h-3.5 shrink-0 text-mv-slate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
-              </a>
-            </li>
-          @empty
-            <li class="px-4 py-3 text-sm text-mv-slate">No categories yet.</li>
-          @endforelse
-        </ul>
-        <a href="{{ route('store.shop') }}" class="block text-center py-3 text-xs font-bold text-mv-accentDark border-t border-mv-line hover:bg-mv-accentSoft mv-mono">VIEW ALL PRODUCTS →</a>
+  <!-- =========================================================================
+       3. TOP STORES (6 Stores with Badges)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          Top Stores
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">Explore popular and top-rated marketplace sellers.</p>
       </div>
-    </aside>
-
-    <div class="min-w-0">
-      {{-- ===== CATEGORY QUICK GRID ===== --}}
-      @if(($categories ?? collect())->count())
-        <section class="mb-10">
-          <div class="flex items-end justify-between mb-4">
-            <h2 class="text-xl font-black text-mv-ink">Shop by category</h2>
-            <a href="{{ route('store.shop') }}" class="text-sm font-bold text-mv-accentDark hover:underline mv-mono">VIEW ALL →</a>
-          </div>
-          <div class="grid grid-cols-3 sm:grid-cols-4 xl:grid-cols-6 gap-2.5">
-            @foreach($categories->take(12) as $cat)
-              <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="group flex flex-col items-center gap-2 p-3 rounded-lg bg-white border-2 border-mv-line hover:border-mv-accent hover:shadow-tile transition-all">
-                <span class="w-10 h-10 rounded-md bg-mv-accentSoft text-mv-accentDark flex items-center justify-center font-black text-base group-hover:bg-mv-accent group-hover:text-white transition-colors">
-                  <x-store.icon :name="category_icon_name($cat->name)" class="w-5 h-5" />
-                </span>
-                <span class="text-[11px] font-bold text-center text-mv-ink line-clamp-2 leading-tight">{{ $cat->name }}</span>
-              </a>
-            @endforeach
-          </div>
-        </section>
-      @endif
-
-      {{-- ===== TRUST STRIP ===== --}}
-      <section class="mb-10 bg-white border-2 border-mv-line rounded-lg">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-5 text-center">
-          @foreach([
-            ['title' => 'Fast Dispatch', 'sub' => 'Most orders ship in 24h'],
-            ['title' => 'Secure Payments', 'sub' => 'Encrypted checkout'],
-            ['title' => 'Easy Returns', 'sub' => '30-day window'],
-            ['title' => '24/7 Support', 'sub' => 'Real humans, always'],
-          ] as $item)
-            <div>
-              <div class="w-9 h-9 mx-auto rounded-md bg-mv-accentSoft text-mv-accentDark flex items-center justify-center mb-2">
-                <svg class="w-4.5 h-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>
-              </div>
-              <div class="text-sm font-bold text-mv-ink">{{ $item['title'] }}</div>
-              <div class="text-xs text-mv-slate">{{ $item['sub'] }}</div>
-            </div>
-          @endforeach
-        </div>
-      </section>
-
-      {{-- ===== CONTENT BLOCKS (collections from homepage_lineup) ===== --}}
-      @foreach($blocks as $block)
-        @if(($block['type'] ?? '') === 'collection')
-          @php
-            $mvProducts = collect($block['products'] ?? []);
-            $mvCollection = $block['collection'] ?? null;
-            $mvColTitle = $block['title'] ?? ($mvCollection->title ?? $mvCollection->name ?? 'Featured Picks');
-            $mvProductVms = $mvProducts->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
-          @endphp
-          @if($mvProductVms->count())
-            <section class="mb-10">
-              <div class="flex items-end justify-between mb-4">
-                <h2 class="text-xl font-black text-mv-ink">{{ $mvColTitle }}</h2>
-                @if($mvCollection && $mvCollection->slug)
-                  <a href="{{ route('store.shop', ['collection' => $mvCollection->slug]) }}" class="text-sm font-bold text-mv-accentDark hover:underline mv-mono">VIEW ALL →</a>
-                @endif
-              </div>
-              <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3">
-                @foreach($mvProductVms as $product)
-                  @include('store.themes.marketverse.partials.product-card', ['product' => $product])
-                @endforeach
-              </div>
-            </section>
-          @endif
-        @endif
-      @endforeach
-
-      {{-- ===== PROMO STRIP ===== --}}
-      <section class="mb-10 grid md:grid-cols-2 gap-4">
-        <div class="relative rounded-lg overflow-hidden h-48 flex items-end p-5 border-2 border-mv-line">
-          <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent"></div>
-          <div class="relative">
-            <span class="text-mv-accent text-[11px] font-bold uppercase mv-mono">Fashion Edit</span>
-            <h3 class="text-white text-lg font-black mt-1">New season styles across every size</h3>
-            <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-white underline">Shop now →</a>
-          </div>
-        </div>
-        <div class="relative rounded-lg overflow-hidden h-48 flex items-end p-5 border-2 border-mv-line">
-          <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent"></div>
-          <div class="relative">
-            <span class="text-mv-accent text-[11px] font-bold uppercase mv-mono">Tech Deals</span>
-            <h3 class="text-white text-lg font-black mt-1">Up to 40% off audio, wearables &amp; smart home</h3>
-            <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-white underline">Shop now →</a>
-          </div>
-        </div>
-      </section>
-
-      {{-- ===== TESTIMONIALS ===== --}}
-      <section class="mb-10 bg-white border-2 border-mv-line rounded-lg p-6">
-        <h2 class="text-xl font-black text-mv-ink text-center mb-6">Trusted by shoppers across every category</h2>
-        <div class="grid md:grid-cols-3 gap-4">
-          @foreach([
-            ['name' => 'Amara K.', 'quote' => 'I ordered a monitor, a set of dumbbells and a skincare kit in one checkout — every seller shipped on time. The stock counts on each card are refreshingly accurate.'],
-            ['name' => 'Daniel R.', 'quote' => 'The category rail makes it fast to jump between departments. I found running shoes, a coffee maker and phone accessories in under five minutes.'],
-            ['name' => 'Priya S.', 'quote' => 'Prices are listed with the SKU right on the card, which I appreciate as someone who compares specs before buying. Returns were genuinely painless too.'],
-          ] as $t)
-            <div class="p-4 rounded-lg bg-mv-cream border border-mv-line">
-              <div class="flex gap-0.5 text-mv-accent mb-2">
-                @for($i=0;$i<5;$i++)<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01z"/></svg>@endfor
-              </div>
-              <p class="text-sm text-mv-ink/80">"{{ $t['quote'] }}"</p>
-              <div class="mt-3 text-sm font-bold text-mv-ink mv-mono">{{ $t['name'] }}</div>
-            </div>
-          @endforeach
-        </div>
-      </section>
-
-      {{-- ===== NEWSLETTER ===== --}}
-      <section class="mb-10">
-        <div class="rounded-lg bg-mv-ink p-6 lg:p-8 grid lg:grid-cols-5 gap-6 items-center">
-          <div class="lg:col-span-2">
-            <h3 class="text-xl font-black text-white">Get restock alerts &amp; price drops first</h3>
-            <p class="text-slate-300 text-sm mt-2">Join our list for early access to markdowns across every department — no spam, just data.</p>
-          </div>
-          <form action="#" method="post" class="lg:col-span-3 flex flex-col sm:flex-row gap-2">
-            @csrf
-            <input type="email" required placeholder="you@example.com" class="flex-1 h-11 px-4 rounded-md border-0 text-sm">
-            <button type="submit" class="h-11 px-6 rounded-md bg-mv-accent text-white font-bold hover:bg-mv-accentDark transition-colors">Subscribe</button>
-          </form>
-        </div>
-      </section>
-
-      {{-- ===== FOOTER BANNERS ===== --}}
-      @if(($byPos['footer_left'] ?? collect())->count() || ($byPos['footer_right'] ?? collect())->count())
-        <section class="grid md:grid-cols-2 gap-4">
-          @foreach($byPos['footer_left'] ?? collect() as $b)
-            <a href="{{ $b->link ?: route('store.shop') }}" class="block rounded-lg overflow-hidden border border-mv-line shadow-tile"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
-          @endforeach
-          @foreach($byPos['footer_right'] ?? collect() as $b)
-            <a href="{{ $b->link ?: route('store.shop') }}" class="block rounded-lg overflow-hidden border border-mv-line shadow-tile"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
-          @endforeach
-        </section>
-      @endif
+      <a href="{{ $shopUrl }}" class="text-xs font-bold text-mv-purple hover:underline">
+        View All Stores &rarr;
+      </a>
     </div>
-  </div>
 
-</main>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      @foreach($topStores as $store)
+        <a href="{{ $mvRoute('store.shop', ['category' => explode(' ', $store['category'])[0]]) }}"
+           class="bg-white rounded-2xl border border-mv-border p-4 text-center flex flex-col items-center justify-between gap-3 mv-card group">
+          <div class="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
+            <img src="{{ global_asset('images/themes/marketverse/' . $store['logo']) }}"
+                 alt="{{ $store['name'] }}"
+                 class="w-full h-full object-contain">
+          </div>
+          <div class="space-y-0.5">
+            <span class="inline-block px-2 py-0.5 bg-mv-purpleLight text-mv-purple text-[9px] font-extrabold rounded-full mb-1">
+              Top Rated
+            </span>
+            <h4 class="text-xs font-bold text-slate-900 group-hover:text-mv-purple transition-colors leading-tight">
+              {{ $store['name'] }}
+            </h4>
+            <p class="text-[10px] text-slate-400">{{ $store['category'] }}</p>
+          </div>
+          <div class="flex items-center justify-center gap-2 text-[10px] text-slate-500 pt-1 border-t border-slate-100 w-full">
+            <span class="font-bold text-amber-500">★ {{ $store['rating'] }}</span>
+            <span>•</span>
+            <span>{{ $store['sales'] }}</span>
+          </div>
+        </a>
+      @endforeach
+    </div>
+  </section>
 
-@include('store.themes.marketverse.partials.footer', ['categories' => $categories])
-@include('store.themes.marketverse.partials.mobile-nav')
+  <!-- =========================================================================
+       4. TRENDING CATEGORIES (8 Circular / Rounded Category Cards)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          Trending Categories
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">Shop popular departments across the marketplace.</p>
+      </div>
+      <a href="{{ $shopUrl }}" class="text-xs font-bold text-mv-purple hover:underline">
+        View All &rarr;
+      </a>
+    </div>
 
-<script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
-</body>
-</html>
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
+      @foreach($trendingCategories as $catItem)
+        <a href="{{ $mvRoute('store.shop', ['category' => $catItem['category']]) }}"
+           class="bg-white rounded-2xl border border-mv-border p-3.5 text-center flex flex-col items-center justify-center gap-2.5 mv-card group">
+          <div class="w-16 h-16 rounded-full bg-slate-50 overflow-hidden border border-slate-100 flex items-center justify-center p-2 group-hover:bg-mv-purpleLight transition-colors">
+            <img src="{{ global_asset('images/themes/marketverse/' . $catItem['icon']) }}"
+                 alt="{{ $catItem['name'] }}"
+                 class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300">
+          </div>
+          <h3 class="text-xs font-bold text-slate-800 group-hover:text-mv-purple transition-colors leading-tight">
+            {{ $catItem['name'] }}
+          </h3>
+        </a>
+      @endforeach
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       5. FLASH SALE (Countdown + 6 Products in Grid)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-gradient-to-r from-red-600 via-rose-600 to-orange-600 rounded-3xl p-5 sm:p-7 text-white shadow-md space-y-6">
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="text-2xl font-black tracking-tight flex items-center gap-2">
+            <span>⚡</span> Flash Sale
+          </span>
+          <span class="text-xs font-semibold text-rose-100 hidden sm:inline">Ends in:</span>
+          <div class="flex items-center gap-1 font-mono font-black text-xs text-slate-900">
+            <span class="px-2.5 py-1 bg-white rounded-md shadow-xs">02</span> :
+            <span class="px-2.5 py-1 bg-white rounded-md shadow-xs">45</span> :
+            <span class="px-2.5 py-1 bg-white rounded-md shadow-xs">18</span>
+          </div>
+        </div>
+
+        <a href="{{ $mvRoute('store.shop', ['collection' => 'flash-sale']) }}"
+           class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-bold text-xs rounded-full backdrop-blur-xs transition-colors shrink-0">
+          View All Deals &rarr;
+        </a>
+      </div>
+
+      <!-- Flash Sale Products Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        @foreach($flashSaleProducts as $prod)
+          @include('store.themes.marketverse.partials.product-card', ['product' => $prod])
+        @endforeach
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       6. COUPONS & DEALS CENTER (5 Coupon Badges)
+       ========================================================================= -->
+  <section id="coupons-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          Coupons & Deals Center
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">Collect coupons and save big on your orders.</p>
+      </div>
+      <a href="{{ $shopUrl }}" class="text-xs font-bold text-mv-purple hover:underline">
+        View All Coupons &rarr;
+      </a>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+      @foreach($coupons as $c)
+        <div class="rounded-2xl border p-4 flex flex-col justify-between gap-3 shadow-xs {{ $c['bg'] }}">
+          <div>
+            <span class="text-xl sm:text-2xl font-black block tracking-tight">{{ $c['discount'] }}</span>
+            <span class="text-xs font-medium opacity-80">{{ $c['desc'] }}</span>
+          </div>
+          <div class="flex items-center justify-between pt-2 border-t border-current/15">
+            <span class="font-mono font-bold text-xs bg-white/80 px-2 py-1 rounded">Code: {{ $c['code'] }}</span>
+            <button type="button"
+                    onclick="alert('Coupon {{ $c['code'] }} collected!')"
+                    class="text-[11px] font-extrabold underline hover:opacity-75">
+              Collect
+            </button>
+          </div>
+        </div>
+      @endforeach
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       7. SHOP BY BRAND
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+        Shop by Brand
+      </h2>
+      <a href="{{ $shopUrl }}" class="text-xs font-bold text-mv-purple hover:underline">
+        View All Brands &rarr;
+      </a>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
+      @foreach($brands as $b)
+        <a href="{{ $mvRoute('store.shop', ['brand' => $b['name']]) }}"
+           class="bg-white rounded-2xl border border-mv-border p-3 text-center flex items-center justify-center mv-card h-20 group hover:border-mv-purple transition-all shadow-xs">
+          <img src="{{ global_asset('images/themes/marketverse/' . $b['logo']) }}"
+               alt="{{ $b['name'] }}"
+               class="max-h-10 max-w-[85%] object-contain group-hover:scale-110 transition-transform duration-300">
+        </a>
+      @endforeach
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       8. RECOMMENDED FOR YOU (6 Products)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          Recommended For You
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">Personalized recommendations based on your browsing.</p>
+      </div>
+      <a href="{{ $mvRoute('store.shop', ['collection' => 'recommended']) }}" class="text-xs font-bold text-mv-purple hover:underline">
+        View All &rarr;
+      </a>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      @foreach($recommendedProducts as $prod)
+        @include('store.themes.marketverse.partials.product-card', ['product' => $prod])
+      @endforeach
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       9. PROMOTIONAL BANNERS GRID (3 Banners)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- Banner 1: Vendor Spotlight (TechWorld) -->
+      <div class="rounded-3xl relative text-white p-7 flex flex-col justify-between min-h-[260px] shadow-sm overflow-hidden group">
+        <img src="{{ global_asset('images/themes/marketverse/promo-vendor-spotlight.jpg') }}"
+             alt="TechWorld Electronics Spotlight"
+             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+        <div class="absolute inset-0 bg-gradient-to-t from-[#1F0E54]/95 via-[#2D1680]/75 to-transparent"></div>
+        <div class="space-y-2 relative z-10">
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-300">Vendor Spotlight</span>
+          <h3 class="text-2xl font-black leading-tight">TechWorld Electronics</h3>
+          <p class="text-xs text-slate-200">★★★★★ Top Rated Seller • Up to 40% OFF on Bestselling Electronics</p>
+        </div>
+        <div class="pt-4 relative z-10">
+          <a href="{{ $mvRoute('store.shop', ['category' => 'Electronics']) }}" class="inline-block px-5 py-2.5 bg-white text-mv-purple font-extrabold text-xs rounded-full shadow-md hover:bg-slate-100 transition-colors">
+            Visit Store &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Banner 2: Home Essentials -->
+      <div class="rounded-3xl relative text-white p-7 flex flex-col justify-between min-h-[260px] shadow-sm overflow-hidden group">
+        <img src="{{ global_asset('images/themes/marketverse/promo-home-essentials.jpg') }}"
+             alt="Home Essentials"
+             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+        <div class="absolute inset-0 bg-gradient-to-t from-[#064E3B]/95 via-[#0F766E]/75 to-transparent"></div>
+        <div class="space-y-2 relative z-10">
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-teal-200">Mega Savings</span>
+          <h3 class="text-2xl font-black leading-tight">Home Essentials</h3>
+          <p class="text-xs text-slate-200">Sofas, kitchenware & decor • Up to 60% OFF</p>
+        </div>
+        <div class="pt-4 relative z-10">
+          <a href="{{ $mvRoute('store.shop', ['category' => 'Home & Living']) }}" class="inline-block px-5 py-2.5 bg-white text-teal-800 font-extrabold text-xs rounded-full shadow-md hover:bg-slate-100 transition-colors">
+            Shop Now &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Banner 3: Fashion Drop -->
+      <div class="rounded-3xl relative text-white p-7 flex flex-col justify-between min-h-[260px] shadow-sm overflow-hidden group">
+        <img src="{{ global_asset('images/themes/marketverse/promo-fashion-drop.jpg') }}"
+             alt="Fashion Drop"
+             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+        <div class="absolute inset-0 bg-gradient-to-t from-[#881337]/95 via-[#BE185D]/75 to-transparent"></div>
+        <div class="space-y-2 relative z-10">
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-rose-200">New Collection</span>
+          <h3 class="text-2xl font-black leading-tight">Fashion Drop</h3>
+          <p class="text-xs text-slate-200">Trendy apparel, footwear & bags • Extra 25% OFF</p>
+        </div>
+        <div class="pt-4 relative z-10">
+          <a href="{{ $mvRoute('store.shop', ['category' => 'Fashion']) }}" class="inline-block px-5 py-2.5 bg-white text-rose-700 font-extrabold text-xs rounded-full shadow-md hover:bg-slate-100 transition-colors">
+            Shop Now &rarr;
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       10. NEW ARRIVALS (6 Products)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          New Arrivals
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">Freshly listed products from verified vendors.</p>
+      </div>
+      <a href="{{ $mvRoute('store.shop', ['collection' => 'new-arrivals']) }}" class="text-xs font-bold text-mv-purple hover:underline">
+        View All &rarr;
+      </a>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      @foreach($newArrivals as $prod)
+        @include('store.themes.marketverse.partials.product-card', ['product' => $prod])
+      @endforeach
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       11. WHAT CUSTOMERS SAY (Testimonials)
+       ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+        What Customers Say
+      </h2>
+      <a href="{{ $shopUrl }}" class="text-xs font-bold text-mv-purple hover:underline">
+        View All Reviews &rarr;
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      @foreach($testimonials as $t)
+        <div class="bg-white rounded-2xl border border-mv-border p-5 flex flex-col justify-between space-y-3 shadow-xs">
+          <div class="space-y-2">
+            <div class="flex items-center gap-1 text-amber-500 text-xs">
+              ★★★★★
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed italic">
+              "{{ $t['text'] }}"
+            </p>
+          </div>
+          <div class="pt-2 border-t border-slate-100 flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-mv-purpleLight text-mv-purple font-bold text-xs flex items-center justify-center">
+              {{ substr($t['name'], 0, 1) }}
+            </div>
+            <div>
+              <h5 class="text-xs font-bold text-slate-900">{{ $t['name'] }}</h5>
+              <span class="text-[10px] text-slate-400 block">{{ $t['role'] }}</span>
+            </div>
+          </div>
+        </div>
+      @endforeach
+    </div>
+  </section>
+
+  <!-- =========================================================================
+       12. APP PROMOTION BANNER
+       ========================================================================= -->
+  <section id="app-download" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="rounded-3xl bg-[#220F63] text-white p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md border-2 border-mv-purple">
+      <div class="space-y-2 text-center md:text-left">
+        <span class="text-xs font-extrabold uppercase tracking-wider text-amber-300">Shop Smarter On The Go</span>
+        <h3 class="text-2xl sm:text-3xl font-black tracking-tight">
+          Shop Smarter with MarketVerse App
+        </h3>
+        <p class="text-xs sm:text-sm text-slate-300 max-w-md">
+          Exclusive app discounts, flash sale notifications & real-time order tracking.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        <div class="px-5 py-2.5 bg-black/40 border border-white/20 rounded-xl flex items-center gap-2 text-xs font-bold cursor-pointer hover:bg-black/60 transition-colors">
+          <span>▶ Google Play</span>
+        </div>
+        <div class="px-5 py-2.5 bg-black/40 border border-white/20 rounded-xl flex items-center gap-2 text-xs font-bold cursor-pointer hover:bg-black/60 transition-colors">
+          <span>🍏 App Store</span>
+        </div>
+        <a href="{{ $shopUrl }}" class="px-6 py-2.5 bg-mv-orange hover:bg-mv-orangeHover text-white font-extrabold text-xs rounded-xl shadow-md transition-colors">
+          Scan to Download
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>
+@endsection

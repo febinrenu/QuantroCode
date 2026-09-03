@@ -1,106 +1,140 @@
-{{-- Veloura theme shell — Tailwind CDN + config + fonts, included once per page --}}
-@php
-  $themeTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'Veloura');
-  $themeHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
-  $activeThemeSlug = 'veloura';
-  $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
-  $accent500 = $themeTokens['color-accent-500'] ?? '{{ $accent500 }}';
-  $accent600 = $themeTokens['color-accent-600'] ?? '{{ $accent600 }}';
-  $accent700 = $themeTokens['color-accent-700'] ?? '{{ $accent700 }}';
-  $accent800 = $themeTokens['color-accent-800'] ?? '{{ $accent800 }}';
-  $fontHeading = $themeTokens['font-heading'] ?? "'Playfair Display', serif";
-  $fontBody = $themeTokens['font-body'] ?? "'Inter', sans-serif";
-  $fontSizeHeading = $themeTokens['font-size-heading'] ?? '34px';
-  $fontSizeBody = $themeTokens['font-size-body'] ?? '15px';
-@endphp
-<meta charset="utf-8" />
-<title>{{ $themeTitle }}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="{{ $s->seo_meta_description ?? 'A curated assortment across electronics, fashion, home and beauty — chosen with care, presented without noise.' }}" />
-<meta name="csrf-token" content="{{ csrf_token() }}">
-<meta name="currency" content="{{ $s->currency_code ?? '$' }}">
-<script>window.__LOGGED_IN__ = @json(Auth::guard('store')->check());</script>
-<script>window.__ALLOW_OVERSELLING__ = @json($s->allow_overselling ?? true);</script>
-<script>window.__HIDE_PRICES__ = @json($themeHidePrices);</script>
-<script>window.__SHOW_STOCK__ = @json($s->show_stock ?? true);</script>
-<script>
-  window.__MSG_ONLY_X_STOCK__ = @json(__('messages.Only_x_available_in_stock'));
-  window.__MSG_MAX_ADDED__    = @json(__('messages.Max_stock_added_to_cart'));
-  window.__MSG_ALREADY_MAX__  = @json(__('messages.Already_max_in_cart'));
-  window.__MSG_ADDED__        = @json(__('messages.Added'));
-</script>
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
+  <title>@yield('title', ($s->store_name ?? 'Veloura Beauty') . ' — Scent. Glow. Indulge.')</title>
+  <meta name="description" content="@yield('meta_description', 'Discover luxurious fragrances, clean skincare, and effortless beauty rituals at Veloura Beauty.')">
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          vel: {
-            black: '#0F0D0A',
-            charcoal: '#1A1613',
-            panel: '#17130F',
-            line: '#2E2822',
-            gold: '{{ $accent500 }}',
-            goldDark: '{{ $accent600 }}',
-            goldSoft: '#E4CE9D',
-            burgundy: '{{ $accent700 }}',
-            burgundyLight: '{{ $accent800 }}',
-            cream: '#F5F1E8',
-            ink: '#EDE7DA',
-            mute: '#9C9385',
+  <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            vel: {
+              rose: '#C99A82',
+              roseDark: '#A36D55',
+              roseDeep: '#87513C',
+              roseLight: '#F7EDE6',
+              blush: '#FAF3ED',
+              cream: '#FAF6F0',
+              creamWarm: '#F5ECE3',
+              sand: '#EFE4D8',
+              charcoal: '#2D2426',
+              espresso: '#3D3134',
+              gold: '#CBA135',
+              border: '#EBE0D5',
+              borderLight: '#F5ECE4',
+              muted: '#7D726D',
+            }
+          },
+          fontFamily: {
+            heading: ['"Playfair Display"', 'Georgia', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
           }
-        },
-        fontFamily: {
-          serif: ['Playfair Display', 'ui-serif', 'Georgia', 'serif'],
-          sans: ['Inter', 'system-ui', 'sans-serif'],
-        },
-        boxShadow: {
-          vlCard: '0 1px 2px rgba(0,0,0,0.4), 0 1px 1px rgba(0,0,0,0.3)',
-          vlHover: '0 24px 48px -16px rgba(0,0,0,0.6)',
-          vlUp: '0 -8px 24px -12px rgba(0,0,0,0.5)',
-        },
+        }
       }
     }
-  }
-</script>
+  </script>
 
-<style>
-  :root {
-    --color-accent-500: {{ $accent500 }};
-    --color-accent-600: {{ $accent600 }};
-    --color-accent-700: {{ $accent700 }};
-    --color-accent-800: {{ $accent800 }};
-    --font-heading: {!! $fontHeading !!};
-    --font-body: {!! $fontBody !!};
-    --font-size-heading: {{ $fontSizeHeading }};
-    --font-size-body: {{ $fontSizeBody }};
-  }
-  body {
-    font-family: {!! $fontBody !!} !important;
-    font-size: {{ $fontSizeBody }} !important;
-  }
-  h1, .hero-title, [class*="-hero"] h1, .font-display, .font-head, .font-serif {
-    font-size: {{ $fontSizeHeading }};
-    font-family: {!! $fontHeading !!};
-  }
+  <style>
+    [x-cloak] { display: none !important; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #FAF6F0;
+      color: #2D2426;
+    }
+    .font-serif-luxury {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+    .vel-card {
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+    }
+    .vel-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 32px -8px rgba(163, 109, 85, 0.14);
+      border-color: #C99A82;
+    }
+    .vel-gradient-hero {
+      background: linear-gradient(135deg, #F8EEE6 0%, #F3E3D5 50%, #EBD8CA 100%);
+    }
+    .vel-gradient-card {
+      background: linear-gradient(180deg, #FFFFFF 0%, #FAF6F0 100%);
+    }
+    .vel-gradient-gold {
+      background: linear-gradient(135deg, #DFBA48 0%, #C89928 100%);
+    }
+  </style>
 
-  * { scrollbar-width: thin; scrollbar-color: #3D3730 transparent; }
-  ::-webkit-scrollbar { height: 8px; width: 8px; }
-  ::-webkit-scrollbar-thumb { background: #3D3730; border-radius: 9999px; }
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  .eyebrow { letter-spacing: .22em; text-transform: uppercase; }
-  details > summary { list-style: none; cursor: pointer; }
-  details > summary::-webkit-details-marker { display: none; }
-  body { font-family: 'Inter', system-ui, sans-serif; background: #0F0D0A; }
-  .vl-rule { height: 1px; background: linear-gradient(90deg, transparent, rgba(201,161,91,0.55), transparent); }
-  .vl-rule-solid { height: 1px; background: rgba(201,161,91,0.28); }
-  .vl-quote-mark { font-family: 'Playfair Display', serif; line-height: 0.6; }
-  .vl-hairline { border-color: rgba(201,161,91,0.18); }
-  [x-cloak] { display: none !important; }
-</style>
+  <!-- Global Storefront Flags -->
+  <script>
+    window.__STORE_CURRENCY__ = @json($s->currency_code ?? '$');
+    window.__STORE_DECIMALS__ = @json((int) ($s->currency_decimals ?? 2));
+    window.__DECIMAL_SEPARATOR__ = @json($s->decimal_separator ?? '.');
+    window.__THOUSANDS_SEPARATOR__ = @json($s->thousands_separator ?? ',');
+    window.__CURRENCY_POSITION__ = @json($s->currency_position ?? 'before');
+    window.__LOGGED_IN__ = @json(auth('store')->check());
+    window.__ALLOW_OVERSELLING__ = @json((bool) ($s->allow_overselling ?? false));
+    window.__HIDE_PRICES__ = @json(!auth('store')->check() && ($s->hide_prices_for_guests ?? false));
+    window.__SHOW_STOCK__ = @json((bool) ($s->show_stock ?? true));
+    window.__ACTIVE_THEME__ = 'veloura';
+  </script>
+
+  @stack('head')
+</head>
+<body class="min-h-full flex flex-col antialiased bg-vel-blush text-vel-charcoal" x-data="{ mobileNavOpen: false, searchOpen: false }">
+
+  <!-- Top Announcement Bar -->
+  <div class="bg-vel-espresso text-white text-[11px] font-medium py-2 px-4 border-b border-vel-espresso/50">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="hidden md:flex items-center gap-6">
+        <span class="flex items-center gap-1.5 text-rose-200">
+          <span>✨</span> Free Luxury Samples on Every Order
+        </span>
+        <span class="text-white/40">|</span>
+        <span class="flex items-center gap-1.5 text-slate-300">
+          <span>🌿</span> 100% Clean Beauty Promise
+        </span>
+      </div>
+      <div class="text-center md:text-left mx-auto md:mx-0 font-semibold tracking-wide text-rose-100">
+        Complimentary Express Delivery on Orders Over $75
+      </div>
+      <div class="hidden lg:flex items-center gap-5 text-slate-300">
+        <a href="#store-locator" class="hover:text-rose-200 transition-colors">Store Locator</a>
+        <span>•</span>
+        <a href="#veloura-club" class="hover:text-rose-200 transition-colors">Veloura Rewards</a>
+        <span>•</span>
+        <span class="text-white font-bold">USD ($)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  @include('store.themes.veloura.partials.header')
+
+  <!-- Mobile Drawer Navigation -->
+  @include('store.themes.veloura.partials.mobile-nav')
+
+  <!-- Main Content Area -->
+  <main class="flex-1">
+    @yield('content')
+  </main>
+
+  <!-- Footer -->
+  @include('store.themes.veloura.partials.footer')
+
+  <!-- Storefront Single Bundled Alpine Runtime -->
+  <script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
+
+  @stack('scripts')
+</body>
+</html>
