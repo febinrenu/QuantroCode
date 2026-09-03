@@ -195,34 +195,85 @@
               {{ $t('Storefront_Theme_Gallery_Help') }}
             </small>
 
-            <div class="theme-gallery">
-              <div
-                v-for="t in themes"
-                :key="t.slug"
-                class="theme-gallery-card"
-                :class="{ active: form.theme === t.slug }"
-                @click="selectTheme(t)"
-              >
-                <div class="theme-gallery-thumb" :style="themeThumbStyle(t)">
-                  <span v-if="form.theme === t.slug" class="theme-gallery-check">
-                    <lucide-icon name="check" style="width:14px;height:14px" />
-                  </span>
-                  <div class="theme-gallery-swatches">
-                    <span v-for="(c, i) in (t.paletteSwatches || [])" :key="i" class="theme-gallery-swatch" :style="{ background: c }"></span>
+            <!-- Category-Specific Themes Section -->
+            <div class="mb-4" v-if="categorySpecificThemes.length">
+              <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
+                <div class="d-flex align-items-center">
+                  <h6 class="text-dark font-weight-bold mb-0">
+                    Category-Specific Themes
+                  </h6>
+                </div>
+                <small class="text-muted">Tailored for specific retail verticals and industries</small>
+              </div>
+
+              <div class="theme-gallery">
+                <div
+                  v-for="t in categorySpecificThemes"
+                  :key="t.slug"
+                  class="theme-gallery-card"
+                  :class="{ active: form.theme === t.slug }"
+                  @click="selectTheme(t)"
+                >
+                  <div class="theme-gallery-thumb" :style="themeThumbStyle(t)">
+                    <span v-if="form.theme === t.slug" class="theme-gallery-check">
+                      <lucide-icon name="check" style="width:14px;height:14px" />
+                    </span>
+                    <div class="theme-gallery-swatches">
+                      <span v-for="(c, i) in (t.paletteSwatches || [])" :key="i" class="theme-gallery-swatch" :style="{ background: c }"></span>
+                    </div>
+                  </div>
+                  <div class="theme-gallery-meta">
+                    <div class="theme-gallery-name">{{ t.name }}</div>
+                    <div class="theme-gallery-industry text-muted text-truncate" :title="t.tagline || t.description || t.layout_persona">
+                      {{ t.tagline || t.description || t.layout_persona }}
+                    </div>
                   </div>
                 </div>
-                <div class="theme-gallery-meta">
-                  <div class="theme-gallery-name">{{ t.name }}</div>
-                  <div class="theme-gallery-industry text-muted">{{ t.tagline || t.layout_persona }}</div>
+              </div>
+            </div>
+
+            <!-- General Storefront Themes Section -->
+            <div class="mb-3" v-if="generalThemes.length">
+              <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
+                <div class="d-flex align-items-center">
+                  <h6 class="text-dark font-weight-bold mb-0">
+                    General Storefront Themes
+                  </h6>
+                </div>
+                <small class="text-muted">Multi-purpose layouts for general retail catalogs</small>
+              </div>
+
+              <div class="theme-gallery">
+                <div
+                  v-for="t in generalThemes"
+                  :key="t.slug"
+                  class="theme-gallery-card"
+                  :class="{ active: form.theme === t.slug }"
+                  @click="selectTheme(t)"
+                >
+                  <div class="theme-gallery-thumb" :style="themeThumbStyle(t)">
+                    <span v-if="form.theme === t.slug" class="theme-gallery-check">
+                      <lucide-icon name="check" style="width:14px;height:14px" />
+                    </span>
+                    <div class="theme-gallery-swatches">
+                      <span v-for="(c, i) in (t.paletteSwatches || [])" :key="i" class="theme-gallery-swatch" :style="{ background: c }"></span>
+                    </div>
+                  </div>
+                  <div class="theme-gallery-meta">
+                    <div class="theme-gallery-name">{{ t.name }}</div>
+                    <div class="theme-gallery-industry text-muted text-truncate" :title="t.tagline || t.description || t.layout_persona">
+                      {{ t.tagline || t.description || t.layout_persona }}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             <!-- Per-theme token customizer -->
-            <div v-if="selectedTheme && selectedTheme.customizable && selectedTheme.customizable.length" class="mt-4">
+            <div v-if="selectedTheme && selectedTheme.customizable && selectedTheme.customizable.length" class="mt-4 p-3 bg-white rounded border theme-customizer-panel">
               <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
-                <h6 class="text-muted mb-0">
-                  <lucide-icon class="mr-1" name="sliders" />
+                <h6 class="text-dark font-weight-bold mb-0">
+                  <lucide-icon class="mr-1 text-primary" name="sliders" style="width:16px;height:16px" />
                   {{ $t('Customize') }} — {{ selectedTheme.name }}
                 </h6>
                 <button type="button" class="btn btn-outline-secondary btn-sm" @click="resetThemeTokens">
@@ -622,6 +673,18 @@ export default {
       var arr = Array.isArray(this.themes) ? this.themes : []
       var found = arr.find(function (t) { return t.slug === this.form.theme }.bind(this))
       return found || null
+    },
+    categorySpecificThemes () {
+      var arr = Array.isArray(this.themes) ? this.themes : []
+      return arr.filter(function (t) {
+        return t.theme_type === 'category-specific' || t.category === 'Category-Specific Themes'
+      })
+    },
+    generalThemes () {
+      var arr = Array.isArray(this.themes) ? this.themes : []
+      return arr.filter(function (t) {
+        return t.theme_type === 'general' || (t.theme_type !== 'category-specific' && t.category !== 'Category-Specific Themes')
+      })
     }
   },
   mounted(){ this.fetch() },
@@ -1086,5 +1149,12 @@ export default {
   padding: .75rem 1rem;
   border-top: 1px solid #e5e7eb;
   border-radius: .75rem;
+}
+
+/* Theme customizer panel */
+.theme-customizer-panel {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 </style>

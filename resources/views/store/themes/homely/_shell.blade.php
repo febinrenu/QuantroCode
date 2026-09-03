@@ -1,3 +1,15 @@
+@php
+  $activeThemeSlug = 'homely';
+  $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
+  $accent500 = $themeTokens['color-accent-500'] ?? '#C86A4B';
+  $accent600 = $themeTokens['color-accent-600'] ?? '#7A9A78';
+  $accent700 = $themeTokens['color-accent-700'] ?? '#2C332D';
+  $accent800 = $themeTokens['color-accent-800'] ?? '#EFE9DF';
+  $fontHeading = $themeTokens['font-heading'] ?? "\'Playfair Display\', serif";
+  $fontBody = $themeTokens['font-body'] ?? "\'Plus Jakarta Sans\', sans-serif";
+  $fontSizeHeading = $themeTokens['font-size-heading'] ?? '34px';
+  $fontSizeBody = $themeTokens['font-size-body'] ?? '15px';
+@endphp
 <!DOCTYPE html>
 <html lang="en" class="h-full">
 <head>
@@ -215,3 +227,16 @@
     @stack('scripts')
 </body>
 </html>
+
+<style id="theme-tokens">
+:root {
+  --color-accent-500: {{ $accent500 }};
+  --color-accent-600: {{ $accent600 }};
+  --color-accent-700: {{ $accent700 }};
+  --color-accent-800: {{ $accent800 }};
+  --font-heading: {!! $fontHeading !!};
+  --font-body: {!! $fontBody !!};
+  --font-size-heading: {{ $fontSizeHeading }};
+  --font-size-body: {{ $fontSizeBody }};
+}
+</style>

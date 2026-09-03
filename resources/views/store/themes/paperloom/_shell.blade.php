@@ -1,3 +1,15 @@
+@php
+  $activeThemeSlug = 'paperloom';
+  $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
+  $accent500 = $themeTokens['color-accent-500'] ?? '#C45D3E';
+  $accent600 = $themeTokens['color-accent-600'] ?? '#A84B2F';
+  $accent700 = $themeTokens['color-accent-700'] ?? '#1E3A34';
+  $accent800 = $themeTokens['color-accent-800'] ?? '#16282E';
+  $fontHeading = $themeTokens['font-heading'] ?? "\'Newsreader\', \'Playfair Display\', Georgia, serif";
+  $fontBody = $themeTokens['font-body'] ?? "\'Plus Jakarta Sans\', sans-serif";
+  $fontSizeHeading = $themeTokens['font-size-heading'] ?? '36px';
+  $fontSizeBody = $themeTokens['font-size-body'] ?? '15px';
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full scroll-smooth">
 <head>
@@ -118,3 +130,16 @@
   @stack('scripts')
 </body>
 </html>
+
+<style id="theme-tokens">
+:root {
+  --color-accent-500: {{ $accent500 }};
+  --color-accent-600: {{ $accent600 }};
+  --color-accent-700: {{ $accent700 }};
+  --color-accent-800: {{ $accent800 }};
+  --font-heading: {!! $fontHeading !!};
+  --font-body: {!! $fontBody !!};
+  --font-size-heading: {{ $fontSizeHeading }};
+  --font-size-body: {{ $fontSizeBody }};
+}
+</style>
