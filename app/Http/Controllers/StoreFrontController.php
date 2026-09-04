@@ -587,7 +587,7 @@ class StoreFrontController extends Controller
     {
         $s = StoreSetting::firstOrFail();
 
-        $activeTheme = (string) ($request->get('preview_theme') ?: ($request->get('theme') ?: ($s->theme ?? 'monochra')));
+        $activeTheme = $this->resolveActiveTheme($request, $s);
         $restrictedCategoryCode = StorefrontThemeRegistry::restrictedCategoryCode($activeTheme);
         $restrictedCategoryId = $restrictedCategoryCode
             ? \App\Models\Category::where('code', $restrictedCategoryCode)->value('id')
@@ -634,7 +634,6 @@ class StoreFrontController extends Controller
             $productsQuery->whereIn('products.id', $inStockIds);
         }
 
-        $activeTheme = $this->resolveActiveTheme($request, $s);
         $categories = $this->getThemedCategories($activeTheme);
 
         if ($activeTheme === 'generalhub-store' || $activeTheme === 'generalhub') {
@@ -978,13 +977,6 @@ class StoreFrontController extends Controller
         }
 
         $products = $products->paginate(12)->withQueryString();
-<<<<<<< HEAD
-        $categories = Category::with('subcategories')->orderBy('name')->get(['id', 'name']);
-        if ($restrictedCategoryId) {
-            $categories = $categories->where('id', $restrictedCategoryId)->values();
-        }
-=======
->>>>>>> origin/main
         $collections = Collection::orderBy('title')
             ->get(['id', 'title', 'slug'])
             ->map(function ($c) {
@@ -1320,6 +1312,16 @@ class StoreFrontController extends Controller
      */
     protected function getThemedCategories(string $activeTheme)
     {
+        // Category-specific themes (restrict_category_code in their theme.json)
+        // are locked to exactly one category -- handled generically here so
+        // every call site (home, shop, product, cart) gets the same single
+        // category instead of each needing its own per-theme hardcoding like
+        // the blocks below.
+        $restrictedCode = StorefrontThemeRegistry::restrictedCategoryCode($activeTheme);
+        if ($restrictedCode) {
+            return Category::with('subcategories')->where('code', $restrictedCode)->get();
+        }
+
         if ($activeTheme === 'generalhub') {
             return Category::with('subcategories')
                 ->whereIn('name', [
