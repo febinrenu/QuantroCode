@@ -1,0 +1,25 @@
+{
+  "slug": "elegance-boutique",
+  "name": "Élégance",
+  "tagline": "Timeless fashion, modern edit.",
+  "description": "Category-specific storefront for Fashion & Apparel — a monochrome luxury-boutique design: black header/nav, gold accents, editorial fashion photography, serif wordmark. Shows only fashion & apparel products.",
+  "category": "category-specific",
+  "categoryLabel": "Fashion & Apparel",
+  "themeGroup": "category-specific",
+  "restrict_category_code": "CAT-IND-FSH",
+  "version": "1.0.0",
+  "layout_persona": "Fashion Boutique",
+  "layout": "single-category-editorial",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700;800&display=swap",
+  "fontPairing": { "heading": "Playfair Display", "body": "Inter" },
+  "paletteSwatches": ["#111111", "#F7F5F2", "#B8935A", "#0A0A0A"],
+  "tokens": {
+    "color-bg-base": "#F7F5F2",
+    "color-accent-500": "#111111",
+    "color-accent-600": "#B8935A",
+    "font-heading": "'Playfair Display', serif",
+    "font-body": "'Inter', sans-serif"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}

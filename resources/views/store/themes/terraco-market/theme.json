@@ -1,0 +1,25 @@
+{
+  "slug": "terraco-market",
+  "name": "Terra & Co.",
+  "tagline": "Handpicked quality, authentic flavors.",
+  "description": "Category-specific storefront for Grocery & Fresh Produce — a warm, editorial fine-food-market design: dark food photography, serif wordmark, cream backgrounds, deep forest-green accents. Shows only grocery products.",
+  "category": "category-specific",
+  "categoryLabel": "Grocery & Fresh Produce",
+  "themeGroup": "category-specific",
+  "restrict_category_code": "CAT-IND-GRC",
+  "version": "1.0.0",
+  "layout_persona": "Fine Food Market",
+  "layout": "single-category-editorial",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700;800&display=swap",
+  "fontPairing": { "heading": "Playfair Display", "body": "Inter" },
+  "paletteSwatches": ["#24331D", "#F8F4EA", "#C9A15B", "#1A2415"],
+  "tokens": {
+    "color-bg-base": "#F8F4EA",
+    "color-accent-500": "#24331D",
+    "color-accent-600": "#1A2415",
+    "font-heading": "'Playfair Display', serif",
+    "font-body": "'Inter', sans-serif"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}

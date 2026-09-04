@@ -258,12 +258,101 @@ class StoreFrontController extends Controller
 
         $categories = $this->getThemedCategories($activeTheme);
 
+        // Category-specific themes (see restrict_category_code in their
+        // theme.json) get their homepage's featured-products section fed
+        // directly from their one locked category -- these themes don't
+        // depend on an admin having pre-configured a homepage Collection,
+        // since the whole point is to work out of the box for that category.
+        $restrictedCategoryCode = StorefrontThemeRegistry::restrictedCategoryCode($activeTheme);
+        $categorySpecificProducts = collect();
+        if ($restrictedCategoryCode) {
+            $restrictedCategoryId = Category::where('code', $restrictedCategoryCode)->value('id');
+            if ($restrictedCategoryId) {
+                // Category-specific themes only ever show their one locked
+                // category, so the header's "Shop by Category" menu should
+                // only offer that category too -- not the full store catalog.
+                $categories = $categories->where('id', $restrictedCategoryId)->values();
+
+                $hidePrices = ! Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+                $currency = $s->currency_code ?? '$';
+
+                $featured = Product::query()
+                    ->where('is_active', 1)
+                    ->where('hide_from_online_store', 0)
+                    ->where('category_id', $restrictedCategoryId)
+                    ->with(['variants:id,product_id,name,price,image', 'images:id,product_id,image_path,is_main,sort_order', 'category:id,name'])
+                    ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
+                        $join->on('pvmin.product_id', '=', 'products.id');
+                    })
+                    ->addSelect(
+                        'products.*',
+                        DB::raw("$baseExpr AS base_price"),
+                        DB::raw("$afterDiscountExpr AS after_discount"),
+                        DB::raw("$finalExpr AS final_display_price")
+                    )
+                    ->orderBy('products.created_at', 'desc')
+                    ->take(6)
+                    ->get();
+
+                foreach ($featured as $p) {
+                    $p->display_price = (float) ($p->final_display_price ?? 0);
+                }
+                $this->attachStockToProducts($featured, $s->default_warehouse_id);
+
+                $categorySpecificProducts = $featured->map(
+                    fn ($p) => StorefrontPresenter::product($p, $currency, $hidePrices)
+                );
+
+                // One representative product photo per subcategory, so a
+                // theme's "Women" tile shows an actual Women's-Fashion-tagged
+                // product instead of whichever of the category's newest
+                // products happens to land on that tile by position. A
+                // product can be tagged to more than one subcategory (e.g.
+                // "Designer Sneakers" is both Men and Shoes), so this picks
+                // the newest product NOT already used by an earlier
+                // subcategory first, only reusing one if that subcategory
+                // has no other tagged product with a photo -- otherwise two
+                // sibling tiles would show the exact same picture.
+                $subcategoryImages = [];
+                $usedProductIds = [];
+                foreach ($categories->first()->subcategories ?? [] as $subcat) {
+                    $candidates = Product::query()
+                        ->where('is_active', 1)
+                        ->where('hide_from_online_store', 0)
+                        ->whereNotNull('image')
+                        ->where('image', '!=', '')
+                        ->where('image', '!=', 'no-image.png')
+                        ->where(function ($q) use ($subcat) {
+                            $q->where('sub_category_id', $subcat->id)
+                                ->orWhereExists(function ($sub) use ($subcat) {
+                                    $sub->select(DB::raw(1))
+                                        ->from('product_subcategory')
+                                        ->whereColumn('product_subcategory.product_id', 'products.id')
+                                        ->where('product_subcategory.sub_category_id', $subcat->id);
+                                });
+                        })
+                        ->orderBy('created_at', 'desc')
+                        ->limit(10)
+                        ->get(['id', 'image']);
+
+                    $pick = $candidates->first(fn ($p) => ! in_array($p->id, $usedProductIds, true)) ?? $candidates->first();
+
+                    if ($pick) {
+                        $usedProductIds[] = $pick->id;
+                        $subcategoryImages[$subcat->name] = global_asset(upload_path('products').'/'.$pick->image);
+                    }
+                }
+            }
+        }
+
         $viewData = [
             's' => $s,
             'blocks' => $blocks,
             'categories' => $categories,
+            'subcategoryImages' => $subcategoryImages ?? [],
             'banners' => $banners,
             'showCategoryBar' => true,
+            'categorySpecificProducts' => $categorySpecificProducts,
         ];
 
         if ($activeTheme === 'veloura-beauty' || $activeTheme === 'veloura') {
@@ -498,8 +587,19 @@ class StoreFrontController extends Controller
     {
         $s = StoreSetting::firstOrFail();
 
+        $activeTheme = $this->resolveActiveTheme($request, $s);
+        $restrictedCategoryCode = StorefrontThemeRegistry::restrictedCategoryCode($activeTheme);
+        $restrictedCategoryId = $restrictedCategoryCode
+            ? \App\Models\Category::where('code', $restrictedCategoryCode)->value('id')
+            : null;
+
         $q = trim((string) $request->get('q', ''));
-        $cat = $request->get('category');
+        // Category-specific themes ignore the request's own category/collection
+        // params and always show only their one locked category.
+        $cat = $restrictedCategoryId ?: $request->get('category');
+        // Subcategory filtering still applies for category-specific themes --
+        // it only narrows further within the one locked category, so a
+        // theme's "Women / Men / Dresses / ..." nav can filter for real.
         $subCat = $request->get('sub_category');
         $minPrice = $request->get('min');
         $maxPrice = $request->get('max');
@@ -534,7 +634,6 @@ class StoreFrontController extends Controller
             $productsQuery->whereIn('products.id', $inStockIds);
         }
 
-        $activeTheme = $this->resolveActiveTheme($request, $s);
         $categories = $this->getThemedCategories($activeTheme);
 
         if ($activeTheme === 'generalhub-store' || $activeTheme === 'generalhub') {
@@ -1213,6 +1312,16 @@ class StoreFrontController extends Controller
      */
     protected function getThemedCategories(string $activeTheme)
     {
+        // Category-specific themes (restrict_category_code in their theme.json)
+        // are locked to exactly one category -- handled generically here so
+        // every call site (home, shop, product, cart) gets the same single
+        // category instead of each needing its own per-theme hardcoding like
+        // the blocks below.
+        $restrictedCode = StorefrontThemeRegistry::restrictedCategoryCode($activeTheme);
+        if ($restrictedCode) {
+            return Category::with('subcategories')->where('code', $restrictedCode)->get();
+        }
+
         if ($activeTheme === 'generalhub') {
             return Category::with('subcategories')
                 ->whereIn('name', [

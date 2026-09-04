@@ -1,0 +1,25 @@
+{
+  "slug": "futurex-tech",
+  "name": "FutureX",
+  "tagline": "Tech Store",
+  "description": "Category-specific storefront for Electronics & Gadgets — a dark, neon-accented tech-store design: blue-to-purple gradient hero, category sidebar, deal-of-the-day countdown, best-sellers grid. Shows only Electronics & Gadgets products.",
+  "category": "category-specific",
+  "categoryLabel": "Electronics & Gadgets",
+  "themeGroup": "category-specific",
+  "restrict_category_code": "CAT-IND-ELC",
+  "version": "1.0.0",
+  "layout_persona": "Tech Store",
+  "layout": "single-category-editorial",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap",
+  "fontPairing": { "heading": "Poppins", "body": "Inter" },
+  "paletteSwatches": ["#0B0B14", "#F4F5FA", "#7B3FE4", "#3F8CFF"],
+  "tokens": {
+    "color-bg-base": "#F4F5FA",
+    "color-accent-500": "#7B3FE4",
+    "color-accent-600": "#3F8CFF",
+    "font-heading": "'Poppins', sans-serif",
+    "font-body": "'Inter', sans-serif"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}

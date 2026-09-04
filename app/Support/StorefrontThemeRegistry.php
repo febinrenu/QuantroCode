@@ -84,6 +84,32 @@ class StorefrontThemeRegistry
         return null;
     }
 
+    /**
+     * Lighten (positive $percent) or darken (negative) a hex color, so a
+     * theme shell can derive hover/deep/soft variants from a single
+     * customizable base color instead of leaving those shades stuck at
+     * their original hardcoded default when the base is customized.
+     */
+    public static function shade(string $hex, float $percent): string
+    {
+        $hex = ltrim($hex, '#');
+        if (strlen($hex) === 3) {
+            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+        }
+        if (! preg_match('/^[0-9a-fA-F]{6}$/', $hex)) {
+            return '#'.$hex;
+        }
+
+        [$r, $g, $b] = array_map('hexdec', str_split($hex, 2));
+        $mix = function ($c) use ($percent) {
+            $target = $percent < 0 ? 0 : 255;
+
+            return (int) round($c + ($target - $c) * abs($percent));
+        };
+
+        return sprintf('#%02x%02x%02x', $mix($r), $mix($g), $mix($b));
+    }
+
     public static function resolveTokens(?string $slug, $overrides = []): array
     {
         $theme = $slug ? static::find($slug) : null;
@@ -144,5 +170,23 @@ class StorefrontThemeRegistry
 
         $themeDir = $theme['directory'] ?? $theme['slug'];
         return "store.themes.{$themeDir}.{$page}";
+    }
+
+    /**
+     * The `categories.code` a category-specific theme is locked to (see
+     * theme.json's "restrict_category_code"), or null for a general-purpose
+     * theme. StoreFrontController uses this to force every product query
+     * (home, shop) to that one category regardless of request params.
+     */
+    public static function restrictedCategoryCode(?string $slug): ?string
+    {
+        if (! $slug) {
+            return null;
+        }
+
+        $theme = static::find($slug);
+        $code = $theme['restrict_category_code'] ?? null;
+
+        return is_string($code) && $code !== '' ? $code : null;
     }
 }

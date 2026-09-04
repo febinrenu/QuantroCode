@@ -27,7 +27,7 @@ use Illuminate\Support\Str;
  */
 class SeedIndustryCatalog extends Command
 {
-    protected $signature = 'demo:industry-catalog {--force : Re-download images and re-insert even if already seeded}';
+    protected $signature = 'demo:industry-catalog {--force : Re-download images and re-insert even if already seeded} {--only= : Only re-fetch these products, leaving everything else untouched. Comma-separated codes (PR-IND-072) and/or exact product names ("Linen Blend Blazer")}';
 
     protected $description = 'Seed a multi-industry product catalog with real Unsplash photos, matching the 20 storefront themes.';
 
@@ -71,7 +71,7 @@ class SeedIndustryCatalog extends Command
         // same code. New products only ever get appended via
         // moreProductsDefinition(), never inserted into catalogDefinition().
         $seq = 1;
-        foreach (array_merge($this->catalogDefinition(), $this->moreProductsDefinition()) as $industry) {
+        foreach (array_merge($this->catalogDefinition(), $this->moreProductsDefinition(), $this->categorySpecificThemeProductsDefinition()) as $industry) {
             $categoryId = DB::table('categories')->where('code', $industry['code'])->value('id');
             if (! $categoryId) {
                 $categoryId = DB::table('categories')->insertGetId([
@@ -88,8 +88,13 @@ class SeedIndustryCatalog extends Command
                 $code = self::CODE_PREFIX . str_pad((string) $seq, 3, '0', STR_PAD_LEFT);
                 $seq++;
 
+                $only = $this->onlyTokens();
+                if ($only && ! in_array($code, $only, true) && ! in_array(mb_strtolower($name), $only, true)) {
+                    continue;
+                }
+
                 $existingId = DB::table('products')->where('code', $code)->value('id');
-                if ($existingId && ! $this->option('force')) {
+                if ($existingId && ! $this->option('force') && ! $only) {
                     // Already seeded (photo included) on a previous run -- just
                     // backfill the description if this command's product list
                     // has since gained one, without spending another API call.
@@ -147,18 +152,277 @@ class SeedIndustryCatalog extends Command
 
         $this->info('Industry catalog seeded.');
 
+        $this->tagFashionSubcategories($now);
+        $this->tagMarketplaceSubcategories($now);
+        $this->tagBooksSubcategories($now);
+        $this->tagElectronicsSubcategories($now);
+        $this->tagBabyKidsSubcategories($now);
+        $this->tagHomeFurnitureSubcategories($now);
+        $this->tagNaturiaBeautySubcategories($now);
+        $this->tagMediSpherePharmacySubcategories($now);
         $this->backfillLegacyDemoImages($accessKey, $dir);
 
         return self::SUCCESS;
     }
 
     /**
-     * The pre-existing generic DemoDataSeeder (unrelated to this command)
-     * seeds 4 brands and 8 products with a hardcoded 'no-image.png'
-     * placeholder filename -- never a real photo. Backfill those with real
-     * Unsplash photos too, the same way, so nothing in the demo storefront
-     * is left showing a broken/placeholder image.
+     * The Élégance theme's "Women / Men / Dresses / Shoes / Bags /
+     * Accessories" nav links filter by these subcategories (under Fashion
+     * & Apparel) so each one actually shows a different, relevant subset
+     * of products instead of the same 11 products in a different order.
+     * A product can carry more than one tag (e.g. a dress is both "Women"
+     * and "Dresses") via the product_subcategory pivot table.
      */
+    private function tagFashionSubcategories(Carbon $now): void
+    {
+        $this->tagSubcategories('CAT-IND-FSH', ['Women', 'Men', 'Dresses', 'Shoes', 'Bags', 'Accessories'], [
+            'Leather Biker Jacket' => ['Women'],
+            'Designer Sneakers' => ['Men', 'Shoes'],
+            'Summer Floral Dress' => ['Women', 'Dresses'],
+            'Classic Denim Jeans' => ['Women'],
+            'Wool Winter Coat' => ['Men'],
+            'Silk Wrap Blouse' => ['Women'],
+            'Tailored Wool Blazer' => ['Men'],
+            'Pleated Midi Skirt' => ['Women', 'Dresses'],
+            'Cashmere Knit Sweater' => ['Women'],
+            'Leather Ankle Boots' => ['Women', 'Shoes'],
+            'Structured Tote Handbag' => ['Women', 'Bags'],
+            'Leather Crossbody Bag' => ['Women', 'Accessories'],
+        ], $now);
+    }
+
+    /**
+     * The Urbana theme's category sidebar (Women's Fashion / Men's Fashion /
+     * Footwear / Bags & Accessories / Watches / Beauty & Fragrance /
+     * Home & Living / Sports & Fitness / Gadgets & Tech) filters by these
+     * subcategories under Marketplace & General Retail, the same way
+     * tagFashionSubcategories() does for Élégance.
+     */
+    private function tagMarketplaceSubcategories(Carbon $now): void
+    {
+        $this->tagSubcategories('CAT-IND-MKT', [
+            "Women's Fashion", "Men's Fashion", 'Footwear', 'Bags & Accessories',
+            'Watches', 'Beauty & Fragrance', 'Home & Living', 'Sports & Fitness', 'Gadgets & Tech',
+        ], [
+            'Linen Blend Blazer' => ["Women's Fashion"],
+            "Men's Chino Trousers" => ["Men's Fashion"],
+            'Canvas Low-Top Sneakers' => ['Footwear'],
+            'Minimal Gold Watch' => ['Watches'],
+            'Leather Tote Bag' => ['Bags & Accessories'],
+            'Oversized Sunglasses' => ['Bags & Accessories'],
+            'Vanilla Amber Perfume' => ['Beauty & Fragrance'],
+            'Aromatic Scented Candle' => ['Home & Living'],
+            'Yoga Mat Set' => ['Sports & Fitness'],
+            'Wireless Headphones' => ['Gadgets & Tech'],
+            'Everyday Essentials Bundle' => ['Home & Living'],
+            'Home Care Value Pack' => ['Home & Living'],
+        ], $now);
+    }
+
+    /**
+     * @return array<int, string>|null Lowercased codes/names from --only, or null when not given.
+     */
+    private function onlyTokens(): ?array
+    {
+        $raw = $this->option('only');
+        if (! $raw) {
+            return null;
+        }
+
+        return array_map(
+            fn ($t) => str_starts_with(mb_strtolower(trim($t)), 'pr-ind-') ? mb_strtoupper(trim($t)) : mb_strtolower(trim($t)),
+            explode(',', $raw)
+        );
+    }
+
+    /**
+     * The Marketly theme's category sidebar/tiles (Fiction & Bestsellers /
+     * Notebooks & Journals / Pens & Writing / Art & Craft Supplies /
+     * Desk & Study Accessories / Kids & Educational) filter by these
+     * subcategories under Books & Stationery, same pattern as
+     * tagFashionSubcategories() / tagMarketplaceSubcategories().
+     */
+    private function tagBooksSubcategories(Carbon $now): void
+    {
+        $this->tagSubcategories('CAT-IND-BKS', [
+            'Fiction & Bestsellers', 'Notebooks & Journals', 'Pens & Writing',
+            'Art & Craft Supplies', 'Desk & Study Accessories', 'Kids & Educational',
+        ], [
+            'Bestseller Book Bundle' => ['Fiction & Bestsellers'],
+            'Hardcover Classics Box Set' => ['Fiction & Bestsellers'],
+            'Leather Journal Notebook' => ['Notebooks & Journals'],
+            'Weekly Planner Notebook' => ['Notebooks & Journals'],
+            'Fountain Pen Set' => ['Pens & Writing'],
+            'Luxury Rollerball Pen Set' => ['Pens & Writing'],
+            'Watercolor Art Set' => ['Art & Craft Supplies'],
+            'Wooden Desk Organizer' => ['Desk & Study Accessories'],
+            'Canvas Book Tote Bag' => ['Desk & Study Accessories'],
+            'LED Adjustable Reading Lamp' => ['Desk & Study Accessories'],
+            'Kids Picture Book Collection' => ['Kids & Educational'],
+        ], $now);
+    }
+
+    /**
+     * The FutureX theme's category sidebar/tiles (Laptops & Computers /
+     * Smartphones & Tablets / Wearables / Audio & Headphones / Gaming /
+     * Cameras & Drones) filter by these subcategories under Electronics &
+     * Gadgets, same pattern as the other category-specific themes.
+     */
+    private function tagElectronicsSubcategories(Carbon $now): void
+    {
+        $this->tagSubcategories('CAT-IND-ELC', [
+            'Laptops & Computers', 'Smartphones & Tablets', 'Wearables',
+            'Audio & Headphones', 'Gaming', 'Cameras & Drones',
+        ], [
+            'MacBook Air M2 13"' => ['Laptops & Computers'],
+            'Samsung Galaxy S24 Ultra' => ['Smartphones & Tablets'],
+            'Sony WH-1000XM5' => ['Audio & Headphones'],
+            'Apple Watch Series 9' => ['Wearables'],
+            'Canon EOS R50' => ['Cameras & Drones'],
+            'DJI Mini 4 Pro' => ['Cameras & Drones'],
+            'Wireless Noise-Cancelling Headphones' => ['Audio & Headphones'],
+            'Smartwatch Series X' => ['Wearables'],
+            '4K Camera Drone' => ['Cameras & Drones'],
+            'Mechanical Gaming Keyboard' => ['Gaming'],
+            'Portable Bluetooth Speaker' => ['Audio & Headphones'],
+        ], $now);
+    }
+
+    /**
+     * LittleJoy (Baby & Kids): Baby Gear / Toys & Games / Clothing /
+     * Nursery / Feeding / Bath & Care / Books.
+     */
+    private function tagBabyKidsSubcategories(Carbon $now): void
+    {
+        $this->tagSubcategories('CAT-IND-BBY', [
+            'Baby Gear', 'Toys & Games', 'Clothing', 'Nursery', 'Feeding', 'Bath & Care', 'Books',
+        ], [
+            'Baby Stroller Comfort Ride' => ['Baby Gear'],
+            'Wooden Building Blocks Set' => ['Toys & Games'],
+            'Soft Plush Elephant' => ['Toys & Games'],
+            'Baby Romper Set (Pack of 3)' => ['Clothing'],
+            'Silicone Feeding Set' => ['Feeding'],
+            'Musical Crib Mobile' => ['Nursery'],
+            'Baby Bath Tub with Support' => ['Bath & Care'],
+            'Board Book Collection for Toddlers' => ['Books'],
+        ], $now);
+    }
+
+    /**
+     * CasaNest (Home & Furniture): Living Room / Bedroom / Dining Room /
+     * Office / Lighting / Storage, matching the reference's "Shop by Room".
+     */
+    private function tagHomeFurnitureSubcategories(Carbon $now): void
+    {
+        $this->tagSubcategories('CAT-IND-HMF', [
+            'Living Room', 'Bedroom', 'Dining Room', 'Office', 'Lighting', 'Storage',
+        ], [
+            'Luna Bouclé Sofa' => ['Living Room'],
+            'Archer Wood Lounge Chair' => ['Living Room'],
+            'Milo Round Coffee Table' => ['Living Room'],
+            'Noah Solid Wood Sideboard' => ['Storage'],
+            'Stoneware Table Lamp' => ['Lighting'],
+            'Haven Modular Sofa' => ['Living Room'],
+            'Ello Dining Table' => ['Dining Room'],
+            'Maya Accent Chair' => ['Living Room'],
+            'Riley Bookshelf' => ['Storage'],
+            'Nova Pendant Light' => ['Lighting'],
+            'Oakwood Nightstand' => ['Bedroom'],
+            'Ergonomic Office Chair' => ['Office'],
+        ], $now);
+    }
+
+    /**
+     * Naturia (Beauty & Cosmetics): Skin Care / Hair Care / Supplements /
+     * Bath & Body / Home Care / Organic Food / Tea & Drinks.
+     */
+    private function tagNaturiaBeautySubcategories(Carbon $now): void
+    {
+        $this->tagSubcategories('CAT-IND-BTY', [
+            'Skin Care', 'Hair Care', 'Supplements', 'Bath & Body', 'Home Care', 'Organic Food', 'Tea & Drinks',
+        ], [
+            'Radiance Skincare Serum' => ['Skin Care'],
+            'Hydrating Face Cream' => ['Skin Care'],
+            'Aloe Vera Gel' => ['Skin Care'],
+            'Vitamin D3 2000IU' => ['Supplements'],
+            'Organic Green Tea' => ['Tea & Drinks'],
+            'Lavender Essential Oil' => ['Bath & Body'],
+            'Bamboo Toothbrush' => ['Home Care'],
+            'Coconut Oil (250ml)' => ['Organic Food'],
+            'Argan Hair Oil' => ['Hair Care'],
+        ], $now);
+    }
+
+    /**
+     * MediSphere (Pharmacy & Medical): Prescription Medicines / Vitamins &
+     * Supplements / Personal Care / Baby Care / Diabetes Care / Medical
+     * Devices / Immunity Support / Senior Care.
+     */
+    private function tagMediSpherePharmacySubcategories(Carbon $now): void
+    {
+        $this->tagSubcategories('CAT-IND-PHM', [
+            'Prescription Medicines', 'Vitamins & Supplements', 'Personal Care', 'Baby Care',
+            'Diabetes Care', 'Medical Devices', 'Immunity Support', 'Senior Care',
+        ], [
+            'Daily Multivitamin Bottle' => ['Vitamins & Supplements'],
+            'Digital Stethoscope' => ['Medical Devices'],
+            'Complete First Aid Kit' => ['Personal Care'],
+            'Blood Pressure Monitor' => ['Medical Devices'],
+            'Hand Sanitizer Pack' => ['Personal Care'],
+            'Digital BP Monitor' => ['Medical Devices'],
+            'Infrared Digital Thermometer' => ['Medical Devices'],
+            'Baby Care Lotion' => ['Baby Care'],
+            'Diabetes Glucose Test Strips' => ['Diabetes Care'],
+            'Immunity Booster Tablets' => ['Immunity Support'],
+            'Senior Multivitamin Complex' => ['Senior Care'],
+            'Extended-Release Pain Relief Tablets' => ['Prescription Medicines'],
+        ], $now);
+    }
+
+    /**
+     * Shared by every tagXSubcategories() method above: create the given
+     * subcategories under $categoryCode if missing, then tag each named
+     * product with its subcategories (a product may carry more than one)
+     * via the product_subcategory pivot table.
+     *
+     * @param array<int, string> $subcategoryNames
+     * @param array<string, array<int, string>> $tags product name => subcategory names
+     */
+    private function tagSubcategories(string $categoryCode, array $subcategoryNames, array $tags, Carbon $now): void
+    {
+        $categoryId = DB::table('categories')->where('code', $categoryCode)->value('id');
+        if (! $categoryId) {
+            return;
+        }
+
+        $subcategoryIds = [];
+        foreach ($subcategoryNames as $name) {
+            $id = DB::table('subcategories')->where('category_id', $categoryId)->where('name', $name)->value('id');
+            if (! $id) {
+                $id = DB::table('subcategories')->insertGetId([
+                    'category_id' => $categoryId, 'name' => $name, 'status' => 1,
+                    'created_at' => $now, 'updated_at' => $now,
+                ]);
+            }
+            $subcategoryIds[$name] = $id;
+        }
+
+        foreach ($tags as $productName => $subNames) {
+            $productId = DB::table('products')->where('category_id', $categoryId)->where('name', $productName)->value('id');
+            if (! $productId) {
+                continue;
+            }
+            foreach ($subNames as $subName) {
+                DB::table('product_subcategory')->insertOrIgnore([
+                    'product_id' => $productId,
+                    'sub_category_id' => $subcategoryIds[$subName],
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ]);
+            }
+        }
+    }
+
     private function backfillLegacyDemoImages(string $accessKey, string $dir): void
     {
         $now = Carbon::now();
@@ -245,8 +509,22 @@ class SeedIndustryCatalog extends Command
             return null;
         }
 
-        $image = Http::get($imageUrl);
+        // verify=false: local dev machines behind antivirus/corporate HTTPS
+        // inspection (e.g. Kaspersky) present a self-signed cert PHP won't
+        // trust, breaking this otherwise-harmless fetch of a public stock
+        // photo. Scoped to just this dev-only command, not the app at large.
+        try {
+            $image = Http::withOptions(['verify' => false])
+                ->withHeaders(['User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'])
+                ->get($imageUrl);
+        } catch (\Throwable $e) {
+            $this->warn("    Unsplash image download threw: " . $e->getMessage());
+
+            return null;
+        }
         if (! $image->ok()) {
+            $this->warn("    Unsplash image download failed ({$image->status()}): " . \Illuminate\Support\Str::limit($image->body(), 300));
+
             return null;
         }
 
@@ -262,11 +540,18 @@ class SeedIndustryCatalog extends Command
      */
     private function searchUnsplash(string $accessKey, string $query, array $extraParams): ?array
     {
-        $search = Http::withHeaders(['Authorization' => "Client-ID {$accessKey}"])
-            ->get('https://api.unsplash.com/search/photos', array_merge([
-                'query' => $query,
-                'per_page' => 1,
-            ], $extraParams));
+        try {
+            $search = Http::withOptions(['verify' => false])
+                ->withHeaders(['Authorization' => "Client-ID {$accessKey}"])
+                ->get('https://api.unsplash.com/search/photos', array_merge([
+                    'query' => $query,
+                    'per_page' => 1,
+                ], $extraParams));
+        } catch (\Throwable $e) {
+            $this->warn("    Unsplash search request threw: " . $e->getMessage());
+
+            return null;
+        }
 
         if (! $search->ok()) {
             $this->warn("    Unsplash search request failed ({$search->status()}): " . $search->body());
@@ -289,8 +574,8 @@ class SeedIndustryCatalog extends Command
                 ['Luxury Wristwatch', 'luxury wristwatch', 399.00, 'Automatic movement watch with a sapphire crystal face and genuine leather strap.'],
             ]],
             ['code' => 'CAT-IND-FSH', 'category' => 'Fashion & Apparel', 'products' => [
-                ['Leather Biker Jacket', 'leather jacket fashion', 129.00, 'Genuine leather biker jacket with asymmetric zip and quilted shoulder panels.'],
-                ['Designer Sneakers', 'designer sneakers shoes', 89.00, 'Lightweight knit-upper sneakers with a cushioned midsole for all-day wear.'],
+                ['Leather Biker Jacket', 'woman leather jacket fashion', 129.00, 'Genuine leather biker jacket with asymmetric zip and quilted shoulder panels.'],
+                ['Designer Sneakers', 'man designer sneakers shoes', 89.00, 'Lightweight knit-upper sneakers with a cushioned midsole for all-day wear.'],
                 ['Summer Floral Dress', 'summer dress fashion', 59.00, 'Breathable floral-print midi dress with an adjustable waist tie.'],
             ]],
             ['code' => 'CAT-IND-BTY', 'category' => 'Beauty & Cosmetics', 'products' => [
@@ -371,8 +656,8 @@ class SeedIndustryCatalog extends Command
                 ['Diamond Stud Earrings', 'diamond earrings jewelry', 219.00, 'Classic round-cut diamond studs set in white gold, sold as a pair.'],
             ]],
             ['code' => 'CAT-IND-FSH', 'category' => 'Fashion & Apparel', 'products' => [
-                ['Classic Denim Jeans', 'denim jeans fashion', 69.00, 'Straight-fit denim jeans in a mid-wash, built from durable stretch cotton.'],
-                ['Wool Winter Coat', 'winter coat fashion', 159.00, 'Wool-blend overcoat with a notch lapel and quilted inner lining for warmth.'],
+                ['Classic Denim Jeans', 'woman denim jeans fashion', 69.00, 'Straight-fit denim jeans in a mid-wash, built from durable stretch cotton.'],
+                ['Wool Winter Coat', 'man winter coat fashion', 159.00, 'Wool-blend overcoat with a notch lapel and quilted inner lining for warmth.'],
             ]],
             ['code' => 'CAT-IND-BTY', 'category' => 'Beauty & Cosmetics', 'products' => [
                 ['Hydrating Face Cream', 'face cream cosmetics', 28.00, 'Lightweight daily moisturizer with hyaluronic acid for all skin types.'],
@@ -421,6 +706,116 @@ class SeedIndustryCatalog extends Command
             ['code' => 'CAT-IND-PHM', 'category' => 'Pharmacy & Medical', 'products' => [
                 ['Blood Pressure Monitor', 'blood pressure monitor medical', 39.00, 'Automatic upper-arm blood pressure monitor with irregular-heartbeat detection.'],
                 ['Hand Sanitizer Pack', 'hand sanitizer', 8.00, '3-pack of 70% alcohol hand sanitizer gel in travel-sized bottles.'],
+            ]],
+        ];
+    }
+
+    /**
+     * A third batch, added to give the new single-category storefront themes
+     * (Terra & Co., Élégance, Urbana, Marketly, FutureX) a fuller catalog in
+     * their locked category. Same append-only rule as moreProductsDefinition()
+     * -- never edit the earlier two methods, only add here.
+     *
+     * @return array<int, array{code:string, category:string, products:array<int, array{0:string,1:string,2:float,3:string}>}>
+     */
+    private function categorySpecificThemeProductsDefinition(): array
+    {
+        return [
+            // Terra & Co. (Grocery & Fresh Produce) -- gourmet pantry goods
+            ['code' => 'CAT-IND-GRC', 'category' => 'Grocery & Fresh Produce', 'products' => [
+                ['Extra Virgin Olive Oil 500ml', 'olive oil bottle', 24.99, 'Cold-pressed extra virgin olive oil from single-estate Mediterranean groves.'],
+                ['Black Truffle Sauce 90g', 'condiment sauce jar', 18.50, 'Rich black truffle sauce, ideal finished over pasta, risotto, or eggs.'],
+                ['Raw Wildflower Honey 400g', 'honey jar', 12.90, 'Unfiltered raw wildflower honey harvested from small independent apiaries.'],
+                ['Italian Artisan Pasta 500g', 'pasta package', 7.99, 'Bronze-die extruded pasta made from 100% durum wheat semolina.'],
+                ['Dark Chocolate 70% 100g', 'dark chocolate bar', 6.75, 'Single-origin dark chocolate bar, 70% cacao, dairy-free.'],
+                ['Organic Green Tea 100g', 'green tea leaves', 9.25, 'Loose-leaf organic green tea, hand-picked and lightly oxidized.'],
+            ]],
+            // Élégance (Fashion & Apparel) -- boutique womenswear and accessories
+            ['code' => 'CAT-IND-FSH', 'category' => 'Fashion & Apparel', 'products' => [
+                ['Silk Wrap Blouse', 'woman silk blouse fashion', 79.00, 'Fluid silk wrap blouse with a tie waist, tailored for an elegant drape.'],
+                ['Tailored Wool Blazer', 'man wool blazer fashion', 149.00, 'Structured single-breasted blazer in Italian wool, fully lined.'],
+                ['Pleated Midi Skirt', 'woman pleated skirt fashion', 65.00, 'Satin pleated midi skirt with a fluid movement and high waistband.'],
+                ['Cashmere Knit Sweater', 'woman cashmere sweater fashion', 119.00, 'Pure cashmere crewneck sweater, soft-brushed for everyday luxury.'],
+                ['Leather Ankle Boots', 'woman leather ankle boots fashion', 139.00, 'Block-heel leather ankle boots with a soft round toe and side zip.'],
+                ['Structured Tote Handbag', 'woman leather handbag fashion', 159.00, 'Structured leather tote with a detachable strap and gold-tone hardware.'],
+                ['Leather Crossbody Bag', 'woman leather crossbody bag', 89.00, 'Compact leather crossbody bag with an adjustable strap and card slots.'],
+            ]],
+            // Urbana (Marketplace & General Retail) -- everyday lifestyle trending picks
+            ['code' => 'CAT-IND-MKT', 'category' => 'Marketplace & General Retail', 'products' => [
+                ['Linen Blend Blazer', 'woman linen blazer fashion', 89.00, 'Relaxed-fit linen-blend blazer, lightweight enough for everyday layering.'],
+                ['Men\'s Chino Trousers', 'chino trousers menswear', 65.00, 'Slim-tapered chino trousers in stretch cotton twill for all-day comfort.'],
+                ['Canvas Low-Top Sneakers', 'canvas sneakers shoes', 59.00, 'Everyday canvas low-top sneakers with a cushioned footbed.'],
+                ['Minimal Gold Watch', 'gold wrist watch minimal', 129.00, 'Slim gold-tone wrist watch with a minimalist dial and mesh strap.'],
+                ['Leather Tote Bag', 'brown leather tote bag', 149.00, 'Structured brown leather tote with an interior zip pocket and long strap.'],
+                ['Oversized Sunglasses', 'oversized sunglasses fashion', 49.00, 'Oversized acetate-frame sunglasses with UV400-protected lenses.'],
+                ['Vanilla Amber Perfume', 'perfume bottle fragrance', 55.00, 'Warm vanilla-amber eau de parfum in a 50ml frosted glass bottle.'],
+                ['Aromatic Scented Candle', 'scented candle jar', 24.00, 'Hand-poured soy candle in a reusable glass jar, 45-hour burn time.'],
+                ['Yoga Mat Set', 'yoga mat fitness', 39.00, 'Non-slip yoga mat with a carry strap and matching resistance band.'],
+                ['Wireless Headphones', 'wireless headphones lifestyle', 79.00, 'Over-ear wireless headphones with a foldable design and 20-hour battery.'],
+            ]],
+            // Marketly (Books & Stationery) -- trending reads and desk essentials
+            ['code' => 'CAT-IND-BKS', 'category' => 'Books & Stationery', 'products' => [
+                ['Hardcover Classics Box Set', 'hardcover books collection', 79.00, 'A five-volume hardcover box set of timeless literary classics.'],
+                ['Luxury Rollerball Pen Set', 'luxury pen gift set', 129.00, 'Rollerball pen and ink gift set finished in brushed metal.'],
+                ['Canvas Book Tote Bag', 'canvas tote bag books', 59.00, 'Durable canvas tote sized for hardcovers, built for the daily commute.'],
+                ['LED Adjustable Reading Lamp', 'reading lamp desk', 39.00, 'Dimmable LED reading lamp with an adjustable gooseneck arm.'],
+                ['Weekly Planner Notebook', 'planner notebook desk', 24.00, 'Undated weekly planner with monthly tabs and a ribbon bookmark.'],
+                ['Kids Picture Book Collection', 'childrens picture books', 34.00, 'A boxed set of six illustrated picture books for early readers.'],
+            ]],
+            // FutureX (Electronics & Gadgets) -- best-selling tech
+            ['code' => 'CAT-IND-ELC', 'category' => 'Electronics & Gadgets', 'products' => [
+                ['MacBook Air M2 13"', 'macbook laptop computer', 1099.00, 'Ultra-thin 13" laptop with the M2 chip, 18-hour battery life, and a Liquid Retina display.'],
+                ['Samsung Galaxy S24 Ultra', 'samsung galaxy smartphone', 999.00, 'Flagship Android smartphone with a 200MP camera and a built-in S Pen.'],
+                ['Sony WH-1000XM5', 'sony headphones black', 349.00, 'Industry-leading noise-cancelling over-ear headphones with 30-hour battery life.'],
+                ['Apple Watch Series 9', 'apple watch smartwatch', 399.00, 'Always-on smartwatch with advanced health tracking and a brighter display.'],
+                ['Canon EOS R50', 'canon camera mirrorless', 749.00, 'Compact mirrorless camera with 4K video and fast autofocus for hybrid shooters.'],
+                ['DJI Mini 4 Pro', 'dji drone quadcopter', 899.00, 'Sub-249g drone with omnidirectional obstacle sensing and 4K/60fps video.'],
+            ]],
+            // LittleJoy (Baby & Kids, new category) -- baby gear, toys, nursery
+            ['code' => 'CAT-IND-BBY', 'category' => 'Baby & Kids', 'products' => [
+                ['Baby Stroller Comfort Ride', 'baby stroller', 199.00, 'Lightweight foldable stroller with a smooth-ride suspension and reclining seat.'],
+                ['Wooden Building Blocks Set', 'wooden building blocks toy', 29.99, '40-piece natural wood building block set for open-ended imaginative play.'],
+                ['Soft Plush Elephant', 'plush elephant toy', 18.99, 'Ultra-soft plush elephant toy, machine washable and safe from 0 months.'],
+                ['Baby Romper Set (Pack of 3)', 'baby romper clothing', 24.99, 'Pack of three breathable cotton rompers with snap closures for easy changing.'],
+                ['Silicone Feeding Set', 'silicone baby feeding set', 21.99, 'BPA-free silicone bowl, plate, and spoon set with a suction base.'],
+                ['Musical Crib Mobile', 'baby crib mobile', 34.99, 'Rotating crib mobile with soft plush stars and a gentle lullaby chime.'],
+                ['Baby Bath Tub with Support', 'baby bath tub', 27.99, 'Ergonomic bath tub with a built-in mesh support for newborns.'],
+                ['Board Book Collection for Toddlers', 'toddler board books', 16.99, 'Set of five sturdy board books with bright illustrations for early readers.'],
+            ]],
+            // CasaNest (Home & Furniture, new category) -- furniture across every room
+            ['code' => 'CAT-IND-HMF', 'category' => 'Home & Furniture', 'products' => [
+                ['Luna Bouclé Sofa', 'boucle sofa living room', 1499.00, 'Three-seat sofa in cream bouclé fabric with rounded, cushioned arms.'],
+                ['Archer Wood Lounge Chair', 'wood lounge chair furniture', 699.00, 'Solid-wood lounge chair with a curved backrest and a woven seat.'],
+                ['Milo Round Coffee Table', 'round coffee table wood', 549.00, 'Round solid-wood coffee table with a tapered pedestal base.'],
+                ['Noah Solid Wood Sideboard', 'wood sideboard furniture', 899.00, 'Three-door sideboard in solid oak with adjustable interior shelving.'],
+                ['Stoneware Table Lamp', 'stoneware table lamp', 199.00, 'Hand-finished stoneware table lamp with a natural linen shade.'],
+                ['Haven Modular Sofa', 'modular sofa furniture', 1899.00, 'Reconfigurable modular sofa with deep seats and removable covers.'],
+                ['Ello Dining Table', 'wood dining table', 1099.00, 'Extendable solid-wood dining table that seats six to eight.'],
+                ['Maya Accent Chair', 'accent chair furniture', 449.00, 'Curved-back accent chair upholstered in a durable woven fabric.'],
+                ['Riley Bookshelf', 'wood bookshelf furniture', 799.00, 'Five-tier solid-wood bookshelf with a warm walnut finish.'],
+                ['Nova Pendant Light', 'pendant light fixture', 249.00, 'Sculptural pendant light with a hand-blown glass shade.'],
+                ['Oakwood Nightstand', 'wood nightstand bedroom', 249.00, 'Two-drawer oak nightstand with soft-close runners.'],
+                ['Ergonomic Office Chair', 'office chair furniture', 329.00, 'Adjustable mesh-back office chair with lumbar support and armrests.'],
+            ]],
+            // Naturia (Beauty & Cosmetics) -- natural living best sellers
+            ['code' => 'CAT-IND-BTY', 'category' => 'Beauty & Cosmetics', 'products' => [
+                ['Aloe Vera Gel', 'aloe vera gel skincare', 16.99, '99% pure aloe vera gel for daily skin hydration and soothing.'],
+                ['Vitamin D3 2000IU', 'vitamin supplement bottle', 18.99, '90-count vitamin D3 softgels supporting bone and immune health.'],
+                ['Organic Green Tea', 'green tea cup organic', 12.99, 'Loose-leaf organic green tea grown without pesticides, 100g tin.'],
+                ['Lavender Essential Oil', 'lavender essential oil bottle', 14.99, '100% pure lavender essential oil, steam-distilled, 30ml bottle.'],
+                ['Bamboo Toothbrush', 'bamboo toothbrush eco', 4.99, 'Biodegradable bamboo-handled toothbrush with soft charcoal bristles.'],
+                ['Coconut Oil (250ml)', 'coconut oil jar organic', 9.99, 'Cold-pressed virgin coconut oil for cooking, skin, and hair.'],
+                ['Argan Hair Oil', 'argan hair oil bottle', 19.99, 'Lightweight argan oil serum that smooths frizz and adds shine.'],
+            ]],
+            // MediSphere (Pharmacy & Medical) -- wellness and home health essentials
+            ['code' => 'CAT-IND-PHM', 'category' => 'Pharmacy & Medical', 'products' => [
+                ['Digital BP Monitor', 'blood pressure monitor device', 45.00, 'Automatic upper-arm digital blood pressure monitor with a large display.'],
+                ['Infrared Digital Thermometer', 'digital thermometer medical', 22.00, 'Contactless infrared thermometer with a one-second reading and fever alert.'],
+                ['Baby Care Lotion', 'baby lotion bottle', 9.00, 'Gentle, fragrance-light lotion formulated for a newborn\'s sensitive skin.'],
+                ['Diabetes Glucose Test Strips', 'glucose test strips diabetes', 28.00, '50-count glucose test strips compatible with standard home meters.'],
+                ['Immunity Booster Tablets', 'immunity vitamin tablets', 19.00, 'Daily tablets combining vitamin C, zinc, and elderberry for immune support.'],
+                ['Senior Multivitamin Complex', 'senior vitamins elderly', 24.00, 'Multivitamin formulated for adults 50+, with added calcium and B12.'],
+                ['Extended-Release Pain Relief Tablets', 'pain relief tablets medicine', 12.00, 'Doctor-recommended extended-release tablets for everyday pain relief.'],
             ]],
         ];
     }
