@@ -94,6 +94,7 @@ class Kernel extends HttpKernel
         'XSS' => \App\Http\Middleware\XSS::class,
         'request.safety' => \App\Http\Middleware\RequestSafety::class,
         'store.enabled' => \App\Http\Middleware\EnsureStoreEnabled::class,
+        'store.preview_theme' => \App\Http\Middleware\PreserveStorefrontPreviewTheme::class,
         // Security: inactivity auto-logout + token activity tracking (Passport)
         'token.timeout' => \App\Http\Middleware\EnforceApiTokenTimeout::class,
         'pdf.locale' => \App\Http\Middleware\SetPdfLocale::class,

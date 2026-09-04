@@ -476,10 +476,17 @@ class StoreFrontController extends Controller
 
         // discount_method: '1' => percent, '2' => fixed
         $discValExpr = 'IFNULL(products.discount, 0)';
-        $afterDiscountExpr = "GREATEST(0,
+
+        // GREATEST/LEAST are MySQL/Postgres-only; SQLite has no such functions,
+        // but its scalar (2+ arg) MAX/MIN are exact equivalents.
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+        $greatestFn = $isSqlite ? 'MAX' : 'GREATEST';
+        $leastFn = $isSqlite ? 'MIN' : 'LEAST';
+
+        $afterDiscountExpr = "$greatestFn(0,
             CASE
                 WHEN products.discount_method = '1' THEN $baseExpr - ($baseExpr * ($discValExpr/100))
-                WHEN products.discount_method = '2' THEN $baseExpr - LEAST($discValExpr, $baseExpr)
+                WHEN products.discount_method = '2' THEN $baseExpr - $leastFn($discValExpr, $baseExpr)
                 ELSE $baseExpr
             END
         )";

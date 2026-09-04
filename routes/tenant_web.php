@@ -36,7 +36,7 @@ $installed = file_exists(base_path('storage/app/public/installed'));
 // ------------------------------------------------------------------\\
 // Online store (tenant)
 if ($installed === true) {
-    Route::middleware(['web', 'request.safety', 'store.enabled', 'tenant.feature:online_orders'])->group(function () {
+    Route::middleware(['web', 'request.safety', 'store.enabled', 'tenant.feature:online_orders', 'store.preview_theme'])->group(function () {
         Route::prefix('online_store')->group(function () {
             Route::get('/lang/{locale}', function ($locale) {
                 $supported = array_map('basename', glob(resource_path('lang/*')));
