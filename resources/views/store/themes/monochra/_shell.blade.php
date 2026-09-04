@@ -1,17 +1,27 @@
 {{-- Monochra theme shell — Tailwind CDN + config + fonts, included once per page --}}
 @php
-  $mcTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'Monochra');
-  $mcHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $themeTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'Monochra');
+  $themeHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $activeThemeSlug = 'monochra';
+  $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
+  $accent500 = $themeTokens['color-accent-500'] ?? '{{ $accent500 }}';
+  $accent600 = $themeTokens['color-accent-600'] ?? '{{ $accent600 }}';
+  $accent700 = $themeTokens['color-accent-700'] ?? '{{ $accent700 }}';
+  $accent800 = $themeTokens['color-accent-800'] ?? '{{ $accent800 }}';
+  $fontHeading = $themeTokens['font-heading'] ?? "'Archivo Black', sans-serif";
+  $fontBody = $themeTokens['font-body'] ?? "'Inter', sans-serif";
+  $fontSizeHeading = $themeTokens['font-size-heading'] ?? '36px';
+  $fontSizeBody = $themeTokens['font-size-body'] ?? '15px';
 @endphp
 <meta charset="utf-8" />
-<title>{{ $mcTitle }}</title>
+<title>{{ $themeTitle }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="description" content="{{ $s->seo_meta_description ?? 'Nothing but the essentials — electronics, fashion, home, beauty and more.' }}" />
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="currency" content="{{ $s->currency_code ?? '$' }}">
 <script>window.__LOGGED_IN__ = @json(Auth::guard('store')->check());</script>
 <script>window.__ALLOW_OVERSELLING__ = @json($s->allow_overselling ?? true);</script>
-<script>window.__HIDE_PRICES__ = @json($mcHidePrices);</script>
+<script>window.__HIDE_PRICES__ = @json($themeHidePrices);</script>
 <script>window.__SHOW_STOCK__ = @json($s->show_stock ?? true);</script>
 <script>
   window.__MSG_ONLY_X_STOCK__ = @json(__('messages.Only_x_available_in_stock'));
@@ -31,13 +41,13 @@
       extend: {
         colors: {
           brand: {
-            black: '#0A0A0A',
+            black: '{{ $accent700 }}',
             white: '#FFFFFF',
-            red: '#E1231A',
-            redDark: '#B81913',
-            ink: '#0A0A0A',
-            gray: '#6B6B6B',
-            line: '#0A0A0A',
+            red: '{{ $accent500 }}',
+            redDark: '{{ $accent600 }}',
+            ink: '{{ $accent700 }}',
+            gray: '{{ $accent800 }}',
+            line: '{{ $accent700 }}',
             fog: '#F2F2F2',
           }
         },
@@ -60,6 +70,25 @@
 </script>
 
 <style>
+  :root {
+    --color-accent-500: {{ $accent500 }};
+    --color-accent-600: {{ $accent600 }};
+    --color-accent-700: {{ $accent700 }};
+    --color-accent-800: {{ $accent800 }};
+    --font-heading: {!! $fontHeading !!};
+    --font-body: {!! $fontBody !!};
+    --font-size-heading: {{ $fontSizeHeading }};
+    --font-size-body: {{ $fontSizeBody }};
+  }
+  body {
+    font-family: {!! $fontBody !!} !important;
+    font-size: {{ $fontSizeBody }} !important;
+  }
+  h1, .hero-title, [class*="-hero"] h1, .font-display, .font-head, .font-serif {
+    font-size: {{ $fontSizeHeading }};
+    font-family: {!! $fontHeading !!};
+  }
+
   * { scrollbar-width: thin; scrollbar-color: #0A0A0A transparent; }
   ::-webkit-scrollbar { height: 8px; width: 8px; }
   ::-webkit-scrollbar-thumb { background: #0A0A0A; }

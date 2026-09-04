@@ -1,22 +1,48 @@
 {
-  "slug": "technova",
-  "name": "Technova",
-  "tagline": "Shop the terminal.",
-  "description": "Terminal/monospace dev-aesthetic persona on a pure-black canvas with green and amber CRT accents, scanline texture, bracket motifs, and a command-line search bar. General merchandise across electronics, fashion, home, beauty, grocery and sports.",
-  "category": "general-merchandise",
-  "version": "1.0.0",
-  "layout_persona": "Terminal Monospace",
-  "layout": "terminal-console",
-  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap",
-  "fontPairing": { "heading": "JetBrains Mono", "body": "JetBrains Mono" },
-  "paletteSwatches": ["#39FF88", "#FFB000", "#050505", "#0D0D0D"],
-  "tokens": {
-    "color-bg-base": "#050505",
-    "color-accent-500": "#39FF88",
-    "color-accent-600": "#FFB000",
-    "font-heading": "'JetBrains Mono', monospace",
-    "font-body": "'JetBrains Mono', monospace"
-  },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
-  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+    "slug": "technova",
+    "name": "TechNova",
+    "tagline": "Upgrade Your Tech Lifestyle.",
+    "description": "Premium modern electronics marketplace and storefront featuring a clean white/light-gray foundation, electric blue accents, sleek rounded cards, and high-fidelity tech photography.",
+    "category": "electronics",
+    "version": "1.0.0",
+    "layout_persona": "Premium Electronics Retail",
+    "layout": "modern-electronics",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap",
+    "fontPairing": {
+        "heading": "Outfit",
+        "body": "Plus Jakarta Sans"
+    },
+    "paletteSwatches": [
+        "#2563EB",
+        "#06B6D4",
+        "#1E293B",
+        "#F8FAFC"
+    ],
+    "tokens": {
+        "color-bg-base": "#F8FAFC",
+        "color-accent-500": "#2563EB",
+        "color-accent-600": "#1D4ED8",
+        "color-accent-700": "#06B6D4",
+        "color-accent-800": "#0F172A",
+        "font-heading": "'Outfit', sans-serif",
+        "font-body": "'Plus Jakarta Sans', sans-serif",
+        "font-size-heading": "32px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
 }

@@ -1,0 +1,54 @@
+{
+    "name": "Verde Living & Botanicals",
+    "theme_id": "verde",
+    "version": "1.0.0",
+    "category": "Category-Specific Themes",
+    "author": "QuantroCode Design Team",
+    "description": "Sustainable Living & Botanicals",
+    "colors": {
+        "primary": "#3A472D",
+        "secondary": "#556844",
+        "accent": "#7D8C6C",
+        "background": "#FBF9F5",
+        "surface": "#FFFFFF",
+        "sand": "#F3EFEA",
+        "text": "#1F2818",
+        "footer": "#182215"
+    },
+    "slug": "verde",
+    "theme_type": "category-specific",
+    "tagline": "Sustainable Living & Botanicals",
+    "paletteSwatches": [
+        "#2D5A27",
+        "#4E8752",
+        "#8C6239",
+        "#F4F7F2"
+    ],
+    "tokens": {
+        "color-bg-base": "#F4F7F2",
+        "color-accent-500": "#2D5A27",
+        "color-accent-600": "#4E8752",
+        "color-accent-700": "#8C6239",
+        "color-accent-800": "#1A3A16",
+        "font-heading": "'Playfair Display', serif",
+        "font-body": "'Plus Jakarta Sans', sans-serif",
+        "font-size-heading": "34px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
+}

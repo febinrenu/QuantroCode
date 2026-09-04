@@ -195,6 +195,7 @@
               {{ $t('Storefront_Theme_Gallery_Help') }}
             </small>
 
+<<<<<<< HEAD
             <div class="theme-gallery">
               <div
                 v-for="t in generalPurposeThemes"
@@ -209,11 +210,78 @@
                   </span>
                   <div class="theme-gallery-swatches">
                     <span v-for="(c, i) in (t.paletteSwatches || [])" :key="i" class="theme-gallery-swatch" :style="{ background: c }"></span>
+=======
+            <!-- Category-Specific Themes Section -->
+            <div class="mb-4" v-if="categorySpecificThemes.length">
+              <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
+                <div class="d-flex align-items-center">
+                  <h6 class="text-dark font-weight-bold mb-0">
+                    Category-Specific Themes
+                  </h6>
+                </div>
+                <small class="text-muted">Tailored for specific retail verticals and industries</small>
+              </div>
+
+              <div class="theme-gallery">
+                <div
+                  v-for="t in categorySpecificThemes"
+                  :key="t.slug"
+                  class="theme-gallery-card"
+                  :class="{ active: form.theme === t.slug }"
+                  @click="selectTheme(t)"
+                >
+                  <div class="theme-gallery-thumb" :style="themeThumbStyle(t)">
+                    <span v-if="form.theme === t.slug" class="theme-gallery-check">
+                      <lucide-icon name="check" style="width:14px;height:14px" />
+                    </span>
+                    <div class="theme-gallery-swatches">
+                      <span v-for="(c, i) in (t.paletteSwatches || [])" :key="i" class="theme-gallery-swatch" :style="{ background: c }"></span>
+                    </div>
+                  </div>
+                  <div class="theme-gallery-meta">
+                    <div class="theme-gallery-name">{{ t.name }}</div>
+                    <div class="theme-gallery-industry text-muted text-truncate" :title="t.tagline || t.description || t.layout_persona">
+                      {{ t.tagline || t.description || t.layout_persona }}
+                    </div>
+>>>>>>> origin/main
                   </div>
                 </div>
-                <div class="theme-gallery-meta">
-                  <div class="theme-gallery-name">{{ t.name }}</div>
-                  <div class="theme-gallery-industry text-muted">{{ t.tagline || t.layout_persona }}</div>
+              </div>
+            </div>
+
+            <!-- General Storefront Themes Section -->
+            <div class="mb-3" v-if="generalThemes.length">
+              <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
+                <div class="d-flex align-items-center">
+                  <h6 class="text-dark font-weight-bold mb-0">
+                    General Storefront Themes
+                  </h6>
+                </div>
+                <small class="text-muted">Multi-purpose layouts for general retail catalogs</small>
+              </div>
+
+              <div class="theme-gallery">
+                <div
+                  v-for="t in generalThemes"
+                  :key="t.slug"
+                  class="theme-gallery-card"
+                  :class="{ active: form.theme === t.slug }"
+                  @click="selectTheme(t)"
+                >
+                  <div class="theme-gallery-thumb" :style="themeThumbStyle(t)">
+                    <span v-if="form.theme === t.slug" class="theme-gallery-check">
+                      <lucide-icon name="check" style="width:14px;height:14px" />
+                    </span>
+                    <div class="theme-gallery-swatches">
+                      <span v-for="(c, i) in (t.paletteSwatches || [])" :key="i" class="theme-gallery-swatch" :style="{ background: c }"></span>
+                    </div>
+                  </div>
+                  <div class="theme-gallery-meta">
+                    <div class="theme-gallery-name">{{ t.name }}</div>
+                    <div class="theme-gallery-industry text-muted text-truncate" :title="t.tagline || t.description || t.layout_persona">
+                      {{ t.tagline || t.description || t.layout_persona }}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -252,33 +320,113 @@
             </div>
 
             <!-- Per-theme token customizer -->
-            <div v-if="selectedTheme && selectedTheme.customizable && selectedTheme.customizable.length" class="mt-4">
-              <h6 class="text-muted border-bottom pb-2 mb-3">
-                <lucide-icon class="mr-1" name="sliders" />
-                {{ $t('Customize') }} — {{ selectedTheme.name }}
-              </h6>
-              <div class="row">
-                <div class="col-md-3" v-for="tokenKey in selectedTheme.customizable" :key="tokenKey">
-                  <b-form-group :label="tokenLabel(tokenKey)">
+            <div v-if="selectedTheme && selectedTheme.customizable && selectedTheme.customizable.length" class="mt-4 p-3 bg-white rounded border theme-customizer-panel">
+              <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
+                <h6 class="text-dark font-weight-bold mb-0">
+                  <lucide-icon class="mr-1 text-primary" name="sliders" style="width:16px;height:16px" />
+                  {{ $t('Customize') }} — {{ selectedTheme.name }}
+                </h6>
+                <button type="button" class="btn btn-outline-secondary btn-sm" @click="resetThemeTokens">
+                  <lucide-icon name="rotate-ccw" class="mr-1" style="width:13px;height:13px" />
+                  {{ $t('Reset_To_Theme_Defaults') || 'Reset To Theme Defaults' }}
+                </button>
+              </div>
+
+              <!-- 1) Four Independently Configurable Accent Colors -->
+              <div class="row mb-2">
+                <div class="col-md-3 col-sm-6" v-for="colorKey in ['color-accent-500', 'color-accent-600', 'color-accent-700', 'color-accent-800']" :key="colorKey">
+                  <b-form-group :label="tokenLabel(colorKey)">
+                    <div class="d-flex align-items-center">
+                      <b-form-input
+                        type="color"
+                        style="width: 44px; height: 36px; padding: 2px;"
+                        :value="getTokenValue(colorKey)"
+                        @input="v => setToken(colorKey, v)"
+                      />
+                      <b-form-input
+                        type="text"
+                        class="ml-2 font-monospace text-uppercase"
+                        :value="getTokenValue(colorKey)"
+                        @input="v => setToken(colorKey, v)"
+                      />
+                    </div>
+                  </b-form-group>
+                </div>
+              </div>
+
+              <!-- 2) Typography (Heading & Body Font Families) -->
+              <div class="row mb-2">
+                <div class="col-md-6">
+                  <b-form-group :label="$t('Font_Heading') || 'Font: Heading'">
                     <b-form-input
-                      v-if="tokenKey.indexOf('color') === 0"
-                      type="color"
-                      :value="form.theme_tokens[tokenKey] || (selectedTheme.tokens && selectedTheme.tokens[tokenKey]) || '#000000'"
-                      @input="v => setToken(tokenKey, v)"
-                    />
-                    <b-form-input
-                      v-else
                       type="text"
-                      :placeholder="selectedTheme.tokens && selectedTheme.tokens[tokenKey]"
-                      :value="form.theme_tokens[tokenKey]"
-                      @input="v => setToken(tokenKey, v)"
+                      :placeholder="selectedTheme.tokens && selectedTheme.tokens['font-heading']"
+                      :value="getTokenValue('font-heading')"
+                      @input="v => setToken('font-heading', v)"
                     />
                   </b-form-group>
                 </div>
-                <div class="col-md-3 d-flex align-items-end mb-3">
-                  <button type="button" class="btn btn-outline-secondary btn-sm" @click="resetThemeTokens">
-                    {{ $t('Reset_To_Theme_Defaults') }}
-                  </button>
+                <div class="col-md-6">
+                  <b-form-group :label="$t('Font_Body') || 'Font: Body'">
+                    <b-form-input
+                      type="text"
+                      :placeholder="selectedTheme.tokens && selectedTheme.tokens['font-body']"
+                      :value="getTokenValue('font-body')"
+                      @input="v => setToken('font-body', v)"
+                    />
+                  </b-form-group>
+                </div>
+              </div>
+
+              <!-- 3) Font Sizes (Heading & Body Sizes) -->
+              <div class="row">
+                <div class="col-md-6">
+                  <b-form-group :label="'Heading font size: ' + getFontSizePx('font-size-heading', 32) + 'px'">
+                    <div class="d-flex align-items-center">
+                      <b-form-input
+                        type="range"
+                        min="20"
+                        max="64"
+                        step="1"
+                        class="custom-range flex-grow-1"
+                        :value="getFontSizePx('font-size-heading', 32)"
+                        @input="v => setToken('font-size-heading', v + 'px')"
+                      />
+                      <b-form-input
+                        type="number"
+                        min="20"
+                        max="64"
+                        class="ml-2 text-center"
+                        style="width: 80px;"
+                        :value="getFontSizePx('font-size-heading', 32)"
+                        @input="v => setToken('font-size-heading', (v || 32) + 'px')"
+                      />
+                    </div>
+                  </b-form-group>
+                </div>
+                <div class="col-md-6">
+                  <b-form-group :label="'Body font size: ' + getFontSizePx('font-size-body', 15) + 'px'">
+                    <div class="d-flex align-items-center">
+                      <b-form-input
+                        type="range"
+                        min="12"
+                        max="24"
+                        step="1"
+                        class="custom-range flex-grow-1"
+                        :value="getFontSizePx('font-size-body', 15)"
+                        @input="v => setToken('font-size-body', v + 'px')"
+                      />
+                      <b-form-input
+                        type="number"
+                        min="12"
+                        max="24"
+                        class="ml-2 text-center"
+                        style="width: 80px;"
+                        :value="getFontSizePx('font-size-body', 15)"
+                        @input="v => setToken('font-size-body', (v || 15) + 'px')"
+                      />
+                    </div>
+                  </b-form-group>
                 </div>
               </div>
             </div>
@@ -576,6 +724,7 @@ export default {
       var found = arr.find(function (t) { return t.slug === this.form.theme }.bind(this))
       return found || null
     },
+<<<<<<< HEAD
     generalPurposeThemes () {
       var arr = Array.isArray(this.themes) ? this.themes : []
       return arr.filter(function (t) { return t.themeGroup !== 'category-specific' })
@@ -583,6 +732,19 @@ export default {
     categorySpecificThemes () {
       var arr = Array.isArray(this.themes) ? this.themes : []
       return arr.filter(function (t) { return t.themeGroup === 'category-specific' })
+=======
+    categorySpecificThemes () {
+      var arr = Array.isArray(this.themes) ? this.themes : []
+      return arr.filter(function (t) {
+        return t.theme_type === 'category-specific' || t.category === 'Category-Specific Themes'
+      })
+    },
+    generalThemes () {
+      var arr = Array.isArray(this.themes) ? this.themes : []
+      return arr.filter(function (t) {
+        return t.theme_type === 'general' || (t.theme_type !== 'category-specific' && t.category !== 'Category-Specific Themes')
+      })
+>>>>>>> origin/main
     }
   },
   mounted(){ this.fetch() },
@@ -634,12 +796,40 @@ export default {
       return { background: `linear-gradient(135deg, ${stops})` }
     },
     setToken(key, value){
+      if (!this.form.theme_tokens || typeof this.form.theme_tokens !== 'object') {
+        this.$set(this.form, 'theme_tokens', {})
+      }
       this.$set(this.form.theme_tokens, key, value)
     },
     resetThemeTokens(){
-      this.form.theme_tokens = {}
+      this.$set(this.form, 'theme_tokens', {})
+    },
+    getTokenValue(key) {
+      if (this.form.theme_tokens && typeof this.form.theme_tokens[key] !== 'undefined' && this.form.theme_tokens[key] !== '') {
+        return this.form.theme_tokens[key]
+      }
+      if (this.selectedTheme && this.selectedTheme.tokens && typeof this.selectedTheme.tokens[key] !== 'undefined') {
+        return this.selectedTheme.tokens[key]
+      }
+      if (key.indexOf('color') === 0) return '#000000'
+      if (key === 'font-size-heading') return '32px'
+      if (key === 'font-size-body') return '15px'
+      return ''
+    },
+    getFontSizePx(key, fallbackDefault) {
+      var val = this.getTokenValue(key)
+      if (typeof val === 'number') return val
+      if (typeof val === 'string') {
+        var num = parseInt(val, 10)
+        if (!isNaN(num)) return num
+      }
+      return fallbackDefault || 16
     },
     tokenLabel(key){
+      if (key === 'color-accent-500') return 'Accent 500'
+      if (key === 'color-accent-600') return 'Accent 600'
+      if (key === 'color-accent-700') return 'Accent 700'
+      if (key === 'color-accent-800') return 'Accent 800'
       return String(key).replace(/^color-/, '').replace(/^font-/, 'Font: ').replace(/-/g, ' ')
     },
 
@@ -1024,5 +1214,12 @@ export default {
   padding: .75rem 1rem;
   border-top: 1px solid #e5e7eb;
   border-radius: .75rem;
+}
+
+/* Theme customizer panel */
+.theme-customizer-panel {
+  background: #ffffff !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 </style>

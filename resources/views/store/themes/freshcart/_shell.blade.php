@@ -1,17 +1,27 @@
 {{-- FreshCart theme shell — Tailwind CDN + config + fonts, included once per page --}}
 @php
-  $fcTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'FreshCart');
-  $fcHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $themeTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'FreshCart');
+  $themeHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $activeThemeSlug = 'freshcart';
+  $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
+  $accent500 = $themeTokens['color-accent-500'] ?? '{{ $accent500 }}';
+  $accent600 = $themeTokens['color-accent-600'] ?? '{{ $accent600 }}';
+  $accent700 = $themeTokens['color-accent-700'] ?? '{{ $accent700 }}';
+  $accent800 = $themeTokens['color-accent-800'] ?? '{{ $accent800 }}';
+  $fontHeading = $themeTokens['font-heading'] ?? "'Poppins', sans-serif";
+  $fontBody = $themeTokens['font-body'] ?? "'Poppins', sans-serif";
+  $fontSizeHeading = $themeTokens['font-size-heading'] ?? '32px';
+  $fontSizeBody = $themeTokens['font-size-body'] ?? '15px';
 @endphp
 <meta charset="utf-8" />
-<title>{{ $fcTitle }}</title>
+<title>{{ $themeTitle }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="description" content="{{ $s->seo_meta_description ?? 'Fresh picks, delivered daily — shop electronics, fashion, home, beauty, grocery and more in one warm, friendly marketplace.' }}" />
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="currency" content="{{ $s->currency_code ?? '$' }}">
 <script>window.__LOGGED_IN__ = @json(Auth::guard('store')->check());</script>
 <script>window.__ALLOW_OVERSELLING__ = @json($s->allow_overselling ?? true);</script>
-<script>window.__HIDE_PRICES__ = @json($fcHidePrices);</script>
+<script>window.__HIDE_PRICES__ = @json($themeHidePrices);</script>
 <script>window.__SHOW_STOCK__ = @json($s->show_stock ?? true);</script>
 <script>
   window.__MSG_ONLY_X_STOCK__ = @json(__('messages.Only_x_available_in_stock'));
@@ -33,11 +43,11 @@
           brand: {
             cream: '#FBF1D6',
             creamDark: '#F3E4B8',
-            green: '#1F9D55',
-            greenDark: '#167A42',
-            greenDeep: '#14532D',
+            green: '{{ $accent500 }}',
+            greenDark: '{{ $accent600 }}',
+            greenDeep: '{{ $accent800 }}',
             greenLight: '#E4F5EA',
-            orange: '#F0800F',
+            orange: '{{ $accent700 }}',
             orangeDark: '#C86608',
             orangeLight: '#FDEBD6',
             ink: '#20301F',
@@ -58,6 +68,25 @@
 </script>
 
 <style>
+  :root {
+    --color-accent-500: {{ $accent500 }};
+    --color-accent-600: {{ $accent600 }};
+    --color-accent-700: {{ $accent700 }};
+    --color-accent-800: {{ $accent800 }};
+    --font-heading: {!! $fontHeading !!};
+    --font-body: {!! $fontBody !!};
+    --font-size-heading: {{ $fontSizeHeading }};
+    --font-size-body: {{ $fontSizeBody }};
+  }
+  body {
+    font-family: {!! $fontBody !!} !important;
+    font-size: {{ $fontSizeBody }} !important;
+  }
+  h1, .hero-title, [class*="-hero"] h1, .font-display, .font-head, .font-serif {
+    font-size: {{ $fontSizeHeading }};
+    font-family: {!! $fontHeading !!};
+  }
+
   * { scrollbar-width: thin; scrollbar-color: #d9c98d transparent; }
   ::-webkit-scrollbar { height: 8px; width: 8px; }
   ::-webkit-scrollbar-thumb { background: #d9c98d; border-radius: 9999px; }
