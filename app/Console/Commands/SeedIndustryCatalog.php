@@ -39,10 +39,9 @@ class SeedIndustryCatalog extends Command
     {
         $accessKey = config('services.unsplash.access_key');
         if (! $accessKey) {
-            $this->error('UNSPLASH_ACCESS_KEY is not set in your .env file.');
-            $this->line('Get a free key at https://unsplash.com/oauth/applications, add it as UNSPLASH_ACCESS_KEY=... in .env, then re-run this command.');
-
-            return self::FAILURE;
+            $this->warn('UNSPLASH_ACCESS_KEY is not set in your .env file.');
+            $this->line('Products with a bundled theme photo (see bundledProductImage()) will still be seeded; the rest will be skipped until a key is added.');
+            $this->line('Get a free key at https://unsplash.com/oauth/applications, add it as UNSPLASH_ACCESS_KEY=... in .env, then re-run this command to fill in the rest.');
         }
 
         // No blanket "already seeded" short-circuit here: each product below is
@@ -101,7 +100,7 @@ class SeedIndustryCatalog extends Command
                 }
 
                 $filename = $this->bundledProductImage($name, $dir)
-                    ?? $this->downloadUnsplashPhoto($accessKey, $query, $dir, Str::slug($name));
+                    ?? ($accessKey ? $this->downloadUnsplashPhoto($accessKey, $query, $dir, Str::slug($name)) : null);
                 if (! $filename) {
                     $this->warn("  \xE2\x9C\x97 {$name} — could not fetch a photo for \"{$query}\", skipped.");
                     continue;
@@ -148,7 +147,9 @@ class SeedIndustryCatalog extends Command
 
         $this->info('Industry catalog seeded.');
 
-        $this->backfillLegacyDemoImages($accessKey, $dir);
+        if ($accessKey) {
+            $this->backfillLegacyDemoImages($accessKey, $dir);
+        }
 
         return self::SUCCESS;
     }
@@ -230,19 +231,41 @@ class SeedIndustryCatalog extends Command
      * this stays well under that limit even for the full ~42-product catalog.
      */
     /**
-     * The TrailPeak theme ships with real bundled photos for its 6 Outdoor &
-     * Adventure Gear products so that category doesn't depend on an
-     * Unsplash API key to look right.
+     * The HomeLuxe theme ships with real bundled photos for its 6 Home &
+     * Furniture products (from the provided HomeLuxe asset pack) so that
+     * category doesn't depend on an Unsplash API key to look right.
      */
     private function bundledProductImage(string $name, string $dir): ?string
     {
         $bundled = [
-            'Trail Backpack 65L' => 'trailpeak/trail-backpack.jpg',
-            'Waterproof Hiking Boots' => 'trailpeak/hiking-boots.jpg',
-            'GPS Adventure Watch' => 'trailpeak/gps-watch.jpg',
-            '3-Person Camping Tent' => 'trailpeak/camping-tent.jpg',
-            'Insulated Steel Water Bottle' => 'trailpeak/water-bottle.jpg',
-            'Rechargeable LED Headlamp' => 'trailpeak/headlamp.jpg',
+            'Modern Sectional Sofa' => 'homeluxe/products/sectional-sofa.png',
+            'Walnut Coffee Table' => 'homeluxe/products/coffee-table.png',
+            'Rattan Accent Chair' => 'homeluxe/products/accent-chair.png',
+            'Woven Pendant Light' => 'homeluxe/products/pendant-light.png',
+            'Beige Area Rug' => 'homeluxe/products/area-rug.png',
+            'Oak Storage Sideboard' => 'homeluxe/products/sideboard.png',
+            'Trail Backpack 65L' => 'trailpeak/products/trail-backpack.jpg',
+            'Waterproof Hiking Boots' => 'trailpeak/products/hiking-boots.jpg',
+            'GPS Adventure Watch' => 'trailpeak/products/gps-watch.jpg',
+            '3-Person Camping Tent' => 'trailpeak/products/camping-tent.jpg',
+            'Insulated Steel Water Bottle' => 'trailpeak/products/water-bottle.jpg',
+            'Rechargeable LED Headlamp' => 'trailpeak/products/headlamp.jpg',
+            'Wireless Noise-Cancelling Headphones' => 'shopiq-electronics/products/headphones.jpg',
+            'Smartwatch Series X' => 'shopiq-electronics/products/smartwatch.jpg',
+            '4K Camera Drone' => 'shopiq-electronics/products/drone.jpg',
+            'Mechanical Gaming Keyboard' => 'shopiq-electronics/products/keyboard.jpg',
+            'Portable Bluetooth Speaker' => 'shopiq-electronics/products/speaker.jpg',
+            'Comfort Dog Leash & Collar Set' => 'pawluxe/products/leash-collar.jpg',
+            'Interactive Cat Toy' => 'pawluxe/products/cat-toy.jpg',
+            'Ceramic Pet Food Bowl' => 'pawluxe/products/food-bowl.jpg',
+            'Cozy Pet Bed' => 'pawluxe/products/pet-bed.jpg',
+            'Aquarium Fish Tank' => 'pawluxe/products/aquarium.jpg',
+            'Aloe Vera Gel' => 'naturae/products/aloe-vera-gel.png',
+            'Vitamin D3 2000IU' => 'naturae/products/vitamin-d3.png',
+            'Organic Green Tea' => 'naturae/products/organic-green-tea.png',
+            'Lavender Essential Oil' => 'naturae/products/lavender-essential-oil.png',
+            'Bamboo Toothbrush Set' => 'naturae/products/bamboo-toothbrush.png',
+            'Coconut Oil (250ml)' => 'naturae/products/coconut-oil.png',
         ];
 
         if (! isset($bundled[$name])) {
@@ -454,6 +477,14 @@ class SeedIndustryCatalog extends Command
                 ['Blood Pressure Monitor', 'blood pressure monitor medical', 39.00, 'Automatic upper-arm blood pressure monitor with irregular-heartbeat detection.'],
                 ['Hand Sanitizer Pack', 'hand sanitizer', 8.00, '3-pack of 70% alcohol hand sanitizer gel in travel-sized bottles.'],
             ]],
+            ['code' => 'CAT-IND-HOM', 'category' => 'Home & Furniture', 'products' => [
+                ['Modern Sectional Sofa', 'modern cream sectional sofa living room', 899.00, 'Deep, sink-in sectional upholstered in durable performance fabric with a solid wood frame.'],
+                ['Walnut Coffee Table', 'walnut round coffee table furniture', 199.00, 'Low-profile solid walnut coffee table with softly rounded edges and a natural finish.'],
+                ['Rattan Accent Chair', 'rattan accent chair furniture', 249.00, 'Handwoven rattan lounge chair with a supportive hardwood frame and linen cushion.'],
+                ['Woven Pendant Light', 'woven pendant light home decor', 129.00, 'Natural fibre pendant shade that casts a warm, textured glow over dining spaces.'],
+                ['Beige Area Rug', 'beige neutral area rug interior', 199.00, 'Soft low-pile rug in a versatile sand tone, made for everyday living areas.'],
+                ['Oak Storage Sideboard', 'oak wood sideboard furniture', 329.00, 'Mid-century inspired oak sideboard with adjustable shelving and cable management.'],
+            ]],
             ['code' => 'CAT-IND-OUT', 'category' => 'Outdoor & Adventure Gear', 'products' => [
                 ['Trail Backpack 65L', 'hiking backpack outdoor gear', 259.95, 'Weatherproof 65-liter trekking backpack with an adjustable suspension frame for multi-day trails.'],
                 ['Waterproof Hiking Boots', 'hiking boots outdoor', 149.95, 'Grippy, waterproof hiking boots built for rocky, wet trail conditions.'],
@@ -461,6 +492,22 @@ class SeedIndustryCatalog extends Command
                 ['3-Person Camping Tent', 'camping tent outdoor', 449.95, 'Freestanding 3-person tent with a full-coverage rainfly for three-season camping.'],
                 ['Insulated Steel Water Bottle', 'insulated water bottle outdoor', 44.99, 'Double-wall insulated steel bottle that keeps drinks cold for 24 hours on the trail.'],
                 ['Rechargeable LED Headlamp', 'led headlamp camping', 59.95, 'Rechargeable headlamp with adjustable beam for night hikes and campsite chores.'],
+            ]],
+            // Naturia ("naturae" theme) Best Sellers — reuses the existing Beauty &
+            // Cosmetics / Pharmacy & Medical / Grocery & Fresh Produce categories
+            // (repeating an existing 'code' just resolves the same category row,
+            // it does not create a duplicate) rather than inventing new ones.
+            ['code' => 'CAT-IND-BTY', 'category' => 'Beauty & Cosmetics', 'products' => [
+                ['Aloe Vera Gel', 'aloe vera gel skincare', 16.99, 'Soothing 100% natural aloe vera gel for daily skin hydration and after-sun care.'],
+                ['Lavender Essential Oil', 'lavender essential oil bottle', 14.99, 'Steam-distilled pure lavender oil for aromatherapy, massage, and relaxation.'],
+                ['Bamboo Toothbrush Set', 'bamboo toothbrush eco', 4.99, 'Pack of three biodegradable bamboo toothbrushes with soft bristles.'],
+            ]],
+            ['code' => 'CAT-IND-PHM', 'category' => 'Pharmacy & Medical', 'products' => [
+                ['Vitamin D3 2000IU', 'vitamin d3 supplement bottle', 18.99, '90-capsule bottle of Vitamin D3 2000IU to support bone and immune health.'],
+            ]],
+            ['code' => 'CAT-IND-GRC', 'category' => 'Grocery & Fresh Produce', 'products' => [
+                ['Organic Green Tea', 'organic green tea cup', 12.99, 'Loose-leaf organic green tea, hand-picked and naturally rich in antioxidants.'],
+                ['Coconut Oil (250ml)', 'coconut oil jar natural', 9.99, 'Cold-pressed virgin coconut oil, equally at home in the kitchen or on the skin.'],
             ]],
         ];
     }

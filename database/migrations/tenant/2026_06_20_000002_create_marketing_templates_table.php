@@ -19,7 +19,6 @@ return new class extends Migration
             $table->timestamps(6);
             $table->softDeletes();
 
-            $table->index();
         });
     }
 

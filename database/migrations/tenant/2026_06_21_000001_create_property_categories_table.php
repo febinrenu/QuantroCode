@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('image')->nullable();
             $table->timestamps(6);
             $table->softDeletes();
-            $table->index();
         });
 
         // Seed the default real-estate property categories (idempotent).

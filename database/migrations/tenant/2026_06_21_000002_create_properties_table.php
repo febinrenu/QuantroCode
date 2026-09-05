@@ -60,9 +60,6 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->index(['purpose', 'status']);
-            $table->index();
-            $table->index();
-            $table->index();
         });
     }
 
