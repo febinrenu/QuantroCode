@@ -84,7 +84,7 @@
   </div>
 
   <div class="max-w-[1360px] mx-auto px-5 hidden md:flex items-center gap-6 h-12 text-[12px] font-bold text-pl-ink border-t border-pl-line overflow-x-auto no-scrollbar">
-    @if($plCategories->count() > 1)
+    @if($plCategories->count() > 0)
       @foreach($plCategories->take(8) as $cat)
         <a class="flex items-center gap-1.5 shrink-0 hover:text-pl-coral" href="{{ route('store.shop',['category'=>$cat->id]) }}">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 12.5c1.1 0 2-1.12 2-2.5S5.6 7.5 4.5 7.5 2.5 8.62 2.5 10s.9 2.5 2 2.5Zm5.5-4c1.1 0 2-1.24 2-2.75S11.1 3 10 3 8 4.24 8 5.75 8.9 8.5 10 8.5Zm4 0c1.1 0 2-1.24 2-2.75S15.1 3 14 3s-2 1.24-2 2.75 0.9 2.75 2 2.75Zm5.5 4c1.1 0 2-1.12 2-2.5s-.9-2.5-2-2.5-2 1.12-2 2.5.9 2.5 2 2.5ZM12 12c-2.9 0-6.5 2.09-6.5 5.06 0 1.32 1.06 2.44 2.55 2.44.9 0 1.7-.35 2.45-.7.55-.26 1.06-.5 1.5-.5s.95.24 1.5.5c.75.35 1.55.7 2.45.7 1.49 0 2.55-1.12 2.55-2.44C18.5 14.09 14.9 12 12 12Z"/></svg>
@@ -108,7 +108,7 @@
     </form>
     <div class="mb-3">@include('store.partials.language-switcher', ['variant' => 'mobile'])</div>
     <div class="grid grid-cols-2 gap-1">
-      @if($plCategories->count() > 1)
+      @if($plCategories->count() > 0)
         @foreach($plCategories as $cat)
           <a class="py-2 text-sm font-semibold" href="{{ route('store.shop',['category'=>$cat->id]) }}">{{ $cat->name }}</a>
         @endforeach

@@ -15,25 +15,39 @@
 
   $asset = fn($f) => global_asset('images/themes/pawluxe/'.$f);
 
+  // PawLuxe's catalog has one real category (Pet Supplies & Accessories) and
+  // no subcategories. Where a tile's label clearly matches one existing
+  // product by name, the link scopes to the real category AND searches by
+  // that product's distinguishing keyword (the same product-name search the
+  // storefront search box already uses) so the tile genuinely shows only
+  // that product rather than every pet product. Labels with no matching
+  // seeded product fall back to the full, correctly-titled Pet Supplies &
+  // Accessories listing instead of showing unrelated products.
+  $plCategoryId = optional(($categories ?? collect())->first())->id;
+  $plCategoryUrl = fn (?string $keyword = null) => route('store.shop', array_filter([
+    'category' => $plCategoryId,
+    'q' => $keyword,
+  ]));
+
   $iconCats = [
-    ['Food & Treats', '#F3DFC1', 'M3 11a9 9 0 0 1 18 0v5a2 2 0 0 1-2 2h-1v-6h3M3 11h3v6H5a2 2 0 0 1-2-2z'],
-    ['Toys & Play', '#D9EFE3', 'M6.5 8a2.5 2.5 0 1 1 3.9 2.06L9 11.5H15l-1.4-1.44A2.5 2.5 0 1 1 17.5 8a2.5 2.5 0 0 1-1.5 4.4l1.4 1.44a2.5 2.5 0 1 1-2.76 2.9L15 15H9l-1.64 1.74a2.5 2.5 0 1 1-2.76-2.9l1.4-1.44A2.5 2.5 0 0 1 6.5 8Z'],
-    ['Grooming', '#FBDCE0', 'M4 4v6M2 6h4M18 4v6M16 6h4M11 7v14M5 12c0 3.5 2.7 5.5 6 7.3 3.3-1.8 6-3.8 6-7.3'],
-    ['Health & Wellness', '#F8D3D3', 'M20.8 8.6c0-3.1-2.4-5.6-5.4-5.6-2 0-3.7 1.1-4.6 2.8C10 4.1 8.3 3 6.3 3 3.3 3 .9 5.5.9 8.6c0 6.3 8.6 10.9 10.4 11.8 1.8-.9 10.4-5.5 10.4-11.8Zm-8.3 1.9 1.5 2.6h3l-3 5-1.5-2.6h-3Z'],
-    ['Beds & Furniture', '#DCEAF5', 'M2 17h20M3 17v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4M6 11V8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3'],
-    ['Collars & Leashes', '#FBEFC7', 'M8 13a4 4 0 1 1 5.66 0L10 16.5 6.34 13a4 4 0 0 1 1.66-0ZM10 16.5V21'],
-    ['Bowls & Feeders', '#D7EFEA', 'M2 11h20v2a7 7 0 0 1-7 7H9a7 7 0 0 1-7-7v-2Zm8-6 1 3M14 5l-1 3'],
-    ['Litter & Habitat', '#F6E4D3', 'M4 8h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8Zm-1 0 2-4h14l2 4'],
-    ['Travel & Carriers', '#DCEFE9', 'M7 8V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2m-13 0h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8Zm4 4h8'],
-    ['Sale & Offers', '#F9D6D2', 'm12 2 2.4 1.4 2.8-.3 1.1 2.6 2.6 1.1-.3 2.8L22 12l-1.4 2.4.3 2.8-2.6 1.1-1.1 2.6-2.8-.3L12 22l-2.4-1.4-2.8.3-1.1-2.6-2.6-1.1.3-2.8L2 12l1.4-2.4-.3-2.8 2.6-1.1 1.1-2.6 2.8.3ZM9 9h.01M15 15h.01M9 15l6-6'],
+    ['Food & Treats', '#F3DFC1', 'M3 11a9 9 0 0 1 18 0v5a2 2 0 0 1-2 2h-1v-6h3M3 11h3v6H5a2 2 0 0 1-2-2z', 'food'],
+    ['Toys & Play', '#D9EFE3', 'M6.5 8a2.5 2.5 0 1 1 3.9 2.06L9 11.5H15l-1.4-1.44A2.5 2.5 0 1 1 17.5 8a2.5 2.5 0 0 1-1.5 4.4l1.4 1.44a2.5 2.5 0 1 1-2.76 2.9L15 15H9l-1.64 1.74a2.5 2.5 0 1 1-2.76-2.9l1.4-1.44A2.5 2.5 0 0 1 6.5 8Z', 'toy'],
+    ['Grooming', '#FBDCE0', 'M4 4v6M2 6h4M18 4v6M16 6h4M11 7v14M5 12c0 3.5 2.7 5.5 6 7.3 3.3-1.8 6-3.8 6-7.3', null],
+    ['Health & Wellness', '#F8D3D3', 'M20.8 8.6c0-3.1-2.4-5.6-5.4-5.6-2 0-3.7 1.1-4.6 2.8C10 4.1 8.3 3 6.3 3 3.3 3 .9 5.5.9 8.6c0 6.3 8.6 10.9 10.4 11.8 1.8-.9 10.4-5.5 10.4-11.8Zm-8.3 1.9 1.5 2.6h3l-3 5-1.5-2.6h-3Z', null],
+    ['Beds & Furniture', '#DCEAF5', 'M2 17h20M3 17v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4M6 11V8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3', 'bed'],
+    ['Collars & Leashes', '#FBEFC7', 'M8 13a4 4 0 1 1 5.66 0L10 16.5 6.34 13a4 4 0 0 1 1.66-0ZM10 16.5V21', 'leash'],
+    ['Bowls & Feeders', '#D7EFEA', 'M2 11h20v2a7 7 0 0 1-7 7H9a7 7 0 0 1-7-7v-2Zm8-6 1 3M14 5l-1 3', 'bowl'],
+    ['Litter & Habitat', '#F6E4D3', 'M4 8h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8Zm-1 0 2-4h14l2 4', null],
+    ['Travel & Carriers', '#DCEFE9', 'M7 8V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2m-13 0h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8Zm4 4h8', null],
+    ['Sale & Offers', '#F9D6D2', 'm12 2 2.4 1.4 2.8-.3 1.1 2.6 2.6 1.1-.3 2.8L22 12l-1.4 2.4.3 2.8-2.6 1.1-1.1 2.6-2.8-.3L12 22l-2.4-1.4-2.8.3-1.1-2.6-2.6-1.1.3-2.8L2 12l1.4-2.4-.3-2.8 2.6-1.1 1.1-2.6 2.8.3ZM9 9h.01M15 15h.01M9 15l6-6', null],
   ];
 
   $shopByPet = [
-    ['Dogs', $asset('pet-dogs.png'), '#DDEFE6', 'text-pl-ink', '50% 15%'],
-    ['Cats', $asset('pet-cats.png'), '#FBDDE0', 'text-rose-600', '50% 25%'],
-    ['Birds', $asset('pet-birds.png'), '#FBEFC7', 'text-amber-600', '50% 12%'],
-    ['Fish', $asset('pet-fish.png'), '#DCEAF5', 'text-sky-600', '50% 45%'],
-    ['Small Pets', $asset('pet-small.png'), '#E9E1F5', 'text-violet-600', '50% 20%'],
+    ['Dogs', $asset('pet-dogs.png'), '#DDEFE6', 'text-pl-ink', '50% 15%', 'dog'],
+    ['Cats', $asset('pet-cats.png'), '#FBDDE0', 'text-rose-600', '50% 25%', 'cat'],
+    ['Birds', $asset('pet-birds.png'), '#FBEFC7', 'text-amber-600', '50% 12%', null],
+    ['Fish', $asset('pet-fish.png'), '#DCEAF5', 'text-sky-600', '50% 45%', 'fish'],
+    ['Small Pets', $asset('pet-small.png'), '#E9E1F5', 'text-violet-600', '50% 20%', null],
   ];
 
   $articles = [
@@ -74,13 +88,13 @@
       </div>
     </div>
     <div class="grid grid-rows-2 gap-5">
-      <a href="{{ route('store.shop') }}" class="relative rounded-3xl bg-amber-100 p-6 pr-28 flex flex-col justify-center overflow-hidden">
+      <a href="{{ $plCategoryUrl() }}" class="relative rounded-3xl bg-amber-100 p-6 pr-28 flex flex-col justify-center overflow-hidden">
         <h3 class="font-display text-xl text-pl-ink">Vet Approved<br>Wellness</h3>
         <p class="text-xs text-pl-mute mt-2 max-w-[10rem]">Supplements &amp; care you can trust.</p>
         <span class="text-xs font-bold text-pl-coral mt-3 flex items-center gap-1">Shop Wellness <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
         <img src="{{ $asset('promo-wellness-product.png') }}" alt="" class="absolute right-0 bottom-0 h-full w-28 object-cover object-left" style="mask-image:linear-gradient(to right, transparent, black 25%)">
       </a>
-      <a href="{{ route('store.shop') }}" class="relative rounded-3xl bg-rose-100 p-6 pr-28 flex flex-col justify-center overflow-hidden">
+      <a href="{{ $plCategoryUrl() }}" class="relative rounded-3xl bg-rose-100 p-6 pr-28 flex flex-col justify-center overflow-hidden">
         <h3 class="font-display text-xl text-pl-ink">Save on<br>Grooming</h3>
         <p class="text-xs text-pl-mute mt-2 max-w-[10rem]">Up to 25% off brushes, shampoos &amp; more!</p>
         <span class="text-xs font-bold text-pl-coral mt-3 flex items-center gap-1">Shop Now <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg></span>
@@ -93,7 +107,7 @@
   <section class="max-w-[1360px] mx-auto px-5 mt-8">
     <div class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-10 gap-4">
       @foreach($iconCats as $cat)
-        <a href="{{ route('store.shop') }}" class="flex flex-col items-center gap-2 text-center group">
+        <a href="{{ $plCategoryUrl($cat[3] ?? null) }}" class="flex flex-col items-center gap-2 text-center group">
           <span class="w-14 h-14 rounded-full grid place-items-center text-pl-ink/70 group-hover:scale-105 transition-transform" style="background:{{ $cat[1] }}">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $cat[2] }}"/></svg>
           </span>
@@ -114,7 +128,7 @@
     </div>
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
       @foreach($shopByPet as $pet)
-        <a href="{{ route('store.shop') }}" class="group">
+        <a href="{{ $plCategoryUrl($pet[5] ?? null) }}" class="group">
           <div class="relative rounded-2xl overflow-hidden h-40" style="background:{{ $pet[2] }}">
             <img src="{{ $pet[1] }}" alt="{{ $pet[0] }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" style="object-position: {{ $pet[4] }}">
             <span class="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/85 grid place-items-center text-pl-teal">
