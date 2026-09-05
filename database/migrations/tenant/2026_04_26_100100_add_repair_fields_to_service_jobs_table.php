@@ -44,11 +44,6 @@ return new class extends Migration
             $table->timestamp('delivered_at')->nullable()->after('parent_job_id');
             $table->string('pickup_signature', 191)->nullable()->after('delivered_at');
 
-            $table->index();
-            $table->index();
-            $table->index();
-            $table->index();
-            $table->index();
         });
     }
 

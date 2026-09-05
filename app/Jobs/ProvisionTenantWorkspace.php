@@ -132,11 +132,19 @@ class ProvisionTenantWorkspace implements ShouldQueue
         $driver = config('database.connections.central.driver', 'mysql');
 
         if ($driver === 'sqlite') {
-            $dbPath = database_path($dbName . '.sqlite');
+            $dbFilename = $dbName . '.sqlite';
+            $dbPath = database_path($dbFilename);
             $exists = file_exists($dbPath);
             if (!$exists) {
                 file_put_contents($dbPath, '');
             }
+            // stancl/tenancy's DatabaseConfig::getName() reads the internal
+            // key 'db_name' (via getInternal()), NOT the app's own
+            // 'tenancy_db_name' model attribute (a separate field used for
+            // admin-provided credentials — see Tenant::hasDatabaseCredentials).
+            // SQLiteDatabaseManager then resolves database_path() itself, so
+            // this must be the bare filename, not the full path.
+            $tenant->setInternal('db_name', $dbFilename);
             $tenant->setInternal('tenancy_db_name', $dbPath);
         } else {
             $exists = DB::connection('central')
@@ -147,6 +155,7 @@ class ProvisionTenantWorkspace implements ShouldQueue
             DB::connection('central')->statement(
                 "CREATE DATABASE IF NOT EXISTS `{$dbName}` CHARACTER SET {$charset} COLLATE {$collation}"
             );
+            $tenant->setInternal('db_name', $dbName);
             $tenant->setInternal('tenancy_db_name', $dbName);
         }
         $freshlyCreated = empty($exists);
