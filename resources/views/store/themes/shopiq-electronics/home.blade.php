@@ -13,14 +13,37 @@
   $featured = collect($blocks)->where('type','collection')->flatMap(fn($b) => $b['products'] ?? [])->unique('id')->take(6)
       ->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
 
-  $sidebarCats = ['Headphones & Audio','Wearables','Drones & Cameras','Keyboards & Accessories','Speakers','Smart Home','Cables & Chargers','Cases & Covers'];
+  // ShopIQ's catalog has one real category (Electronics & Gadgets). Most of
+  // its labeled sub-categories below map cleanly to one specific existing
+  // product by name, so — rather than the unfiltered shop page — each link
+  // scopes to the real category AND searches by that product's distinguishing
+  // keyword (the same product-name search the storefront search box already
+  // uses). Labels with no matching seeded product fall back to the full,
+  // correctly-titled Electronics & Gadgets listing instead of showing
+  // unrelated products.
+  $iqCategoryId = optional(($categories ?? collect())->first())->id;
+  $iqCategoryUrl = fn (?string $keyword = null) => route('store.shop', array_filter([
+    'category' => $iqCategoryId,
+    'q' => $keyword,
+  ]));
+
+  $sidebarCats = [
+    ['Headphones & Audio', 'headphones'],
+    ['Wearables', 'smartwatch'],
+    ['Drones & Cameras', 'drone'],
+    ['Keyboards & Accessories', 'keyboard'],
+    ['Speakers', 'speaker'],
+    ['Smart Home', null],
+    ['Cables & Chargers', null],
+    ['Cases & Covers', null],
+  ];
 
   $categoryTiles = [
-    ['Headphones & Audio', 'Immersive sound, anywhere', '#EDEBFC', 'text-iq-purple'],
-    ['Wearables', 'Track every step', '#FCE7F3', 'text-rose-600'],
-    ['Drones & Cameras', 'Capture it all', '#DCFCE7', 'text-emerald-600'],
-    ['Keyboards & Accessories', 'Type in comfort', '#FEF3C7', 'text-amber-600'],
-    ['Speakers', 'Fill the room', '#DBEAFE', 'text-sky-600'],
+    ['Headphones & Audio', 'Immersive sound, anywhere', '#EDEBFC', 'text-iq-purple', 'headphones'],
+    ['Wearables', 'Track every step', '#FCE7F3', 'text-rose-600', 'smartwatch'],
+    ['Drones & Cameras', 'Capture it all', '#DCFCE7', 'text-emerald-600', 'drone'],
+    ['Keyboards & Accessories', 'Type in comfort', '#FEF3C7', 'text-amber-600', 'keyboard'],
+    ['Speakers', 'Fill the room', '#DBEAFE', 'text-sky-600', 'speaker'],
   ];
 
   $brands = ['Apple', 'Samsung', 'Sony', 'JBL', 'Bose', 'Garmin', 'DJI', 'Philips'];
@@ -36,10 +59,10 @@
       </div>
       <div class="py-2">
         @foreach($sidebarCats as $cat)
-          <a href="{{ route('store.shop') }}" class="flex justify-between items-center px-5 py-2.5 text-xs hover:text-iq-purple hover:bg-iq-lav/40">{{ $cat }} <span>›</span></a>
+          <a href="{{ $iqCategoryUrl($cat[1]) }}" class="flex justify-between items-center px-5 py-2.5 text-xs hover:text-iq-purple hover:bg-iq-lav/40">{{ $cat[0] }} <span>›</span></a>
         @endforeach
       </div>
-      <a href="{{ route('store.shop') }}" class="block m-3 text-center bg-iq-lav text-iq-purple text-[11px] font-bold py-2.5 rounded-lg">VIEW ALL CATEGORIES →</a>
+      <a href="{{ $iqCategoryUrl() }}" class="block m-3 text-center bg-iq-lav text-iq-purple text-[11px] font-bold py-2.5 rounded-lg">VIEW ALL CATEGORIES →</a>
     </aside>
 
     <div class="relative rounded-2xl min-h-[420px] overflow-hidden flex items-center" style="background:radial-gradient(circle at 80% 20%, #ec4899 0%, transparent 45%), linear-gradient(120deg,#0d9488,#0891b2);">
@@ -88,7 +111,7 @@
   {{-- ===== CATEGORY GRID ===== --}}
   <section class="max-w-[1400px] mx-auto px-5 mt-8 grid grid-cols-2 md:grid-cols-5 gap-4">
     @foreach($categoryTiles as $tile)
-      <a href="{{ route('store.shop') }}" class="rounded-2xl p-5 flex flex-col justify-between min-h-[150px]" style="background:{{ $tile[2] }}">
+      <a href="{{ $iqCategoryUrl($tile[4] ?? null) }}" class="rounded-2xl p-5 flex flex-col justify-between min-h-[150px]" style="background:{{ $tile[2] }}">
         <div>
           <div class="font-display font-bold text-sm {{ $tile[3] }}">{{ $tile[0] }}</div>
           <div class="text-[11px] text-iq-mute mt-1">{{ $tile[1] }}</div>

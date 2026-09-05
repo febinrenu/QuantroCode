@@ -77,7 +77,7 @@
         <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
       </summary>
       <div class="absolute z-50 top-12 w-64 bg-white border border-iq-line rounded-2xl shadow-lift p-3 space-y-1">
-        @if($iqCategories->count() > 1)
+        @if($iqCategories->count() > 0)
           @foreach($iqCategories as $cat)
             <a class="block px-3 py-2 rounded-lg text-sm font-medium hover:bg-iq-lav/40" href="{{ route('store.shop',['category'=>$cat->id]) }}">{{ $cat->name }}</a>
           @endforeach
@@ -103,7 +103,7 @@
     </form>
     <div class="mb-3">@include('store.partials.language-switcher', ['variant' => 'mobile'])</div>
     <div class="grid grid-cols-2 gap-1">
-      @if($iqCategories->count() > 1)
+      @if($iqCategories->count() > 0)
         @foreach($iqCategories as $cat)
           <a class="py-2 text-sm font-semibold" href="{{ route('store.shop',['category'=>$cat->id]) }}">{{ $cat->name }}</a>
         @endforeach

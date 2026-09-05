@@ -11,13 +11,15 @@
   $currency = $s->currency_code ?? '$';
   $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
   $productVms = collect($products->items())->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+  $iqActiveCat = $cat ? ($categories ?? collect())->first(fn($c) => (string) $c->id === (string) $cat) : null;
+  $iqShopTitle = $q !== '' ? 'Search results' : ($iqActiveCat->name ?? 'Electronics & Gadgets');
 @endphp
 
 <main class="pb-24 lg:pb-0">
   <section class="bg-iq-purple text-white">
     <div class="max-w-[1400px] mx-auto px-5 py-10 text-center">
       <span class="eyebrow text-iq-gold text-xs font-bold">The Shop</span>
-      <h1 class="text-3xl font-display font-bold mt-1">Electronics &amp; Gadgets</h1>
+      <h1 class="text-3xl font-display font-bold mt-1">{{ $iqShopTitle }}</h1>
       <p class="text-sm text-white/70 mt-2">{{ $products->total() }} products found @if($q) for "{{ $q }}" @endif</p>
     </div>
   </section>
