@@ -23,11 +23,6 @@ return new class extends Migration
             $table->timestamps();
             $table->timestamp('deleted_at')->nullable();
 
-            $table->index();
-            $table->index();
-            $table->index();
-            $table->index();
-            $table->index();
         });
     }
 

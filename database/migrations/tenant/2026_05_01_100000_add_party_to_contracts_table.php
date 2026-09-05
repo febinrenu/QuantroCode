@@ -9,15 +9,27 @@ class AddPartyToContractsTable extends Migration
 {
     private function dropForeignIfExists(string $table, string $name): void
     {
-        $exists = DB::selectOne(
-            "SELECT 1 FROM information_schema.TABLE_CONSTRAINTS
-             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND CONSTRAINT_NAME = ? AND CONSTRAINT_TYPE = 'FOREIGN KEY'",
-            [$table, $name]
-        );
-        if ($exists) {
+        // information_schema.TABLE_CONSTRAINTS / DATABASE() are MySQL-only.
+        // On other drivers (e.g. SQLite, used for local tenant DBs), just
+        // attempt the drop and swallow the error if the constraint isn't
+        // there — this call is purely a "make it idempotent" safety net.
+        if (Schema::getConnection()->getDriverName() === 'mysql') {
+            $exists = DB::selectOne(
+                "SELECT 1 FROM information_schema.TABLE_CONSTRAINTS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND CONSTRAINT_NAME = ? AND CONSTRAINT_TYPE = 'FOREIGN KEY'",
+                [$table, $name]
+            );
+            if (! $exists) {
+                return;
+            }
+        }
+
+        try {
             Schema::table($table, function (Blueprint $table) use ($name) {
                 $table->dropForeign($name);
             });
+        } catch (\Throwable $e) {
+            // Constraint didn't exist — nothing to drop.
         }
     }
 
@@ -37,7 +49,9 @@ class AddPartyToContractsTable extends Migration
 
         $this->dropForeignIfExists('contracts', 'contracts_client_fk');
 
-        DB::statement('ALTER TABLE contracts MODIFY client_id INT NULL');
+        Schema::table('contracts', function (Blueprint $table) {
+            $table->integer('client_id')->nullable()->change();
+        });
 
         Schema::table('contracts', function (Blueprint $table) {
             $table->foreign('client_id', 'contracts_client_fk')
@@ -64,7 +78,9 @@ class AddPartyToContractsTable extends Migration
             }
         });
 
-        DB::statement('ALTER TABLE contracts MODIFY client_id INT NOT NULL');
+        Schema::table('contracts', function (Blueprint $table) {
+            $table->integer('client_id')->nullable(false)->change();
+        });
 
         Schema::table('contracts', function (Blueprint $table) {
             $table->foreign('client_id', 'contracts_client_fk')
