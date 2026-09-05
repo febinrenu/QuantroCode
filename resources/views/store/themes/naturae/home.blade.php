@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
 <head>
-@include('store.themes.naturae._shell', ['pageTitle' => ($s->seo_meta_title ?? $s->store_name ?? 'Naturae') . ' — Good for you, good for the planet'])
+@include('store.themes.naturae._shell', ['pageTitle' => ($s->seo_meta_title ?? $s->store_name ?? 'Naturia') . ' — Live naturally'])
 </head>
 <body class="bg-cream text-ink antialiased">
 
@@ -12,48 +12,54 @@
   $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
   $byPos = collect($banners ?? [])->groupBy('position');
   $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
-  $tileBg = ['bg-leaf-light','bg-terracotta-light','bg-[#EFE6D6]','bg-[#E3E9D3]','bg-[#F1DCC7]','bg-[#DCE6D9]','bg-[#F5E3D0]','bg-[#E6E0CE]'];
 @endphp
 
 <main class="pb-24 lg:pb-0">
 
   {{-- ===== HERO ===== --}}
   <section class="relative overflow-hidden bg-leaf-light">
-    <div class="absolute -top-20 -right-24 w-96 h-96 rounded-full bg-terracotta-light/60 blur-2xl"></div>
-    <div class="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-leaf/20 blur-2xl"></div>
+    <button type="button" class="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/80 items-center justify-center text-leaf-deep shadow-soft" aria-label="Previous">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <button type="button" class="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/80 items-center justify-center text-leaf-deep shadow-soft" aria-label="Next">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+    </button>
     <div class="relative max-w-7xl mx-auto px-4 py-14 lg:py-20 grid lg:grid-cols-2 gap-10 items-center">
       <div>
-        <span class="inline-flex items-center gap-2 eyebrow text-terracotta-dark text-xs font-bold bg-white/70 px-3 py-1.5 rounded-full">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/></svg>
-          One basket, every category
-        </span>
-        <h1 class="mt-4 text-4xl sm:text-5xl lg:text-[3.4rem] font-display font-semibold text-leaf-deep leading-[1.08]">
-          {{ $s->hero_title ?? 'Good for you, good for the planet.' }}
+        <h1 class="text-4xl sm:text-5xl lg:text-[3.4rem] font-display font-semibold text-leaf-deep leading-[1.08]">
+          Pure Ingredients.<br>Better Living.
         </h1>
         <p class="mt-5 text-bark/80 max-w-lg leading-relaxed text-[15px]">
-          {{ $s->hero_subtitle ?? 'From noise-cancelling headphones to organic cotton knitwear, oak side tables to skincare oils — Naturae gathers electronics, fashion, home, beauty, grocery and sporting goods that are made responsibly, priced fairly, and packed without the plastic.' }}
+          Discover natural &amp; sustainable products for a healthier you and a greener planet.
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
           <a href="{{ route('store.shop') }}" class="h-13 px-7 py-3.5 inline-flex items-center gap-2 rounded-full bg-leaf-dark text-white font-semibold hover:bg-leaf-deep transition-colors shadow-soft">
-            Browse the whole store
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            Shop Now
           </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-13 px-7 py-3.5 inline-flex items-center gap-2 rounded-full border-2 border-leaf-dark/30 text-leaf-deep font-semibold hover:bg-white/60 transition-colors">
-            Everyday value picks
+          <a href="{{ route('store.contact') }}" class="h-13 px-7 py-3.5 inline-flex items-center gap-2 rounded-full border-2 border-leaf-dark/30 text-leaf-deep font-semibold hover:bg-white/60 transition-colors">
+            Learn More
           </a>
         </div>
-        <div class="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3 text-bark/70 text-xs font-medium">
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg> Sustainably sourced</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg> Plastic-free packaging</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg> Carbon-neutral shipping</span>
+        <div class="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4 text-bark/70 text-xs font-medium">
+          <span class="flex flex-col items-center gap-1.5 text-center w-20"><svg class="w-6 h-6 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/></svg> 100% Natural Ingredients</span>
+          <span class="flex flex-col items-center gap-1.5 text-center w-20"><svg class="w-6 h-6 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 20.5s-7-4.35-9.5-8.6C.87 8.6 2.2 5 5.6 5c1.9 0 3.3 1 4.4 2.5C11.1 6 12.5 5 14.4 5c3.4 0 4.73 3.6 3.1 6.9C19 16.15 12 20.5 12 20.5Z"/></svg> Cruelty Free &amp; Vegan</span>
+          <span class="flex flex-col items-center gap-1.5 text-center w-20"><svg class="w-6 h-6 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12c1-4 5-7 9-7s8 3 9 7M3 12c1 4 5 7 9 7s8-3 9-7"/><path stroke-linecap="round" d="M9 12h6"/></svg> Eco Friendly Packaging</span>
         </div>
       </div>
-      <div class="hidden lg:grid grid-cols-2 gap-5">
-        <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover shadow-softHover" alt="Electronics">
-        <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover mt-10 shadow-softHover" alt="Fashion">
-        <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover -mt-5 shadow-softHover" alt="Home goods">
-        <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover shadow-softHover" alt="Beauty">
+      <div class="relative">
+        <div class="absolute -top-3 -right-3 sm:top-2 sm:right-6 z-10 w-24 h-24 rounded-full bg-leaf-dark text-white flex flex-col items-center justify-center text-center shadow-softHover leading-tight">
+          <span class="text-[10px] font-semibold uppercase">Up to</span>
+          <span class="text-2xl font-display font-bold">35%</span>
+          <span class="text-[10px] font-semibold uppercase">Off</span>
+        </div>
+        <img src="{{ global_asset('images/themes/naturae/hero-products.png') }}" class="rounded-4xl w-full h-auto object-cover shadow-softHover" alt="Natural skincare products">
       </div>
+    </div>
+    <div class="relative flex items-center justify-center gap-1.5 pb-5">
+      <span class="w-6 h-1.5 rounded-full bg-leaf-dark"></span>
+      <span class="w-1.5 h-1.5 rounded-full bg-leaf-dark/30"></span>
+      <span class="w-1.5 h-1.5 rounded-full bg-leaf-dark/30"></span>
+      <span class="w-1.5 h-1.5 rounded-full bg-leaf-dark/30"></span>
     </div>
   </section>
 
@@ -73,57 +79,53 @@
     </section>
   @endif
 
-  {{-- ===== ECO TRUST BAR (reframed, not generic) ===== --}}
-  <section class="max-w-7xl mx-auto px-4 py-2">
-    <div class="rounded-3xl bg-white border border-leaf-light shadow-soft grid grid-cols-2 md:grid-cols-4 divide-x divide-leaf-light/70">
+  {{-- ===== CATEGORY ICON ROW ===== --}}
+  @if(($categories ?? collect())->count())
+    <section class="max-w-7xl mx-auto px-4 pt-10 pb-4">
+      <div class="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+        @foreach($categories->take(7) as $cat)
+          <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl bg-white border border-leaf-light hover:shadow-softHover hover:border-leaf/40 transition-all text-center">
+            <x-store.icon :name="category_icon_name($cat->name)" class="w-6 h-6 text-leaf-dark" />
+            <span class="text-[11px] font-semibold text-ink/80 leading-snug">{{ $cat->name }}</span>
+          </a>
+        @endforeach
+        <a href="{{ route('store.shop') }}" class="flex flex-col items-center justify-center gap-2.5 p-4 rounded-2xl bg-white border border-leaf-light hover:shadow-softHover hover:border-leaf/40 transition-all text-center">
+          <svg class="w-6 h-6 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          <span class="text-[11px] font-semibold text-ink/80 leading-snug">All Categories</span>
+        </a>
+      </div>
+    </section>
+  @endif
+
+  {{-- ===== FEATURE / BENEFIT STRIP ===== --}}
+  <section class="max-w-7xl mx-auto px-4 py-4">
+    <div class="rounded-3xl bg-leaf-light/60 grid grid-cols-2 md:grid-cols-4 divide-x divide-leaf-dark/10">
       @foreach([
-        ['icon' => 'leaf', 'title' => 'Sustainably sourced', 'sub' => 'Vetted suppliers, every category'],
-        ['icon' => 'sprout', 'title' => 'Plastic-free packaging', 'sub' => 'Recycled or compostable, always'],
-        ['icon' => 'loop', 'title' => 'Carbon-neutral shipping', 'sub' => 'Offset on every single order'],
-        ['icon' => 'seed', 'title' => 'Ethical partners', 'sub' => 'Fair wages, audited factories'],
+        ['icon' => 'truck', 'title' => 'Free Shipping', 'sub' => 'On orders over $60'],
+        ['icon' => 'shield', 'title' => 'Secure Payments', 'sub' => '100% safe & secure'],
+        ['icon' => 'loop', 'title' => 'Easy Returns', 'sub' => '30 days return policy'],
+        ['icon' => 'support', 'title' => 'Customer Support', 'sub' => "We're here to help"],
       ] as $item)
-        <div class="p-5 flex flex-col items-center text-center gap-2">
-          <div class="w-11 h-11 rounded-full bg-leaf-light flex items-center justify-center">
-            @if($item['icon']==='leaf')
-              <svg class="w-5 h-5 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/><path stroke-linecap="round" d="M12 21V9"/></svg>
-            @elseif($item['icon']==='sprout')
-              <svg class="w-5 h-5 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M4 10c3-4 7-6 8-6s5 2 8 6c-1 5-5 9-8 10-3-1-7-5-8-10Z"/><path stroke-linecap="round" d="M12 8v8"/></svg>
+        <div class="p-5 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shrink-0">
+            @if($item['icon']==='truck')
+              <svg class="w-5 h-5 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7h11v9H3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17.5" cy="18" r="1.6"/></svg>
+            @elseif($item['icon']==='shield')
+              <svg class="w-5 h-5 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 12 2 2 4-4"/></svg>
             @elseif($item['icon']==='loop')
               <svg class="w-5 h-5 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12c1-4 5-7 9-7s8 3 9 7M3 12c1 4 5 7 9 7s8-3 9-7"/><path stroke-linecap="round" d="M9 12h6"/></svg>
             @else
-              <svg class="w-5 h-5 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="9" r="3.2"/><path stroke-linecap="round" d="M12 12.2V21M8 21h8"/></svg>
+              <svg class="w-5 h-5 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M4 15v-3a8 8 0 0 1 16 0v3"/><path stroke-linecap="round" stroke-linejoin="round" d="M4 15a2 2 0 0 1 2-2h1v5H6a2 2 0 0 1-2-2Zm16 0a2 2 0 0 0-2-2h-1v5h1a2 2 0 0 0 2-2Z"/></svg>
             @endif
           </div>
-          <div class="text-sm font-bold text-leaf-deep font-display">{{ $item['title'] }}</div>
-          <div class="text-xs text-bark/60">{{ $item['sub'] }}</div>
+          <div>
+            <div class="text-sm font-bold text-leaf-deep font-display">{{ $item['title'] }}</div>
+            <div class="text-xs text-bark/60">{{ $item['sub'] }}</div>
+          </div>
         </div>
       @endforeach
     </div>
   </section>
-
-  {{-- ===== CATEGORY GRID — color-blocked tiles ===== --}}
-  @if(($categories ?? collect())->count())
-    <section class="max-w-7xl mx-auto px-4 py-12">
-      <div class="flex items-end justify-between mb-6">
-        <div>
-          <span class="eyebrow text-terracotta-dark text-xs font-bold">Explore</span>
-          <h2 class="text-2xl lg:text-3xl font-display font-semibold text-leaf-deep mt-1">Shop by category</h2>
-        </div>
-        <a href="{{ route('store.shop') }}" class="text-sm font-semibold text-terracotta-dark nt-wiggle-underline">View all</a>
-      </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        @foreach($categories->take(8) as $i => $cat)
-          <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="group relative flex flex-col justify-between gap-6 p-5 rounded-3xl {{ $tileBg[$i % count($tileBg)] }} hover:shadow-softHover transition-shadow min-h-[136px] overflow-hidden">
-            <span class="w-11 h-11 rounded-full bg-white/70 flex items-center justify-center font-display font-bold text-leaf-deep text-lg group-hover:bg-white transition-colors">
-              <x-store.icon :name="category_icon_name($cat->name)" class="w-5 h-5" />
-            </span>
-            <span class="text-sm font-bold text-ink/90 font-display leading-snug">{{ $cat->name }}</span>
-            <svg class="absolute -bottom-4 -right-4 w-20 h-20 text-black/5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/></svg>
-          </a>
-        @endforeach
-      </div>
-    </section>
-  @endif
 
   {{-- ===== CONTENT BLOCKS (collections from homepage_lineup) ===== --}}
   @foreach($blocks as $block)
@@ -131,19 +133,19 @@
       @php
         $products = collect($block['products'] ?? []);
         $collection = $block['collection'] ?? null;
-        $colTitle = $block['title'] ?? ($collection->title ?? $collection->name ?? 'Featured Picks');
+        $colTitle = $block['title'] ?? ($collection->title ?? $collection->name ?? 'Best Sellers');
         $productVms = $products->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
       @endphp
       @if($productVms->count())
         <section class="max-w-7xl mx-auto px-4 py-10">
           <div class="flex items-end justify-between mb-6">
             <div>
-              <span class="eyebrow text-terracotta-dark text-xs font-bold">Curated for you</span>
-              <h2 class="text-2xl lg:text-3xl font-display font-semibold text-leaf-deep mt-1">{{ $colTitle }}</h2>
+              <h2 class="text-2xl lg:text-3xl font-display font-bold text-ink">{{ $colTitle }}</h2>
             </div>
-            @if($collection && $collection->slug)
-              <a href="{{ route('store.shop', ['collection' => $collection->slug]) }}" class="text-sm font-semibold text-terracotta-dark nt-wiggle-underline">View all</a>
-            @endif
+            <a href="{{ $collection && $collection->slug ? route('store.shop', ['collection' => $collection->slug]) : route('store.shop') }}" class="text-sm font-semibold text-leaf-dark flex items-center gap-1">
+              View All Products
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            </a>
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             @foreach($productVms as $product)
@@ -155,104 +157,134 @@
     @endif
   @endforeach
 
-  {{-- ===== "ROOTED IN GOOD PRACTICE" FEATURE STRIP ===== --}}
+  {{-- ===== BEST SELLERS FALLBACK — only when the merchant hasn't curated a
+       homepage collection block (homepage_lineup has no 'collection' entry),
+       so the storefront never shows an empty gap where products belong. ===== --}}
+  @php
+    $ntHasCollectionBlock = collect($blocks)->contains(fn ($block) => ($block['type'] ?? '') === 'collection' && ! empty($block['products']));
+  @endphp
+  @if(!$ntHasCollectionBlock)
+    @php
+      // Naturia is styled as a natural/wellness storefront, so its Best
+      // Sellers teaser is scoped to wellness-relevant categories only —
+      // unlike the Shop page, which intentionally stays unrestricted since
+      // this theme's own product_category_keywords are empty by design.
+      $ntWellnessKeywords = ['beauty', 'cosmetic', 'pharmacy', 'medical', 'grocery', 'fitness', 'home'];
+      $ntWellnessCategoryIds = \App\Models\Category::query()->where(function ($q) use ($ntWellnessKeywords) {
+        foreach ($ntWellnessKeywords as $kw) {
+          $q->orWhereRaw('LOWER(name) LIKE ?', ['%'.$kw.'%']);
+        }
+      })->pluck('id');
+      $ntBestSellers = \App\Models\Product::query()
+        ->where('is_active', 1)
+        ->where('hide_from_online_store', 0)
+        ->whereIn('category_id', $ntWellnessCategoryIds)
+        ->with(['variants:id,product_id,name,price,image', 'images:id,product_id,image_path,is_main,sort_order'])
+        ->latest('created_at')
+        ->take(6)
+        ->get();
+      $ntStockByProduct = $s->default_warehouse_id
+        ? DB::table('product_warehouse')
+            ->where('warehouse_id', $s->default_warehouse_id)
+            ->whereNull('product_variant_id')
+            ->whereIn('product_id', $ntBestSellers->pluck('id'))
+            ->pluck('qte', 'product_id')
+        : collect();
+      foreach ($ntBestSellers as $ntP) {
+        $ntP->stock = (float) ($ntStockByProduct[$ntP->id] ?? 0);
+      }
+      $ntBestSellerVms = $ntBestSellers->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+    @endphp
+    @if($ntBestSellerVms->count())
+      <section class="max-w-7xl mx-auto px-4 py-10">
+        <div class="flex items-end justify-between mb-6">
+          <h2 class="text-2xl lg:text-3xl font-display font-bold text-ink">Best Sellers</h2>
+          <a href="{{ route('store.shop') }}" class="text-sm font-semibold text-leaf-dark flex items-center gap-1">
+            View All Products
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+          </a>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          @foreach($ntBestSellerVms as $product)
+            @include('store.themes.naturae.partials.product-card', ['product' => $product])
+          @endforeach
+        </div>
+      </section>
+    @endif
+  @endif
+
+  {{-- ===== SUSTAINABILITY — "SMALL CHOICES, BIG IMPACT" ===== --}}
+  <section class="max-w-7xl mx-auto px-4 py-4">
+    <div class="relative rounded-3xl overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-r from-cream via-cream/70 to-transparent z-10"></div>
+      <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1400&q=70" class="absolute inset-0 w-full h-full object-cover" alt="Forest landscape">
+      <div class="relative z-20 grid lg:grid-cols-5 gap-6 items-center p-8 lg:p-10">
+        <div class="lg:col-span-2">
+          <h2 class="text-2xl lg:text-3xl font-display font-bold text-ink leading-tight">Small Choices,<br>Big Impact</h2>
+          <p class="mt-3 text-bark/75 text-sm leading-relaxed max-w-xs">Every purchase supports a healthier you and a healthier planet.</p>
+          <a href="{{ route('store.contact') }}" class="mt-5 inline-flex items-center h-11 px-6 rounded-full bg-leaf-dark text-white text-sm font-bold hover:bg-leaf-deep transition-colors">Discover Our Story</a>
+        </div>
+        <div class="lg:col-span-3 grid grid-cols-2 sm:grid-cols-4 gap-4">
+          @foreach([
+            ['stat' => '10K+', 'label' => 'Happy Customers'],
+            ['stat' => '500+', 'label' => 'Organic Products'],
+            ['stat' => '50+', 'label' => 'Countries Served'],
+            ['stat' => '100%', 'label' => 'Satisfaction'],
+          ] as $stat)
+            <div class="text-center bg-white/70 backdrop-blur-sm rounded-2xl py-4 px-2">
+              <div class="text-2xl font-display font-bold text-ink">{{ $stat['stat'] }}</div>
+              <div class="text-xs text-bark/70 mt-1">{{ $stat['label'] }}</div>
+            </div>
+          @endforeach
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {{-- ===== PROMO / COLLECTION CARDS ===== --}}
+  <section class="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-3 gap-5">
+    <div class="relative rounded-3xl overflow-hidden h-52 flex items-center justify-between p-6" style="background:#F1E4D2">
+      <div class="relative max-w-[55%]">
+        <h3 class="text-ink text-xl font-display font-bold leading-snug">Wellness Essentials</h3>
+        <p class="text-bark/70 text-xs mt-2 leading-relaxed">Boost your daily wellness routine</p>
+        <a href="{{ route('store.shop') }}" class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-leaf-dark">Shop Now <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+      </div>
+      <img src="{{ global_asset('images/themes/naturae/promo-wellness.png') }}" class="absolute right-3 bottom-0 h-[92%] object-contain" alt="Wellness Essentials">
+    </div>
+    <div class="relative rounded-3xl overflow-hidden h-52 flex items-center justify-between p-6" style="background:#E7ECDD">
+      <div class="relative max-w-[55%]">
+        <h3 class="text-leaf-deep text-xl font-display font-bold leading-snug">Glow Naturally</h3>
+        <p class="text-bark/70 text-xs mt-2 leading-relaxed">Clean beauty for radiant skin</p>
+        <a href="{{ route('store.shop') }}" class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-leaf-dark">Shop Now <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+      </div>
+      <img src="{{ global_asset('images/themes/naturae/promo-glow.png') }}" class="absolute right-4 bottom-0 h-[92%] object-contain" alt="Glow Naturally">
+    </div>
+    <div class="relative rounded-3xl overflow-hidden h-52 flex items-center justify-between p-6" style="background:#F3DFCB">
+      <div class="relative max-w-[55%]">
+        <h3 class="text-ink text-xl font-display font-bold leading-snug">Healthy Inside Out</h3>
+        <p class="text-bark/70 text-xs mt-2 leading-relaxed">Organic foods for a better you</p>
+        <a href="{{ route('store.shop') }}" class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-leaf-dark">Shop Now <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
+      </div>
+      <img src="{{ global_asset('images/themes/naturae/promo-healthy.png') }}" class="absolute right-3 bottom-2 h-[80%] object-contain" alt="Healthy Inside Out">
+    </div>
+  </section>
+
+  {{-- ===== NEWSLETTER / COMMUNITY ===== --}}
   <section class="bg-leaf-deep">
-    <div class="max-w-7xl mx-auto px-4 py-14 grid lg:grid-cols-3 gap-8 items-start text-cream">
-      <div>
-        <span class="eyebrow text-terracotta-light text-xs font-bold">Our promise</span>
-        <h2 class="text-2xl lg:text-3xl font-display font-semibold mt-2 leading-tight">Rooted in good practice, not just good marketing</h2>
-        <p class="mt-4 text-cream/70 text-sm leading-relaxed max-w-sm">Every category on Naturae — from kitchen electronics to running shoes — is screened against the same standard: made well, sourced honestly, and shipped with the smallest footprint we can manage.</p>
-      </div>
-      <div class="lg:col-span-2 grid sm:grid-cols-2 gap-5">
-        <div class="p-5 rounded-3xl bg-white/5 border border-white/10">
-          <svg class="w-8 h-8 text-terracotta-light mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M4 10c3-4 7-6 8-6s5 2 8 6c-1 5-5 9-8 10-3-1-7-5-8-10Z"/><path stroke-linecap="round" d="M12 8v8"/></svg>
-          <h3 class="font-display font-semibold text-white">Woven-basket sourcing</h3>
-          <p class="text-cream/65 text-sm mt-1 leading-relaxed">We work directly with small manufacturers and co-ops across electronics, textiles and food — fewer middlemen, fairer prices at the source.</p>
-        </div>
-        <div class="p-5 rounded-3xl bg-white/5 border border-white/10">
-          <svg class="w-8 h-8 text-terracotta-light mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/><path stroke-linecap="round" d="M12 21V9"/></svg>
-          <h3 class="font-display font-semibold text-white">Packaging that composts</h3>
-          <p class="text-cream/65 text-sm mt-1 leading-relaxed">Every box ships in recycled cardboard, plant-based mailers, and paper tape — no single-use plastic, ever, on any order.</p>
-        </div>
-        <div class="p-5 rounded-3xl bg-white/5 border border-white/10">
-          <svg class="w-8 h-8 text-terracotta-light mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12c1-4 5-7 9-7s8 3 9 7M3 12c1 4 5 7 9 7s8-3 9-7"/><path stroke-linecap="round" d="M9 12h6"/></svg>
-          <h3 class="font-display font-semibold text-white">Offset delivery routes</h3>
-          <p class="text-cream/65 text-sm mt-1 leading-relaxed">We calculate the footprint of every shipment and fund verified reforestation and clean-energy projects to balance it out.</p>
-        </div>
-        <div class="p-5 rounded-3xl bg-white/5 border border-white/10">
-          <svg class="w-8 h-8 text-terracotta-light mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="9" r="3.2"/><path stroke-linecap="round" d="M12 12.2V21M8 21h8"/></svg>
-          <h3 class="font-display font-semibold text-white">Audited, always</h3>
-          <p class="text-cream/65 text-sm mt-1 leading-relaxed">Every factory and farm partner passes third-party labor and safety audits before a single product reaches our shelves.</p>
+    <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col lg:flex-row items-center gap-6 justify-between">
+      <div class="flex items-center gap-4 text-cream">
+        <span class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+          <svg class="w-6 h-6 text-terracotta-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/></svg>
+        </span>
+        <div>
+          <h3 class="text-lg font-display font-bold">Join Our Natural Living Community</h3>
+          <p class="text-cream/65 text-sm mt-0.5">Subscribe for exclusive offers, tips &amp; new arrivals.</p>
         </div>
       </div>
-    </div>
-  </section>
-
-  {{-- ===== PROMO STRIP ===== --}}
-  <section class="max-w-7xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-5">
-    <div class="relative rounded-4xl overflow-hidden h-60 flex items-end p-7">
-      <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="Home goods">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent"></div>
-      <div class="relative">
-        <span class="text-terracotta-light text-xs font-bold uppercase">Home Edit</span>
-        <h3 class="text-white text-2xl font-display font-semibold mt-1">Warm the house, not the planet</h3>
-        <a href="{{ route('store.shop') }}" class="mt-3 inline-flex text-sm font-semibold text-white underline">Shop home &amp; living</a>
-      </div>
-    </div>
-    <div class="relative rounded-4xl overflow-hidden h-60 flex items-end p-7">
-      <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="Tech">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent"></div>
-      <div class="relative">
-        <span class="text-leaf-light text-xs font-bold uppercase">Tech &amp; Audio</span>
-        <h3 class="text-white text-2xl font-display font-semibold mt-1">Refurbished-friendly electronics</h3>
-        <a href="{{ route('store.shop') }}" class="mt-3 inline-flex text-sm font-semibold text-white underline">Shop electronics</a>
-      </div>
-    </div>
-  </section>
-
-  {{-- ===== TESTIMONIALS ===== --}}
-  <section class="bg-white border-y border-leaf-light">
-    <div class="max-w-7xl mx-auto px-4 py-14">
-      <div class="text-center mb-9">
-        <span class="eyebrow text-terracotta-dark text-xs font-bold">Community</span>
-        <h2 class="text-2xl lg:text-3xl font-display font-semibold text-leaf-deep mt-2">Loved by shoppers who care where things come from</h2>
-      </div>
-      <div class="grid md:grid-cols-3 gap-6">
-        @foreach([
-          ['name' => 'Marisol T.', 'role' => 'Verified buyer', 'quote' => 'I ordered a blender, a wool sweater and a bag of single-origin coffee in the same cart — everything arrived in cardboard and paper, no plastic in sight. That detail matters to me.'],
-          ['name' => 'Owen F.', 'role' => 'Verified buyer', 'quote' => 'The sustainability claims here actually check out — the packaging insert explains exactly which farm the cotton in my shirt came from. Rare to see that level of transparency.'],
-          ['name' => 'Ines D.', 'role' => 'Verified buyer', 'quote' => 'Bought running shoes and skincare together and both brands had ethical sourcing badges I could actually verify. Prices were fair too, not a "green tax" markup.'],
-        ] as $t)
-          <div class="p-7 rounded-3xl bg-cream border border-leaf-light">
-            <div class="flex gap-0.5 text-terracotta mb-4">
-              @for($i=0;$i<5;$i++)<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01z"/></svg>@endfor
-            </div>
-            <p class="text-sm text-bark/80 leading-relaxed">&ldquo;{{ $t['quote'] }}&rdquo;</p>
-            <div class="mt-4 flex items-center gap-2">
-              <div class="w-8 h-8 rounded-full bg-leaf-light flex items-center justify-center font-display font-bold text-leaf-dark text-xs">{{ strtoupper(substr($t['name'],0,1)) }}</div>
-              <div>
-                <div class="text-sm font-bold text-leaf-deep font-display">{{ $t['name'] }}</div>
-                <div class="text-[11px] text-bark/50">{{ $t['role'] }}</div>
-              </div>
-            </div>
-          </div>
-        @endforeach
-      </div>
-    </div>
-  </section>
-
-  {{-- ===== NEWSLETTER ===== --}}
-  <section class="max-w-7xl mx-auto px-4 py-14">
-    <div class="relative rounded-4xl bg-terracotta-light overflow-hidden p-9 lg:p-14 grid lg:grid-cols-5 gap-7 items-center">
-      <svg class="absolute -top-10 -left-10 w-56 h-56 text-terracotta/15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.8"><path d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/></svg>
-      <div class="lg:col-span-2 relative">
-        <h3 class="text-2xl lg:text-3xl font-display font-semibold text-leaf-deep">Join the good-for-the-planet list</h3>
-        <p class="text-bark/70 text-sm mt-2 leading-relaxed">Early access to new arrivals across every category, plus the occasional note on where your favorite products actually come from.</p>
-      </div>
-      <form action="#" method="post" class="lg:col-span-3 relative flex flex-col sm:flex-row gap-3">
+      <form action="#" method="post" class="w-full lg:w-auto flex gap-3">
         @csrf
-        <input type="email" required placeholder="you@example.com" class="flex-1 h-13 px-5 py-3.5 rounded-full border-0 text-sm shadow-soft">
-        <button type="submit" class="h-13 px-7 py-3.5 rounded-full bg-leaf-dark text-white font-bold hover:bg-leaf-deep transition-colors">Subscribe</button>
+        <input type="email" required placeholder="Enter your email address" class="w-full lg:w-72 h-12 px-5 rounded-full border-0 text-sm">
+        <button type="submit" class="shrink-0 h-12 px-6 rounded-full bg-terracotta-light text-leaf-deep font-bold text-sm hover:brightness-95 transition-all">Subscribe</button>
       </form>
     </div>
   </section>

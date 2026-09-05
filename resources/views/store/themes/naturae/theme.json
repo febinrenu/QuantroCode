@@ -1,11 +1,11 @@
 {
     "slug": "naturae",
-    "name": "Naturae",
-    "tagline": "Good for you, good for the planet.",
-    "description": "Warm earthy-organic marketplace persona built around sage green, terracotta and cream tones, hand-drawn leaf motifs and heavily rounded surfaces. Still a full general-merchandise store — electronics, fashion, home, beauty, grocery and sports sit side by side, just framed with a gentler, sustainability-minded voice.",
+    "name": "Naturia",
+    "tagline": "Live naturally.",
+    "description": "Premium natural-wellness storefront persona built around deep forest green, warm gold and cream tones. Frames the same general-merchandise catalog as a considered wellness and natural-living edit — skincare, self-care and home essentials chosen for what they're made of, not just what they cost.",
     "category": "general-merchandise",
     "version": "1.0.0",
-    "layout_persona": "Warm Earthy Organic",
+    "layout_persona": "Premium Natural Wellness",
     "layout": "eco-colorblocked",
     "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap",
     "fontPairing": {
@@ -13,17 +13,17 @@
         "body": "Inter"
     },
     "paletteSwatches": [
-        "#8A9A5B",
-        "#6E7C47",
-        "#C17A4E",
-        "#4B5D3A"
+        "#2F4A3C",
+        "#1C2E24",
+        "#B8935A",
+        "#FAF6EC"
     ],
     "tokens": {
-        "color-bg-base": "#F5F0E6",
-        "color-accent-500": "#8A9A5B",
-        "color-accent-600": "#6E7C47",
-        "color-accent-700": "#C17A4E",
-        "color-accent-800": "#4B5D3A",
+        "color-bg-base": "#FAF6EC",
+        "color-accent-500": "#2F4A3C",
+        "color-accent-600": "#1C2E24",
+        "color-accent-700": "#B8935A",
+        "color-accent-800": "#16211A",
         "font-heading": "'Fraunces', serif",
         "font-body": "'Inter', sans-serif",
         "font-size-heading": "34px",

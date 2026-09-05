@@ -11,6 +11,8 @@
   $currency = $s->currency_code ?? '$';
   $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
   $productVms = collect($products->items())->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+  $ntActiveCat = $cat ? ($categories ?? collect())->first(fn($c) => (string) $c->id === (string) $cat) : null;
+  $ntShopTitle = $q !== '' ? 'Search results' : ($ntActiveCat->name ?? 'Everything, sourced with care');
 @endphp
 
 <main class="pb-24 lg:pb-0">
@@ -18,7 +20,7 @@
     <div class="max-w-7xl mx-auto px-4 py-8 flex flex-wrap items-end justify-between gap-4">
       <div>
         <span class="eyebrow text-terracotta-dark text-xs font-bold">Full catalog</span>
-        <h1 class="text-2xl lg:text-3xl font-display font-semibold text-leaf-deep mt-1">Everything, sourced with care</h1>
+        <h1 class="text-2xl lg:text-3xl font-display font-semibold text-leaf-deep mt-1">{{ $ntShopTitle }}</h1>
         <p class="text-sm text-bark/70 mt-1">{{ $products->total() }} products found @if($q) for "{{ $q }}" @endif</p>
       </div>
       <form method="get" action="{{ route('store.shop') }}" class="flex items-end gap-2">

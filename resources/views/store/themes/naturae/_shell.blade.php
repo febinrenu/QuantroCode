@@ -1,6 +1,6 @@
 {{-- Naturae theme shell — Tailwind CDN + config + fonts, included once per page --}}
 @php
-  $themeTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'Naturae');
+  $themeTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'Naturia');
   $themeHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
   $activeThemeSlug = 'naturae';
   $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
@@ -16,7 +16,7 @@
 <meta charset="utf-8" />
 <title>{{ $themeTitle }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="description" content="{{ $s->seo_meta_description ?? 'Thoughtfully sourced electronics, fashion, home, beauty, grocery and sporting goods — good for you, good for the planet.' }}" />
+<meta name="description" content="{{ $s->seo_meta_description ?? 'Naturia — premium natural skincare, wellness and home essentials, formulated clean and packaged responsibly. Live naturally.' }}" />
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="currency" content="{{ $s->currency_code ?? '$' }}">
 <script>window.__LOGGED_IN__ = @json(Auth::guard('store')->check());</script>
@@ -43,20 +43,20 @@
           leaf: {
             DEFAULT: '{{ $accent500 }}',
             dark: '{{ $accent800 }}',
-            deep: '#3A4930',
-            light: '#E7ECD9',
+            deep: '#101A14',
+            light: '#E4EAE2',
           },
           terracotta: {
             DEFAULT: '{{ $accent700 }}',
-            dark: '#A05F38',
-            light: '#F3DCC9',
+            dark: '#8C6B3E',
+            light: '#F1E5CE',
           },
           cream: {
-            DEFAULT: '#F5F0E6',
-            deep: '#EDE4D3',
+            DEFAULT: '#FAF6EC',
+            deep: '#F1E9D8',
           },
-          bark: '#4A4032',
-          ink: '#2E2A22',
+          bark: '#4A4438',
+          ink: '#1C221D',
         },
         fontFamily: {
           serif: ['Fraunces', 'ui-serif', 'Georgia', 'serif'],
@@ -104,9 +104,9 @@
   .eyebrow { letter-spacing: .14em; text-transform: uppercase; }
   details > summary { list-style: none; cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
-  body { font-family: 'Inter', system-ui, sans-serif; background: #F5F0E6; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #FAF6EC; }
   h1, h2, h3, .font-display { font-family: 'Fraunces', ui-serif, Georgia, serif; }
-  .nt-wiggle-underline { text-decoration: underline; text-decoration-color: #C17A4E; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+  .nt-wiggle-underline { text-decoration: underline; text-decoration-color: #B8935A; text-decoration-thickness: 2px; text-underline-offset: 4px; }
   .nt-ticker { animation: nt-scroll 26s linear infinite; }
   @keyframes nt-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 </style>
