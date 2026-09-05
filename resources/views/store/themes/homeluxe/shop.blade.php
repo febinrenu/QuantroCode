@@ -11,13 +11,15 @@
   $currency = $s->currency_code ?? '$';
   $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
   $productVms = collect($products->items())->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+  $hlActiveCat = $cat ? ($categories ?? collect())->first(fn($c) => (string) $c->id === (string) $cat) : null;
+  $hlShopTitle = $q !== '' ? 'Search results' : ($hlActiveCat->name ?? 'Furniture & Decor');
 @endphp
 
 <main class="pb-24 lg:pb-0">
   <section class="bg-hl-deep text-white">
     <div class="max-w-[1440px] mx-auto px-5 py-10 text-center">
       <span class="eyebrow text-hl-gold text-xs font-bold">The Collection</span>
-      <h1 class="text-3xl font-display font-semibold mt-1">Furniture &amp; Decor</h1>
+      <h1 class="text-3xl font-display font-semibold mt-1">{{ $hlShopTitle }}</h1>
       <p class="text-sm text-white/70 mt-2">{{ $products->total() }} pieces found @if($q) for "{{ $q }}" @endif</p>
     </div>
   </section>
