@@ -11,13 +11,15 @@
   $currency = $s->currency_code ?? '$';
   $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
   $productVms = collect($products->items())->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+  $tpActiveCat = $cat ? ($categories ?? collect())->first(fn($c) => (string) $c->id === (string) $cat) : null;
+  $tpShopTitle = $q !== '' ? 'Search results' : ($tpActiveCat->name ?? 'All Outdoor Gear');
 @endphp
 
 <main class="pb-24 lg:pb-0">
   <section class="bg-tp-forest text-white">
     <div class="max-w-[1400px] mx-auto px-5 py-10 text-center">
       <span class="eyebrow text-tp-orange text-xs font-bold">The Gear Shop</span>
-      <h1 class="text-3xl font-display font-bold mt-1">All Outdoor Gear</h1>
+      <h1 class="text-3xl font-display font-bold mt-1">{{ $tpShopTitle }}</h1>
       <p class="text-sm text-white/70 mt-2">{{ $products->total() }} products found @if($q) for "{{ $q }}" @endif</p>
     </div>
   </section>

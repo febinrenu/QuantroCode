@@ -13,6 +13,25 @@
   $featured = collect($blocks)->where('type','collection')->flatMap(fn($b) => $b['products'] ?? [])->unique('id')->take(6)
       ->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
 
+  // TrailPeak's catalog has one real category (Outdoor & Adventure Gear).
+  // Where a label clearly matches one existing product by name, the link
+  // scopes to the real category AND searches by that product's
+  // distinguishing keyword (the same product-name search the storefront
+  // search box already uses) so the tile genuinely shows only that product
+  // rather than the whole gear catalog. Labels with no matching seeded
+  // product fall back to the full, correctly-titled Outdoor & Adventure Gear
+  // listing instead of showing unrelated products.
+  $tpCategoryId = optional(($categories ?? collect())->first())->id;
+  $tpCategoryUrl = fn (?string $keyword = null) => route('store.shop', array_filter([
+    'category' => $tpCategoryId,
+    'q' => $keyword,
+  ]));
+  $tpKeywords = [
+    'Hiking' => 'hiking',
+    'Camping' => 'camping',
+    'Backpacking' => 'backpack',
+  ];
+
   $sidebarCats = ['Hiking','Camping','Backpacking','Climbing','Cycling','Water Sports','Winter Sports','Travel Essentials'];
 
   $categoryTiles = [
@@ -51,10 +70,10 @@
       </div>
       <div class="py-2">
         @foreach($sidebarCats as $cat)
-          <a href="{{ route('store.shop') }}" class="flex justify-between items-center px-5 py-2.5 text-xs hover:text-tp-orange hover:bg-white/5">{{ $cat }} <span>›</span></a>
+          <a href="{{ $tpCategoryUrl($tpKeywords[$cat] ?? null) }}" class="flex justify-between items-center px-5 py-2.5 text-xs hover:text-tp-orange hover:bg-white/5">{{ $cat }} <span>›</span></a>
         @endforeach
       </div>
-      <a href="{{ route('store.shop') }}" class="block m-3 text-center bg-tp-orange text-white text-[11px] font-bold py-2.5 rounded">VIEW ALL CATEGORIES</a>
+      <a href="{{ $tpCategoryUrl() }}" class="block m-3 text-center bg-tp-orange text-white text-[11px] font-bold py-2.5 rounded">VIEW ALL CATEGORIES</a>
     </aside>
 
     <div class="tp-hero relative rounded-xl min-h-[420px] overflow-hidden flex items-center bg-tp-sand">
@@ -102,7 +121,7 @@
   {{-- ===== CATEGORY GRID ===== --}}
   <section class="max-w-[1400px] mx-auto px-5 mt-8 grid grid-cols-2 md:grid-cols-5 gap-4">
     @foreach($categoryTiles as $tile)
-      <a href="{{ route('store.shop') }}" class="group relative rounded-lg overflow-hidden h-40 bg-tp-ink">
+      <a href="{{ $tpCategoryUrl($tpKeywords[$tile[0]] ?? null) }}" class="group relative rounded-lg overflow-hidden h-40 bg-tp-ink">
         <img src="{{ $tile[1] }}" alt="{{ $tile[0] }}" class="w-full h-full object-cover opacity-80 group-hover:scale-105 group-hover:opacity-100 transition duration-500">
         <span class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></span>
         <span class="absolute bottom-3 left-3 text-white font-display text-sm">{{ strtoupper($tile[0]) }}<br><small class="font-sans font-semibold text-[10px] flex items-center gap-1">SHOP NOW <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg></small></span>
@@ -202,7 +221,7 @@
     </h2>
     <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
       @foreach($activities as $act)
-        <a href="{{ route('store.shop') }}" class="bg-white border border-tp-line rounded-lg p-5 flex flex-col items-center gap-2 text-center hover:border-tp-forest transition-colors">
+        <a href="{{ $tpCategoryUrl($tpKeywords[$act[0]] ?? null) }}" class="bg-white border border-tp-line rounded-lg p-5 flex flex-col items-center gap-2 text-center hover:border-tp-forest transition-colors">
           <svg class="w-7 h-7 text-tp-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $act[1] }}"/></svg>
           <span class="text-[11px] font-bold text-tp-ink">{{ strtoupper($act[0]) }}</span>
           <span class="text-[10px] font-bold text-tp-forest">SHOP NOW →</span>

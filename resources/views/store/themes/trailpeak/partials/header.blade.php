@@ -80,7 +80,7 @@
 
   <div class="bg-tp-forest text-white">
     <div class="max-w-[1400px] mx-auto px-5 flex items-center gap-6 h-11 text-[12px] font-bold overflow-x-auto no-scrollbar">
-      @if($tpCategories->count() > 1)
+      @if($tpCategories->count() > 0)
         @foreach($tpCategories->take(8) as $cat)
           <a class="shrink-0 hover:text-tp-orange" href="{{ route('store.shop',['category'=>$cat->id]) }}">{{ strtoupper($cat->name) }}</a>
         @endforeach
@@ -100,7 +100,7 @@
     </form>
     <div class="mb-3">@include('store.partials.language-switcher', ['variant' => 'mobile'])</div>
     <div class="grid grid-cols-2 gap-1">
-      @if($tpCategories->count() > 1)
+      @if($tpCategories->count() > 0)
         @foreach($tpCategories as $cat)
           <a class="py-2 text-sm font-semibold" href="{{ route('store.shop',['category'=>$cat->id]) }}">{{ $cat->name }}</a>
         @endforeach
