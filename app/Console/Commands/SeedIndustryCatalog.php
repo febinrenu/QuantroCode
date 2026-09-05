@@ -39,10 +39,9 @@ class SeedIndustryCatalog extends Command
     {
         $accessKey = config('services.unsplash.access_key');
         if (! $accessKey) {
-            $this->error('UNSPLASH_ACCESS_KEY is not set in your .env file.');
-            $this->line('Get a free key at https://unsplash.com/oauth/applications, add it as UNSPLASH_ACCESS_KEY=... in .env, then re-run this command.');
-
-            return self::FAILURE;
+            $this->warn('UNSPLASH_ACCESS_KEY is not set in your .env file.');
+            $this->line('Products with a bundled theme photo (see bundledProductImage()) will still be seeded; the rest will be skipped until a key is added.');
+            $this->line('Get a free key at https://unsplash.com/oauth/applications, add it as UNSPLASH_ACCESS_KEY=... in .env, then re-run this command to fill in the rest.');
         }
 
         // No blanket "already seeded" short-circuit here: each product below is
@@ -100,7 +99,8 @@ class SeedIndustryCatalog extends Command
                     continue;
                 }
 
-                $filename = $this->downloadUnsplashPhoto($accessKey, $query, $dir, Str::slug($name));
+                $filename = $this->bundledProductImage($name, $dir)
+                    ?? ($accessKey ? $this->downloadUnsplashPhoto($accessKey, $query, $dir, Str::slug($name)) : null);
                 if (! $filename) {
                     $this->warn("  \xE2\x9C\x97 {$name} — could not fetch a photo for \"{$query}\", skipped.");
                     continue;
@@ -147,7 +147,9 @@ class SeedIndustryCatalog extends Command
 
         $this->info('Industry catalog seeded.');
 
-        $this->backfillLegacyDemoImages($accessKey, $dir);
+        if ($accessKey) {
+            $this->backfillLegacyDemoImages($accessKey, $dir);
+        }
 
         return self::SUCCESS;
     }
@@ -159,6 +161,37 @@ class SeedIndustryCatalog extends Command
      * Unsplash photos too, the same way, so nothing in the demo storefront
      * is left showing a broken/placeholder image.
      */
+    /**
+     * The Naturia theme ships with real bundled photos for its 6 Best
+     * Sellers wellness products so that category doesn't depend on an
+     * Unsplash API key to look right.
+     */
+    private function bundledProductImage(string $name, string $dir): ?string
+    {
+        $bundled = [
+            'Aloe Vera Gel' => 'naturae/products/aloe-vera-gel.png',
+            'Vitamin D3 2000IU' => 'naturae/products/vitamin-d3.png',
+            'Organic Green Tea' => 'naturae/products/organic-green-tea.png',
+            'Lavender Essential Oil' => 'naturae/products/lavender-essential-oil.png',
+            'Bamboo Toothbrush Set' => 'naturae/products/bamboo-toothbrush.png',
+            'Coconut Oil (250ml)' => 'naturae/products/coconut-oil.png',
+        ];
+
+        if (! isset($bundled[$name])) {
+            return null;
+        }
+
+        $source = resource_path('theme-assets/'.$bundled[$name]);
+        if (! is_file($source)) {
+            return null;
+        }
+
+        $filename = Str::slug($name).'.'.pathinfo($source, PATHINFO_EXTENSION);
+        copy($source, $dir.'/'.$filename);
+
+        return $filename;
+    }
+
     private function backfillLegacyDemoImages(string $accessKey, string $dir): void
     {
         $now = Carbon::now();
@@ -421,6 +454,22 @@ class SeedIndustryCatalog extends Command
             ['code' => 'CAT-IND-PHM', 'category' => 'Pharmacy & Medical', 'products' => [
                 ['Blood Pressure Monitor', 'blood pressure monitor medical', 39.00, 'Automatic upper-arm blood pressure monitor with irregular-heartbeat detection.'],
                 ['Hand Sanitizer Pack', 'hand sanitizer', 8.00, '3-pack of 70% alcohol hand sanitizer gel in travel-sized bottles.'],
+            ]],
+            // Naturia ("naturae" theme) Best Sellers — reuses the existing Beauty &
+            // Cosmetics / Pharmacy & Medical / Grocery & Fresh Produce categories
+            // (repeating an existing 'code' just resolves the same category row,
+            // it does not create a duplicate) rather than inventing new ones.
+            ['code' => 'CAT-IND-BTY', 'category' => 'Beauty & Cosmetics', 'products' => [
+                ['Aloe Vera Gel', 'aloe vera gel skincare', 16.99, 'Soothing 100% natural aloe vera gel for daily skin hydration and after-sun care.'],
+                ['Lavender Essential Oil', 'lavender essential oil bottle', 14.99, 'Steam-distilled pure lavender oil for aromatherapy, massage, and relaxation.'],
+                ['Bamboo Toothbrush Set', 'bamboo toothbrush eco', 4.99, 'Pack of three biodegradable bamboo toothbrushes with soft bristles.'],
+            ]],
+            ['code' => 'CAT-IND-PHM', 'category' => 'Pharmacy & Medical', 'products' => [
+                ['Vitamin D3 2000IU', 'vitamin d3 supplement bottle', 18.99, '90-capsule bottle of Vitamin D3 2000IU to support bone and immune health.'],
+            ]],
+            ['code' => 'CAT-IND-GRC', 'category' => 'Grocery & Fresh Produce', 'products' => [
+                ['Organic Green Tea', 'organic green tea cup', 12.99, 'Loose-leaf organic green tea, hand-picked and naturally rich in antioxidants.'],
+                ['Coconut Oil (250ml)', 'coconut oil jar natural', 9.99, 'Cold-pressed virgin coconut oil, equally at home in the kitchen or on the skin.'],
             ]],
         ];
     }

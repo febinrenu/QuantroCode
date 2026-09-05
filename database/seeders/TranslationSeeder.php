@@ -47,7 +47,9 @@ class TranslationSeeder extends Seeder
         }
 
         // Truncate + bulk insert is much faster than upsert on remote databases.
-        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        // SET FOREIGN_KEY_CHECKS is MySQL-only; SQLite uses a PRAGMA instead.
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+        DB::statement($isSqlite ? 'PRAGMA foreign_keys = OFF' : 'SET FOREIGN_KEY_CHECKS=0');
         DB::table('translations')->truncate();
 
         DB::transaction(function () use ($unique) {
@@ -56,6 +58,6 @@ class TranslationSeeder extends Seeder
             }
         });
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        DB::statement($isSqlite ? 'PRAGMA foreign_keys = ON' : 'SET FOREIGN_KEY_CHECKS=1');
     }
 }
