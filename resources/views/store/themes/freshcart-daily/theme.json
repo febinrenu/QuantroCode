@@ -1,0 +1,29 @@
+{
+  "slug": "freshcart-daily",
+  "name": "FreshCart",
+  "tagline": "Fresh groceries delivered daily.",
+  "description": "Category-specific storefront for Grocery & Fresh Produce — a bright, high-density grocery-app design: green/orange palette, category icon strips, deal countdowns, and aisle shortcuts. Shows only grocery products.",
+  "category": "category-specific",
+  "categoryLabel": "Grocery & Fresh Produce",
+  "themeGroup": "category-specific",
+  "restrict_category_code": "CAT-IND-GRC",
+  "version": "1.0.0",
+  "layout_persona": "Daily Grocery App",
+  "layout": "single-category-grocery",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap",
+  "fontPairing": { "heading": "Nunito", "body": "Inter" },
+  "paletteSwatches": ["#2E8B4E", "#F2811D", "#FAFAF7", "#1B5E33"],
+  "tokens": {
+    "color-bg-base": "#FAFAF7",
+    "color-accent-500": "#2E8B4E",
+    "color-accent-600": "#F2811D",
+    "color-accent-700": "#1E2A22",
+    "color-accent-800": "#6B7A70",
+    "font-heading": "'Nunito', sans-serif",
+    "font-body": "'Inter', sans-serif",
+    "font-size-heading": "34px",
+    "font-size-body": "15px"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "color-accent-700", "color-accent-800", "font-heading", "font-body", "font-size-heading", "font-size-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}
