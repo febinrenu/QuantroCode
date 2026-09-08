@@ -32,12 +32,15 @@ class StorefrontThemeRegistry
                     continue;
                 }
 
-                $decoded = json_decode(File::get($jsonPath), true);
+                $raw = File::get($jsonPath);
+                $raw = preg_replace('/^\xEF\xBB\xBF/', '', $raw);
+                $decoded = json_decode($raw, true);
                 if (! is_array($decoded)) {
                     continue;
                 }
 
                 $decoded['slug'] = $decoded['slug'] ?? $slug;
+                $decoded['directory'] = $slug;
                 $themes[$decoded['slug']] = $decoded;
             }
         }
@@ -52,10 +55,28 @@ class StorefrontThemeRegistry
         return array_map(fn ($t) => $t['slug'], static::all());
     }
 
+    public static function normalizeSlug(?string $slug): ?string
+    {
+        if (! $slug) {
+            return null;
+        }
+        $aliases = [
+            'aurumeclat-jewelry' => 'aurumeclat',
+            'verde-living' => 'verde',
+            'generalhub-mega' => 'generalhub-store',
+            'novatech-tech' => 'novatech-electronics',
+            'technova-electronics' => 'technova-audio',
+            'voguelane-fashion' => 'voguelane-couture',
+            'zanova-marketplace' => 'zanova-flash',
+        ];
+        return $aliases[$slug] ?? $slug;
+    }
+
     public static function find(string $slug): ?array
     {
+        $normalized = static::normalizeSlug($slug);
         foreach (static::all() as $theme) {
-            if ($theme['slug'] === $slug) {
+            if ($theme['slug'] === $normalized || $theme['slug'] === $slug) {
                 return $theme;
             }
         }
@@ -101,11 +122,13 @@ class StorefrontThemeRegistry
             return false;
         }
 
+        $themeDir = $theme['directory'] ?? $theme['slug'];
+
         if (isset($theme['pages'][$page]) && ! $theme['pages'][$page]) {
             return false;
         }
 
-        return File::exists(resource_path("views/store/themes/{$slug}/{$page}.blade.php"));
+        return File::exists(resource_path("views/store/themes/{$themeDir}/{$page}.blade.php"));
     }
 
     /**
@@ -114,10 +137,12 @@ class StorefrontThemeRegistry
      */
     public static function viewFor(?string $slug, string $page): ?string
     {
-        if (! static::hasPage($slug, $page)) {
+        $theme = $slug ? static::find($slug) : null;
+        if (! $theme || ! static::hasPage($slug, $page)) {
             return null;
         }
 
-        return "store.themes.{$slug}.{$page}";
+        $themeDir = $theme['directory'] ?? $theme['slug'];
+        return "store.themes.{$themeDir}.{$page}";
     }
 }

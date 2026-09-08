@@ -1,0 +1,43 @@
+{
+    "name": "MarketVerse Deals",
+    "slug": "marketverse-deals",
+    "category": "Category-Specific Themes",
+    "description": "Deals & Marketplace",
+    "author": "StoreX Theme Studio",
+    "version": "1.0.0",
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    },
+    "tokens": {
+        "color-bg-base": "#F4F6F8",
+        "color-accent-500": "#4F28D9",
+        "color-accent-600": "#FF5722",
+        "color-accent-700": "#FFB800",
+        "color-accent-800": "#0F172A",
+        "font-heading": "'Plus Jakarta Sans', sans-serif",
+        "font-body": "'Inter', sans-serif",
+        "font-size-heading": "32px",
+        "font-size-body": "15px"
+    },
+    "theme_type": "category-specific",
+    "tagline": "Deals & Marketplace",
+    "paletteSwatches": [
+        "#4F28D9",
+        "#FF5722",
+        "#FFB800",
+        "#0F172A"
+    ],
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ]
+}

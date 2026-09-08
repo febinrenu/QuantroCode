@@ -358,6 +358,8 @@ class SettingsApiController extends Controller
 
         $s->fill($data)->save();
 
+        session()->forget('preview_theme');
+
         return response()->json($s->fresh());
     }
 

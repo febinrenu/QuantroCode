@@ -1,0 +1,43 @@
+{
+    "name": "PaperLoom Bookstore",
+    "slug": "paperloom",
+    "category": "Category-Specific Themes",
+    "description": "Books, Study & Stationery",
+    "author": "StoreX Theme Studio",
+    "version": "1.0.0",
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    },
+    "tokens": {
+        "color-bg-base": "#F8F5EE",
+        "color-accent-500": "#C45D3E",
+        "color-accent-600": "#A84B2F",
+        "color-accent-700": "#1E3A34",
+        "color-accent-800": "#16282E",
+        "font-heading": "'Newsreader', 'Playfair Display', Georgia, serif",
+        "font-body": "'Plus Jakarta Sans', sans-serif",
+        "font-size-heading": "36px",
+        "font-size-body": "15px"
+    },
+    "theme_type": "category-specific",
+    "tagline": "Books, Study & Stationery",
+    "paletteSwatches": [
+        "#C45D3E",
+        "#1E3A34",
+        "#EFEAE2",
+        "#F8F5EE"
+    ],
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ]
+}
