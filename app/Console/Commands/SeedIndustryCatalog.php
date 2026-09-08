@@ -39,10 +39,8 @@ class SeedIndustryCatalog extends Command
     {
         $accessKey = config('services.unsplash.access_key');
         if (! $accessKey) {
-            $this->error('UNSPLASH_ACCESS_KEY is not set in your .env file.');
-            $this->line('Get a free key at https://unsplash.com/oauth/applications, add it as UNSPLASH_ACCESS_KEY=... in .env, then re-run this command.');
-
-            return self::FAILURE;
+            $this->warn('UNSPLASH_ACCESS_KEY is not set in your .env file -- only products with a bundled photo (resources/seed-assets/industry-catalog) will be seeded; the rest will be skipped.');
+            $this->line('Get a free key at https://unsplash.com/oauth/applications, add it as UNSPLASH_ACCESS_KEY=... in .env to seed everything else too.');
         }
 
         // No blanket "already seeded" short-circuit here: each product below is
@@ -105,7 +103,9 @@ class SeedIndustryCatalog extends Command
                     continue;
                 }
 
-                $filename = $this->downloadUnsplashPhoto($accessKey, $query, $dir, Str::slug($name));
+                $slug = Str::slug($name);
+                $filename = $this->bundledSeedPhoto($slug, $dir)
+                    ?? ($accessKey ? $this->downloadUnsplashPhoto($accessKey, $query, $dir, $slug) : null);
                 if (! $filename) {
                     $this->warn("  \xE2\x9C\x97 {$name} — could not fetch a photo for \"{$query}\", skipped.");
                     continue;
@@ -433,6 +433,10 @@ class SeedIndustryCatalog extends Command
 
     private function backfillLegacyDemoImages(string $accessKey, string $dir): void
     {
+        if (! $accessKey) {
+            return;
+        }
+
         $now = Carbon::now();
 
         $brands = [
@@ -500,6 +504,28 @@ class SeedIndustryCatalog extends Command
      * on a free "Demo" app) — the CDN image download itself does not — so
      * this stays well under that limit even for the full ~42-product catalog.
      */
+    /**
+     * Copies a repo-committed photo from resources/seed-assets/industry-catalog
+     * (one per product slug) into the tenant's upload directory, instead of
+     * hitting the Unsplash API -- so every tenant that seeds the same product
+     * gets the exact same photo, offline and without spending API quota.
+     * Only the newer category-specific themes' products (FreshCart, CasaNest,
+     * MediSphere, Naturia) ship a bundled asset today; anything else still
+     * falls back to a live Unsplash fetch.
+     */
+    private function bundledSeedPhoto(string $slug, string $dir): ?string
+    {
+        $source = resource_path("seed-assets/industry-catalog/{$slug}.jpg");
+        if (! is_file($source)) {
+            return null;
+        }
+
+        $filename = $slug . '-' . Str::random(6) . '.jpg';
+        copy($source, $dir . '/' . $filename);
+
+        return $filename;
+    }
+
     private function downloadUnsplashPhoto(string $accessKey, string $query, string $dir, string $slug): ?string
     {
         // Try the constrained search first (squarish, high content filter);
