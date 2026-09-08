@@ -260,6 +260,12 @@ class SeedIndustryCatalog extends Command
             'Ceramic Pet Food Bowl' => 'pawluxe/products/food-bowl.jpg',
             'Cozy Pet Bed' => 'pawluxe/products/pet-bed.jpg',
             'Aquarium Fish Tank' => 'pawluxe/products/aquarium.jpg',
+            'Aloe Vera Gel' => 'naturae/products/aloe-vera-gel.png',
+            'Vitamin D3 2000IU' => 'naturae/products/vitamin-d3.png',
+            'Organic Green Tea' => 'naturae/products/organic-green-tea.png',
+            'Lavender Essential Oil' => 'naturae/products/lavender-essential-oil.png',
+            'Bamboo Toothbrush Set' => 'naturae/products/bamboo-toothbrush.png',
+            'Coconut Oil (250ml)' => 'naturae/products/coconut-oil.png',
         ];
 
         if (! isset($bundled[$name])) {
@@ -486,6 +492,22 @@ class SeedIndustryCatalog extends Command
                 ['3-Person Camping Tent', 'camping tent outdoor', 449.95, 'Freestanding 3-person tent with a full-coverage rainfly for three-season camping.'],
                 ['Insulated Steel Water Bottle', 'insulated water bottle outdoor', 44.99, 'Double-wall insulated steel bottle that keeps drinks cold for 24 hours on the trail.'],
                 ['Rechargeable LED Headlamp', 'led headlamp camping', 59.95, 'Rechargeable headlamp with adjustable beam for night hikes and campsite chores.'],
+            ]],
+            // Naturia ("naturae" theme) Best Sellers — reuses the existing Beauty &
+            // Cosmetics / Pharmacy & Medical / Grocery & Fresh Produce categories
+            // (repeating an existing 'code' just resolves the same category row,
+            // it does not create a duplicate) rather than inventing new ones.
+            ['code' => 'CAT-IND-BTY', 'category' => 'Beauty & Cosmetics', 'products' => [
+                ['Aloe Vera Gel', 'aloe vera gel skincare', 16.99, 'Soothing 100% natural aloe vera gel for daily skin hydration and after-sun care.'],
+                ['Lavender Essential Oil', 'lavender essential oil bottle', 14.99, 'Steam-distilled pure lavender oil for aromatherapy, massage, and relaxation.'],
+                ['Bamboo Toothbrush Set', 'bamboo toothbrush eco', 4.99, 'Pack of three biodegradable bamboo toothbrushes with soft bristles.'],
+            ]],
+            ['code' => 'CAT-IND-PHM', 'category' => 'Pharmacy & Medical', 'products' => [
+                ['Vitamin D3 2000IU', 'vitamin d3 supplement bottle', 18.99, '90-capsule bottle of Vitamin D3 2000IU to support bone and immune health.'],
+            ]],
+            ['code' => 'CAT-IND-GRC', 'category' => 'Grocery & Fresh Produce', 'products' => [
+                ['Organic Green Tea', 'organic green tea cup', 12.99, 'Loose-leaf organic green tea, hand-picked and naturally rich in antioxidants.'],
+                ['Coconut Oil (250ml)', 'coconut oil jar natural', 9.99, 'Cold-pressed virgin coconut oil, equally at home in the kitchen or on the skin.'],
             ]],
         ];
     }
