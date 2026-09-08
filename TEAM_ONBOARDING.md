@@ -52,9 +52,3 @@ If you need to login to the central module, run `start.bat` and press **`3`** to
 
 ---
 
-### ⚠️ A Note on Premium Modules (Online Store / HRM)
-If you do not see the **Online Store** (Ecommerce) feature on the sidebar after logging in, this is expected behavior for a fresh codebase. Premium modules are distinct `.zip` files hosted outside the generic repository.
-To unlock them:
-1. Obtain the `Ecommerce.zip` (or other addon zip files).
-2. Go to `Settings -> Module Settings` in the dashboard.
-3. Upload the `.zip` file into the module manager. The system will enable it automatically.
