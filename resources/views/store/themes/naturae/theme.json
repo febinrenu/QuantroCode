@@ -1,0 +1,22 @@
+{
+  "slug": "naturae",
+  "name": "Naturae",
+  "tagline": "Good for you, good for the planet.",
+  "description": "Warm earthy-organic marketplace persona built around sage green, terracotta and cream tones, hand-drawn leaf motifs and heavily rounded surfaces. Still a full general-merchandise store — electronics, fashion, home, beauty, grocery and sports sit side by side, just framed with a gentler, sustainability-minded voice.",
+  "category": "general-merchandise",
+  "version": "1.0.0",
+  "layout_persona": "Warm Earthy Organic",
+  "layout": "eco-colorblocked",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap",
+  "fontPairing": { "heading": "Fraunces", "body": "Inter" },
+  "paletteSwatches": ["#8A9A5B", "#C17A4E", "#F5F0E6", "#4B5D3A"],
+  "tokens": {
+    "color-bg-base": "#F5F0E6",
+    "color-accent-500": "#8A9A5B",
+    "color-accent-600": "#6E7C47",
+    "font-heading": "'Fraunces', serif",
+    "font-body": "'Inter', sans-serif"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}
