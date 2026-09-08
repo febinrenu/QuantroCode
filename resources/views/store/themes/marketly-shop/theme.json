@@ -17,9 +17,13 @@
     "color-bg-base": "#F7F6FB",
     "color-accent-500": "#5B3FD9",
     "color-accent-600": "#F5B301",
+    "color-accent-700": "#1B1533",
+    "color-accent-800": "#6B6478",
     "font-heading": "'Poppins', sans-serif",
-    "font-body": "'Inter', sans-serif"
+    "font-body": "'Inter', sans-serif",
+    "font-size-heading": "34px",
+    "font-size-body": "15px"
   },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "customizable": ["color-accent-500", "color-accent-600", "color-accent-700", "color-accent-800", "font-heading", "font-body", "font-size-heading", "font-size-body"],
   "pages": { "home": true, "shop": true, "product": true, "cart": true }
 }

@@ -350,6 +350,14 @@ class SeedIndustryCatalog extends Command
             'Bamboo Toothbrush' => ['Home Care'],
             'Coconut Oil (250ml)' => ['Organic Food'],
             'Argan Hair Oil' => ['Hair Care'],
+            'Vitamin C Brightening Serum' => ['Skin Care'],
+            'Charcoal Detox Face Mask' => ['Skin Care'],
+            'Rosehip Facial Oil' => ['Skin Care'],
+            'Natural Deodorant Stick' => ['Bath & Body'],
+            'Herbal Shampoo Bar' => ['Hair Care'],
+            'Turmeric Golden Latte Mix' => ['Tea & Drinks'],
+            'Reusable Beeswax Food Wraps' => ['Home Care'],
+            'Collagen Peptides Powder' => ['Supplements'],
         ], $now);
     }
 
@@ -816,6 +824,17 @@ class SeedIndustryCatalog extends Command
                 ['Immunity Booster Tablets', 'immunity vitamin tablets', 19.00, 'Daily tablets combining vitamin C, zinc, and elderberry for immune support.'],
                 ['Senior Multivitamin Complex', 'senior vitamins elderly', 24.00, 'Multivitamin formulated for adults 50+, with added calcium and B12.'],
                 ['Extended-Release Pain Relief Tablets', 'pain relief tablets medicine', 12.00, 'Doctor-recommended extended-release tablets for everyday pain relief.'],
+            ]],
+            // Naturia (Beauty & Cosmetics) -- second round, rounding out each subcategory
+            ['code' => 'CAT-IND-BTY', 'category' => 'Beauty & Cosmetics', 'products' => [
+                ['Vitamin C Brightening Serum', 'vitamin c serum skincare', 22.99, 'Antioxidant-rich brightening serum with 15% vitamin C for an even skin tone.'],
+                ['Charcoal Detox Face Mask', 'charcoal face mask clay', 15.99, 'Activated-charcoal clay mask that draws out impurities and excess oil.'],
+                ['Rosehip Facial Oil', 'rosehip oil dropper bottle', 21.99, 'Cold-pressed rosehip seed oil that nourishes and evens skin texture.'],
+                ['Natural Deodorant Stick', 'natural deodorant stick', 11.99, 'Aluminum-free deodorant made with coconut oil and baking soda.'],
+                ['Herbal Shampoo Bar', 'shampoo bar natural', 13.99, 'Zero-waste shampoo bar with rosemary and mint for healthy scalp care.'],
+                ['Turmeric Golden Latte Mix', 'turmeric powder spice', 16.99, 'Organic turmeric, ginger and black pepper blend for a warming latte.'],
+                ['Reusable Beeswax Food Wraps', 'beeswax food wrap kitchen', 18.99, 'Set of three beeswax wraps, a natural alternative to plastic cling film.'],
+                ['Collagen Peptides Powder', 'collagen powder supplement jar', 29.99, 'Unflavored hydrolyzed collagen peptides that mix into any drink or meal.'],
             ]],
         ];
     }

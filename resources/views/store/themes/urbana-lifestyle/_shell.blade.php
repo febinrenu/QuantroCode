@@ -11,6 +11,10 @@
   $urbGoldSoft = \App\Support\StorefrontThemeRegistry::shade($urbGold, 0.5);
   $urbFontHeading = $urbTokens['font-heading'] ?? "'Playfair Display', serif";
   $urbFontBody = $urbTokens['font-body'] ?? "'Inter', sans-serif";
+  $urbInk = $urbTokens['color-accent-700'] ?? '#1A1A1A';
+  $urbInkSoft = $urbTokens['color-accent-800'] ?? '#6B6B63';
+  $urbFontSizeHeading = $urbTokens['font-size-heading'] ?? '34px';
+  $urbFontSizeBody = $urbTokens['font-size-body'] ?? '15px';
 @endphp
 <meta charset="utf-8" />
 <title>{{ $urbTitle }}</title>
@@ -48,8 +52,8 @@
             creamDark: '#EFE8DA',
             gold: '{{ $urbGold }}',
             goldSoft: '{{ $urbGoldSoft }}',
-            ink: '#1A1A1A',
-            inkSoft: '#6B6B63',
+            ink: '{{ $urbInk }}',
+            inkSoft: '{{ $urbInkSoft }}',
             orange: '#E08A3C',
             red: '#C24B3F',
           }
@@ -76,6 +80,7 @@
   .eyebrow { letter-spacing: .14em; text-transform: uppercase; }
   details > summary { list-style: none; cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
-  body { font-family: {{ $urbFontBody }}, system-ui, sans-serif; background: #F7F3EC; color: #1A1A1A; }
+  body { font-family: {{ $urbFontBody }}, system-ui, sans-serif; background: #F7F3EC; color: {{ $urbInk }}; font-size: {{ $urbFontSizeBody }}; }
+  h1, .font-serif { font-size: {{ $urbFontSizeHeading }}; }
   .urb-italic { font-style: italic; font-weight: 500; }
 </style>

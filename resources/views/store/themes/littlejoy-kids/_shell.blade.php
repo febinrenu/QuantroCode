@@ -9,6 +9,10 @@
   $ljPurpleDeep = \App\Support\StorefrontThemeRegistry::shade($ljPurple, -0.3);
   $ljFontHeading = $ljTokens['font-heading'] ?? "'Baloo 2', sans-serif";
   $ljFontBody = $ljTokens['font-body'] ?? "'Inter', sans-serif";
+  $ljInk = $ljTokens['color-accent-700'] ?? '#2B2640';
+  $ljInkSoft = $ljTokens['color-accent-800'] ?? '#726C8C';
+  $ljFontSizeHeading = $ljTokens['font-size-heading'] ?? '34px';
+  $ljFontSizeBody = $ljTokens['font-size-body'] ?? '15px';
 @endphp
 <meta charset="utf-8" />
 <title>{{ $ljTitle }}</title>
@@ -46,8 +50,8 @@
             lavender: '#EDEBFB',
             cream: '#FFF6F2',
             creamDark: '#FDEAE1',
-            ink: '#2B2640',
-            inkSoft: '#726C8C',
+            ink: '{{ $ljInk }}',
+            inkSoft: '{{ $ljInkSoft }}',
           }
         },
         fontFamily: {
@@ -75,7 +79,8 @@
   .eyebrow { letter-spacing: .08em; text-transform: uppercase; }
   details > summary { list-style: none; cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
-  body { font-family: {{ $ljFontBody }}, system-ui, sans-serif; background: #FFF6F2; color: #2B2640; }
+  body { font-family: {{ $ljFontBody }}, system-ui, sans-serif; background: #FFF6F2; color: {{ $ljInk }}; font-size: {{ $ljFontSizeBody }}; }
+  h1, .font-heading { font-size: {{ $ljFontSizeHeading }}; }
   .lj-rainbow span:nth-child(6n+1) { color: #F76C8A; }
   .lj-rainbow span:nth-child(6n+2) { color: #FF9F5A; }
   .lj-rainbow span:nth-child(6n+3) { color: #FFD166; }

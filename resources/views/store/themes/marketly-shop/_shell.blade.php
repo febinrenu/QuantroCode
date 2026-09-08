@@ -9,6 +9,10 @@
   $mktPurpleDeep = \App\Support\StorefrontThemeRegistry::shade($mktPurple, -0.35);
   $mktFontHeading = $mktTokens['font-heading'] ?? "'Poppins', sans-serif";
   $mktFontBody = $mktTokens['font-body'] ?? "'Inter', sans-serif";
+  $mktInk = $mktTokens['color-accent-700'] ?? '#1B1533';
+  $mktInkSoft = $mktTokens['color-accent-800'] ?? '#6B6478';
+  $mktFontSizeHeading = $mktTokens['font-size-heading'] ?? '34px';
+  $mktFontSizeBody = $mktTokens['font-size-body'] ?? '15px';
 @endphp
 <meta charset="utf-8" />
 <title>{{ $mktTitle }}</title>
@@ -43,8 +47,8 @@
             pink: '#D63FD1',
             coral: '#FF3E6C',
             gold: '{{ $mktGold }}',
-            ink: '#1B1533',
-            inkSoft: '#6B6478',
+            ink: '{{ $mktInk }}',
+            inkSoft: '{{ $mktInkSoft }}',
             cream: '#F7F6FB',
             creamDark: '#EFEDF7',
           }
@@ -74,5 +78,6 @@
   .eyebrow { letter-spacing: .1em; text-transform: uppercase; }
   details > summary { list-style: none; cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
-  body { font-family: {{ $mktFontBody }}, system-ui, sans-serif; background: #F7F6FB; color: #1B1533; }
+  body { font-family: {{ $mktFontBody }}, system-ui, sans-serif; background: #F7F6FB; color: {{ $mktInk }}; font-size: {{ $mktFontSizeBody }}; }
+  h1, .font-heading { font-size: {{ $mktFontSizeHeading }}; }
 </style>

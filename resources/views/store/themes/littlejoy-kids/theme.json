@@ -17,9 +17,13 @@
     "color-bg-base": "#FFF6F2",
     "color-accent-500": "#6C63E0",
     "color-accent-600": "#F76C8A",
+    "color-accent-700": "#2B2640",
+    "color-accent-800": "#726C8C",
     "font-heading": "'Baloo 2', sans-serif",
-    "font-body": "'Inter', sans-serif"
+    "font-body": "'Inter', sans-serif",
+    "font-size-heading": "34px",
+    "font-size-body": "15px"
   },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "customizable": ["color-accent-500", "color-accent-600", "color-accent-700", "color-accent-800", "font-heading", "font-body", "font-size-heading", "font-size-body"],
   "pages": { "home": true, "shop": true, "product": true, "cart": true }
 }

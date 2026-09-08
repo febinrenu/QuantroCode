@@ -17,9 +17,13 @@
     "color-bg-base": "#F7F3EC",
     "color-accent-500": "#1F3A2E",
     "color-accent-600": "#C9A876",
+    "color-accent-700": "#1A1A1A",
+    "color-accent-800": "#6B6B63",
     "font-heading": "'Playfair Display', serif",
-    "font-body": "'Inter', sans-serif"
+    "font-body": "'Inter', sans-serif",
+    "font-size-heading": "34px",
+    "font-size-body": "15px"
   },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
+  "customizable": ["color-accent-500", "color-accent-600", "color-accent-700", "color-accent-800", "font-heading", "font-body", "font-size-heading", "font-size-body"],
   "pages": { "home": true, "shop": true, "product": true, "cart": true }
 }

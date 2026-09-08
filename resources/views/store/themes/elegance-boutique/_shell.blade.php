@@ -9,6 +9,10 @@
   $elGoldSoft = \App\Support\StorefrontThemeRegistry::shade($elGold, 0.55);
   $elFontHeading = $elTokens['font-heading'] ?? "'Playfair Display', serif";
   $elFontBody = $elTokens['font-body'] ?? "'Inter', sans-serif";
+  $elInkSoft = $elTokens['color-accent-700'] ?? '#6B6B6B';
+  $elCreamDark = $elTokens['color-accent-800'] ?? '#EFEAE2';
+  $elFontSizeHeading = $elTokens['font-size-heading'] ?? '34px';
+  $elFontSizeBody = $elTokens['font-size-body'] ?? '15px';
 @endphp
 <meta charset="utf-8" />
 <title>{{ $elTitle }}</title>
@@ -40,9 +44,9 @@
           el: {
             black: '#0A0A0A',
             ink: '{{ $elInk }}',
-            inkSoft: '#6B6B6B',
+            inkSoft: '{{ $elInkSoft }}',
             cream: '#F7F5F2',
-            creamDark: '#EFEAE2',
+            creamDark: '{{ $elCreamDark }}',
             gold: '{{ $elGold }}',
             goldSoft: '{{ $elGoldSoft }}',
           }
@@ -69,6 +73,7 @@
   .eyebrow { letter-spacing: .14em; text-transform: uppercase; }
   details > summary { list-style: none; cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
-  body { font-family: {{ $elFontBody }}, system-ui, sans-serif; background: #F7F5F2; color: {{ $elInk }}; }
+  body { font-family: {{ $elFontBody }}, system-ui, sans-serif; background: #F7F5F2; color: {{ $elInk }}; font-size: {{ $elFontSizeBody }}; }
+  h1, .font-serif { font-size: {{ $elFontSizeHeading }}; }
   .el-script { font-style: italic; font-weight: 500; color: {{ $elGold }}; }
 </style>

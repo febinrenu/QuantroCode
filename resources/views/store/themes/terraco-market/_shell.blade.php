@@ -11,6 +11,10 @@
   $tcGoldSoft = \App\Support\StorefrontThemeRegistry::shade($tcGold, 0.55);
   $tcFontHeading = $tcTokens['font-heading'] ?? "'Playfair Display', serif";
   $tcFontBody = $tcTokens['font-body'] ?? "'Inter', sans-serif";
+  $tcInk = $tcTokens['color-accent-700'] ?? '#23281F';
+  $tcInkSoft = $tcTokens['color-accent-800'] ?? '#5F6857';
+  $tcFontSizeHeading = $tcTokens['font-size-heading'] ?? '34px';
+  $tcFontSizeBody = $tcTokens['font-size-body'] ?? '15px';
 @endphp
 <meta charset="utf-8" />
 <title>{{ $tcTitle }}</title>
@@ -47,8 +51,8 @@
             greenSoft: '{{ $tcGreenSoft }}',
             gold: '{{ $tcGold }}',
             goldSoft: '{{ $tcGoldSoft }}',
-            ink: '#23281F',
-            inkSoft: '#5F6857',
+            ink: '{{ $tcInk }}',
+            inkSoft: '{{ $tcInkSoft }}',
           }
         },
         fontFamily: {
@@ -73,6 +77,7 @@
   .eyebrow { letter-spacing: .14em; text-transform: uppercase; }
   details > summary { list-style: none; cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
-  body { font-family: {{ $tcFontBody }}, system-ui, sans-serif; background: #F8F4EA; color: #23281F; }
+  body { font-family: {{ $tcFontBody }}, system-ui, sans-serif; background: #F8F4EA; color: {{ $tcInk }}; font-size: {{ $tcFontSizeBody }}; }
+  h1, .font-serif { font-size: {{ $tcFontSizeHeading }}; }
   .tc-hero-italic { font-style: italic; font-weight: 500; }
 </style>

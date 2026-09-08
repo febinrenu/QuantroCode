@@ -9,6 +9,10 @@
   $fxPurpleDeep = \App\Support\StorefrontThemeRegistry::shade($fxPurple, -0.35);
   $fxFontHeading = $fxTokens['font-heading'] ?? "'Poppins', sans-serif";
   $fxFontBody = $fxTokens['font-body'] ?? "'Inter', sans-serif";
+  $fxInk = $fxTokens['color-accent-700'] ?? '#12101F';
+  $fxInkSoft = $fxTokens['color-accent-800'] ?? '#6B6478';
+  $fxFontSizeHeading = $fxTokens['font-size-heading'] ?? '34px';
+  $fxFontSizeBody = $fxTokens['font-size-body'] ?? '15px';
 @endphp
 <meta charset="utf-8" />
 <title>{{ $fxTitle }}</title>
@@ -44,8 +48,8 @@
             purpleDeep: '{{ $fxPurpleDeep }}',
             blue: '{{ $fxBlue }}',
             cyan: '#3FE0FF',
-            ink: '#12101F',
-            inkSoft: '#6B6478',
+            ink: '{{ $fxInk }}',
+            inkSoft: '{{ $fxInkSoft }}',
             cream: '#F4F5FA',
             creamDark: '#EAEBF5',
           }
@@ -76,5 +80,6 @@
   .eyebrow { letter-spacing: .1em; text-transform: uppercase; }
   details > summary { list-style: none; cursor: pointer; }
   details > summary::-webkit-details-marker { display: none; }
-  body { font-family: {{ $fxFontBody }}, system-ui, sans-serif; background: #F4F5FA; color: #12101F; }
+  body { font-family: {{ $fxFontBody }}, system-ui, sans-serif; background: #F4F5FA; color: {{ $fxInk }}; font-size: {{ $fxFontSizeBody }}; }
+  h1, .font-heading { font-size: {{ $fxFontSizeHeading }}; }
 </style>
