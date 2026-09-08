@@ -45,6 +45,9 @@ goto serve
 
 :update
 echo.
+echo Installing PHP Dependencies...
+call composer install --no-interaction
+echo.
 echo Clearing Laravel Caches...
 call php artisan optimize:clear
 echo.
