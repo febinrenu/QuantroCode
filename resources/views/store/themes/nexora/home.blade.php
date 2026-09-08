@@ -80,7 +80,7 @@
         @foreach($categories->take(8) as $cat)
           <a href="{{ route('store.shop', ['category' => $cat->id]) }}" class="group flex flex-col items-center gap-2 p-4 rounded-3xl bg-white border border-nx-chrome1 hover:shadow-cardHover transition-all">
             <span class="w-12 h-12 rounded-full nx-holo-bg text-white flex items-center justify-center font-black text-lg shadow-card group-hover:scale-110 transition-transform">
-              {{ strtoupper(substr($cat->name, 0, 1)) }}
+              <x-store.icon :name="category_icon_name($cat->name)" class="w-5 h-5" />
             </span>
             <span class="text-xs font-bold text-center text-nx-ink line-clamp-2">{{ $cat->name }}</span>
           </a>
