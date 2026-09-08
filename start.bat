@@ -8,13 +8,15 @@ echo.
 echo [1] Start Development Server (Routine)
 echo [2] FIRST TIME SETUP: Rebuild Databases from SQL Dumps
 echo [3] Seed Central SuperAdmin Account
-echo [4] Exit
+echo [4] Apply New Changes (Clear Cache, Rebuild Assets, Migrate)
+echo [5] Exit
 echo.
-set /p choice="Select an option (1-4): "
+set /p choice="Select an option (1-5): "
 
 if "%choice%"=="2" goto setup
 if "%choice%"=="3" goto seed
-if "%choice%"=="4" goto :eof
+if "%choice%"=="4" goto update
+if "%choice%"=="5" goto :eof
 goto serve
 
 :setup
@@ -38,6 +40,21 @@ echo Clearing Laravel Caches...
 call php artisan optimize:clear
 echo.
 echo Setup Complete! Starting server...
+pause
+goto serve
+
+:update
+echo.
+echo Clearing Laravel Caches...
+call php artisan optimize:clear
+echo.
+echo Installing Front-End Dependencies...
+call npm install
+echo.
+echo Building Frontend Development Assets...
+call npm run development
+echo.
+echo Update Complete! Starting server...
 pause
 goto serve
 
