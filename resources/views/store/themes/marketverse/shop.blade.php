@@ -1,112 +1,200 @@
-<!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
-<head>
-@include('store.themes.marketverse._shell', ['pageTitle' => 'Shop — ' . ($s->store_name ?? 'MarketVerse')])
-</head>
-<body class="bg-mv-cream text-mv-ink antialiased">
+@extends('store.themes.marketverse._shell')
 
-@include('store.themes.marketverse.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
+@section('title', 'Marketplace Catalog — MarketVerse')
+
+@section('content')
 
 @php
-  $currency = $s->currency_code ?? '$';
-  $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
-  $productVms = collect($products->items())->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+  use App\Models\Category;
+
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'marketverse');
+  $mvRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+  $shopUrl = $mvRoute('store.shop');
+
+  $selectedCat = request('category');
+  $selectedSort = request('sort', 'latest');
+  $q = request('q', '');
+
+  $departments = [
+      'Fashion',
+      'Electronics',
+      'Home & Living',
+      'Beauty & Personal Care',
+      'Grocery & Essentials',
+      'Sports & Outdoors',
+      'Toys & Games',
+      'Automotive',
+      'Books & Stationery',
+      'Pet Supplies'
+  ];
 @endphp
 
-<main class="pb-24 lg:pb-0">
-  <section class="bg-white border-b-2 border-mv-line">
-    <div class="max-w-[1600px] mx-auto px-4 py-5 flex flex-wrap items-end justify-between gap-4">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+
+  <!-- Breadcrumbs & Heading -->
+  <div class="mb-6 space-y-2">
+    <nav class="flex items-center gap-2 text-xs text-slate-500 font-medium">
+      <a href="{{ $mvRoute('store.index') }}" class="hover:text-mv-purple transition-colors">Home</a>
+      <span>/</span>
+      <span class="text-slate-900 font-bold">
+        {{ $selectedCat ? $selectedCat : (request('brand') ? 'Brand: ' . request('brand') : ($q ? 'Search: "' . $q . '"' : 'Marketplace Catalog')) }}
+      </span>
+    </nav>
+
+    <div class="flex flex-col sm:flex-row sm:items-baseline justify-between gap-4 border-b border-mv-border pb-5">
       <div>
-        <span class="eyebrow text-mv-accentDark text-xs font-bold mv-mono">SHOP.ALL_CATEGORIES</span>
-        <h1 class="text-2xl font-black text-mv-ink mt-1">All Products</h1>
-        <p class="text-sm text-mv-slate mt-1 mv-mono">{{ $products->total() }} RESULTS @if($q) FOR "{{ $q }}" @endif</p>
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          {{ $selectedCat ? $selectedCat : (request('brand') ? 'Brand: ' . request('brand') : (request('collection') ? ucwords(str_replace(['-', '_'], ' ', request('collection'))) : ($q ? 'Results for "' . $q . '"' : 'All Marketplace Products'))) }}
+        </h1>
+        <p class="text-xs text-slate-500 mt-1">
+          Explore products from verified sellers and top-rated marketplace brands.
+        </p>
       </div>
-      <form method="get" action="{{ route('store.shop') }}" class="flex items-end gap-2">
-        @foreach(request()->except(['sort','page']) as $k => $v)
-          <input type="hidden" name="{{ $k }}" value="{{ $v }}">
-        @endforeach
-        <select name="sort" class="h-10 px-3 rounded-md border-2 border-mv-line text-sm font-semibold">
-          <option value="latest" @selected(($sort ?? 'latest') === 'latest')>Latest</option>
-          <option value="price_asc" @selected($sort === 'price_asc')>Price: Low to High</option>
-          <option value="price_desc" @selected($sort === 'price_desc')>Price: High to Low</option>
-        </select>
-        <button class="h-10 px-4 rounded-md bg-mv-ink text-white text-sm font-bold hover:bg-mv-accentDark transition-colors">Update</button>
-      </form>
+
+      <!-- Result Count & Sort Controls -->
+      <div class="flex items-center gap-4 shrink-0">
+        <span class="text-xs text-slate-500">
+          Showing <strong class="text-slate-900">{{ $products->total() ?? count($products) }}</strong> items
+        </span>
+
+        <form action="{{ route('store.shop') }}" method="GET" class="flex items-center gap-2">
+          @if($themePreview)
+            <input type="hidden" name="preview_theme" value="{{ $themePreview }}">
+          @endif
+          @if($selectedCat)
+            <input type="hidden" name="category" value="{{ $selectedCat }}">
+          @endif
+          @if(request('brand'))
+            <input type="hidden" name="brand" value="{{ request('brand') }}">
+          @endif
+          @if(request('collection'))
+            <input type="hidden" name="collection" value="{{ request('collection') }}">
+          @endif
+          @if($q)
+            <input type="hidden" name="q" value="{{ $q }}">
+          @endif
+
+          <select name="sort"
+                  onchange="this.form.submit()"
+                  class="text-xs bg-white border border-mv-border rounded-xl px-3 py-2 text-slate-900 font-bold focus:outline-none focus:border-mv-purple shadow-xs">
+            <option value="latest" {{ $selectedSort === 'latest' ? 'selected' : '' }}>Sort: Newest</option>
+            <option value="price_asc" {{ $selectedSort === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+            <option value="price_desc" {{ $selectedSort === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+          </select>
+        </form>
+      </div>
     </div>
-  </section>
+  </div>
 
-  <div class="max-w-[1600px] mx-auto px-4 py-6 grid lg:grid-cols-[240px_1fr] gap-5">
+  <!-- Layout: 3-col Sidebar + 9-col Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-    {{-- Persistent left category rail + filters --}}
-    <aside class="hidden lg:block">
-      <div class="bg-white rounded-lg border-2 border-mv-line sticky top-24 overflow-hidden">
-        <div class="bg-mv-ink text-white text-[11px] font-bold uppercase tracking-wider px-4 py-3 mv-mono">Browse Categories</div>
-        <ul class="divide-y divide-mv-line max-h-72 overflow-y-auto">
+    <!-- Sidebar Filters (3 cols on desktop) -->
+    <aside class="lg:col-span-3 space-y-6">
+
+      <!-- Departments Filter Box -->
+      <div class="bg-white rounded-2xl border border-mv-border p-4 sm:p-5 space-y-3 shadow-xs">
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-900 border-b border-slate-100 pb-2">
+          Departments
+        </h3>
+
+        <ul class="space-y-1 text-xs font-semibold">
           <li>
-            <a href="{{ route('store.shop') }}" class="flex items-center justify-between px-4 py-2.5 text-sm font-semibold {{ !$cat ? 'text-mv-accentDark bg-mv-accentSoft' : 'text-mv-ink hover:bg-mv-accentSoft hover:text-mv-accentDark' }} transition-colors">
-              All Categories
+            <a href="{{ $plShop = $mvRoute('store.shop') }}"
+               class="flex items-center justify-between py-1.5 px-2.5 rounded-lg {{ empty($selectedCat) && empty(request('collection')) ? 'bg-mv-purpleLight text-mv-purple font-extrabold' : 'text-slate-700 hover:bg-slate-50' }}">
+              <span>All Departments</span>
             </a>
           </li>
-          @foreach($categories as $c)
+          @foreach($departments as $dept)
             <li>
-              <a href="{{ route('store.shop', ['category' => $c->id]) }}" class="flex items-center justify-between gap-2 px-4 py-2.5 text-sm font-semibold {{ (string)$cat === (string)$c->id ? 'text-mv-accentDark bg-mv-accentSoft' : 'text-mv-ink hover:bg-mv-accentSoft hover:text-mv-accentDark' }} transition-colors">
-                <span class="truncate">{{ $c->name }}</span>
-                <svg class="w-3.5 h-3.5 shrink-0 text-mv-slate" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+              <a href="{{ $mvRoute('store.shop', ['category' => $dept]) }}"
+                 class="flex items-center justify-between py-1.5 px-2.5 rounded-lg {{ $selectedCat === $dept ? 'bg-mv-purpleLight text-mv-purple font-extrabold' : 'text-slate-700 hover:bg-slate-50' }}">
+                <span>{{ $dept }}</span>
               </a>
             </li>
           @endforeach
         </ul>
-
-        <form method="get" action="{{ route('store.shop') }}" class="p-4 border-t-2 border-mv-line">
-          <input type="hidden" name="category" value="{{ $cat }}">
-          <div class="mb-4">
-            <div class="text-[11px] font-bold uppercase text-mv-slate mb-2 mv-mono">Search</div>
-            <input type="text" name="q" value="{{ $q }}" placeholder="Search…" class="w-full h-9 px-3 rounded-md border-2 border-mv-line text-sm">
-          </div>
-          <div class="mb-4">
-            <div class="text-[11px] font-bold uppercase text-mv-slate mb-2 mv-mono">Price Range</div>
-            <div class="flex items-center gap-2">
-              <input type="number" name="min" value="{{ $min }}" placeholder="Min" class="w-1/2 h-9 px-2 rounded-md border-2 border-mv-line text-sm mv-mono">
-              <input type="number" name="max" value="{{ $max }}" placeholder="Max" class="w-1/2 h-9 px-2 rounded-md border-2 border-mv-line text-sm mv-mono">
-            </div>
-          </div>
-          <button class="w-full h-9 rounded-md bg-mv-accent text-white text-sm font-bold hover:bg-mv-accentDark transition-colors">Apply Filters</button>
-          <a href="{{ route('store.shop') }}" class="block text-center mt-2 text-xs text-mv-slate hover:text-mv-accentDark mv-mono">CLEAR ALL</a>
-        </form>
       </div>
+
+      <!-- Marketplace Collections Box -->
+      <div class="bg-white rounded-2xl border border-mv-border p-4 sm:p-5 space-y-3 shadow-xs">
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-900 border-b border-slate-100 pb-2">
+          Featured Deals
+        </h3>
+        <ul class="space-y-1 text-xs font-semibold">
+          <li>
+            <a href="{{ $mvRoute('store.shop', ['collection' => 'flash-sale']) }}"
+               class="flex items-center justify-between py-1.5 px-2.5 rounded-lg {{ request('collection') === 'flash-sale' ? 'bg-red-50 text-red-600 font-extrabold' : 'text-slate-700 hover:bg-slate-50' }}">
+              <span>⚡ Flash Sale</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ $mvRoute('store.shop', ['collection' => 'top-deals']) }}"
+               class="flex items-center justify-between py-1.5 px-2.5 rounded-lg {{ request('collection') === 'top-deals' ? 'bg-amber-50 text-amber-600 font-extrabold' : 'text-slate-700 hover:bg-slate-50' }}">
+              <span>🔥 Top Deals</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ $mvRoute('store.shop', ['collection' => 'recommended']) }}"
+               class="flex items-center justify-between py-1.5 px-2.5 rounded-lg {{ request('collection') === 'recommended' ? 'bg-mv-purpleLight text-mv-purple font-extrabold' : 'text-slate-700 hover:bg-slate-50' }}">
+              <span>👍 Recommended</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ $mvRoute('store.shop', ['collection' => 'new-arrivals']) }}"
+               class="flex items-center justify-between py-1.5 px-2.5 rounded-lg {{ request('collection') === 'new-arrivals' ? 'bg-mv-purpleLight text-mv-purple font-extrabold' : 'text-slate-700 hover:bg-slate-50' }}">
+              <span>✨ New Arrivals</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ $mvRoute('store.shop', ['collection' => 'bestselling']) }}"
+               class="flex items-center justify-between py-1.5 px-2.5 rounded-lg {{ request('collection') === 'bestselling' ? 'bg-mv-purpleLight text-mv-purple font-extrabold' : 'text-slate-700 hover:bg-slate-50' }}">
+              <span>⭐ Best Sellers</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
     </aside>
 
-    <div class="min-w-0">
-      {{-- Mobile: category chip scroller --}}
-      <div class="lg:hidden -mx-1 mb-4 overflow-x-auto no-scrollbar">
-        <div class="flex gap-2 px-1">
-          <a href="{{ route('store.shop') }}" class="shrink-0 px-3 h-8 inline-flex items-center rounded-full border-2 text-xs font-bold mv-mono {{ !$cat ? 'bg-mv-accent text-white border-mv-accent' : 'border-mv-line text-mv-ink' }}">ALL</a>
-          @foreach($categories as $c)
-            <a href="{{ route('store.shop', ['category' => $c->id]) }}" class="shrink-0 px-3 h-8 inline-flex items-center rounded-full border-2 text-xs font-bold {{ (string)$cat === (string)$c->id ? 'bg-mv-accent text-white border-mv-accent' : 'border-mv-line text-mv-ink' }}">{{ $c->name }}</a>
+    <!-- Products Grid (9 cols on desktop) -->
+    <main class="lg:col-span-9">
+      @if($products->isNotEmpty())
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+          @foreach($products as $prod)
+            @include('store.themes.marketverse.partials.product-card', ['product' => $prod])
           @endforeach
         </div>
-      </div>
 
-      @if($productVms->isEmpty())
-        <div class="text-center py-24 bg-white rounded-lg border-2 border-mv-line">
-          <p class="text-mv-slate">No products matched your filters.</p>
-          <a href="{{ route('store.shop') }}" class="text-mv-accentDark font-bold text-sm">Clear filters</a>
-        </div>
+        <!-- Pagination -->
+        @if(method_exists($products, 'links') && $products->hasPages())
+          <div class="mt-10 flex justify-center">
+            {{ $products->appends(request()->query())->links() }}
+          </div>
+        @endif
       @else
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3">
-          @foreach($productVms as $product)
-            @include('store.themes.marketverse.partials.product-card', ['product' => $product])
-          @endforeach
+        <div class="bg-white rounded-3xl border border-mv-border p-12 text-center space-y-4 shadow-xs">
+          <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-2xl">
+            📦
+          </div>
+          <h3 class="text-lg font-bold text-slate-900">No marketplace products found</h3>
+          <p class="text-xs text-slate-500 max-w-sm mx-auto">
+            Try adjusting your search query, clearing department filters, or exploring all products.
+          </p>
+          <div>
+            <a href="{{ $shopUrl }}" class="px-6 py-2.5 bg-mv-purple text-white font-bold text-xs rounded-full shadow-md hover:bg-mv-purpleDark transition-all inline-block">
+              Browse All Products
+            </a>
+          </div>
         </div>
-        <div class="mt-8">{{ $products->links() }}</div>
       @endif
-    </div>
+    </main>
+
   </div>
-</main>
-
-@include('store.themes.marketverse.partials.footer', ['categories' => $categories])
-@include('store.themes.marketverse.partials.mobile-nav')
-
-<script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
-</body>
-</html>
+</div>
+@endsection

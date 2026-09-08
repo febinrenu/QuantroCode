@@ -1,22 +1,48 @@
 {
-  "slug": "shopiq",
-  "name": "ShopIQ",
-  "tagline": "Shop smarter, not harder.",
-  "description": "Data-forward smart-shopping persona with a split-screen hero (headline + live trending carousel), comparison-style badge chips on products, and a cool teal-and-navy palette. General merchandise across electronics, fashion, home, beauty, grocery and sports.",
-  "category": "general-merchandise",
-  "version": "1.0.0",
-  "layout_persona": "Smart Shopping Analyst",
-  "layout": "split-hero-comparison",
-  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap",
-  "fontPairing": { "heading": "Inter", "body": "Inter" },
-  "paletteSwatches": ["#0EA5A5", "#1E3A5F", "#ffffff", "#F59E0B"],
-  "tokens": {
-    "color-bg-base": "#F7FAFC",
-    "color-accent-500": "#0EA5A5",
-    "color-accent-600": "#0C8787",
-    "font-heading": "'Inter', sans-serif",
-    "font-body": "'Inter', sans-serif"
-  },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
-  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+    "slug": "shopiq",
+    "name": "ShopIQ",
+    "tagline": "Shop smarter, not harder.",
+    "description": "Data-forward smart-shopping persona with a split-screen hero (headline + live trending carousel), comparison-style badge chips on products, and a cool teal-and-navy palette. General merchandise across electronics, fashion, home, beauty, grocery and sports.",
+    "category": "general-merchandise",
+    "version": "1.0.0",
+    "layout_persona": "Smart Shopping Analyst",
+    "layout": "split-hero-comparison",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap",
+    "fontPairing": {
+        "heading": "Inter",
+        "body": "Inter"
+    },
+    "paletteSwatches": [
+        "#0EA5A5",
+        "#0C8787",
+        "#1E3A5F",
+        "#F59E0B"
+    ],
+    "tokens": {
+        "color-bg-base": "#F7FAFC",
+        "color-accent-500": "#0EA5A5",
+        "color-accent-600": "#0C8787",
+        "color-accent-700": "#1E3A5F",
+        "color-accent-800": "#F59E0B",
+        "font-heading": "'Inter', sans-serif",
+        "font-body": "'Inter', sans-serif",
+        "font-size-heading": "32px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
 }

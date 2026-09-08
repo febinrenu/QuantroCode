@@ -1,22 +1,48 @@
 {
-  "slug": "crystalglass",
-  "name": "CrystalGlass",
-  "tagline": "Shopping, reimagined.",
-  "description": "Glassmorphic general-merchandise storefront with a visible blurred gradient-mesh background (blue, purple, pink) and frosted translucent cards throughout — electronics, fashion, home, beauty, grocery and sports presented with pill-shaped buttons and generous letter-spacing.",
-  "category": "general-merchandise",
-  "version": "1.0.0",
-  "layout_persona": "Glassmorphism Gradient Mesh",
-  "layout": "glass-mesh",
-  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap",
-  "fontPairing": { "heading": "Inter", "body": "Inter" },
-  "paletteSwatches": ["#6D8CFF", "#A78BFA", "#F9A8D4", "#1E1B2E"],
-  "tokens": {
-    "color-bg-base": "#F1EEFC",
-    "color-accent-500": "#8B7CF6",
-    "color-accent-600": "#6D5AE6",
-    "font-heading": "'Inter', sans-serif",
-    "font-body": "'Inter', sans-serif"
-  },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
-  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+    "slug": "crystalglass",
+    "name": "CrystalGlass",
+    "tagline": "Shopping, reimagined.",
+    "description": "Glassmorphic general-merchandise storefront with a visible blurred gradient-mesh background (blue, purple, pink) and frosted translucent cards throughout — electronics, fashion, home, beauty, grocery and sports presented with pill-shaped buttons and generous letter-spacing.",
+    "category": "general-merchandise",
+    "version": "1.0.0",
+    "layout_persona": "Glassmorphism Gradient Mesh",
+    "layout": "glass-mesh",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap",
+    "fontPairing": {
+        "heading": "Inter",
+        "body": "Inter"
+    },
+    "paletteSwatches": [
+        "#8B7CF6",
+        "#6D5AE6",
+        "#6D8CFF",
+        "#F9A8D4"
+    ],
+    "tokens": {
+        "color-bg-base": "#F1EEFC",
+        "color-accent-500": "#8B7CF6",
+        "color-accent-600": "#6D5AE6",
+        "color-accent-700": "#6D8CFF",
+        "color-accent-800": "#F9A8D4",
+        "font-heading": "'Inter', sans-serif",
+        "font-body": "'Inter', sans-serif",
+        "font-size-heading": "32px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
 }

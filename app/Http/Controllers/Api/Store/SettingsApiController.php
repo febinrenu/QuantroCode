@@ -103,11 +103,8 @@ class SettingsApiController extends Controller
     {
         $this->authorizeForUser($request->user('api'), 'view', StoreSetting::class);
 
-        // Grandfather in the store's current theme value (e.g. a legacy 'default'
-        // or 'real_estate' store) so saving unrelated settings doesn't fail
-        // validation just because those slugs are no longer offered as fresh
-        // picks in the theme gallery.
-        $currentTheme = StoreSetting::first()?->theme;
+        $s = StoreSetting::first() ?: new StoreSetting;
+        $currentTheme = $s->theme;
         $allowedThemeSlugs = array_values(array_unique(array_filter(array_merge(
             StorefrontThemeRegistry::slugs(),
             [$currentTheme]
@@ -233,6 +230,14 @@ class SettingsApiController extends Controller
                 if ($isColorKey && ! preg_match('/^#[0-9a-fA-F]{3,8}$/', $value)) {
                     continue;
                 }
+                if (Str::startsWith($key, 'font-size-')) {
+                    if (is_numeric($value)) {
+                        $value = $value . 'px';
+                    }
+                    if (! preg_match('/^[0-9]{1,3}(px|rem|em|pt|%)?$/', $value)) {
+                        continue;
+                    }
+                }
                 if (! $isColorKey && Str::length($value) > 120) {
                     continue;
                 }
@@ -352,6 +357,8 @@ class SettingsApiController extends Controller
         // ============================
 
         $s->fill($data)->save();
+
+        session()->forget('preview_theme');
 
         return response()->json($s->fresh());
     }

@@ -1,95 +1,147 @@
-<!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
-<head>
-@include('store.themes.nexora._shell', ['pageTitle' => 'Shop — ' . ($s->store_name ?? 'Nexora')])
-</head>
-<body class="bg-nx-bg text-nx-ink antialiased">
-
-@include('store.themes.nexora.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
+@extends('store.themes.nexora._shell')
 
 @php
-  $currency = $s->currency_code ?? '$';
-  $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
-  $productVms = collect($products->items())->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+    $previewTheme = request('preview_theme', 'nexora');
+    $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
+    $currentCategory = request('category', '');
+    $currentSort = request('sort', 'latest');
 @endphp
 
-<main class="pb-28 lg:pb-0">
-  <section class="bg-white border-b border-nx-chrome1">
-    <div class="max-w-7xl mx-auto px-4 py-6 flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <span class="inline-flex px-3 py-1 nx-pill nx-sticker text-xs font-bold text-nx-ink">Shop</span>
-        <h1 class="text-2xl font-black nx-holo-text mt-2">All Products</h1>
-        <p class="text-sm text-nx-mute mt-1">{{ $products->total() }} products found @if($q) for "{{ $q }}" @endif</p>
-      </div>
-      <form method="get" action="{{ route('store.shop') }}" class="flex items-end gap-2">
-        @foreach(request()->except(['sort','page']) as $k => $v)
-          <input type="hidden" name="{{ $k }}" value="{{ $v }}">
-        @endforeach
-        <select name="sort" class="h-11 px-4 nx-pill border border-nx-chrome1 text-sm">
-          <option value="latest" @selected(($sort ?? 'latest') === 'latest')>Latest</option>
-          <option value="price_asc" @selected($sort === 'price_asc')>Price: Low to High</option>
-          <option value="price_desc" @selected($sort === 'price_desc')>Price: High to Low</option>
-        </select>
-        <button class="h-11 px-5 nx-pill nx-holo-bg text-white text-sm font-bold">Update</button>
-      </form>
-    </div>
-  </section>
+@section('title', 'Marketplace Catalog — Nexora')
 
-  <div class="max-w-7xl mx-auto px-4 py-8 grid lg:grid-cols-[260px_1fr] gap-6">
-    <aside class="hidden lg:block">
-      <div class="bg-white rounded-3xl border border-nx-chrome1 p-5 sticky top-24 shadow-card">
-        <form method="get" action="{{ route('store.shop') }}">
-          <div class="mb-5">
-            <div class="text-xs font-bold uppercase text-nx-violet mb-2">Search</div>
-            <input type="text" name="q" value="{{ $q }}" placeholder="Search…" class="w-full h-11 px-4 nx-pill border border-nx-chrome1 text-sm">
-          </div>
-          <div class="mb-5">
-            <div class="text-xs font-bold uppercase text-nx-violet mb-2">Category</div>
-            <ul class="space-y-1 max-h-64 overflow-y-auto">
-              @foreach($categories as $c)
-                <li>
-                  <label class="flex items-center gap-2 text-sm text-nx-mute cursor-pointer">
-                    <input type="radio" name="category" value="{{ $c->id }}" {{ (string)$cat === (string)$c->id ? 'checked' : '' }} onchange="this.form.submit()">
-                    {{ $c->name }}
-                  </label>
-                </li>
-              @endforeach
-            </ul>
-          </div>
-          <div class="mb-5">
-            <div class="text-xs font-bold uppercase text-nx-violet mb-2">Price Range</div>
-            <div class="flex items-center gap-2">
-              <input type="number" name="min" value="{{ $min }}" placeholder="Min" class="w-1/2 h-10 px-3 nx-pill border border-nx-chrome1 text-sm">
-              <input type="number" name="max" value="{{ $max }}" placeholder="Max" class="w-1/2 h-10 px-3 nx-pill border border-nx-chrome1 text-sm">
+@section('content')
+
+<!-- Catalog Header & Breadcrumbs -->
+<div class="bg-white border-b border-slate-200/80 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Breadcrumb -->
+        <nav class="flex text-xs text-slate-400 mb-2">
+            <ol class="inline-flex items-center space-x-2">
+                <li><a href="{{ $storeUrl }}" class="hover:text-nex-blue transition">Home</a></li>
+                <li><span>/</span></li>
+                <li class="text-nex-navy font-bold">Catalog</li>
+                @if($currentCategory)
+                    <li><span>/</span></li>
+                    <li class="text-nex-blue font-bold">{{ $currentCategory }}</li>
+                @endif
+            </ol>
+        </nav>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-black text-nex-navy uppercase tracking-tight">
+                    {{ $currentCategory ? $currentCategory : 'All Marketplace Products' }}
+                </h1>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">
+                    Showing {{ count($products) }} curated items
+                </p>
             </div>
-          </div>
-          <button class="w-full h-11 nx-pill nx-holo-bg text-white text-sm font-bold">Apply Filters</button>
-          <a href="{{ route('store.shop') }}" class="block text-center mt-2 text-xs text-nx-mute hover:text-nx-pink">Clear all</a>
-        </form>
-      </div>
-    </aside>
 
-    <div>
-      @if($productVms->isEmpty())
-        <div class="text-center py-24 bg-white rounded-3xl border border-nx-chrome1">
-          <p class="text-nx-mute">No products matched your filters.</p>
-          <a href="{{ route('store.shop') }}" class="text-nx-pink font-bold text-sm">Clear filters</a>
+            <!-- Sorting Dropdown -->
+            <form method="GET" action="{{ url('online_store/shop') }}" class="flex items-center gap-2">
+                @if($previewTheme)
+                    <input type="hidden" name="preview_theme" value="{{ $previewTheme }}">
+                @endif
+                @if($currentCategory)
+                    <input type="hidden" name="category" value="{{ $currentCategory }}">
+                @endif
+
+                <label for="sort-select" class="text-xs font-bold text-slate-500 uppercase tracking-wider">Sort by:</label>
+                <select id="sort-select"
+                        name="sort"
+                        onchange="this.form.submit()"
+                        class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-nex-navy focus:outline-none focus:border-nex-blue">
+                    <option value="latest" {{ $currentSort === 'latest' ? 'selected' : '' }}>Latest Arrivals</option>
+                    <option value="price_low" {{ $currentSort === 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
+                    <option value="price_high" {{ $currentSort === 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
+                    <option value="name" {{ $currentSort === 'name' ? 'selected' : '' }}>Product Name</option>
+                </select>
+            </form>
         </div>
-      @else
-        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
-          @foreach($productVms as $product)
-            @include('store.themes.nexora.partials.product-card', ['product' => $product])
-          @endforeach
-        </div>
-        <div class="mt-8">{{ $products->links() }}</div>
-      @endif
+
     </div>
-  </div>
-</main>
+</div>
 
-@include('store.themes.nexora.partials.footer', ['categories' => $categories])
-@include('store.themes.nexora.partials.mobile-nav')
+<!-- Main Catalog Container -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-<script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
-</body>
-</html>
+        <!-- Left Sidebar Filters (3 Cols) -->
+        <aside class="lg:col-span-3 space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-6">
+
+                <!-- Category Filter -->
+                <div>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-nex-navy border-b border-slate-100 pb-2 mb-3">
+                        Categories
+                    </h3>
+                    <ul class="space-y-1.5 text-xs font-semibold text-slate-600">
+                        <li>
+                            <a href="{{ url('online_store/shop' . ($previewTheme ? '?preview_theme=' . $previewTheme : '')) }}"
+                               class="flex items-center justify-between py-1.5 px-2.5 rounded-xl {{ empty($currentCategory) ? 'bg-blue-50 text-nex-blue font-bold' : 'hover:bg-slate-50 hover:text-nex-blue' }}">
+                                <span>All Categories</span>
+                            </a>
+                        </li>
+                        @foreach($categories as $catItem)
+                            <li>
+                                <a href="{{ url('online_store/shop?category=' . urlencode($catItem->name) . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}"
+                                   class="flex items-center justify-between py-1.5 px-2.5 rounded-xl {{ $currentCategory === $catItem->name ? 'bg-blue-50 text-nex-blue font-bold' : 'hover:bg-slate-50 hover:text-nex-blue' }}">
+                                    <span>{{ $catItem->name }}</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+
+                <!-- Price Quick Filter -->
+                <div>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-nex-navy border-b border-slate-100 pb-2 mb-3">
+                        Price Range
+                    </h3>
+                    <div class="space-y-1.5 text-xs font-semibold text-slate-600">
+                        <a href="{{ url('online_store/shop?min=0&max=50' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="block py-1.5 px-2.5 rounded-xl hover:bg-slate-50 hover:text-nex-blue">Under $50</a>
+                        <a href="{{ url('online_store/shop?min=50&max=100' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="block py-1.5 px-2.5 rounded-xl hover:bg-slate-50 hover:text-nex-blue">$50 to $100</a>
+                        <a href="{{ url('online_store/shop?min=100&max=200' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="block py-1.5 px-2.5 rounded-xl hover:bg-slate-50 hover:text-nex-blue">$100 to $200</a>
+                        <a href="{{ url('online_store/shop?min=200' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="block py-1.5 px-2.5 rounded-xl hover:bg-slate-50 hover:text-nex-blue">$200 & Above</a>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- Right Products Grid (9 Cols) -->
+        <main class="lg:col-span-9 space-y-6">
+            @if(count($products) > 0)
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
+                    @foreach($products as $prod)
+                        @include('store.themes.nexora.partials.product-card', ['product' => $prod])
+                    @endforeach
+                </div>
+
+                @if(method_exists($products, 'links'))
+                    <div class="pt-6">
+                        {{ $products->appends(request()->query())->links() }}
+                    </div>
+                @endif
+            @else
+                <div class="bg-white rounded-3xl p-12 text-center max-w-md mx-auto border border-slate-200 shadow-xs space-y-4">
+                    <div class="text-4xl">🔍</div>
+                    <h2 class="text-lg font-black text-nex-navy">No products found</h2>
+                    <p class="text-xs text-slate-500">
+                        Try adjusting your search keywords or category filters.
+                    </p>
+                    <div class="pt-2">
+                        <a href="{{ url('online_store/shop' . ($previewTheme ? '?preview_theme=' . $previewTheme : '')) }}"
+                           class="inline-block px-6 py-2.5 bg-nex-blue text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-nex-bluedark transition">
+                            Clear Filters
+                        </a>
+                    </div>
+                </div>
+            @endif
+        </main>
+
+    </div>
+</div>
+
+@endsection

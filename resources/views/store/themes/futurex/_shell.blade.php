@@ -1,17 +1,27 @@
 {{-- FutureX theme shell — Tailwind CDN + config + fonts, included once per page --}}
 @php
-  $fxTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'FutureX');
-  $fxHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $themeTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'FutureX');
+  $themeHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $activeThemeSlug = 'futurex';
+  $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
+  $accent500 = $themeTokens['color-accent-500'] ?? '{{ $accent500 }}';
+  $accent600 = $themeTokens['color-accent-600'] ?? '{{ $accent600 }}';
+  $accent700 = $themeTokens['color-accent-700'] ?? '{{ $accent700 }}';
+  $accent800 = $themeTokens['color-accent-800'] ?? '{{ $accent800 }}';
+  $fontHeading = $themeTokens['font-heading'] ?? "'Space Grotesk', sans-serif";
+  $fontBody = $themeTokens['font-body'] ?? "'Inter', sans-serif";
+  $fontSizeHeading = $themeTokens['font-size-heading'] ?? '36px';
+  $fontSizeBody = $themeTokens['font-size-body'] ?? '15px';
 @endphp
 <meta charset="utf-8" />
-<title>{{ $fxTitle }}</title>
+<title>{{ $themeTitle }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="description" content="{{ $s->seo_meta_description ?? 'The store from tomorrow — electronics, fashion, home, beauty and more, all in one drop.' }}" />
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="currency" content="{{ $s->currency_code ?? '$' }}">
 <script>window.__LOGGED_IN__ = @json(Auth::guard('store')->check());</script>
 <script>window.__ALLOW_OVERSELLING__ = @json($s->allow_overselling ?? true);</script>
-<script>window.__HIDE_PRICES__ = @json($fxHidePrices);</script>
+<script>window.__HIDE_PRICES__ = @json($themeHidePrices);</script>
 <script>window.__SHOW_STOCK__ = @json($s->show_stock ?? true);</script>
 <script>
   window.__MSG_ONLY_X_STOCK__ = @json(__('messages.Only_x_available_in_stock'));
@@ -35,9 +45,9 @@
             panel: '#11162A',
             panel2: '#161C36',
             border: '#252C4A',
-            violet: '#8B5CF6',
-            cyan: '#22D3EE',
-            pink: '#F472B6',
+            violet: '{{ $accent500 }}',
+            cyan: '{{ $accent600 }}',
+            pink: '{{ $accent700 }}',
             ink: '#E7E9F5',
             mute: '#8B90B3',
           }
@@ -57,6 +67,25 @@
 </script>
 
 <style>
+  :root {
+    --color-accent-500: {{ $accent500 }};
+    --color-accent-600: {{ $accent600 }};
+    --color-accent-700: {{ $accent700 }};
+    --color-accent-800: {{ $accent800 }};
+    --font-heading: {!! $fontHeading !!};
+    --font-body: {!! $fontBody !!};
+    --font-size-heading: {{ $fontSizeHeading }};
+    --font-size-body: {{ $fontSizeBody }};
+  }
+  body {
+    font-family: {!! $fontBody !!} !important;
+    font-size: {{ $fontSizeBody }} !important;
+  }
+  h1, .hero-title, [class*="-hero"] h1, .font-display, .font-head, .font-serif {
+    font-size: {{ $fontSizeHeading }};
+    font-family: {!! $fontHeading !!};
+  }
+
   * { scrollbar-width: thin; scrollbar-color: #8B5CF6 #0A0E1A; }
   ::-webkit-scrollbar { height: 8px; width: 8px; }
   ::-webkit-scrollbar-thumb { background: #8B5CF6; border-radius: 9999px; }

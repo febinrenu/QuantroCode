@@ -1,22 +1,48 @@
 {
-  "slug": "terraco",
-  "name": "Terraco",
-  "tagline": "Less noise. Better choices.",
-  "description": "A Scandinavian minimal whitespace persona for general merchandise — electronics, fashion, home, beauty and more, presented without clutter. Flat surfaces, thin borders, and one calm slate-blue accent let the products speak for themselves.",
-  "category": "general-merchandise",
-  "version": "1.0.0",
-  "layout_persona": "Scandinavian Minimal Whitespace",
-  "layout": "lean-single-column",
-  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;500&display=swap",
-  "fontPairing": { "heading": "Inter", "body": "IBM Plex Sans" },
-  "paletteSwatches": ["#FAFAF8", "#4A5A6A", "#2E3742", "#D8CFC2"],
-  "tokens": {
-    "color-bg-base": "#FAFAF8",
-    "color-accent-500": "#4A5A6A",
-    "color-accent-600": "#2E3742",
-    "font-heading": "'Inter', sans-serif",
-    "font-body": "'IBM Plex Sans', sans-serif"
-  },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
-  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+    "slug": "terraco",
+    "name": "Terraco",
+    "tagline": "Less noise. Better choices.",
+    "description": "A Scandinavian minimal whitespace persona for general merchandise — electronics, fashion, home, beauty and more, presented without clutter. Flat surfaces, thin borders, and one calm slate-blue accent let the products speak for themselves.",
+    "category": "general-merchandise",
+    "version": "1.0.0",
+    "layout_persona": "Scandinavian Minimal Whitespace",
+    "layout": "lean-single-column",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Sans:wght@400;500&display=swap",
+    "fontPairing": {
+        "heading": "Inter",
+        "body": "IBM Plex Sans"
+    },
+    "paletteSwatches": [
+        "#4A5A6A",
+        "#2E3742",
+        "#B0714F",
+        "#D8CFC2"
+    ],
+    "tokens": {
+        "color-bg-base": "#FAFAF8",
+        "color-accent-500": "#4A5A6A",
+        "color-accent-600": "#2E3742",
+        "color-accent-700": "#B0714F",
+        "color-accent-800": "#D8CFC2",
+        "font-heading": "'Inter', sans-serif",
+        "font-body": "'IBM Plex Sans', sans-serif",
+        "font-size-heading": "32px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
 }

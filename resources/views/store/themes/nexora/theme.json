@@ -1,22 +1,54 @@
 {
-  "slug": "nexora",
-  "name": "Nexora",
-  "tagline": "The future of shopping, unlocked.",
-  "description": "Y2K/chrome-revival persona with metallic chrome gradients, iridescent holographic accents, bubble-rounded pill UI and glossy button chrome. General merchandise across electronics, fashion, home, beauty, grocery and sports, delivered with 2000s-web nostalgia energy.",
-  "category": "general-merchandise",
-  "version": "1.0.0",
-  "layout_persona": "Y2K Chrome Holographic",
-  "layout": "bubble-chrome",
-  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap",
-  "fontPairing": { "heading": "Poppins", "body": "Poppins" },
-  "paletteSwatches": ["#FF6EC7", "#6EE7FF", "#A78BFA", "#C7CBD1"],
-  "tokens": {
-    "color-bg-base": "#F4F6F8",
-    "color-accent-500": "#FF6EC7",
-    "color-accent-600": "#A78BFA",
-    "font-heading": "'Poppins', sans-serif",
-    "font-body": "'Poppins', sans-serif"
-  },
-  "customizable": ["color-accent-500", "color-accent-600", "font-heading", "font-body"],
-  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+    "slug": "nexora",
+    "name": "Nexora",
+    "tagline": "Shop Different — Make Every Day Easier",
+    "description": "High-energy modern retail marketplace featuring multi-category shopping, vibrant commercial advertising hero composition, dense multi-category discovery, and royal blue brand architecture.",
+    "category": "Category-Specific Themes",
+    "version": "1.1.0",
+    "layout_persona": "Modern Retail Marketplace",
+    "layout": "modern-marketplace",
+    "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap",
+    "fontPairing": {
+        "heading": "Plus Jakarta Sans",
+        "body": "Plus Jakarta Sans"
+    },
+    "paletteSwatches": [
+        "#2457D6",
+        "#101A3A",
+        "#EEF4FF",
+        "#F97316",
+        "#7C3AED"
+    ],
+    "tokens": {
+        "color-bg-base": "#F8FAFC",
+        "color-surface": "#FFFFFF",
+        "color-primary": "#2457D6",
+        "color-primary-dark": "#1D4ED8",
+        "color-navy": "#101A3A",
+        "color-navy-dark": "#0B1126",
+        "color-accent-blue": "#EEF4FF",
+        "color-secondary": "#7C3AED",
+        "color-accent": "#F97316",
+        "color-accent-pink": "#EC4899",
+        "color-accent-teal": "#0D9488",
+        "color-text-main": "#101A3A",
+        "color-text-muted": "#64748B",
+        "color-border": "#E2E8F0",
+        "font-heading": "'Plus Jakarta Sans', sans-serif",
+        "font-body": "'Plus Jakarta Sans', sans-serif"
+    },
+    "customizable": [
+        "color-primary",
+        "color-navy",
+        "color-accent",
+        "color-bg-base",
+        "font-heading",
+        "font-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
 }

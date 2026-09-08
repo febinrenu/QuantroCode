@@ -1,0 +1,68 @@
+{
+    "name": "VogueLane Luxury Fashion",
+    "slug": "voguelane-couture",
+    "category": "Category-Specific Themes",
+    "description": "High Fashion & Couture",
+    "version": "1.0.0",
+    "author": "Antigravity",
+    "preview_image": "images/themes/voguelane/hero-model.jpg",
+    "colors": {
+        "primary": "#111111",
+        "secondary": "#C49A6C",
+        "accent": "#E53E3E",
+        "background": "#FFFFFF",
+        "surface": "#F9F8F6",
+        "border": "#EAE8E4",
+        "text": "#1A1A1A",
+        "text_muted": "#75726B"
+    },
+    "typography": {
+        "font_family": "Plus Jakarta Sans, sans-serif",
+        "heading_font": "Playfair Display, serif"
+    },
+    "features": {
+        "curated_grid": true,
+        "lookbook": true,
+        "trending_tabs": true,
+        "promo_editorial_grid": true,
+        "category_strip": true,
+        "testimonials": true,
+        "newsletter_bar": true,
+        "mobile_responsive": true
+    },
+    "theme_type": "category-specific",
+    "tagline": "High Fashion & Couture",
+    "paletteSwatches": [
+        "#D4AF37",
+        "#111111",
+        "#FFFFFF",
+        "#991B1B"
+    ],
+    "tokens": {
+        "color-bg-base": "#FFFFFF",
+        "color-accent-500": "#D4AF37",
+        "color-accent-600": "#B8860B",
+        "color-accent-700": "#111111",
+        "color-accent-800": "#991B1B",
+        "font-heading": "'Bebas Neue', sans-serif",
+        "font-body": "'Plus Jakarta Sans', sans-serif",
+        "font-size-heading": "38px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
+}

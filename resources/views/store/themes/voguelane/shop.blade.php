@@ -1,98 +1,231 @@
-<!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
-<head>
-@include('store.themes.voguelane._shell', ['pageTitle' => 'Shop — ' . ($s->store_name ?? 'Voguelane')])
-</head>
-<body class="bg-white text-black antialiased">
+@extends('store.themes.voguelane._shell')
 
-@include('store.themes.voguelane.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
+@section('title', 'Shop Fashion Collections — VogueLane')
+
+@section('content')
 
 @php
+  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'voguelane');
+  $vogRoute = function(string $name, array $parameters = []) use ($themePreview) {
+      if ($themePreview && !isset($parameters['preview_theme'])) {
+          $parameters['preview_theme'] = $themePreview;
+      }
+      return route($name, $parameters);
+  };
+  
   $currency = $s->currency_code ?? '$';
   $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
-  $productVms = collect($products->items())->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+
+  $currentCat = request('category') ?: request('cat');
+  $currentColl = request('collection');
+  $currentSort = request('sort', 'latest');
+  $currentSearch = request('q');
 @endphp
 
-<main class="pb-24 lg:pb-0">
-  <section class="bg-black text-white">
-    <div class="px-4 lg:px-8 py-10 lg:py-14">
-      <span class="eyebrow text-brand-magenta text-xs font-bold">Full Catalog</span>
-      <h1 class="font-display text-6xl lg:text-7xl mt-1">ALL PRODUCTS</h1>
-      <p class="text-sm text-white/50 mt-2">{{ $products->total() }} products found @if($q) for "{{ $q }}" @endif</p>
-    </div>
-  </section>
-
-  <div class="px-4 lg:px-8 py-10">
-    <div class="flex flex-wrap items-end justify-end gap-3 mb-6">
-      <form method="get" action="{{ route('store.shop') }}" class="flex items-end gap-2">
-        @foreach(request()->except(['sort','page']) as $k => $v)
-          <input type="hidden" name="{{ $k }}" value="{{ $v }}">
-        @endforeach
-        <select name="sort" class="h-10 px-3 border border-black/20 text-sm">
-          <option value="latest" @selected(($sort ?? 'latest') === 'latest')>Latest</option>
-          <option value="price_asc" @selected($sort === 'price_asc')>Price: Low to High</option>
-          <option value="price_desc" @selected($sort === 'price_desc')>Price: High to Low</option>
-        </select>
-        <button class="h-10 px-5 bg-black text-white text-sm font-bold uppercase tracking-wide hover:bg-brand-magenta">Update</button>
-      </form>
-    </div>
-
-    <div class="grid lg:grid-cols-[1fr_280px] gap-8">
-      <div>
-        @if($productVms->isEmpty())
-          <div class="text-center py-24">
-            <p class="text-black/40">No products matched your filters.</p>
-            <a href="{{ route('store.shop') }}" class="text-brand-magenta font-bold text-sm uppercase">Clear filters</a>
-          </div>
+<!-- Page Breadcrumbs & Header -->
+<div class="bg-vog-ivory border-b border-vog-border py-8 sm:py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="space-y-2">
+      <nav class="flex items-center gap-2 text-xs text-slate-400 font-medium uppercase tracking-wider">
+        <a href="{{ $vogRoute('store.index') }}" class="hover:text-slate-900 transition-colors">Home</a>
+        <span>&rsaquo;</span>
+        <span class="text-slate-900 font-semibold">
+          @if($currentCat)
+            {{ is_numeric($currentCat) ? ($categories->firstWhere('id', $currentCat)->name ?? 'Category') : $currentCat }}
+          @elseif($currentColl)
+            {{ ucwords(str_replace('-', ' ', $currentColl)) }}
+          @elseif($currentSearch)
+            Search: "{{ $currentSearch }}"
+          @else
+            All Collections
+          @endif
+        </span>
+      </nav>
+      <h1 class="font-serif-luxury text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
+        @if($currentCat)
+          {{ is_numeric($currentCat) ? ($categories->firstWhere('id', $currentCat)->name ?? 'Category') : $currentCat }}
+        @elseif($currentColl)
+          {{ ucwords(str_replace('-', ' ', $currentColl)) }}
+        @elseif($currentSearch)
+          Results for &ldquo;{{ $currentSearch }}&rdquo;
         @else
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-5">
-            @foreach($productVms as $product)
-              @include('store.themes.voguelane.partials.product-card', ['product' => $product])
-            @endforeach
-          </div>
-          <div class="mt-10">{{ $products->links() }}</div>
+          The Collection
         @endif
-      </div>
-
-      <aside class="order-first lg:order-last">
-        <div class="border border-black/10 p-5 lg:sticky lg:top-24">
-          <form method="get" action="{{ route('store.shop') }}">
-            <div class="mb-5">
-              <div class="text-xs font-bold uppercase tracking-widest text-brand-magenta mb-2">Search</div>
-              <input type="text" name="q" value="{{ $q }}" placeholder="Search…" class="w-full h-10 px-3 border border-black/20 text-sm">
-            </div>
-            <div class="mb-5">
-              <div class="text-xs font-bold uppercase tracking-widest text-brand-magenta mb-2">Category</div>
-              <ul class="space-y-1 max-h-64 overflow-y-auto">
-                @foreach($categories as $c)
-                  <li>
-                    <label class="flex items-center gap-2 text-sm text-black/70 cursor-pointer">
-                      <input type="radio" name="category" value="{{ $c->id }}" {{ (string)$cat === (string)$c->id ? 'checked' : '' }} onchange="this.form.submit()">
-                      {{ $c->name }}
-                    </label>
-                  </li>
-                @endforeach
-              </ul>
-            </div>
-            <div class="mb-5">
-              <div class="text-xs font-bold uppercase tracking-widest text-brand-magenta mb-2">Price Range</div>
-              <div class="flex items-center gap-2">
-                <input type="number" name="min" value="{{ $min }}" placeholder="Min" class="w-1/2 h-9 px-2 border border-black/20 text-sm">
-                <input type="number" name="max" value="{{ $max }}" placeholder="Max" class="w-1/2 h-9 px-2 border border-black/20 text-sm">
-              </div>
-            </div>
-            <button class="w-full h-10 bg-black text-white text-sm font-bold uppercase tracking-wide hover:bg-brand-magenta">Apply Filters</button>
-            <a href="{{ route('store.shop') }}" class="block text-center mt-2 text-xs text-black/40 hover:text-brand-magenta">Clear all</a>
-          </form>
-        </div>
-      </aside>
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-500 font-normal">
+        Showing {{ $products->total() }} luxury fashion piece{{ $products->total() == 1 ? '' : 's' }}
+      </p>
     </div>
   </div>
-</main>
+</div>
 
-@include('store.themes.voguelane.partials.footer', ['categories' => $categories])
-@include('store.themes.voguelane.partials.mobile-nav')
+<!-- Shop Main Content -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- Sidebar Filters (3 cols on desktop) -->
+    <aside class="lg:col-span-3 space-y-6 sm:space-y-8 bg-white lg:sticky lg:top-28">
+      
+      <!-- Category Filter -->
+      <div class="border border-vog-border rounded-2xl p-5 bg-vog-ivory space-y-4">
+        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center justify-between">
+          <span>Categories</span>
+          @if($currentCat)
+            <a href="{{ $vogRoute('store.shop') }}" class="text-[10px] text-vog-tan hover:underline lowercase font-normal">Clear</a>
+          @endif
+        </h3>
+        <ul class="space-y-2 text-xs font-medium">
+          <li>
+            <a href="{{ $vogRoute('store.shop') }}" 
+               class="flex items-center justify-between py-1 transition-colors {{ !$currentCat ? 'text-vog-tan font-bold' : 'text-slate-600 hover:text-slate-900' }}">
+              <span>All Categories</span>
+              <span class="text-slate-400">&rsaquo;</span>
+            </a>
+          </li>
+          @foreach($categories as $category)
+            @php
+              $isActive = ($currentCat == $category->id || $currentCat == $category->name);
+            @endphp
+            <li>
+              <a href="{{ $vogRoute('store.shop', ['category' => $category->name]) }}" 
+                 class="flex items-center justify-between py-1 transition-colors {{ $isActive ? 'text-vog-tan font-bold' : 'text-slate-600 hover:text-slate-900' }}">
+                <span>{{ $category->name }}</span>
+                <span class="text-slate-400">&rsaquo;</span>
+              </a>
+            </li>
+          @endforeach
+        </ul>
+      </div>
 
-<script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
-</body>
-</html>
+      <!-- Quick Collections -->
+      <div class="border border-vog-border rounded-2xl p-5 bg-vog-ivory space-y-4">
+        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">
+          Curated Lines
+        </h3>
+        <ul class="space-y-2 text-xs font-medium">
+          <li>
+            <a href="{{ $vogRoute('store.shop', ['collection' => 'new-in']) }}" 
+               class="flex items-center justify-between py-1 transition-colors {{ $currentColl === 'new-in' ? 'text-vog-tan font-bold' : 'text-slate-600 hover:text-slate-900' }}">
+              <span>✨ New In</span>
+              <span class="text-slate-400">&rsaquo;</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ $vogRoute('store.shop', ['collection' => 'bestselling']) }}" 
+               class="flex items-center justify-between py-1 transition-colors {{ $currentColl === 'bestselling' ? 'text-vog-tan font-bold' : 'text-slate-600 hover:text-slate-900' }}">
+              <span>🔥 Best Sellers</span>
+              <span class="text-slate-400">&rsaquo;</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ $vogRoute('store.shop', ['collection' => 'top-rated']) }}" 
+               class="flex items-center justify-between py-1 transition-colors {{ $currentColl === 'top-rated' ? 'text-vog-tan font-bold' : 'text-slate-600 hover:text-slate-900' }}">
+              <span>⭐ Top Rated</span>
+              <span class="text-slate-400">&rsaquo;</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ $vogRoute('store.shop', ['collection' => 'sale']) }}" 
+               class="flex items-center justify-between py-1 text-vog-sale font-semibold hover:underline">
+              <span>🏷️ Summer Sale</span>
+              <span class="text-vog-sale">&rsaquo;</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Filter Form: Price & Sort -->
+      <form action="{{ $vogRoute('store.shop') }}" method="GET" class="border border-vog-border rounded-2xl p-5 bg-vog-ivory space-y-4">
+        @if($themePreview)
+          <input type="hidden" name="preview_theme" value="{{ $themePreview }}">
+        @endif
+        @if($currentCat)
+          <input type="hidden" name="category" value="{{ $currentCat }}">
+        @endif
+        @if($currentColl)
+          <input type="hidden" name="collection" value="{{ $currentColl }}">
+        @endif
+
+        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">
+          Price Range
+        </h3>
+        
+        <div class="grid grid-cols-2 gap-2">
+          <input type="number" 
+                 name="min_price" 
+                 value="{{ request('min_price') }}" 
+                 placeholder="Min $" 
+                 class="w-full text-xs p-2.5 bg-white border border-vog-border rounded-lg outline-none focus:border-slate-900">
+          <input type="number" 
+                 name="max_price" 
+                 value="{{ request('max_price') }}" 
+                 placeholder="Max $" 
+                 class="w-full text-xs p-2.5 bg-white border border-vog-border rounded-lg outline-none focus:border-slate-900">
+        </div>
+
+        <button type="submit" class="w-full py-2.5 bg-vog-black hover:bg-neutral-800 text-white text-xs font-semibold rounded-lg transition-colors">
+          Apply Filter
+        </button>
+      </form>
+
+    </aside>
+
+    <!-- Product Grid & Toolbar (9 cols on desktop) -->
+    <main class="lg:col-span-9 space-y-6">
+      
+      <!-- Toolbar: Sort & Count -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-vog-ivory border border-vog-border rounded-xl p-3 sm:px-5">
+        <span class="text-xs text-slate-600 font-medium">
+          Showing <strong>{{ $products->count() }}</strong> of <strong>{{ $products->total() }}</strong> pieces
+        </span>
+
+        <!-- Sort Select -->
+        <div class="flex items-center gap-2">
+          <label for="sort-select" class="text-xs text-slate-500 font-medium">Sort by:</label>
+          <select id="sort-select" 
+                  onchange="window.location.href=this.value" 
+                  class="text-xs font-semibold bg-white border border-vog-border rounded-lg px-3 py-1.5 outline-none focus:border-slate-900 text-slate-800">
+            <option value="{{ $vogRoute('store.shop', array_merge(request()->query(), ['sort' => 'latest'])) }}" {{ $currentSort === 'latest' ? 'selected' : '' }}>Newest</option>
+            <option value="{{ $vogRoute('store.shop', array_merge(request()->query(), ['sort' => 'price_asc'])) }}" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+            <option value="{{ $vogRoute('store.shop', array_merge(request()->query(), ['sort' => 'price_desc'])) }}" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      @if($products->count() > 0)
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          @foreach($products as $p)
+            @php
+              $prodVm = is_array($p) ? $p : \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices);
+            @endphp
+            @include('store.themes.voguelane.partials.product-card', ['product' => $prodVm])
+          @endforeach
+        </div>
+
+        <!-- Pagination -->
+        <div class="pt-8 flex justify-center">
+          {{ $products->links() }}
+        </div>
+      @else
+        <!-- Empty State -->
+        <div class="text-center py-16 px-4 bg-vog-ivory rounded-2xl border border-vog-border space-y-4">
+          <div class="w-16 h-16 rounded-full bg-white flex items-center justify-center mx-auto text-slate-400 border border-vog-border shadow-xs">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+          </div>
+          <h3 class="font-serif-luxury text-xl font-bold text-slate-900">No products found</h3>
+          <p class="text-xs text-slate-500 max-w-sm mx-auto">
+            We couldn't find any fashion items matching your criteria. Try adjusting your filters or category selection.
+          </p>
+          <a href="{{ $vogRoute('store.shop') }}" class="inline-block px-6 py-2.5 bg-vog-black text-white text-xs font-semibold rounded-full hover:bg-neutral-800 transition-colors">
+            View All Products
+          </a>
+        </div>
+      @endif
+
+    </main>
+
+  </div>
+</div>
+
+@endsection

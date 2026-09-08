@@ -1,17 +1,27 @@
 {{-- Urbana theme shell — Tailwind CDN + config + fonts, included once per page --}}
 @php
-  $urTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'Urbana');
-  $urHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $themeTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'Urbana');
+  $themeHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $activeThemeSlug = 'urbana';
+  $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
+  $accent500 = $themeTokens['color-accent-500'] ?? '{{ $accent500 }}';
+  $accent600 = $themeTokens['color-accent-600'] ?? '{{ $accent600 }}';
+  $accent700 = $themeTokens['color-accent-700'] ?? '{{ $accent700 }}';
+  $accent800 = $themeTokens['color-accent-800'] ?? '{{ $accent800 }}';
+  $fontHeading = $themeTokens['font-heading'] ?? "'Quicksand', sans-serif";
+  $fontBody = $themeTokens['font-body'] ?? "'Inter', sans-serif";
+  $fontSizeHeading = $themeTokens['font-size-heading'] ?? '32px';
+  $fontSizeBody = $themeTokens['font-size-body'] ?? '15px';
 @endphp
 <meta charset="utf-8" />
-<title>{{ $urTitle }}</title>
+<title>{{ $themeTitle }}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="description" content="{{ $s->seo_meta_description ?? 'Shopping that feels like home — electronics, fashion, home, beauty, grocery and sports, all in one friendly place.' }}" />
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="currency" content="{{ $s->currency_code ?? '$' }}">
 <script>window.__LOGGED_IN__ = @json(Auth::guard('store')->check());</script>
 <script>window.__ALLOW_OVERSELLING__ = @json($s->allow_overselling ?? true);</script>
-<script>window.__HIDE_PRICES__ = @json($urHidePrices);</script>
+<script>window.__HIDE_PRICES__ = @json($themeHidePrices);</script>
 <script>window.__SHOW_STOCK__ = @json($s->show_stock ?? true);</script>
 <script>
   window.__MSG_ONLY_X_STOCK__ = @json(__('messages.Only_x_available_in_stock'));
@@ -31,11 +41,11 @@
       extend: {
         colors: {
           brand: {
-            blue: '#5B8DEF',
-            blueDark: '#3F6FD1',
+            blue: '{{ $accent500 }}',
+            blueDark: '{{ $accent600 }}',
             blueLight: '#EAF1FF',
-            coral: '#FF6F61',
-            coralDark: '#E85446',
+            coral: '{{ $accent700 }}',
+            coralDark: '{{ $accent800 }}',
             coralLight: '#FFE9E6',
             cream: '#FBFAF8',
             ink: '#2B2B2B',
@@ -62,6 +72,25 @@
 </script>
 
 <style>
+  :root {
+    --color-accent-500: {{ $accent500 }};
+    --color-accent-600: {{ $accent600 }};
+    --color-accent-700: {{ $accent700 }};
+    --color-accent-800: {{ $accent800 }};
+    --font-heading: {!! $fontHeading !!};
+    --font-body: {!! $fontBody !!};
+    --font-size-heading: {{ $fontSizeHeading }};
+    --font-size-body: {{ $fontSizeBody }};
+  }
+  body {
+    font-family: {!! $fontBody !!} !important;
+    font-size: {{ $fontSizeBody }} !important;
+  }
+  h1, .hero-title, [class*="-hero"] h1, .font-display, .font-head, .font-serif {
+    font-size: {{ $fontSizeHeading }};
+    font-family: {!! $fontHeading !!};
+  }
+
   * { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
   ::-webkit-scrollbar { height: 8px; width: 8px; }
   ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }

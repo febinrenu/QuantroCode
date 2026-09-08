@@ -153,6 +153,9 @@
 
     .mega-panel { box-shadow: 0 24px 48px -12px rgba(0,0,0,0.5); }
 
+    body { font-size: var(--font-size-body, 16px); }
+    h1, .store-heading { font-size: var(--font-size-heading, 32px); }
+
     {{-- Per-tenant theme customization (colors/fonts/radius) layered above the theme pack's own theme.css --}}
     @if($themeTokenCss !== '')
     html[data-theme="{{ $activeThemeSlug }}"] { {!! $themeTokenCss !!} }

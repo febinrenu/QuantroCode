@@ -94,13 +94,19 @@ class StorefrontPresenter
             $categoryName = $p->categories->first()->name;
         }
 
+        $preview = request('preview_theme') ?: (session('preview_theme') ?? null);
+        $productUrlParams = ['slugOrId' => $slug];
+        if ($preview && $preview !== 'monochra') {
+            $productUrlParams['preview_theme'] = $preview;
+        }
+
         return [
             'id' => (int) $p->id,
             'slug' => $slug,
             'sku' => $p->code ?: ('SKU-'.str_pad((string) $p->id, 5, '0', STR_PAD_LEFT)),
             'name' => (string) $p->name,
             'description' => Str::limit(strip_tags($p->note ?? ''), 600),
-            'url' => route('store.product.show', ['slugOrId' => $slug]),
+            'url' => route('store.product.show', $productUrlParams),
             'image_url' => $imageUrl,
             'gallery_urls' => $galleryUrls,
             'placeholder_color' => static::placeholderColor($p->id),

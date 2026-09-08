@@ -1,0 +1,43 @@
+{
+    "name": "Veloura Luxury Beauty",
+    "slug": "veloura-beauty",
+    "version": "1.0.0",
+    "description": "Luxury Beauty & Cosmetics",
+    "author": "QuantroCode Studio",
+    "tokens": {
+        "color-bg-base": "#FAF6F0",
+        "color-accent-500": "#C99A82",
+        "color-accent-600": "#A36D55",
+        "color-accent-700": "#CBA135",
+        "color-accent-800": "#2D2426",
+        "font-heading": "'Playfair Display', serif",
+        "font-body": "'Plus Jakarta Sans', sans-serif",
+        "font-size-heading": "34px",
+        "font-size-body": "15px"
+    },
+    "theme_type": "category-specific",
+    "category": "Category-Specific Themes",
+    "tagline": "Luxury Beauty & Cosmetics",
+    "paletteSwatches": [
+        "#C99A82",
+        "#CBA135",
+        "#2D2426",
+        "#FAF6F0"
+    ],
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
+}

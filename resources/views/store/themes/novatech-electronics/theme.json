@@ -1,0 +1,54 @@
+{
+    "name": "NovaTech Electronics Marketplace",
+    "theme_id": "novatech",
+    "version": "1.0.0",
+    "category": "Category-Specific Themes",
+    "author": "QuantroCode Design Team",
+    "description": "Next-Gen Electronics Marketplace",
+    "colors": {
+        "primary": "#4F46E5",
+        "secondary": "#06B6D4",
+        "accent": "#7C3AED",
+        "background": "#F8FAFC",
+        "surface": "#FFFFFF",
+        "text": "#0F172A",
+        "dark": "#0B0F19",
+        "footer": "#0B0F19"
+    },
+    "slug": "novatech-electronics",
+    "theme_type": "category-specific",
+    "tagline": "Next-Gen Electronics Marketplace",
+    "paletteSwatches": [
+        "#2563EB",
+        "#06B6D4",
+        "#0F172A",
+        "#334155"
+    ],
+    "tokens": {
+        "color-bg-base": "#0B0F19",
+        "color-accent-500": "#2563EB",
+        "color-accent-600": "#06B6D4",
+        "color-accent-700": "#0F172A",
+        "color-accent-800": "#334155",
+        "font-heading": "'Outfit', sans-serif",
+        "font-body": "'Plus Jakarta Sans', sans-serif",
+        "font-size-heading": "32px",
+        "font-size-body": "15px"
+    },
+    "customizable": [
+        "color-accent-500",
+        "color-accent-600",
+        "color-accent-700",
+        "color-accent-800",
+        "font-heading",
+        "font-body",
+        "font-size-heading",
+        "font-size-body"
+    ],
+    "pages": {
+        "home": true,
+        "shop": true,
+        "product": true,
+        "cart": true
+    }
+}
