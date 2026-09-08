@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
 <head>
-@include('store.themes.naturae._shell', ['pageTitle' => 'Your Cart — ' . ($s->store_name ?? 'Naturae')])
+@include('store.themes.naturia._shell', ['pageTitle' => 'Your Cart — ' . ($s->store_name ?? 'Naturia')])
 </head>
 <body class="bg-cream text-ink antialiased">
 
-@include('store.themes.naturae.partials.header', ['categories' => $categories, 'showCategoryBar' => false])
+@include('store.themes.naturia.partials.header', ['categories' => $categories, 'showCategoryBar' => false])
 
 <main class="pb-24 lg:pb-0">
   <div class="max-w-4xl mx-auto px-4 py-8">
@@ -63,8 +63,8 @@
   </div>
 </main>
 
-@include('store.themes.naturae.partials.footer', ['categories' => $categories])
-@include('store.themes.naturae.partials.mobile-nav')
+@include('store.themes.naturia.partials.footer', ['categories' => $categories])
+@include('store.themes.naturia.partials.mobile-nav')
 
 <script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
 </body>

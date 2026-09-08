@@ -1,8 +1,8 @@
-{{-- Naturae theme shell — Tailwind CDN + config + fonts, included once per page --}}
+{{-- Naturia theme shell — Tailwind CDN + config + fonts, included once per page --}}
 @php
   $themeTitle = $pageTitle ?? ($s->seo_meta_title ?? $s->store_name ?? 'Naturia');
   $themeHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
-  $activeThemeSlug = 'naturae';
+  $activeThemeSlug = 'naturia';
   $themeTokens = \App\Support\StorefrontThemeRegistry::resolveTokens($activeThemeSlug, $s->theme_tokens ?? []);
   $accent500 = $themeTokens['color-accent-500'] ?? '{{ $accent500 }}';
   $accent600 = $themeTokens['color-accent-600'] ?? '{{ $accent600 }}';

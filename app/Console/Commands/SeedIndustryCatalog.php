@@ -169,12 +169,12 @@ class SeedIndustryCatalog extends Command
     private function bundledProductImage(string $name, string $dir): ?string
     {
         $bundled = [
-            'Aloe Vera Gel' => 'naturae/products/aloe-vera-gel.png',
-            'Vitamin D3 2000IU' => 'naturae/products/vitamin-d3.png',
-            'Organic Green Tea' => 'naturae/products/organic-green-tea.png',
-            'Lavender Essential Oil' => 'naturae/products/lavender-essential-oil.png',
-            'Bamboo Toothbrush Set' => 'naturae/products/bamboo-toothbrush.png',
-            'Coconut Oil (250ml)' => 'naturae/products/coconut-oil.png',
+            'Aloe Vera Gel' => 'naturia/products/aloe-vera-gel.png',
+            'Vitamin D3 2000IU' => 'naturia/products/vitamin-d3.png',
+            'Organic Green Tea' => 'naturia/products/organic-green-tea.png',
+            'Lavender Essential Oil' => 'naturia/products/lavender-essential-oil.png',
+            'Bamboo Toothbrush Set' => 'naturia/products/bamboo-toothbrush.png',
+            'Coconut Oil (250ml)' => 'naturia/products/coconut-oil.png',
         ];
 
         if (! isset($bundled[$name])) {
@@ -455,7 +455,7 @@ class SeedIndustryCatalog extends Command
                 ['Blood Pressure Monitor', 'blood pressure monitor medical', 39.00, 'Automatic upper-arm blood pressure monitor with irregular-heartbeat detection.'],
                 ['Hand Sanitizer Pack', 'hand sanitizer', 8.00, '3-pack of 70% alcohol hand sanitizer gel in travel-sized bottles.'],
             ]],
-            // Naturia ("naturae" theme) Best Sellers — reuses the existing Beauty &
+            // Naturia ("naturia" theme) Best Sellers — reuses the existing Beauty &
             // Cosmetics / Pharmacy & Medical / Grocery & Fresh Produce categories
             // (repeating an existing 'code' just resolves the same category row,
             // it does not create a duplicate) rather than inventing new ones.

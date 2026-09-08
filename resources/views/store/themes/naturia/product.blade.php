@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
 <head>
-@include('store.themes.naturae._shell', ['pageTitle' => $product['name'] . ' — ' . ($s->store_name ?? 'Naturae')])
+@include('store.themes.naturia._shell', ['pageTitle' => $product['name'] . ' — ' . ($s->store_name ?? 'Naturia')])
 </head>
 <body class="bg-cream text-ink antialiased">
 
-@include('store.themes.naturae.partials.header', ['categories' => $categories, 'showCategoryBar' => false])
+@include('store.themes.naturia.partials.header', ['categories' => $categories, 'showCategoryBar' => false])
 
 @php
   $gallery = array_values(array_filter(array_merge([$product['image_url']], $product['gallery_urls'] ?? []) ));
@@ -155,15 +155,15 @@
       <h2 class="text-xl font-display font-semibold text-leaf-deep mb-5">You may also like</h2>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         @foreach($related as $rp)
-          @include('store.themes.naturae.partials.product-card', ['product' => $rp])
+          @include('store.themes.naturia.partials.product-card', ['product' => $rp])
         @endforeach
       </div>
     </section>
   @endif
 </main>
 
-@include('store.themes.naturae.partials.footer', ['categories' => $categories])
-@include('store.themes.naturae.partials.mobile-nav')
+@include('store.themes.naturia.partials.footer', ['categories' => $categories])
+@include('store.themes.naturia.partials.mobile-nav')
 
 <script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
 </body>

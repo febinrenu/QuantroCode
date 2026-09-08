@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
 <head>
-@include('store.themes.naturae._shell', ['pageTitle' => ($s->seo_meta_title ?? $s->store_name ?? 'Naturia') . ' — Live naturally'])
+@include('store.themes.naturia._shell', ['pageTitle' => ($s->seo_meta_title ?? $s->store_name ?? 'Naturia') . ' — Live naturally'])
 </head>
 <body class="bg-cream text-ink antialiased">
 
-@include('store.themes.naturae.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
+@include('store.themes.naturia.partials.header', ['categories' => $categories, 'showCategoryBar' => true])
 
 @php
   $currency = $s->currency_code ?? '$';
@@ -52,7 +52,7 @@
           <span class="text-2xl font-display font-bold">35%</span>
           <span class="text-[10px] font-semibold uppercase">Off</span>
         </div>
-        <img src="{{ global_asset('images/themes/naturae/hero-products.png') }}" class="rounded-4xl w-full h-auto object-cover shadow-softHover" alt="Natural skincare products">
+        <img src="{{ global_asset('images/themes/naturia/hero-products.png') }}" class="rounded-4xl w-full h-auto object-cover shadow-softHover" alt="Natural skincare products">
       </div>
     </div>
     <div class="relative flex items-center justify-center gap-1.5 pb-5">
@@ -149,7 +149,7 @@
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             @foreach($productVms as $product)
-              @include('store.themes.naturae.partials.product-card', ['product' => $product])
+              @include('store.themes.naturia.partials.product-card', ['product' => $product])
             @endforeach
           </div>
         </section>
@@ -206,7 +206,7 @@
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           @foreach($ntBestSellerVms as $product)
-            @include('store.themes.naturae.partials.product-card', ['product' => $product])
+            @include('store.themes.naturia.partials.product-card', ['product' => $product])
           @endforeach
         </div>
       </section>
@@ -249,7 +249,7 @@
         <p class="text-bark/70 text-xs mt-2 leading-relaxed">Boost your daily wellness routine</p>
         <a href="{{ route('store.shop') }}" class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-leaf-dark">Shop Now <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
       </div>
-      <img src="{{ global_asset('images/themes/naturae/promo-wellness.png') }}" class="absolute right-3 bottom-0 h-[92%] object-contain" alt="Wellness Essentials">
+      <img src="{{ global_asset('images/themes/naturia/promo-wellness.png') }}" class="absolute right-3 bottom-0 h-[92%] object-contain" alt="Wellness Essentials">
     </div>
     <div class="relative rounded-3xl overflow-hidden h-52 flex items-center justify-between p-6" style="background:#E7ECDD">
       <div class="relative max-w-[55%]">
@@ -257,7 +257,7 @@
         <p class="text-bark/70 text-xs mt-2 leading-relaxed">Clean beauty for radiant skin</p>
         <a href="{{ route('store.shop') }}" class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-leaf-dark">Shop Now <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
       </div>
-      <img src="{{ global_asset('images/themes/naturae/promo-glow.png') }}" class="absolute right-4 bottom-0 h-[92%] object-contain" alt="Glow Naturally">
+      <img src="{{ global_asset('images/themes/naturia/promo-glow.png') }}" class="absolute right-4 bottom-0 h-[92%] object-contain" alt="Glow Naturally">
     </div>
     <div class="relative rounded-3xl overflow-hidden h-52 flex items-center justify-between p-6" style="background:#F3DFCB">
       <div class="relative max-w-[55%]">
@@ -265,7 +265,7 @@
         <p class="text-bark/70 text-xs mt-2 leading-relaxed">Organic foods for a better you</p>
         <a href="{{ route('store.shop') }}" class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-leaf-dark">Shop Now <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg></a>
       </div>
-      <img src="{{ global_asset('images/themes/naturae/promo-healthy.png') }}" class="absolute right-3 bottom-2 h-[80%] object-contain" alt="Healthy Inside Out">
+      <img src="{{ global_asset('images/themes/naturia/promo-healthy.png') }}" class="absolute right-3 bottom-2 h-[80%] object-contain" alt="Healthy Inside Out">
     </div>
   </section>
 
@@ -303,8 +303,8 @@
 
 </main>
 
-@include('store.themes.naturae.partials.footer', ['categories' => $categories])
-@include('store.themes.naturae.partials.mobile-nav')
+@include('store.themes.naturia.partials.footer', ['categories' => $categories])
+@include('store.themes.naturia.partials.mobile-nav')
 
 <script src="{{ global_asset('js/storefront.min.js') }}" defer></script>
 </body>
