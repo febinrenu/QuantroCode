@@ -20,50 +20,74 @@
     'Cast Iron Dutch Oven', 'Bluetooth Fitness Tracker', 'Merino Wool Crew Socks 3-Pack',
     'Espresso Machine — 15 Bar', 'Retinol Night Repair Cream', 'Adjustable Dumbbell Set',
   ];
+
+  // Role-tagged Collection (Trending) -- when a merchant has assigned a
+  // dedicated "Trending" Collection, its curated product names win over the
+  // theme's hardcoded ticker copy above.
+  $mvTrendingRoleNames = collect(($collectionsByRole['trending']['products'] ?? collect()))->pluck('name')->filter()->values();
+  $mvTicker = $mvTrendingRoleNames->count() ? $mvTrendingRoleNames->all() : $mvTicker;
 @endphp
 
 <main class="pb-24 lg:pb-0">
 
-  {{-- ===== HERO ===== --}}
-  <section class="relative overflow-hidden bg-mv-ink">
-    <div class="absolute inset-0">
-      <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=70"
-           alt="" class="w-full h-full object-cover opacity-25">
-      <div class="absolute inset-0 bg-gradient-to-r from-mv-inkDark via-mv-inkDark/92 to-mv-inkDark/50"></div>
-    </div>
-    <div class="relative max-w-[1600px] mx-auto px-4 py-14 lg:py-20 grid lg:grid-cols-2 gap-8 items-center">
-      <div>
-        <span class="eyebrow text-mv-accent text-xs font-bold mv-mono">MARKETPLACE.ALL_CATEGORIES</span>
-        <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
-          {{ $s->hero_title ?? 'Your world of shopping, in one cart.' }}
-        </h1>
-        <p class="mt-4 text-slate-300 max-w-lg">
-          {{ $s->hero_subtitle ?? 'Electronics, fashion, home, beauty, grocery and sports — thousands of listings from verified sellers, priced transparently and delivered fast.' }}
-        </p>
-        <div class="mt-7 flex flex-wrap gap-3">
-          <a href="{{ route('store.shop') }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-md bg-mv-accent text-white font-bold hover:bg-mv-accentDark transition-colors">
-            Browse the grid
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-md border-2 border-white/25 text-white font-bold hover:bg-white/10 transition-colors">
-            Today's lowest prices
-          </a>
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $mvHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative overflow-hidden bg-mv-ink grid"
+           x-data="{ mvHero: 0, mvHeroCount: {{ count($mvHeroSlides) }} }"
+           @if(count($mvHeroSlides) > 1) x-init="setInterval(() => { mvHero = (mvHero + 1) % mvHeroCount }, 6000)" @endif>
+    @foreach($mvHeroSlides as $mvI => $mvSlide)
+      <div x-show="mvHero === {{ $mvI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1">
+        <div class="absolute inset-0">
+          <img src="{{ !empty($mvSlide['image_url']) ? $mvSlide['image_url'] : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=70' }}"
+               alt="" class="w-full h-full object-cover opacity-25">
+          <div class="absolute inset-0 bg-gradient-to-r from-mv-inkDark via-mv-inkDark/92 to-mv-inkDark/50"></div>
         </div>
-        <div class="mt-8 flex items-center gap-5 text-slate-300 text-xs flex-wrap">
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-mv-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Verified seller network</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-mv-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Real-time stock data</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-mv-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Buyer protection on every order</span>
+        <div class="relative max-w-[1600px] mx-auto px-4 py-14 lg:py-20 grid lg:grid-cols-2 gap-8 items-center">
+          <div>
+            <span class="eyebrow text-mv-accent text-xs font-bold mv-mono">MARKETPLACE.ALL_CATEGORIES</span>
+            <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
+              {{ ($mvSlide['title'] ?? '') !== '' ? $mvSlide['title'] : 'Your world of shopping, in one cart.' }}
+            </h1>
+            <p class="mt-4 text-slate-300 max-w-lg">
+              {{ ($mvSlide['subtitle'] ?? '') !== '' ? $mvSlide['subtitle'] : 'Electronics, fashion, home, beauty, grocery and sports — thousands of listings from verified sellers, priced transparently and delivered fast.' }}
+            </p>
+            <div class="mt-7 flex flex-wrap gap-3">
+              <a href="{{ ($mvSlide['cta_link'] ?? '') !== '' ? $mvSlide['cta_link'] : route('store.shop') }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-md bg-mv-accent text-white font-bold hover:bg-mv-accentDark transition-colors">
+                {{ ($mvSlide['cta_text'] ?? '') !== '' ? $mvSlide['cta_text'] : 'Browse the grid' }}
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              </a>
+              <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-md border-2 border-white/25 text-white font-bold hover:bg-white/10 transition-colors">
+                Today's lowest prices
+              </a>
+            </div>
+            <div class="mt-8 flex items-center gap-5 text-slate-300 text-xs flex-wrap">
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-mv-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Verified seller network</span>
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-mv-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Real-time stock data</span>
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-mv-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Buyer protection on every order</span>
+            </div>
+          </div>
+          <div class="hidden lg:grid grid-cols-3 gap-3">
+            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover shadow-tileHover" alt="Electronics">
+            <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover mt-6 shadow-tileHover" alt="Fashion">
+            <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover shadow-tileHover" alt="Beauty">
+            <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover -mt-4 shadow-tileHover" alt="Grocery">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover shadow-tileHover" alt="Home">
+            <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover mt-6 shadow-tileHover" alt="Sports">
+          </div>
         </div>
       </div>
-      <div class="hidden lg:grid grid-cols-3 gap-3">
-        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover shadow-tileHover" alt="Electronics">
-        <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover mt-6 shadow-tileHover" alt="Fashion">
-        <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover shadow-tileHover" alt="Beauty">
-        <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover -mt-4 shadow-tileHover" alt="Grocery">
-        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover shadow-tileHover" alt="Home">
-        <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=420&q=70" class="rounded-xl h-32 w-full object-cover mt-6 shadow-tileHover" alt="Sports">
+    @endforeach
+
+    @if(count($mvHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($mvHeroSlides as $mvI => $mvSlide)
+          <button type="button" @click="mvHero = {{ $mvI }}" class="w-2 h-2 rounded-full transition-colors" :class="mvHero === {{ $mvI }} ? 'bg-white' : 'bg-white/40'" aria-label="Slide {{ $mvI + 1 }}"></button>
+        @endforeach
       </div>
-    </div>
+    @endif
   </section>
 
   {{-- ===== TRENDING NOW TICKER ===== --}}
@@ -85,6 +109,7 @@
   </section>
 
   {{-- ===== TOP BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
     <section class="max-w-[1600px] mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['top_left'] ?? collect() as $b)
@@ -98,6 +123,7 @@
         </a>
       @endforeach
     </section>
+  @endif
   @endif
 
   {{-- ===== MAIN: LEFT CATEGORY RAIL + CONTENT ===== --}}
@@ -193,24 +219,30 @@
 
       {{-- ===== PROMO STRIP ===== --}}
       <section class="mb-10 grid md:grid-cols-2 gap-4">
+        @php $centerLeft = ($byPos['center_left'] ?? collect())->first(); @endphp
         <div class="relative rounded-lg overflow-hidden h-48 flex items-end p-5 border-2 border-mv-line">
-          <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent"></div>
-          <div class="relative">
-            <span class="text-mv-accent text-[11px] font-bold uppercase mv-mono">Fashion Edit</span>
-            <h3 class="text-white text-lg font-black mt-1">New season styles across every size</h3>
-            <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-white underline">Shop now →</a>
+          <img src="{{ $centerLeft ? $bannerUrl($centerLeft) : 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ $centerLeft->title ?? '' }}">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" @if($centerLeft && !empty($centerLeft->bg_color)) style="background:linear-gradient(to top, {{ $centerLeft->bg_color }}e6, {{ !empty($centerLeft->bg_color_2) ? $centerLeft->bg_color_2 : $centerLeft->bg_color }}80, transparent);" @endif></div>
+          <div class="relative" @if($centerLeft && !empty($centerLeft->text_color)) style="color:{{ $centerLeft->text_color }};" @endif>
+            <span class="text-mv-accent text-[11px] font-bold uppercase mv-mono">{{ ($centerLeft->badge_text ?? null) ?: 'Fashion Edit' }}</span>
+            <h3 class="text-white text-lg font-black mt-1" style="color:inherit;">{{ ($centerLeft->title ?? null) ?: 'New season styles across every size' }}</h3>
+            @if(!empty($centerLeft->subtitle ?? null))
+              <p class="text-white/80 text-xs mt-1" style="color:inherit;">{{ $centerLeft->subtitle }}</p>
+            @endif
+            <a href="{{ $centerLeft ? ($centerLeft->link ?: route('store.shop')) : route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-white underline" style="color:inherit;">{{ ($centerLeft->button_text ?? null) ?: 'Shop now →' }}</a>
           </div>
         </div>
+        @if($offer['enabled'] ?? true)
         <div class="relative rounded-lg overflow-hidden h-48 flex items-end p-5 border-2 border-mv-line">
-          <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
+          <img src="{{ !empty($offer['image_url']) ? $offer['image_url'] : 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover" alt="">
           <div class="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent"></div>
           <div class="relative">
-            <span class="text-mv-accent text-[11px] font-bold uppercase mv-mono">Tech Deals</span>
-            <h3 class="text-white text-lg font-black mt-1">Up to 40% off audio, wearables &amp; smart home</h3>
-            <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-white underline">Shop now →</a>
+            <span class="text-mv-accent text-[11px] font-bold uppercase mv-mono">{{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'Tech Deals' }}</span>
+            <h3 class="text-white text-lg font-black mt-1">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Up to 40% off audio, wearables & smart home' }}</h3>
+            <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-white underline">{{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop now →' }}</a>
           </div>
         </div>
+        @endif
       </section>
 
       {{-- ===== TESTIMONIALS ===== --}}

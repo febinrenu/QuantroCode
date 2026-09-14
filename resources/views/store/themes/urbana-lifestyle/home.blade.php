@@ -8,16 +8,12 @@
 @include('store.themes.urbana-lifestyle.partials.header', ['categories' => $categories])
 
 @php
-  $urbHeroTitle = $s->hero_title ?? 'Elevate Your Everyday Style';
-  $urbHeroSubtitle = $s->hero_subtitle ?? 'Curated pieces for the modern lifestyle.';
-  $urbHeroSplit = \Illuminate\Support\Str::of($urbHeroTitle)->explode(' ');
-  $urbHeroFirst = $urbHeroSplit->slice(0, ceil($urbHeroSplit->count()/2))->implode(' ');
-  $urbHeroRest = $urbHeroSplit->slice(ceil($urbHeroSplit->count()/2))->implode(' ');
   $urbImgs = $categorySpecificProducts->pluck('image_url')->filter()->values();
   // Category-specific themes always lead with their own category's product
   // photo -- the admin's store-wide hero_image_path (set for a different,
   // general-purpose theme) would otherwise show an unrelated image here.
-  $urbHeroImg = $urbImgs[0] ?? (!empty($s->hero_image_path) ? global_asset($s->hero_image_path) : null);
+  // This is only the FALLBACK used when a hero slide has no image of its own.
+  $urbHeroImgFallback = $urbImgs[0] ?? (!empty($s->hero_image_path) ? global_asset($s->hero_image_path) : null);
 
   $urbSubcatsHome = optional($categories->first())->subcategories ?? collect();
   $urbSubIdHome = fn ($name) => optional($urbSubcatsHome->firstWhere('name', $name))->id;
@@ -37,6 +33,20 @@
     ->filter(fn ($name) => $urbSubIdHome($name))
     ->map(fn ($name) => ['label' => $name, 'icon' => $urbSidebarIcons[$name], 'href' => route('store.shop', ['sub_category' => $urbSubIdHome($name)])])
     ->values();
+
+  $byPos = collect($banners ?? [])->groupBy('position');
+  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+
+  // A merchant-tagged "Trending" Collection overrides the theme's default
+  // category-scoped product feed for the Trending Now section below --
+  // absent one, the section keeps showing $categorySpecificProducts exactly
+  // as before.
+  $urbCurrency = $s->currency_code ?? '$';
+  $urbHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $urbRoleVms = collect($collectionsByRole ?? [])->map(function ($r) use ($urbCurrency, $urbHidePrices) {
+      return collect($r['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $urbCurrency, $urbHidePrices))->values();
+  });
+  $urbTrendingProducts = ($urbRoleVms['trending'] ?? collect())->count() ? $urbRoleVms['trending'] : $categorySpecificProducts;
 @endphp
 
 <main class="pb-20 md:pb-0">
@@ -79,26 +89,47 @@
         </a>
       </aside>
 
-      <div class="relative overflow-hidden bg-urb-creamDark" style="min-height:420px;">
-        @if($urbHeroImg)
-          <img src="{{ $urbHeroImg }}" alt="{{ $urbHeroTitle }}" class="absolute inset-0 w-full h-full object-cover">
-        @endif
-        <div class="absolute inset-0 bg-gradient-to-r from-urb-creamDark via-urb-creamDark/60 to-transparent"></div>
-        <div class="relative px-8 md:px-12 py-16 md:py-20 max-w-md">
-          <h1 class="font-serif text-4xl md:text-5xl leading-[1.05] text-urb-ink">
-            <span class="block">{{ $urbHeroFirst }}</span>
-            <span class="block urb-italic">{{ $urbHeroRest }}</span>
-          </h1>
-          <p class="mt-4 text-urb-inkSoft max-w-sm">{{ $urbHeroSubtitle }}</p>
-          <div class="mt-7 flex flex-wrap items-center gap-3">
-            <a href="{{ route('store.shop') }}" class="h-12 px-7 inline-flex items-center bg-urb-green text-white text-xs font-bold eyebrow hover:bg-urb-greenDeep">
-              {{ 'Shop Now' }}
-            </a>
-            <a href="{{ route('store.shop', ['sort' => 'price_desc']) }}" class="h-12 px-7 inline-flex items-center border border-urb-ink/30 text-urb-ink text-xs font-bold eyebrow hover:bg-urb-ink hover:text-white">
-              {{ 'Explore Lookbook' }}
-            </a>
+      {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+      @php $ulHeroSlides = $heroSlides ?? []; @endphp
+      <div class="relative overflow-hidden bg-urb-creamDark grid" style="min-height:420px;"
+           x-data="{ ulHero: 0, ulHeroCount: {{ count($ulHeroSlides) }} }"
+           @if(count($ulHeroSlides) > 1) x-init="setInterval(() => { ulHero = (ulHero + 1) % ulHeroCount }, 6000)" @endif>
+        @foreach($ulHeroSlides as $ulI => $ulSlide)
+          @php
+            $ulHeroTitle = ($ulSlide['title'] ?? '') !== '' ? $ulSlide['title'] : 'Elevate Your Everyday Style';
+            $ulHeroSubtitle = ($ulSlide['subtitle'] ?? '') !== '' ? $ulSlide['subtitle'] : 'Curated pieces for the modern lifestyle.';
+            $ulHeroSplit = \Illuminate\Support\Str::of($ulHeroTitle)->explode(' ');
+            $ulHeroFirst = $ulHeroSplit->slice(0, ceil($ulHeroSplit->count()/2))->implode(' ');
+            $ulHeroRest = $ulHeroSplit->slice(ceil($ulHeroSplit->count()/2))->implode(' ');
+            $ulHeroImg = !empty($ulSlide['image_url']) ? $ulSlide['image_url'] : $urbHeroImgFallback;
+          @endphp
+          <div x-show="ulHero === {{ $ulI }}" @if(!$loop->first) x-cloak @endif
+               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+               x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+               class="col-start-1 row-start-1">
+            @if($ulHeroImg)
+              <img src="{{ $ulHeroImg }}" alt="{{ $ulHeroTitle }}" class="absolute inset-0 w-full h-full object-cover">
+            @endif
+            <div class="absolute inset-0 bg-gradient-to-r from-urb-creamDark via-urb-creamDark/60 to-transparent"></div>
+            <div class="relative px-8 md:px-12 py-16 md:py-20 max-w-md">
+              <h1 class="font-serif text-4xl md:text-5xl leading-[1.05] text-urb-ink">
+                <span class="block">{{ $ulHeroFirst }}</span>
+                <span class="block urb-italic">{{ $ulHeroRest }}</span>
+              </h1>
+              <p class="mt-4 text-urb-inkSoft max-w-sm">{{ $ulHeroSubtitle }}</p>
+              <div class="mt-7 flex flex-wrap items-center gap-3">
+                <a href="{{ ($ulSlide['cta_link'] ?? '') !== '' ? $ulSlide['cta_link'] : route('store.shop') }}" class="h-12 px-7 inline-flex items-center bg-urb-green text-white text-xs font-bold eyebrow hover:bg-urb-greenDeep">
+                  {{ ($ulSlide['cta_text'] ?? '') !== '' ? $ulSlide['cta_text'] : 'Shop Now' }}
+                </a>
+                <a href="{{ route('store.shop', ['sort' => 'price_desc']) }}" class="h-12 px-7 inline-flex items-center border border-urb-ink/30 text-urb-ink text-xs font-bold eyebrow hover:bg-urb-ink hover:text-white">
+                  {{ 'Explore Lookbook' }}
+                </a>
+              </div>
+            </div>
           </div>
-        </div>
+        @endforeach
+
+        {{-- decorative badge + nav arrows: not per-slide data, render once so they never flicker on slide change --}}
         <div class="absolute top-6 right-6 md:top-10 md:right-10 w-24 h-24 rounded-full bg-urb-greenDeep text-white flex flex-col items-center justify-center text-center leading-tight">
           <span class="text-[9px] font-bold eyebrow">{{ 'Up to' }}</span>
           <span class="text-xl font-serif font-bold">40%</span>
@@ -110,6 +141,14 @@
         <button type="button" class="hidden md:inline-flex absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 items-center justify-center text-urb-ink">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
+
+        @if(count($ulHeroSlides) > 1)
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+            @foreach($ulHeroSlides as $ulI => $ulSlide)
+              <button type="button" @click="ulHero = {{ $ulI }}" class="w-2 h-2 rounded-full transition-colors" :class="ulHero === {{ $ulI }} ? 'bg-white' : 'bg-white/40'" aria-label="Slide {{ $ulI + 1 }}"></button>
+            @endforeach
+          </div>
+        @endif
       </div>
     </div>
   </section>
@@ -177,49 +216,88 @@
     </section>
   @endif
 
-  {{-- ===== SUMMER SALE / NEW IN THIS WEEK BANNERS ===== --}}
+  {{-- ===== SUMMER SALE (via Offers & Promotions) / NEW IN THIS WEEK (via Banners) ===== --}}
+  @if(($bannerGridEnabled ?? true) || ($offer['enabled'] ?? true))
+  @php
+    // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+    // override the tile's fixed background/text color; absent -> theme default.
+    $bannerOverlayStyle = function ($b) {
+      if (!$b || empty($b->bg_color)) return null;
+      $css = !empty($b->bg_color_2)
+        ? "background:linear-gradient(to right, {$b->bg_color}, {$b->bg_color_2});"
+        : "background-color:{$b->bg_color};";
+      return $css;
+    };
+    $bannerTextStyle = function ($b) {
+      return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
+    $newInWeek = ($byPos['top_left'] ?? collect())->first();
+  @endphp
   <section class="max-w-7xl mx-auto px-4 py-2">
     <div class="grid md:grid-cols-2 gap-4">
+      @if($offer['enabled'] ?? true)
       <div class="relative overflow-hidden bg-urb-green min-h-[220px] flex items-center">
         @php $urbSaleImg = $urbImgs[1] ?? ($urbImgs[0] ?? null); @endphp
-        @if($urbSaleImg)
+        @if(!empty($offer['image_url']))
+          <img src="{{ $offer['image_url'] }}" alt="{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Summer Sale' }}" class="absolute inset-0 w-full h-full object-cover opacity-25">
+        @elseif($urbSaleImg)
           <img src="{{ $urbSaleImg }}" alt="Summer Sale" class="absolute inset-0 w-full h-full object-cover opacity-25">
         @endif
         <div class="relative p-8 text-white flex items-center justify-between w-full gap-4">
           <div>
-            <h3 class="font-serif text-2xl">{{ 'Summer Sale' }}</h3>
-            <p class="mt-1 text-white/70 max-w-xs text-sm">{{ "Don't miss out on amazing deals!" }}</p>
-            <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="mt-5 inline-flex h-11 px-6 items-center bg-urb-gold text-urb-greenDeep text-xs font-bold eyebrow hover:bg-white">
-              {{ 'Shop The Sale' }} &rarr;
+            @if(!empty($offer['badge_text']))
+              <span class="inline-flex mb-2 items-center bg-white/15 text-white text-[9px] font-bold eyebrow px-2 py-1 rounded">{{ $offer['badge_text'] }}</span>
+            @endif
+            <h3 class="font-serif text-2xl">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Summer Sale' }}</h3>
+            <p class="mt-1 text-white/70 max-w-xs text-sm">{{ ($offer['subtitle'] ?? '') !== '' ? $offer['subtitle'] : "Don't miss out on amazing deals!" }}</p>
+            <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop', ['sort' => 'price_asc']) }}" class="mt-5 inline-flex h-11 px-6 items-center bg-urb-gold text-urb-greenDeep text-xs font-bold eyebrow hover:bg-white">
+              {{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop The Sale' }} &rarr;
             </a>
           </div>
           <div class="hidden sm:flex w-24 h-24 rounded-full border-2 border-urb-gold items-center justify-center text-center leading-tight shrink-0">
             <span>
-              <span class="block text-[9px] font-bold eyebrow">{{ 'Up to' }}</span>
-              <span class="block text-xl font-serif font-bold">50%</span>
-              <span class="block text-[9px] font-bold eyebrow">{{ 'Off' }}</span>
+              @if(!empty($offer['discount_text']))
+                <span class="block text-sm font-serif font-bold">{{ $offer['discount_text'] }}</span>
+              @else
+                <span class="block text-[9px] font-bold eyebrow">{{ 'Up to' }}</span>
+                <span class="block text-xl font-serif font-bold">50%</span>
+                <span class="block text-[9px] font-bold eyebrow">{{ 'Off' }}</span>
+              @endif
             </span>
           </div>
         </div>
       </div>
-      <div class="relative overflow-hidden bg-urb-creamDark min-h-[220px] flex items-center">
+      @endif
+      @if($bannerGridEnabled ?? true)
+      <a href="{{ $newInWeek ? ($newInWeek->link ?: route('store.shop', ['sort' => 'latest'])) : route('store.shop', ['sort' => 'latest']) }}" class="relative overflow-hidden bg-urb-creamDark min-h-[220px] flex items-center" @if($bannerOverlayStyle($newInWeek)) style="{{ $bannerOverlayStyle($newInWeek) }}" @endif>
         @php $urbNewImg = $urbImgs->last(); @endphp
-        @if($urbNewImg)
+        @if($newInWeek)
+          <img src="{{ $bannerUrl($newInWeek) }}" alt="{{ $newInWeek->title ?: 'New In This Week' }}" class="absolute inset-0 w-full h-full object-cover opacity-20">
+        @elseif($urbNewImg)
           <img src="{{ $urbNewImg }}" alt="New In This Week" class="absolute inset-0 w-full h-full object-cover opacity-20">
         @endif
-        <div class="relative p-8">
-          <h3 class="font-serif text-2xl text-urb-ink">{{ 'New In This Week' }}</h3>
-          <p class="mt-1 text-urb-inkSoft max-w-xs text-sm">{{ 'Fresh arrivals, handpicked for you.' }}</p>
-          <a href="{{ route('store.shop', ['sort' => 'latest']) }}" class="mt-5 inline-flex items-center gap-1 text-urb-ink text-xs font-bold eyebrow hover:text-urb-green">
-            {{ 'Explore Now' }} &rarr;
-          </a>
+        <div class="relative p-8" @if($bannerTextStyle($newInWeek)) style="{{ $bannerTextStyle($newInWeek) }}" @endif>
+          @if(!empty($newInWeek->badge_text ?? null))
+            <span class="inline-flex mb-2 items-center bg-urb-ink/10 text-urb-ink text-[9px] font-bold eyebrow px-2 py-1 rounded" style="color:inherit;">{{ $newInWeek->badge_text }}</span>
+          @endif
+          <h3 class="font-serif text-2xl text-urb-ink" style="color:inherit;">{{ ($newInWeek->title ?? null) ?: 'New In This Week' }}</h3>
+          @if(!empty($newInWeek->subtitle ?? null))
+            <p class="mt-1 text-urb-inkSoft max-w-xs text-sm" style="color:inherit;">{{ $newInWeek->subtitle }}</p>
+          @else
+            <p class="mt-1 text-urb-inkSoft max-w-xs text-sm" style="color:inherit;">{{ 'Fresh arrivals, handpicked for you.' }}</p>
+          @endif
+          <span class="mt-5 inline-flex items-center gap-1 text-urb-ink text-xs font-bold eyebrow" style="color:inherit;">
+            {{ ($newInWeek->button_text ?? null) ?: 'Explore Now' }} &rarr;
+          </span>
         </div>
-      </div>
+      </a>
+      @endif
     </div>
   </section>
+  @endif
 
   {{-- ===== TRENDING NOW ===== --}}
-  @if($categorySpecificProducts->count())
+  @if($urbTrendingProducts->count())
     <section class="max-w-7xl mx-auto px-4 py-6">
       <div class="flex items-end justify-between mb-5">
         <h2 class="font-serif text-2xl text-urb-ink">{{ 'Trending Now' }}</h2>
@@ -229,7 +307,7 @@
         </a>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-6">
-        @foreach($categorySpecificProducts as $product)
+        @foreach($urbTrendingProducts as $product)
           @include('store.themes.urbana-lifestyle.partials.product-card', ['product' => $product])
         @endforeach
       </div>

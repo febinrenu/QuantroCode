@@ -12,52 +12,83 @@
   $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
   $byPos = collect($banners ?? [])->groupBy('position');
   $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+
+  // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+  // override each tile's fixed gradient/text color; absent -> theme default.
+  $bannerOverlayStyle = function ($b) {
+    if (!$b || empty($b->bg_color)) return null;
+    $css = !empty($b->bg_color_2)
+      ? "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+      : "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+    return $css;
+  };
+  $bannerTextStyle = function ($b) {
+    return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+  };
 @endphp
 
 <main class="pb-24 lg:pb-0">
 
-  {{-- ===== ASYMMETRIC EDITORIAL HERO ===== --}}
-  <section class="relative overflow-hidden bg-vel-black border-b border-vel-line">
-    <div class="max-w-7xl mx-auto px-4 grid lg:grid-cols-12 min-h-[560px] lg:min-h-[640px]">
+  {{-- ===== ASYMMETRIC EDITORIAL HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $vlHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative overflow-hidden bg-vel-black border-b border-vel-line grid"
+           x-data="{ vlHero: 0, vlHeroCount: {{ count($vlHeroSlides) }} }"
+           @if(count($vlHeroSlides) > 1) x-init="setInterval(() => { vlHero = (vlHero + 1) % vlHeroCount }, 6000)" @endif>
+    @foreach($vlHeroSlides as $vlI => $vlSlide)
+      <div x-show="vlHero === {{ $vlI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1">
+        <div class="max-w-7xl mx-auto px-4 grid lg:grid-cols-12 min-h-[560px] lg:min-h-[640px]">
 
-      {{-- Left: tall image column, offset --}}
-      <div class="hidden lg:block lg:col-span-5 relative order-2">
-        <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=70"
-             alt="" class="absolute inset-0 w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-vel-black via-transparent to-transparent"></div>
-        <div class="absolute left-6 bottom-24 w-40 h-52 border border-vel-gold/40 overflow-hidden shadow-vlHover translate-y-8">
-          <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=400&q=70" class="w-full h-full object-cover" alt="">
-        </div>
-        <div class="absolute right-8 top-14 w-36 h-36 border border-vel-gold/40 overflow-hidden shadow-vlHover">
-          <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=400&q=70" class="w-full h-full object-cover" alt="">
+          {{-- Left: tall image column, offset --}}
+          <div class="hidden lg:block lg:col-span-5 relative order-2">
+            <img src="{{ !empty($vlSlide['image_url']) ? $vlSlide['image_url'] : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=70' }}"
+                 alt="" class="absolute inset-0 w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-vel-black via-transparent to-transparent"></div>
+            <div class="absolute left-6 bottom-24 w-40 h-52 border border-vel-gold/40 overflow-hidden shadow-vlHover translate-y-8">
+              <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=400&q=70" class="w-full h-full object-cover" alt="">
+            </div>
+            <div class="absolute right-8 top-14 w-36 h-36 border border-vel-gold/40 overflow-hidden shadow-vlHover">
+              <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=400&q=70" class="w-full h-full object-cover" alt="">
+            </div>
+          </div>
+
+          {{-- Right: offset headline block, generous negative space --}}
+          <div class="lg:col-span-7 order-1 flex flex-col justify-center py-16 lg:py-0 lg:pl-14">
+            <span class="eyebrow text-vel-gold text-xs font-bold">Volume Twelve — The Considered Edit</span>
+            <h1 class="mt-5 font-serif font-extrabold text-white leading-[1.05] text-4xl sm:text-5xl lg:text-[3.6rem] max-w-2xl">
+              {{ ($vlSlide['title'] ?? '') !== '' ? $vlSlide['title'] : 'Curated for those who notice.' }}
+            </h1>
+            <p class="mt-6 text-vel-mute max-w-md text-[15px] leading-relaxed">
+              {{ ($vlSlide['subtitle'] ?? '') !== '' ? $vlSlide['subtitle'] : 'From considered electronics to fine fashion, from the home to the vanity — every piece in our collection is chosen for its craft, not its category. This is shopping treated as a quiet pleasure, not a chore.' }}
+            </p>
+            <div class="mt-9 flex flex-wrap items-center gap-5">
+              <a href="{{ ($vlSlide['cta_link'] ?? '') !== '' ? $vlSlide['cta_link'] : route('store.shop') }}" class="h-12 px-7 inline-flex items-center gap-2 bg-vel-gold text-vel-black font-semibold text-sm hover:bg-vel-goldSoft transition-colors">
+                {{ ($vlSlide['cta_text'] ?? '') !== '' ? $vlSlide['cta_text'] : 'Explore the Collection' }}
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              </a>
+              <a href="{{ route('store.shop', ['sort' => 'price_desc']) }}" class="text-sm font-semibold text-vel-ink border-b border-vel-gold/50 pb-0.5 hover:text-vel-gold hover:border-vel-gold transition-colors">
+                View the Edit
+              </a>
+            </div>
+            <div class="mt-10 flex items-center gap-8 text-vel-mute text-xs eyebrow">
+              <span>No. 01 — Electronics</span>
+              <span>No. 02 — Fashion</span>
+              <span>No. 03 — Home &amp; Beauty</span>
+            </div>
+          </div>
         </div>
       </div>
+    @endforeach
 
-      {{-- Right: offset headline block, generous negative space --}}
-      <div class="lg:col-span-7 order-1 flex flex-col justify-center py-16 lg:py-0 lg:pl-14">
-        <span class="eyebrow text-vel-gold text-xs font-bold">Volume Twelve — The Considered Edit</span>
-        <h1 class="mt-5 font-serif font-extrabold text-white leading-[1.05] text-4xl sm:text-5xl lg:text-[3.6rem] max-w-2xl">
-          {{ $s->hero_title ?? 'Curated for those who notice.' }}
-        </h1>
-        <p class="mt-6 text-vel-mute max-w-md text-[15px] leading-relaxed">
-          {{ $s->hero_subtitle ?? 'From considered electronics to fine fashion, from the home to the vanity — every piece in our collection is chosen for its craft, not its category. This is shopping treated as a quiet pleasure, not a chore.' }}
-        </p>
-        <div class="mt-9 flex flex-wrap items-center gap-5">
-          <a href="{{ route('store.shop') }}" class="h-12 px-7 inline-flex items-center gap-2 bg-vel-gold text-vel-black font-semibold text-sm hover:bg-vel-goldSoft transition-colors">
-            Explore the Collection
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_desc']) }}" class="text-sm font-semibold text-vel-ink border-b border-vel-gold/50 pb-0.5 hover:text-vel-gold hover:border-vel-gold transition-colors">
-            View the Edit
-          </a>
-        </div>
-        <div class="mt-10 flex items-center gap-8 text-vel-mute text-xs eyebrow">
-          <span>No. 01 — Electronics</span>
-          <span>No. 02 — Fashion</span>
-          <span>No. 03 — Home &amp; Beauty</span>
-        </div>
+    @if(count($vlHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($vlHeroSlides as $vlI => $vlSlide)
+          <button type="button" @click="vlHero = {{ $vlI }}" class="w-2 h-2 rounded-full transition-colors" :class="vlHero === {{ $vlI }} ? 'bg-vel-gold' : 'bg-white/30'" aria-label="Slide {{ $vlI + 1 }}"></button>
+        @endforeach
       </div>
-    </div>
+    @endif
   </section>
 
   <div class="vl-rule"></div>
@@ -91,17 +122,55 @@
 
   <div class="vl-rule"></div>
 
-  {{-- ===== TOP BANNERS ===== --}}
-  @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
+  {{-- ===== TOP BANNERS (fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @if(($bannerGridEnabled ?? true) && (($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count()))
     <section class="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-2 gap-4">
       @foreach($byPos['top_left'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block border border-vel-line overflow-hidden hover:border-vel-gold/50 transition-colors">
+        <a href="{{ $b->link ?: route('store.shop') }}" class="relative block border border-vel-line overflow-hidden hover:border-vel-gold/50 transition-colors">
           <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
+          @if($bannerOverlayStyle($b))
+            <div class="absolute inset-0 pointer-events-none" style="{{ $bannerOverlayStyle($b) }}"></div>
+          @endif
+          @if(!empty($b->badge_text) || !empty($b->title) || !empty($b->subtitle) || !empty($b->button_text))
+            <div class="absolute inset-0 p-6 flex flex-col justify-end" @if($bannerTextStyle($b)) style="{{ $bannerTextStyle($b) }}" @endif>
+              @if(!empty($b->badge_text))
+                <span class="text-vel-gold text-[11px] font-bold eyebrow" style="color:inherit;">{{ $b->badge_text }}</span>
+              @endif
+              @if(!empty($b->title))
+                <h3 class="font-serif text-white text-xl font-bold mt-2" style="color:inherit;">{{ $b->title }}</h3>
+              @endif
+              @if(!empty($b->subtitle))
+                <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $b->subtitle }}</p>
+              @endif
+              @if(!empty($b->button_text))
+                <span class="mt-3 inline-flex w-fit items-center gap-1 text-xs font-semibold text-white border-b border-white/50 pb-0.5" style="color:inherit;">{{ $b->button_text }} →</span>
+              @endif
+            </div>
+          @endif
         </a>
       @endforeach
       @foreach($byPos['top_right'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block border border-vel-line overflow-hidden hover:border-vel-gold/50 transition-colors">
+        <a href="{{ $b->link ?: route('store.shop') }}" class="relative block border border-vel-line overflow-hidden hover:border-vel-gold/50 transition-colors">
           <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
+          @if($bannerOverlayStyle($b))
+            <div class="absolute inset-0 pointer-events-none" style="{{ $bannerOverlayStyle($b) }}"></div>
+          @endif
+          @if(!empty($b->badge_text) || !empty($b->title) || !empty($b->subtitle) || !empty($b->button_text))
+            <div class="absolute inset-0 p-6 flex flex-col justify-end" @if($bannerTextStyle($b)) style="{{ $bannerTextStyle($b) }}" @endif>
+              @if(!empty($b->badge_text))
+                <span class="text-vel-gold text-[11px] font-bold eyebrow" style="color:inherit;">{{ $b->badge_text }}</span>
+              @endif
+              @if(!empty($b->title))
+                <h3 class="font-serif text-white text-xl font-bold mt-2" style="color:inherit;">{{ $b->title }}</h3>
+              @endif
+              @if(!empty($b->subtitle))
+                <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $b->subtitle }}</p>
+              @endif
+              @if(!empty($b->button_text))
+                <span class="mt-3 inline-flex w-fit items-center gap-1 text-xs font-semibold text-white border-b border-white/50 pb-0.5" style="color:inherit;">{{ $b->button_text }} →</span>
+              @endif
+            </div>
+          @endif
         </a>
       @endforeach
     </section>
@@ -204,17 +273,55 @@
 
   <div class="vl-rule"></div>
 
-  {{-- ===== CENTER BANNERS ===== --}}
-  @if(($byPos['center_left'] ?? collect())->count() || ($byPos['center_right'] ?? collect())->count())
+  {{-- ===== CENTER BANNERS (fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @if(($bannerGridEnabled ?? true) && (($byPos['center_left'] ?? collect())->count() || ($byPos['center_right'] ?? collect())->count()))
     <section class="max-w-7xl mx-auto px-4 py-14 grid md:grid-cols-2 gap-4">
       @foreach($byPos['center_left'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block border border-vel-line overflow-hidden hover:border-vel-gold/50 transition-colors">
+        <a href="{{ $b->link ?: route('store.shop') }}" class="relative block border border-vel-line overflow-hidden hover:border-vel-gold/50 transition-colors">
           <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
+          @if($bannerOverlayStyle($b))
+            <div class="absolute inset-0 pointer-events-none" style="{{ $bannerOverlayStyle($b) }}"></div>
+          @endif
+          @if(!empty($b->badge_text) || !empty($b->title) || !empty($b->subtitle) || !empty($b->button_text))
+            <div class="absolute inset-0 p-6 flex flex-col justify-end" @if($bannerTextStyle($b)) style="{{ $bannerTextStyle($b) }}" @endif>
+              @if(!empty($b->badge_text))
+                <span class="text-vel-gold text-[11px] font-bold eyebrow" style="color:inherit;">{{ $b->badge_text }}</span>
+              @endif
+              @if(!empty($b->title))
+                <h3 class="font-serif text-white text-xl font-bold mt-2" style="color:inherit;">{{ $b->title }}</h3>
+              @endif
+              @if(!empty($b->subtitle))
+                <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $b->subtitle }}</p>
+              @endif
+              @if(!empty($b->button_text))
+                <span class="mt-3 inline-flex w-fit items-center gap-1 text-xs font-semibold text-white border-b border-white/50 pb-0.5" style="color:inherit;">{{ $b->button_text }} →</span>
+              @endif
+            </div>
+          @endif
         </a>
       @endforeach
       @foreach($byPos['center_right'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block border border-vel-line overflow-hidden hover:border-vel-gold/50 transition-colors">
+        <a href="{{ $b->link ?: route('store.shop') }}" class="relative block border border-vel-line overflow-hidden hover:border-vel-gold/50 transition-colors">
           <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
+          @if($bannerOverlayStyle($b))
+            <div class="absolute inset-0 pointer-events-none" style="{{ $bannerOverlayStyle($b) }}"></div>
+          @endif
+          @if(!empty($b->badge_text) || !empty($b->title) || !empty($b->subtitle) || !empty($b->button_text))
+            <div class="absolute inset-0 p-6 flex flex-col justify-end" @if($bannerTextStyle($b)) style="{{ $bannerTextStyle($b) }}" @endif>
+              @if(!empty($b->badge_text))
+                <span class="text-vel-gold text-[11px] font-bold eyebrow" style="color:inherit;">{{ $b->badge_text }}</span>
+              @endif
+              @if(!empty($b->title))
+                <h3 class="font-serif text-white text-xl font-bold mt-2" style="color:inherit;">{{ $b->title }}</h3>
+              @endif
+              @if(!empty($b->subtitle))
+                <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $b->subtitle }}</p>
+              @endif
+              @if(!empty($b->button_text))
+                <span class="mt-3 inline-flex w-fit items-center gap-1 text-xs font-semibold text-white border-b border-white/50 pb-0.5" style="color:inherit;">{{ $b->button_text }} →</span>
+              @endif
+            </div>
+          @endif
         </a>
       @endforeach
     </section>
@@ -269,15 +376,57 @@
     </div>
   </section>
 
-  {{-- ===== FOOTER BANNERS ===== --}}
+  {{-- ===== FOOTER BANNERS (fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
   @if(($byPos['footer_left'] ?? collect())->count() || ($byPos['footer_right'] ?? collect())->count())
     <div class="vl-rule"></div>
     <section class="max-w-7xl mx-auto px-4 py-10 grid md:grid-cols-2 gap-4">
       @foreach($byPos['footer_left'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block border border-vel-line overflow-hidden"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
+        <a href="{{ $b->link ?: route('store.shop') }}" class="relative block border border-vel-line overflow-hidden">
+          <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
+          @if($bannerOverlayStyle($b))
+            <div class="absolute inset-0 pointer-events-none" style="{{ $bannerOverlayStyle($b) }}"></div>
+          @endif
+          @if(!empty($b->badge_text) || !empty($b->title) || !empty($b->subtitle) || !empty($b->button_text))
+            <div class="absolute inset-0 p-6 flex flex-col justify-end" @if($bannerTextStyle($b)) style="{{ $bannerTextStyle($b) }}" @endif>
+              @if(!empty($b->badge_text))
+                <span class="text-vel-gold text-[11px] font-bold eyebrow" style="color:inherit;">{{ $b->badge_text }}</span>
+              @endif
+              @if(!empty($b->title))
+                <h3 class="font-serif text-white text-xl font-bold mt-2" style="color:inherit;">{{ $b->title }}</h3>
+              @endif
+              @if(!empty($b->subtitle))
+                <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $b->subtitle }}</p>
+              @endif
+              @if(!empty($b->button_text))
+                <span class="mt-3 inline-flex w-fit items-center gap-1 text-xs font-semibold text-white border-b border-white/50 pb-0.5" style="color:inherit;">{{ $b->button_text }} →</span>
+              @endif
+            </div>
+          @endif
+        </a>
       @endforeach
       @foreach($byPos['footer_right'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="block border border-vel-line overflow-hidden"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
+        <a href="{{ $b->link ?: route('store.shop') }}" class="relative block border border-vel-line overflow-hidden">
+          <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
+          @if($bannerOverlayStyle($b))
+            <div class="absolute inset-0 pointer-events-none" style="{{ $bannerOverlayStyle($b) }}"></div>
+          @endif
+          @if(!empty($b->badge_text) || !empty($b->title) || !empty($b->subtitle) || !empty($b->button_text))
+            <div class="absolute inset-0 p-6 flex flex-col justify-end" @if($bannerTextStyle($b)) style="{{ $bannerTextStyle($b) }}" @endif>
+              @if(!empty($b->badge_text))
+                <span class="text-vel-gold text-[11px] font-bold eyebrow" style="color:inherit;">{{ $b->badge_text }}</span>
+              @endif
+              @if(!empty($b->title))
+                <h3 class="font-serif text-white text-xl font-bold mt-2" style="color:inherit;">{{ $b->title }}</h3>
+              @endif
+              @if(!empty($b->subtitle))
+                <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $b->subtitle }}</p>
+              @endif
+              @if(!empty($b->button_text))
+                <span class="mt-3 inline-flex w-fit items-center gap-1 text-xs font-semibold text-white border-b border-white/50 pb-0.5" style="color:inherit;">{{ $b->button_text }} →</span>
+              @endif
+            </div>
+          @endif
+        </a>
       @endforeach
     </section>
   @endif

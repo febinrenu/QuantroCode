@@ -9,11 +9,6 @@
 
 @php
   $elHeroEyebrow = 'Summer Collection \'24';
-  $elHeroTitle = $s->hero_title ?? 'Define Your Signature Style';
-  $elHeroSubtitle = $s->hero_subtitle ?? 'Elevate your wardrobe with modern pieces that speak elegance.';
-  $elHeroSplit = \Illuminate\Support\Str::of($elHeroTitle)->explode(' ');
-  $elHeroFirst = $elHeroSplit->slice(0, ceil($elHeroSplit->count()/2))->implode(' ');
-  $elHeroRest = $elHeroSplit->slice(ceil($elHeroSplit->count()/2))->implode(' ');
   $elImgs = $categorySpecificProducts->pluck('image_url')->filter()->values();
   // Category-specific themes always lead with their own category's product
   // photo -- the admin's store-wide hero_image_path (set for a different,
@@ -25,53 +20,80 @@
     ->filter(fn ($name) => $elHomeSubcatId($name))
     ->map(fn ($name) => ['label' => $name, 'sub_category' => $elHomeSubcatId($name)])
     ->values();
+  $byPos = collect($banners ?? [])->groupBy('position');
+  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
 @endphp
 
 <main class="pb-20 md:pb-0">
 
-  {{-- ===== HERO ===== --}}
-  <section class="bg-el-black">
-    <div class="max-w-7xl mx-auto grid md:grid-cols-2">
-      <div class="px-6 md:px-12 py-16 md:py-20 flex flex-col justify-center">
-        <span class="eyebrow text-el-gold text-xs font-bold">{{ $elHeroEyebrow }}</span>
-        <h1 class="font-serif text-4xl md:text-6xl leading-[1.05] text-white mt-4">
-          <span class="block">{{ $elHeroFirst }}</span>
-          <span class="block el-script">{{ $elHeroRest }}</span>
-        </h1>
-        <p class="mt-5 text-white/60 max-w-sm">{{ $elHeroSubtitle }}</p>
-        <div class="mt-8 flex flex-wrap items-center gap-3">
-          <a href="{{ route('store.shop', $elHomeSubcatId('Women') ? ['sub_category' => $elHomeSubcatId('Women')] : []) }}" class="h-12 px-7 inline-flex items-center bg-el-gold text-el-black text-xs font-bold eyebrow hover:bg-white">
-            {{ 'Shop Women' }}
-          </a>
-          <a href="{{ route('store.shop', $elHomeSubcatId('Men') ? ['sub_category' => $elHomeSubcatId('Men')] : []) }}" class="h-12 px-7 inline-flex items-center border border-white/50 text-white text-xs font-bold eyebrow hover:bg-white/10">
-            {{ 'Shop Men' }}
-          </a>
-        </div>
-        <div class="mt-10 flex items-center gap-2 text-white/40 text-[11px] font-semibold">
-          <span>01</span>
-          <span class="w-16 h-px bg-el-gold"></span>
-          <span>03</span>
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $ebHeroSlides = $heroSlides ?? []; @endphp
+  <section class="bg-el-black relative overflow-hidden grid"
+           x-data="{ ebHero: 0, ebHeroCount: {{ count($ebHeroSlides) }} }"
+           @if(count($ebHeroSlides) > 1) x-init="setInterval(() => { ebHero = (ebHero + 1) % ebHeroCount }, 6000)" @endif>
+    @foreach($ebHeroSlides as $ebI => $ebSlide)
+      @php
+        $ebTitle = ($ebSlide['title'] ?? '') !== '' ? $ebSlide['title'] : 'Define Your Signature Style';
+        $ebSplit = \Illuminate\Support\Str::of($ebTitle)->explode(' ');
+        $ebFirst = $ebSplit->slice(0, ceil($ebSplit->count()/2))->implode(' ');
+        $ebRest = $ebSplit->slice(ceil($ebSplit->count()/2))->implode(' ');
+        $ebImg = !empty($ebSlide['image_url']) ? $ebSlide['image_url'] : $elHeroImg;
+      @endphp
+      <div x-show="ebHero === {{ $ebI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-2">
+          <div class="px-6 md:px-12 py-16 md:py-20 flex flex-col justify-center">
+            <span class="eyebrow text-el-gold text-xs font-bold">{{ $elHeroEyebrow }}</span>
+            <h1 class="font-serif text-4xl md:text-6xl leading-[1.05] text-white mt-4">
+              <span class="block">{{ $ebFirst }}</span>
+              <span class="block el-script">{{ $ebRest }}</span>
+            </h1>
+            <p class="mt-5 text-white/60 max-w-sm">{{ ($ebSlide['subtitle'] ?? '') !== '' ? $ebSlide['subtitle'] : 'Elevate your wardrobe with modern pieces that speak elegance.' }}</p>
+            <div class="mt-8 flex flex-wrap items-center gap-3">
+              <a href="{{ ($ebSlide['cta_link'] ?? '') !== '' ? $ebSlide['cta_link'] : route('store.shop', $elHomeSubcatId('Women') ? ['sub_category' => $elHomeSubcatId('Women')] : []) }}" class="h-12 px-7 inline-flex items-center bg-el-gold text-el-black text-xs font-bold eyebrow hover:bg-white">
+                {{ ($ebSlide['cta_text'] ?? '') !== '' ? $ebSlide['cta_text'] : 'Shop Women' }}
+              </a>
+              <a href="{{ route('store.shop', $elHomeSubcatId('Men') ? ['sub_category' => $elHomeSubcatId('Men')] : []) }}" class="h-12 px-7 inline-flex items-center border border-white/50 text-white text-xs font-bold eyebrow hover:bg-white/10">
+                {{ 'Shop Men' }}
+              </a>
+            </div>
+            <div class="mt-10 flex items-center gap-2 text-white/40 text-[11px] font-semibold">
+              <span>01</span>
+              <span class="w-16 h-px bg-el-gold"></span>
+              <span>03</span>
+            </div>
+          </div>
+          <div class="relative min-h-[360px] md:min-h-[560px]">
+            @if($ebImg)
+              <img src="{{ $ebImg }}" alt="{{ $ebTitle }}" class="w-full h-full object-cover absolute inset-0">
+            @endif
+            <div class="absolute top-6 right-6 md:top-10 md:right-10 w-24 h-24 rounded-full border-2 border-el-gold bg-el-black/70 backdrop-blur flex flex-col items-center justify-center text-el-gold text-center leading-tight">
+              <span class="text-[9px] font-bold eyebrow">{{ 'Up to' }}</span>
+              <span class="text-xl font-serif font-bold">50%</span>
+              <span class="text-[9px] font-bold eyebrow">{{ 'Off' }}</span>
+            </div>
+            <div class="absolute bottom-6 right-6 flex items-center gap-2">
+              <span class="w-9 h-9 rounded-full bg-el-black/70 backdrop-blur inline-flex items-center justify-center text-white">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </span>
+              <span class="w-9 h-9 rounded-full bg-el-black/70 backdrop-blur inline-flex items-center justify-center text-white">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="relative min-h-[360px] md:min-h-[560px]">
-        @if($elHeroImg)
-          <img src="{{ $elHeroImg }}" alt="{{ $elHeroTitle }}" class="w-full h-full object-cover absolute inset-0">
-        @endif
-        <div class="absolute top-6 right-6 md:top-10 md:right-10 w-24 h-24 rounded-full border-2 border-el-gold bg-el-black/70 backdrop-blur flex flex-col items-center justify-center text-el-gold text-center leading-tight">
-          <span class="text-[9px] font-bold eyebrow">{{ 'Up to' }}</span>
-          <span class="text-xl font-serif font-bold">50%</span>
-          <span class="text-[9px] font-bold eyebrow">{{ 'Off' }}</span>
-        </div>
-        <div class="absolute bottom-6 right-6 flex items-center gap-2">
-          <span class="w-9 h-9 rounded-full bg-el-black/70 backdrop-blur inline-flex items-center justify-center text-white">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-          </span>
-          <span class="w-9 h-9 rounded-full bg-el-black/70 backdrop-blur inline-flex items-center justify-center text-white">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </span>
-        </div>
+    @endforeach
+
+    @if(count($ebHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($ebHeroSlides as $ebI => $ebSlide)
+          <button type="button" @click="ebHero = {{ $ebI }}" class="w-2 h-2 rounded-full transition-colors" :class="ebHero === {{ $ebI }} ? 'bg-white' : 'bg-white/40'" aria-label="Slide {{ $ebI + 1 }}"></button>
+        @endforeach
       </div>
-    </div>
+    @endif
   </section>
 
   {{-- ===== TRUST STRIP ===== --}}
@@ -147,33 +169,65 @@
     </div>
   </section>
 
-  {{-- ===== TWO-COLUMN BANNER ===== --}}
+  {{-- ===== TWO-COLUMN BANNER (fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @if($bannerGridEnabled ?? true)
+  @php
+    // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+    // override each tile's fixed gradient/background and text color; absent -> theme default.
+    $bannerOverlayStyle = function ($b) {
+      if (!$b || empty($b->bg_color)) return null;
+      $css = !empty($b->bg_color_2)
+        ? "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+        : "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+      return $css;
+    };
+    $bannerBgStyle = function ($b) {
+      return ($b && !empty($b->bg_color)) ? "background-color:{$b->bg_color};" : null;
+    };
+    $bannerTextStyle = function ($b) {
+      return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
+    $topLeft = ($byPos['top_left'] ?? collect())->first();
+    $topRight = ($byPos['top_right'] ?? collect())->first();
+  @endphp
   <section class="max-w-7xl mx-auto px-4 py-6">
     <div class="grid md:grid-cols-2 gap-4">
       <div class="relative overflow-hidden bg-el-ink min-h-[280px] flex items-end">
         @php $elMinimalImg = $elImgs[1] ?? ($elImgs[0] ?? null); @endphp
-        @if($elMinimalImg)
+        @if($topLeft)
+          <img src="{{ $bannerUrl($topLeft) }}" alt="{{ $topLeft->title ?: 'The Art of Minimalism' }}" class="absolute inset-0 w-full h-full object-cover">
+        @elseif($elMinimalImg)
           <img src="{{ $elMinimalImg }}" alt="The Art of Minimalism" class="absolute inset-0 w-full h-full object-cover">
         @endif
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-        <div class="relative p-8 text-white">
-          <h3 class="font-serif text-2xl">{{ 'The Art of Minimalism' }}</h3>
-          <p class="mt-1 text-white/70 max-w-xs text-sm">{{ 'Discover pieces that make simplicity look extraordinary.' }}</p>
-          <a href="{{ route('store.shop') }}" class="mt-5 inline-flex h-11 px-6 items-center bg-white text-el-black text-xs font-bold eyebrow hover:bg-el-gold">
-            {{ 'Explore Editorial' }}
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" @if($bannerOverlayStyle($topLeft)) style="{{ $bannerOverlayStyle($topLeft) }}" @endif></div>
+        <div class="relative p-8 text-white" @if($bannerTextStyle($topLeft)) style="{{ $bannerTextStyle($topLeft) }}" @endif>
+          @if(!empty($topLeft->badge_text ?? null))
+            <span class="block text-[11px] eyebrow text-white/70 mb-1" style="color:inherit;">{{ $topLeft->badge_text }}</span>
+          @endif
+          <h3 class="font-serif text-2xl" style="color:inherit;">{{ ($topLeft->title ?? null) ?: 'The Art of Minimalism' }}</h3>
+          <p class="mt-1 text-white/70 max-w-xs text-sm" style="color:inherit;">{{ ($topLeft->subtitle ?? null) ?: 'Discover pieces that make simplicity look extraordinary.' }}</p>
+          <a href="{{ $topLeft ? ($topLeft->link ?: route('store.shop')) : route('store.shop') }}" class="mt-5 inline-flex h-11 px-6 items-center bg-white text-el-black text-xs font-bold eyebrow hover:bg-el-gold">
+            {{ ($topLeft->button_text ?? null) ?: 'Explore Editorial' }}
           </a>
         </div>
       </div>
-      <div class="relative overflow-hidden bg-el-creamDark min-h-[280px] grid md:grid-cols-2 items-center">
-        <div class="p-8">
-          <h3 class="font-serif text-2xl text-el-ink">{{ 'Timeless Accessories' }}</h3>
-          <p class="mt-1 text-el-inkSoft max-w-xs text-sm">{{ 'The finishing touches that complete your look.' }}</p>
-          <a href="{{ route('store.shop', $elHomeSubcatId('Accessories') ? ['sub_category' => $elHomeSubcatId('Accessories')] : []) }}" class="mt-5 inline-flex h-11 px-6 items-center bg-el-black text-white text-xs font-bold eyebrow hover:bg-el-gold hover:text-el-black">
-            {{ 'Shop Accessories' }}
+      <div class="relative overflow-hidden bg-el-creamDark min-h-[280px] grid md:grid-cols-2 items-center" @if($bannerBgStyle($topRight)) style="{{ $bannerBgStyle($topRight) }}" @endif>
+        <div class="p-8" @if($bannerTextStyle($topRight)) style="{{ $bannerTextStyle($topRight) }}" @endif>
+          @if(!empty($topRight->badge_text ?? null))
+            <span class="block text-[11px] eyebrow text-el-inkSoft mb-1" style="color:inherit;">{{ $topRight->badge_text }}</span>
+          @endif
+          <h3 class="font-serif text-2xl text-el-ink" style="color:inherit;">{{ ($topRight->title ?? null) ?: 'Timeless Accessories' }}</h3>
+          <p class="mt-1 text-el-inkSoft max-w-xs text-sm" style="color:inherit;">{{ ($topRight->subtitle ?? null) ?: 'The finishing touches that complete your look.' }}</p>
+          <a href="{{ $topRight ? ($topRight->link ?: route('store.shop', $elHomeSubcatId('Accessories') ? ['sub_category' => $elHomeSubcatId('Accessories')] : [])) : route('store.shop', $elHomeSubcatId('Accessories') ? ['sub_category' => $elHomeSubcatId('Accessories')] : []) }}" class="mt-5 inline-flex h-11 px-6 items-center bg-el-black text-white text-xs font-bold eyebrow hover:bg-el-gold hover:text-el-black">
+            {{ ($topRight->button_text ?? null) ?: 'Shop Accessories' }}
           </a>
         </div>
         @php $elAccessoryImg = $elImgs->last(); @endphp
-        @if($elAccessoryImg)
+        @if($topRight)
+          <div class="hidden md:block h-full min-h-[280px]">
+            <img src="{{ $bannerUrl($topRight) }}" alt="{{ $topRight->title ?: 'Accessories' }}" class="w-full h-full object-cover">
+          </div>
+        @elseif($elAccessoryImg)
           <div class="hidden md:block h-full min-h-[280px]">
             <img src="{{ $elAccessoryImg }}" alt="Accessories" class="w-full h-full object-cover">
           </div>
@@ -181,6 +235,7 @@
       </div>
     </div>
   </section>
+  @endif
 
   {{-- ===== NEWSLETTER ===== --}}
   <section class="max-w-7xl mx-auto px-4 py-10">

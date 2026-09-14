@@ -9,13 +9,12 @@
 
 @php
   $mktHeroEyebrow = 'Limited Time Only';
-  $mktHeroTitle = $s->hero_title ?? 'Big Deals. Bigger Savings.';
-  $mktHeroSubtitle = $s->hero_subtitle ?? 'Top brands at unbeatable prices.';
   $mktImgs = $categorySpecificProducts->pluck('image_url')->filter()->values();
   // Category-specific themes always lead with their own category's product
   // photo -- the admin's store-wide hero_image_path (set for a different,
   // general-purpose theme) would otherwise show an unrelated image here.
-  $mktHeroImg = $mktImgs[0] ?? (!empty($s->hero_image_path) ? global_asset($s->hero_image_path) : null);
+  $mktFallbackHeroImg = $mktImgs[0] ?? (!empty($s->hero_image_path) ? global_asset($s->hero_image_path) : null);
+  $mktHeroSlides = $heroSlides ?? [];
 
   $mktSubcatsHome = optional($categories->first())->subcategories ?? collect();
   $mktSubIdHome = fn ($name) => optional($mktSubcatsHome->firstWhere('name', $name))->id;
@@ -41,6 +40,16 @@
     ['Desk & Study Accessories', 'bg-blue-50', 'Set up your perfect desk.'],
   ];
   $mktTiles = collect($mktTileMap)->filter(fn ($t) => $mktSubIdHome($t[0]))->values();
+
+  // Role-tagged Collection -- when a merchant has assigned a dedicated
+  // "Trending" Collection, its curated products win over the generic
+  // $categorySpecificProducts list for that section.
+  $currency = $s->currency_code ?? '$';
+  $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $roleVms = collect($collectionsByRole ?? [])->map(function ($r) use ($currency, $hidePrices) {
+      return collect($r['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices))->values();
+  });
+  $trendingProducts = ($roleVms['trending'] ?? collect())->count() ? $roleVms['trending'] : $categorySpecificProducts;
 @endphp
 
 <main class="pb-20 md:pb-0">
@@ -70,41 +79,51 @@
         </a>
       </aside>
 
-      <div class="relative overflow-hidden bg-mkt-hero rounded-lg" style="min-height:420px;">
+      <div class="relative overflow-hidden bg-mkt-hero rounded-lg grid" style="min-height:420px;"
+           x-data="{ mktHero: 0, mktHeroCount: {{ count($mktHeroSlides) }} }"
+           @if(count($mktHeroSlides) > 1) x-init="setInterval(() => { mktHero = (mktHero + 1) % mktHeroCount }, 6000)" @endif>
         <div class="absolute -top-10 -left-10 w-56 h-56 rounded-full bg-white/10"></div>
         <div class="absolute bottom-10 right-1/3 w-4 h-4 rounded-full bg-mkt-gold"></div>
-        <div class="relative px-8 md:px-12 py-14 md:py-16 grid md:grid-cols-2 items-center gap-6 h-full">
-          <div>
-            <span class="eyebrow text-mkt-gold text-xs font-bold">{{ $mktHeroEyebrow }}</span>
-            <h1 class="font-heading font-extrabold text-3xl md:text-5xl leading-tight text-white mt-3">{{ $mktHeroTitle }}</h1>
-            <p class="mt-4 text-white/70 max-w-sm">{{ $mktHeroSubtitle }}</p>
-            <div class="mt-7 flex flex-wrap items-center gap-3">
-              <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-7 inline-flex items-center bg-mkt-gold text-mkt-purpleDeep text-sm font-bold rounded-md hover:bg-white">
-                {{ 'Explore Deals' }}
-              </a>
-              <a href="{{ route('store.shop') }}" class="h-12 px-6 inline-flex items-center gap-2 text-white text-sm font-semibold rounded-full border border-white/40 hover:bg-white/10">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10 8 6 4-6 4Z"/></svg>
-                {{ 'Watch Video' }}
-              </a>
-            </div>
-          </div>
-          <div class="relative flex items-center justify-center">
-            @if($mktHeroImg)
-              <div class="w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden bg-white/10 border-4 border-white/20">
-                <img src="{{ $mktHeroImg }}" alt="{{ $mktHeroTitle }}" class="w-full h-full object-cover">
+        @foreach($mktHeroSlides as $mktI => $mktSlide)
+          <div x-show="mktHero === {{ $mktI }}" @if(!$loop->first) x-cloak @endif
+               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+               x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+               class="col-start-1 row-start-1">
+            <div class="relative px-8 md:px-12 py-14 md:py-16 grid md:grid-cols-2 items-center gap-6 h-full">
+              <div>
+                <span class="eyebrow text-mkt-gold text-xs font-bold">{{ $mktHeroEyebrow }}</span>
+                <h1 class="font-heading font-extrabold text-3xl md:text-5xl leading-tight text-white mt-3">{{ ($mktSlide['title'] ?? '') !== '' ? $mktSlide['title'] : 'Big Deals. Bigger Savings.' }}</h1>
+                <p class="mt-4 text-white/70 max-w-sm">{{ ($mktSlide['subtitle'] ?? '') !== '' ? $mktSlide['subtitle'] : 'Top brands at unbeatable prices.' }}</p>
+                <div class="mt-7 flex flex-wrap items-center gap-3">
+                  <a href="{{ ($mktSlide['cta_link'] ?? '') !== '' ? $mktSlide['cta_link'] : route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-7 inline-flex items-center bg-mkt-gold text-mkt-purpleDeep text-sm font-bold rounded-md hover:bg-white">
+                    {{ ($mktSlide['cta_text'] ?? '') !== '' ? $mktSlide['cta_text'] : 'Explore Deals' }}
+                  </a>
+                  <a href="{{ route('store.shop') }}" class="h-12 px-6 inline-flex items-center gap-2 text-white text-sm font-semibold rounded-full border border-white/40 hover:bg-white/10">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10 8 6 4-6 4Z"/></svg>
+                    {{ 'Watch Video' }}
+                  </a>
+                </div>
               </div>
-            @endif
-            <div class="absolute -top-2 -right-2 md:top-2 md:right-2 w-20 h-20 rounded-full bg-white text-mkt-purpleDeep flex flex-col items-center justify-center text-center leading-tight shadow-cardHover">
-              <span class="text-[9px] font-bold eyebrow">{{ 'Up to' }}</span>
-              <span class="text-lg font-heading font-extrabold">60%</span>
-              <span class="text-[9px] font-bold eyebrow">{{ 'Off' }}</span>
+              <div class="relative flex items-center justify-center">
+                @php $mktHeroImg = !empty($mktSlide['image_url']) ? $mktSlide['image_url'] : $mktFallbackHeroImg; @endphp
+                @if($mktHeroImg)
+                  <div class="w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden bg-white/10 border-4 border-white/20">
+                    <img src="{{ $mktHeroImg }}" alt="" class="w-full h-full object-cover">
+                  </div>
+                @endif
+                <div class="absolute -top-2 -right-2 md:top-2 md:right-2 w-20 h-20 rounded-full bg-white text-mkt-purpleDeep flex flex-col items-center justify-center text-center leading-tight shadow-cardHover">
+                  <span class="text-[9px] font-bold eyebrow">{{ 'Up to' }}</span>
+                  <span class="text-lg font-heading font-extrabold">60%</span>
+                  <span class="text-[9px] font-bold eyebrow">{{ 'Off' }}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-          @for($i=0;$i<5;$i++)
-            <span class="{{ $i === 0 ? 'w-6' : 'w-1.5' }} h-1.5 rounded-full bg-white {{ $i === 0 ? '' : 'bg-white/40' }}"></span>
-          @endfor
+        @endforeach
+        <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
+          @foreach($mktHeroSlides as $mktI => $mktSlide)
+            <button type="button" @click="mktHero = {{ $mktI }}" class="h-1.5 rounded-full bg-white transition-all" :class="mktHero === {{ $mktI }} ? 'w-6' : 'w-1.5 bg-white/40'" aria-label="Slide {{ $mktI + 1 }}"></button>
+          @endforeach
         </div>
       </div>
     </div>
@@ -155,7 +174,7 @@
   @endif
 
   {{-- ===== TRENDING PRODUCTS ===== --}}
-  @if($categorySpecificProducts->count())
+  @if($trendingProducts->count())
     <section class="max-w-7xl mx-auto px-4 py-6">
       <div class="flex items-end justify-between mb-5">
         <h2 class="font-heading font-bold text-2xl text-mkt-ink">{{ 'Trending Products' }}</h2>
@@ -165,22 +184,26 @@
         </a>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        @foreach($categorySpecificProducts as $product)
+        @foreach($trendingProducts as $product)
           @include('store.themes.marketly-shop.partials.product-card', ['product' => $product])
         @endforeach
       </div>
     </section>
   @endif
 
-  {{-- ===== DAILY FLASH DEALS ===== --}}
+  {{-- ===== DAILY FLASH DEALS (customizable via Offers & Promotions) ===== --}}
+  @if($offer['enabled'] ?? true)
   <section class="max-w-7xl mx-auto px-4 py-2">
     <div class="rounded-lg bg-mkt-ink px-6 py-5 flex flex-wrap items-center gap-5 justify-between">
       <div class="flex items-center gap-4">
-        <span class="px-3 py-1.5 rounded border border-mkt-coral text-mkt-coral text-xs font-bold eyebrow" style="text-shadow:0 0 8px rgba(255,62,108,.6)">{{ 'WOW' }}</span>
+        <span class="px-3 py-1.5 rounded border border-mkt-coral text-mkt-coral text-xs font-bold eyebrow" style="text-shadow:0 0 8px rgba(255,62,108,.6)">{{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'WOW' }}</span>
         <div>
-          <h3 class="font-heading font-bold text-lg text-white">{{ 'Daily Flash Deals' }}</h3>
-          <p class="text-xs text-white/50">{{ 'New deals every day!' }}</p>
+          <h3 class="font-heading font-bold text-lg text-white">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Daily Flash Deals' }}</h3>
+          <p class="text-xs text-white/50">{{ ($offer['subtitle'] ?? '') !== '' ? $offer['subtitle'] : 'New deals every day!' }}</p>
         </div>
+        @if(!empty($offer['discount_text']))
+          <span class="px-2 py-1 rounded bg-mkt-coral/20 text-mkt-coral text-[11px] font-bold">{{ $offer['discount_text'] }}</span>
+        @endif
       </div>
       <div class="flex items-center gap-2">
         @foreach([['02','Hours'],['18','Mins'],['34','Secs']] as [$num, $label])
@@ -190,11 +213,12 @@
           </div>
         @endforeach
       </div>
-      <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-11 px-6 inline-flex items-center bg-mkt-coral text-white text-sm font-bold rounded-md hover:bg-mkt-pink">
-        {{ 'Shop Now' }}
+      <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop', ['sort' => 'price_asc']) }}" class="h-11 px-6 inline-flex items-center bg-mkt-coral text-white text-sm font-bold rounded-md hover:bg-mkt-pink">
+        {{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop Now' }}
       </a>
     </div>
   </section>
+  @endif
 
   {{-- ===== TOP BRANDS ===== --}}
   <section class="max-w-7xl mx-auto px-4 py-8">

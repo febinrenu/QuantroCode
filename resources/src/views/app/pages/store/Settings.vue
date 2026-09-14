@@ -435,28 +435,137 @@
           </div>
         </b-card>
 
-        <!-- ===== Hero ===== -->
+        <!-- ===== Hero Slides ===== -->
         <b-card class="settings-card shadow-sm mb-3" no-body>
           <div class="card-header d-flex align-items-center justify-content-between">
             <div class="h6 mb-0">{{ $t('Hero_Header') }}</div>
-            <b-badge pill variant="light">#4</b-badge>
+            <div class="d-flex align-items-center" style="gap:.5rem;">
+              <small class="text-muted">{{ $t('Hero_Slides_Help') }}</small>
+              <b-badge pill variant="light">#4</b-badge>
+            </div>
+          </div>
+          <div class="card-body">
+            <div v-if="!form.hero_slides.length" class="empty-state my-2">
+              <div class="emoji">🖼️</div>
+              <div class="title">{{ $t('No_items') }}</div>
+            </div>
+
+            <transition-group name="fade" tag="div">
+              <div v-for="(slide, idx) in form.hero_slides" :key="'hero-slide-'+idx" class="hero-slide-card mb-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <strong class="text-dark">{{ $t('Slide') }} {{ idx + 1 }}</strong>
+                  <div class="d-flex align-items-center" style="gap:.4rem;">
+                    <div class="btn-group">
+                      <b-button size="sm" variant="light" @click="moveHeroSlide(idx,-1)" :disabled="idx===0">↑</b-button>
+                      <b-button size="sm" variant="light" @click="moveHeroSlide(idx,1)" :disabled="idx===form.hero_slides.length-1">↓</b-button>
+                    </div>
+                    <b-button size="sm" variant="outline-danger" @click="removeHeroSlide(idx)">
+                      <lucide-icon name="x" /> {{ $t('Remove') }}
+                    </b-button>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <b-form-group :label="$t('Hero_Title')">
+                      <b-form-input v-model="slide.title"/>
+                    </b-form-group>
+                  </div>
+                  <div class="col-md-6">
+                    <b-form-group :label="$t('Hero_Subtitle')">
+                      <b-form-input v-model="slide.subtitle"/>
+                    </b-form-group>
+                  </div>
+                  <div class="col-md-4">
+                    <b-form-group :label="$t('Hero_CTA_Text')">
+                      <b-form-input v-model="slide.cta_text" placeholder="Start shopping"/>
+                    </b-form-group>
+                  </div>
+                  <div class="col-md-4">
+                    <b-form-group :label="$t('Hero_CTA_Link')">
+                      <b-form-input v-model="slide.cta_link" placeholder="/shop"/>
+                    </b-form-group>
+                  </div>
+                  <div class="col-md-4">
+                    <b-form-group :label="$t('Hero_Image')">
+                      <b-form-file accept="image/*" @change="pickHeroSlideImage(idx,$event)"/>
+                      <div v-if="slide.image && !slide._clearImage" class="mt-2 d-flex align-items-center" style="gap:.5rem;">
+                        <img :src="asset(slide.image)" height="48" class="rounded shadow-sm"/>
+                        <b-button size="sm" variant="outline-danger" @click="clearHeroSlideImage(idx)">{{ $t('Remove') }}</b-button>
+                      </div>
+                    </b-form-group>
+                  </div>
+                </div>
+              </div>
+            </transition-group>
+
+            <b-button size="sm" variant="outline-success" @click="addHeroSlide">
+              <lucide-icon name="plus" /> {{ $t('Add_Slide') }}
+            </b-button>
+          </div>
+        </b-card>
+
+        <!-- ===== Offers & Promotions ===== -->
+        <b-card class="settings-card shadow-sm mb-3" no-body>
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="h6 mb-0">{{ $t('Offers_and_Promotions') }}</div>
+            <b-badge pill variant="light">#5</b-badge>
           </div>
           <div class="card-body">
             <div class="row">
-              <div class="col-md-12">
-                <b-form-group :label="$t('Hero_Title')">
-                  <b-form-input v-model="form.hero_title"/>
+              <div class="col-md-12 mb-2">
+                <small class="text-muted d-block">
+                  {{ $t('Offers_Help') }}
+                </small>
+              </div>
+
+              <div class="col-md-4">
+                <b-form-group :label="$t('Offer_Badge_Text')">
+                  <b-form-input v-model="form.offer.badge_text" placeholder="Limited time"/>
+                </b-form-group>
+              </div>
+              <div class="col-md-8">
+                <b-form-group :label="$t('Offer_Headline')">
+                  <b-form-input v-model="form.offer.title" placeholder="Today's Deals — Up to 50% Off"/>
                 </b-form-group>
               </div>
               <div class="col-md-12">
-                <b-form-group :label="$t('Hero_Subtitle')">
-                  <b-form-textarea rows="2" v-model="form.hero_subtitle"/>
+                <b-form-group :label="$t('Offer_Subtext')">
+                  <b-form-textarea rows="2" v-model="form.offer.subtitle"/>
                 </b-form-group>
               </div>
+              <div class="col-md-4">
+                <b-form-group :label="$t('Offer_Discount_Text')">
+                  <b-form-input v-model="form.offer.discount_text" placeholder="50% OFF"/>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-form-group :label="$t('Offer_Button_Text')">
+                  <b-form-input v-model="form.offer.button_text" placeholder="Shop the Deals"/>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-form-group :label="$t('Offer_Link')">
+                  <b-form-input v-model="form.offer.link" placeholder="/shop?sort=price_asc"/>
+                </b-form-group>
+              </div>
+
               <div class="col-md-6">
-                <b-form-group :label="$t('Hero_Image')">
-                  <b-form-file accept="image/*" @change="pick('hero_image',$event)"/>
-                  <img v-if="settings.hero_image_path" :src="asset(settings.hero_image_path)" height="64" class="mt-2 rounded shadow-sm"/>
+                <b-form-group :label="$t('Offer_Image')">
+                  <b-form-file accept="image/*" @change="pick('offer_image',$event)"/>
+                  <div v-if="offerImagePath && !form.offer_image_clear" class="mt-2 d-flex align-items-center" style="gap:.5rem;">
+                    <img :src="asset(offerImagePath)" height="48" class="rounded shadow-sm"/>
+                    <b-button size="sm" variant="outline-danger" @click="clearOfferImage">{{ $t('Remove') }}</b-button>
+                  </div>
+                </b-form-group>
+              </div>
+              <div class="col-md-3">
+                <b-form-group :label="$t('Offer_Starts_At')">
+                  <b-form-input type="datetime-local" v-model="form.offer.starts_at"/>
+                </b-form-group>
+              </div>
+              <div class="col-md-3">
+                <b-form-group :label="$t('Offer_Ends_At')">
+                  <b-form-input type="datetime-local" v-model="form.offer.ends_at"/>
                 </b-form-group>
               </div>
             </div>
@@ -467,7 +576,7 @@
         <b-card class="settings-card shadow-sm mb-3" no-body>
           <div class="card-header d-flex align-items-center justify-content-between">
             <div class="h6 mb-0">SEO</div>
-            <b-badge pill variant="light">#5</b-badge>
+            <b-badge pill variant="light">#6</b-badge>
           </div>
           <div class="card-body">
             <div class="row">
@@ -489,7 +598,7 @@
         <b-card class="settings-card shadow-sm mb-3" no-body>
           <div class="card-header d-flex align-items-center justify-content-between">
             <div class="h6 mb-0">{{ $t('Topbar_and_Footer') }}</div>
-            <b-badge pill variant="light">#6</b-badge>
+            <b-badge pill variant="light">#7</b-badge>
           </div>
           <div class="card-body">
             <div class="row">
@@ -532,7 +641,7 @@
           </div>
         </b-card>
 
-        <!-- ===== Homepage Blocks (Hero + Collections + Newsletter) ===== -->
+        <!-- ===== Homepage Blocks (Hero + Collections + Offer + Banners + Newsletter) ===== -->
         <b-card class="settings-card shadow-sm mb-3" no-body>
           <div class="card-header d-flex align-items-center justify-content-between">
             <div class="h6 mb-0">{{ $t('Homepage_Blocks') }}</div>
@@ -599,6 +708,7 @@ export default {
       isLoading: true,
       saving: false,
       settings: {},
+      offerImagePath: '',
 
       // Authoritative collections from backend
       collections: [],
@@ -628,6 +738,18 @@ export default {
         contact_address: '',
         hero_title: '',
         hero_subtitle: '',
+        hero_slides: [],
+        offer: {
+          badge_text: '',
+          title: '',
+          subtitle: '',
+          discount_text: '',
+          button_text: '',
+          link: '',
+          starts_at: '',
+          ends_at: '',
+        },
+        offer_image_clear: false,
         seo_meta_title: '',
         seo_meta_description: '',
         topbar_text_left: '',
@@ -699,20 +821,78 @@ export default {
       if (p.startsWith('/')) return p
       return `/storage/${p}`
     },
-    pick(key,e){ this.files[key] = e.target.files[0] },
+    pick(key,e){
+      this.files[key] = e.target.files[0]
+      if (key === 'offer_image') this.form.offer_image_clear = false
+    },
 
     // --------- UI helpers ----------
     badgeVariant(kind){
       if (kind === 'collection') return 'info'
       if (kind === 'hero') return 'primary'
       if (kind === 'newsletter') return 'success'
+      if (kind === 'offer') return 'warning'
+      if (kind === 'banner_grid') return 'secondary'
       return 'light'
     },
     labelFor(kind){
       if (kind === 'collection') return this.$t('Collection')
       if (kind === 'hero') return this.$t('Hero')
       if (kind === 'newsletter') return this.$t('Newsletter')
+      if (kind === 'offer') return this.$t('Offer')
+      if (kind === 'banner_grid') return this.$t('Banners')
       return kind
+    },
+    clearOfferImage(){
+      this.offerImagePath = ''
+      this.form.offer_image_clear = true
+      delete this.files.offer_image
+    },
+
+    // --------- Hero slides ----------
+    addHeroSlide(){
+      this.form.hero_slides.push({ title:'', subtitle:'', cta_text:'', cta_link:'', image:'', _clearImage:false })
+    },
+    removeHeroSlide(idx){
+      this.form.hero_slides.splice(idx,1)
+      // Re-index any pending per-slide file picks so they still line up
+      // with their slide after the array shifts.
+      this.reindexHeroSlideFiles()
+    },
+    moveHeroSlide(idx,dir){
+      const j = idx + dir
+      if (j < 0 || j >= this.form.hero_slides.length) return
+      const a = this.form.hero_slides
+      const [item] = a.splice(idx,1)
+      a.splice(j,0,item)
+      this.reindexHeroSlideFiles()
+    },
+    reindexHeroSlideFiles(){
+      // Pending uploads are keyed by index (files['hero_slide_image_N']); after
+      // an add/remove/reorder, rebuild that map from each slide's own file
+      // reference so nothing gets attached to the wrong slide.
+      const rebuilt = {}
+      for (const k in this.files) {
+        if (k.indexOf('hero_slide_image_') !== 0) rebuilt[k] = this.files[k]
+      }
+      this.form.hero_slides.forEach((slide, i) => {
+        if (slide._pendingFile) rebuilt['hero_slide_image_' + i] = slide._pendingFile
+      })
+      this.files = rebuilt
+    },
+    pickHeroSlideImage(idx, e){
+      const file = e.target.files[0]
+      if (!file) return
+      this.$set(this.form.hero_slides[idx], '_pendingFile', file)
+      this.$set(this.form.hero_slides[idx], '_clearImage', false)
+      this.files['hero_slide_image_' + idx] = file
+    },
+    clearHeroSlideImage(idx){
+      const slide = this.form.hero_slides[idx]
+      this.$set(slide, 'image', '')
+      this.$set(slide, '_clearImage', true)
+      delete slide._pendingFile
+      delete this.files['hero_slide_image_' + idx]
     },
     move(idx,dir){
       const j = idx + dir
@@ -836,6 +1016,27 @@ export default {
         warning: false
       }
 
+      // Offer + banner grid default to active:true when absent from a saved
+      // lineup -- that mirrors how the storefront actually renders them (a
+      // theme's promo/banner section always shows unless explicitly turned
+      // off), so the toggle here never lies about the live state.
+      const offerConfigured = !!(this.form.offer.title || this.form.offer.badge_text || this.offerImagePath)
+      const offerRow = {
+        key: 'offer',
+        kind: 'offer',
+        title: this.form.offer.title || this.$t('Offer'),
+        active: true,
+        warning: !offerConfigured
+      }
+
+      const bannerGridRow = {
+        key: 'banner_grid',
+        kind: 'banner_grid',
+        title: this.$t('Banners'),
+        active: true,
+        warning: false
+      }
+
       const collectionBySlug = new Map(this.collections.map(c => [c.slug, c]))
       const used = new Set()
 
@@ -845,6 +1046,8 @@ export default {
           if (!item || !item.type) return
           if (item.type === 'hero') { rows.push({ ...heroRow, active: true }); used.add('hero') }
           else if (item.type === 'newsletter') { rows.push({ ...newsletterRow, active: true }); used.add('newsletter') }
+          else if (item.type === 'promo_banner') { rows.push({ ...offerRow, active: this.normalizeBool(item.enabled ?? true) }); used.add('offer') }
+          else if (item.type === 'banner_grid') { rows.push({ ...bannerGridRow, active: this.normalizeBool(item.enabled ?? true) }); used.add('banner_grid') }
           else if (item.type === 'collection' && item.slug) {
             const c = collectionBySlug.get(String(item.slug))
             if (c) { rows.push({ ...c, key: `collection:${c.slug}`, kind:'collection', active: true }); used.add(`collection:${c.slug}`) }
@@ -852,6 +1055,8 @@ export default {
         })
         // 2) Append the rest (not in lineup)
         if (!used.has('hero')) rows.push(heroRow)
+        if (!used.has('offer')) rows.push(offerRow)
+        if (!used.has('banner_grid')) rows.push(bannerGridRow)
         if (!used.has('newsletter')) rows.push(newsletterRow)
         this.collections
           .filter(c => !used.has(`collection:${c.slug}`))
@@ -860,6 +1065,8 @@ export default {
       } else {
         // No saved lineup yet → default order
         rows.push({ ...heroRow, active: false })
+        rows.push(offerRow)
+        rows.push(bannerGridRow)
         this.collections
           .slice()
           .sort((a,b)=> (a.sort_order - b.sort_order) || a.title.localeCompare(b.title))
@@ -910,6 +1117,47 @@ export default {
         merged.homepage_lineup = Array.isArray(lineupRaw)
           ? lineupRaw
           : (this.tryParseJson(lineupRaw) || [])
+
+        // Pull the promo_banner item's fields into the dedicated Offers form.
+        var offerItem = merged.homepage_lineup.find(function (it) { return it && it.type === 'promo_banner' })
+        merged.offer = {
+          badge_text: (offerItem && offerItem.badge_text) || '',
+          title: (offerItem && offerItem.title) || '',
+          subtitle: (offerItem && offerItem.subtitle) || '',
+          discount_text: (offerItem && offerItem.discount_text) || '',
+          button_text: (offerItem && offerItem.button_text) || '',
+          link: (offerItem && offerItem.link) || '',
+          starts_at: (offerItem && offerItem.starts_at) || '',
+          ends_at: (offerItem && offerItem.ends_at) || '',
+        }
+        merged.offer_image_clear = false
+        this.offerImagePath = (offerItem && offerItem.image) || ''
+
+        // Hero slides: use whatever's saved, or seed one slide from the
+        // legacy single hero_title/hero_subtitle/hero_image_path fields so a
+        // merchant's existing hero isn't lost the first time they open this
+        // (now-multi-slide) form.
+        var slidesRaw = settings && settings.hero_slides
+        var existingSlides = Array.isArray(slidesRaw) ? slidesRaw : (this.tryParseJson(slidesRaw) || [])
+        merged.hero_slides = existingSlides.length
+          ? existingSlides.map(function (sl) {
+              return {
+                title: (sl && sl.title) || '',
+                subtitle: (sl && sl.subtitle) || '',
+                cta_text: (sl && sl.cta_text) || '',
+                cta_link: (sl && sl.cta_link) || '',
+                image: (sl && sl.image) || '',
+              }
+            })
+          : ((settings && (settings.hero_title || settings.hero_subtitle || settings.hero_image_path))
+              ? [{
+                  title: (settings && settings.hero_title) || '',
+                  subtitle: (settings && settings.hero_subtitle) || '',
+                  cta_text: '',
+                  cta_link: '',
+                  image: (settings && settings.hero_image_path) || '',
+                }]
+              : [])
 
         merged.homepage_layout = 'default'
         merged.allow_overselling = this.normalizeBool(settings && settings.allow_overselling)
@@ -965,7 +1213,32 @@ export default {
         var lineup = []
         for (var i = 0; i < this.homeRows.length; i++) {
           var r = this.homeRows[i]
-          if (!r || !r.active) continue
+          if (!r) continue
+          // Offer / banner grid always get an explicit entry (enabled reflects
+          // the toggle) since their visibility is truly gated by this value —
+          // unlike hero/newsletter/collection, omitting them would NOT hide
+          // them (the storefront defaults an absent entry to "on").
+          if (r.kind === 'offer') {
+            lineup.push({
+              type: 'promo_banner',
+              enabled: !!r.active,
+              badge_text: this.form.offer.badge_text || '',
+              title: this.form.offer.title || '',
+              subtitle: this.form.offer.subtitle || '',
+              discount_text: this.form.offer.discount_text || '',
+              button_text: this.form.offer.button_text || '',
+              link: this.form.offer.link || '',
+              image: this.offerImagePath || '',
+              starts_at: this.form.offer.starts_at || '',
+              ends_at: this.form.offer.ends_at || '',
+            })
+            continue
+          }
+          if (r.kind === 'banner_grid') {
+            lineup.push({ type: 'banner_grid', enabled: !!r.active })
+            continue
+          }
+          if (!r.active) continue
           if (r.kind === 'hero') {
             lineup.push({ type: 'hero' })
           } else if (r.kind === 'newsletter') {
@@ -982,6 +1255,21 @@ export default {
         }
         this.form.homepage_lineup = lineup
 
+        // 1b) Clean hero_slides for the wire (strip UI-only helper fields;
+        // clearing a slide's image blanks it here, the actual clear flag is
+        // appended to FormData below since it's not part of this.form).
+        var heroSlidesClean = this.form.hero_slides.map(function (sl) {
+          return {
+            title: sl.title || '',
+            subtitle: sl.subtitle || '',
+            cta_text: sl.cta_text || '',
+            cta_link: sl.cta_link || '',
+            image: sl._clearImage ? '' : (sl.image || ''),
+          }
+        })
+        var heroSlideClearFlags = this.form.hero_slides.map(function (sl) { return !!sl._clearImage })
+        this.form.hero_slides = heroSlidesClean
+
         // 2) Ensure numeric fields are numbers (esp. default_warehouse_id)
         if (this.form.default_warehouse_id != null && this.form.default_warehouse_id !== '') {
           this.form.default_warehouse_id = Number(this.form.default_warehouse_id)
@@ -997,10 +1285,14 @@ export default {
 
         // 3) Build FormData (Vue 2 compatible)
         var fd = new FormData()
-        var jsonFields = ['menus', 'social_links', 'homepage_lineup', 'theme_tokens']
+        var jsonFields = ['menus', 'social_links', 'homepage_lineup', 'theme_tokens', 'hero_slides']
+        // Staging-only field: its contents already travel inside the
+        // promo_banner entry of homepage_lineup, built above.
+        var skipFields = ['offer']
 
         for (var k in this.form) {
           if (!Object.prototype.hasOwnProperty.call(this.form, k)) continue
+          if (skipFields.indexOf(k) !== -1) continue
           var v = this.form[k]
 
           // Booleans as 1/0 for Laravel convenience
@@ -1035,6 +1327,12 @@ export default {
           var f = this.files[fk]
           if (f) fd.append(fk, f)
         }
+
+        // 4b) Per-slide "remove image" flags (not part of this.form, so not
+        // covered by the generic loop above)
+        heroSlideClearFlags.forEach(function (clear, i) {
+          if (clear) fd.append('hero_slide_image_clear_' + i, 1)
+        })
 
         // 5) POST (multipart) — Laravel will read request->all()/files normally
         await axios.post('/admin/store/settings', fd, {
@@ -1096,6 +1394,13 @@ export default {
   display:flex; align-items:center; justify-content:space-between;
   padding:.75rem .8rem; background:#fff; border:1px solid #e5e7eb;
   border-radius:.9rem; margin-bottom:.6rem;
+}
+
+.hero-slide-card {
+  padding: .9rem 1rem;
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: .9rem;
 }
 .simple-row .left{ min-width:0; }
 .muted-row { color:#6b7280; font-size:.85rem; }

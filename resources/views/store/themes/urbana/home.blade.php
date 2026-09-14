@@ -16,45 +16,64 @@
 
 <main class="pb-24 lg:pb-0">
 
-  {{-- ===== HERO ===== --}}
-  <section class="relative overflow-hidden bg-brand-blueLight">
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $urHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative overflow-hidden bg-brand-blueLight grid"
+           x-data="{ urHero: 0, urHeroCount: {{ count($urHeroSlides) }} }"
+           @if(count($urHeroSlides) > 1) x-init="setInterval(() => { urHero = (urHero + 1) % urHeroCount }, 6000)" @endif>
     <svg class="ur-blob absolute -top-24 -left-24 w-96 h-96 opacity-40" viewBox="0 0 200 200"><path fill="#5B8DEF" d="M43.4,-56.8C56.5,-47.9,67.3,-34.9,71.6,-19.8C75.9,-4.7,73.7,12.6,66.1,27.4C58.5,42.2,45.5,54.6,30.3,61.9C15.1,69.2,-2.3,71.5,-19,67.5C-35.7,63.5,-51.7,53.2,-61.6,38.9C-71.5,24.6,-75.3,6.3,-72.1,-10.4C-68.9,-27.1,-58.7,-42.2,-45.1,-51.3C-31.5,-60.4,-14.5,-63.5,1.6,-65.4C17.7,-67.3,30.3,-65.7,43.4,-56.8Z" transform="translate(100 100)"/></svg>
     <svg class="ur-blob-slow absolute -bottom-32 -right-16 w-[28rem] h-[28rem] opacity-30" viewBox="0 0 200 200"><path fill="#FF6F61" d="M39.6,-51.7C51.4,-42.6,60.9,-29.9,64.8,-15.5C68.7,-1.1,67,15,59.6,27.8C52.2,40.6,39.1,50.1,24.7,56.6C10.3,63.1,-5.4,66.6,-20.6,63.8C-35.8,61,-50.5,51.9,-59.6,39C-68.7,26.1,-72.2,9.4,-69.6,-6C-67,-21.4,-58.3,-35.5,-46.4,-44.8C-34.5,-54.1,-19.4,-58.6,-3.5,-53.9C12.4,-49.2,27.8,-60.8,39.6,-51.7Z" transform="translate(100 100)"/></svg>
     <svg class="absolute top-1/2 left-1/3 w-24 h-24 opacity-20" viewBox="0 0 200 200"><path fill="#FBFAF8" d="M20,80 Q50,20 80,80 T140,80" stroke="#5B8DEF" stroke-width="6" fill="none"/></svg>
-    <div class="relative max-w-7xl mx-auto px-4 py-16 lg:py-24 grid lg:grid-cols-2 gap-10 items-center">
-      <div>
-        <span class="eyebrow text-brand-coral text-xs font-bold">One cozy cart, every category</span>
-        <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-brand-ink leading-tight">
-          {{ $s->hero_title ?? 'Shopping that feels like home' }}
-        </h1>
-        <p class="mt-4 text-brand-ink/70 max-w-lg">
-          {{ $s->hero_subtitle ?? 'Electronics, fashion, home goods, beauty, groceries and sports gear — all picked with care, wrapped up nicely, and delivered with a smile.' }}
-        </p>
-        <div class="mt-7 flex flex-wrap gap-3">
-          <a href="{{ route('store.shop') }}" class="h-14 px-7 inline-flex items-center gap-2 rounded-full bg-brand-blue text-white font-semibold shadow-soft hover:bg-brand-blueDark hover:shadow-softHover transition-all">
-            Start browsing
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-14 px-7 inline-flex items-center gap-2 rounded-full border-2 border-brand-coral text-brand-coral font-semibold hover:bg-brand-coralLight transition-colors">
-            Today's cozy deals
-          </a>
-        </div>
-        <div class="mt-8 flex flex-wrap items-center gap-5 text-brand-ink/70 text-xs">
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Buyer protection</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Free easy returns</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Friendly support, always</span>
+    @foreach($urHeroSlides as $urI => $urSlide)
+      <div x-show="urHero === {{ $urI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1">
+        <div class="relative max-w-7xl mx-auto px-4 py-16 lg:py-24 grid lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <span class="eyebrow text-brand-coral text-xs font-bold">One cozy cart, every category</span>
+            <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-brand-ink leading-tight">
+              {{ ($urSlide['title'] ?? '') !== '' ? $urSlide['title'] : 'Shopping that feels like home' }}
+            </h1>
+            <p class="mt-4 text-brand-ink/70 max-w-lg">
+              {{ ($urSlide['subtitle'] ?? '') !== '' ? $urSlide['subtitle'] : 'Electronics, fashion, home goods, beauty, groceries and sports gear — all picked with care, wrapped up nicely, and delivered with a smile.' }}
+            </p>
+            <div class="mt-7 flex flex-wrap gap-3">
+              <a href="{{ ($urSlide['cta_link'] ?? '') !== '' ? $urSlide['cta_link'] : route('store.shop') }}" class="h-14 px-7 inline-flex items-center gap-2 rounded-full bg-brand-blue text-white font-semibold shadow-soft hover:bg-brand-blueDark hover:shadow-softHover transition-all">
+                {{ ($urSlide['cta_text'] ?? '') !== '' ? $urSlide['cta_text'] : 'Start browsing' }}
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              </a>
+              <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-14 px-7 inline-flex items-center gap-2 rounded-full border-2 border-brand-coral text-brand-coral font-semibold hover:bg-brand-coralLight transition-colors">
+                Today's cozy deals
+              </a>
+            </div>
+            <div class="mt-8 flex flex-wrap items-center gap-5 text-brand-ink/70 text-xs">
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Buyer protection</span>
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Free easy returns</span>
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Friendly support, always</span>
+            </div>
+          </div>
+          <div class="hidden lg:grid grid-cols-2 gap-4 relative">
+            <img src="{{ !empty($urSlide['image_url']) ? $urSlide['image_url'] : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=500&q=70' }}" class="rounded-3xl h-48 w-full object-cover shadow-softHover" alt="Electronics">
+            <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover mt-8 shadow-softHover" alt="Fashion">
+            <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover -mt-4 shadow-softHover" alt="Grocery">
+            <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover shadow-softHover" alt="Beauty">
+          </div>
         </div>
       </div>
-      <div class="hidden lg:grid grid-cols-2 gap-4 relative">
-        <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover shadow-softHover" alt="Electronics">
-        <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover mt-8 shadow-softHover" alt="Fashion">
-        <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover -mt-4 shadow-softHover" alt="Grocery">
-        <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover shadow-softHover" alt="Beauty">
+    @endforeach
+
+    @if(count($urHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($urHeroSlides as $urI => $urSlide)
+          <button type="button" @click="urHero = {{ $urI }}" class="w-2 h-2 rounded-full transition-colors" :class="urHero === {{ $urI }} ? 'bg-brand-blue' : 'bg-brand-blue/30'" aria-label="Slide {{ $urI + 1 }}"></button>
+        @endforeach
       </div>
-    </div>
+    @endif
   </section>
 
   {{-- ===== TOP BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['top_left'] ?? collect() as $b)
@@ -68,6 +87,7 @@
         </a>
       @endforeach
     </section>
+  @endif
   @endif
 
   {{-- ===== CATEGORY GRID ===== --}}
@@ -168,27 +188,59 @@
     @endif
   @endforeach
 
-  {{-- ===== PROMO STRIP ===== --}}
+  {{-- ===== PROMO STRIP (fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @if($bannerGridEnabled ?? true)
+  @php
+    // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+    // override each tile's fixed gradient/text color; absent -> theme default.
+    $bannerOverlayStyle = function ($b) {
+      if (!$b || empty($b->bg_color)) return null;
+      $css = !empty($b->bg_color_2)
+        ? "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+        : "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+      return $css;
+    };
+    $bannerTextStyle = function ($b) {
+      return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
+    $centerLeft = ($byPos['center_left'] ?? collect())->first();
+    $centerRight = ($byPos['center_right'] ?? collect())->first();
+  @endphp
   <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
-    <div class="relative rounded-3xl overflow-hidden h-56 flex items-end p-6">
-      <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
-      <div class="absolute inset-0 bg-gradient-to-t from-brand-ink/70 to-transparent"></div>
-      <div class="relative">
-        <span class="text-brand-coralLight text-xs font-bold uppercase">Cozy Wardrobe Edit</span>
-        <h3 class="text-white text-xl font-bold font-heading mt-1">Fresh styles for every season</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-white underline">Shop now →</a>
+    <a href="{{ $centerLeft ? ($centerLeft->link ?: route('store.shop')) : route('store.shop') }}" class="relative block rounded-3xl overflow-hidden h-56 flex items-end p-6">
+      @if($centerLeft)
+        <img src="{{ $bannerUrl($centerLeft) }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ $centerLeft->title }}">
+      @else
+        <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
+      @endif
+      <div class="absolute inset-0 bg-gradient-to-t from-brand-ink/70 to-transparent" @if($bannerOverlayStyle($centerLeft)) style="{{ $bannerOverlayStyle($centerLeft) }}" @endif></div>
+      <div class="relative" @if($bannerTextStyle($centerLeft)) style="{{ $bannerTextStyle($centerLeft) }}" @endif>
+        <span class="text-brand-coralLight text-xs font-bold uppercase" style="color:inherit;">{{ ($centerLeft->badge_text ?? null) ?: 'Cozy Wardrobe Edit' }}</span>
+        <h3 class="text-white text-xl font-bold font-heading mt-1" style="color:inherit;">{{ ($centerLeft->title ?? null) ?: 'Fresh styles for every season' }}</h3>
+        @if(!empty($centerLeft->subtitle ?? null))
+          <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $centerLeft->subtitle }}</p>
+        @endif
+        <span class="mt-2 inline-flex text-sm font-semibold text-white underline" style="color:inherit;">{{ ($centerLeft->button_text ?? null) ?: 'Shop now' }} →</span>
       </div>
-    </div>
-    <div class="relative rounded-3xl overflow-hidden h-56 flex items-end p-6">
-      <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
-      <div class="absolute inset-0 bg-gradient-to-t from-brand-ink/70 to-transparent"></div>
-      <div class="relative">
-        <span class="text-brand-blueLight text-xs font-bold uppercase">Home Comforts</span>
-        <h3 class="text-white text-xl font-bold font-heading mt-1">Make your space feel like you</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-white underline">Shop now →</a>
+    </a>
+    <a href="{{ $centerRight ? ($centerRight->link ?: route('store.shop')) : route('store.shop') }}" class="relative block rounded-3xl overflow-hidden h-56 flex items-end p-6">
+      @if($centerRight)
+        <img src="{{ $bannerUrl($centerRight) }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ $centerRight->title }}">
+      @else
+        <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
+      @endif
+      <div class="absolute inset-0 bg-gradient-to-t from-brand-ink/70 to-transparent" @if($bannerOverlayStyle($centerRight)) style="{{ $bannerOverlayStyle($centerRight) }}" @endif></div>
+      <div class="relative" @if($bannerTextStyle($centerRight)) style="{{ $bannerTextStyle($centerRight) }}" @endif>
+        <span class="text-brand-blueLight text-xs font-bold uppercase" style="color:inherit;">{{ ($centerRight->badge_text ?? null) ?: 'Home Comforts' }}</span>
+        <h3 class="text-white text-xl font-bold font-heading mt-1" style="color:inherit;">{{ ($centerRight->title ?? null) ?: 'Make your space feel like you' }}</h3>
+        @if(!empty($centerRight->subtitle ?? null))
+          <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $centerRight->subtitle }}</p>
+        @endif
+        <span class="mt-2 inline-flex text-sm font-semibold text-white underline" style="color:inherit;">{{ ($centerRight->button_text ?? null) ?: 'Shop now' }} →</span>
       </div>
-    </div>
+    </a>
   </section>
+  @endif
 
   {{-- ===== TESTIMONIALS ===== --}}
   <section class="bg-white border-y border-brand-blueLight">

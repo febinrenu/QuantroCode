@@ -12,9 +12,26 @@
     $dealsUrl = url('online_store/shop?collection=deals' . ($previewTheme ? '&preview_theme=' . $previewTheme : ''));
     $bestsellersUrl = url('online_store/shop?collection=bestsellers' . ($previewTheme ? '&preview_theme=' . $previewTheme : ''));
 
-    // Best Sellers: 6 products
+    // Best Sellers: 6 products -- prefer a merchant-tagged "Best Sellers"
+    // Collection's own products when present, else fall back to the
+    // generic product list (unchanged behavior when no role is tagged).
     $prodList = $products ?? collect();
-    $bestSellers = $prodList->take(6);
+    $bestSellersRoleProducts = collect($collectionsByRole['best_sellers']['products'] ?? []);
+    $bestSellers = $bestSellersRoleProducts->count() ? $bestSellersRoleProducts->take(6) : $prodList->take(6);
+
+    // Banner-driven overrides for the category collection tiles (Banners admin).
+    $byPos = collect($banners ?? [])->groupBy('position');
+    $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+    $bannerOverlayStyle = function ($b) {
+        if (!$b || empty($b->bg_color)) return null;
+        $css = !empty($b->bg_color_2)
+            ? "background:linear-gradient(to right, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+            : "background:linear-gradient(to right, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+        return $css;
+    };
+    $bannerTextStyle = function ($b) {
+        return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
 @endphp
 
 @section('content')
@@ -22,6 +39,7 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-10 sm:space-y-12">
 
     <!-- 1. HERO AREA WITH LEFT TOP CATEGORIES SIDEBAR -->
+    @php $ubHeroSlides = $heroSlides ?? []; @endphp
     <section class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
         <!-- Left Sidebar: Top Categories (Hidden on Mobile/Tablet) -->
@@ -77,8 +95,9 @@
         </div>
 
         <!-- Right Hero Banner -->
-        <div class="lg:col-span-3 relative rounded-3xl overflow-hidden shadow-xl min-h-[380px] sm:min-h-[440px] flex items-center bg-cover bg-center"
-             style="background-image: url('{{ global_asset('images/themes/urbanic/urbanic-hero-banner.png') }}');">
+        <div class="lg:col-span-3 relative rounded-3xl overflow-hidden shadow-xl min-h-[380px] sm:min-h-[440px] items-center grid"
+             x-data="{ ubHero: 0, ubHeroCount: {{ count($ubHeroSlides) }} }"
+             @if(count($ubHeroSlides) > 1) x-init="setInterval(() => { ubHero = (ubHero + 1) % ubHeroCount }, 6000)" @endif>
 
             <!-- Left Carousel Arrow -->
             <button type="button"
@@ -98,47 +117,60 @@
                 </svg>
             </button>
 
-            <!-- Content Container -->
-            <div class="relative z-10 w-full p-6 sm:p-10 lg:p-12">
-                <div class="max-w-md space-y-4 text-center sm:text-left">
+            @foreach($ubHeroSlides as $ubI => $ubSlide)
+                <div x-show="ubHero === {{ $ubI }}" @if(!$loop->first) x-cloak @endif
+                     x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                     x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                     class="col-start-1 row-start-1 bg-cover bg-center"
+                     style="background-image: url('{{ !empty($ubSlide['image_url']) ? $ubSlide['image_url'] : global_asset('images/themes/urbanic/urbanic-hero-banner.png') }}');">
 
-                    <span class="inline-block text-[11px] font-black uppercase tracking-widest text-urb-dark bg-amber-300/60 px-3 py-1 rounded-md">
-                        New Season
-                    </span>
+                    <!-- Content Container -->
+                    <div class="relative z-10 w-full p-6 sm:p-10 lg:p-12">
+                        <div class="max-w-md space-y-4 text-center sm:text-left">
 
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-urb-dark leading-[1.08] tracking-tight">
-                        Summer<br>
-                        Looks Good<br>
-                        On <span class="font-script font-bold text-white drop-shadow-sm">You</span>
-                    </h1>
+                            <span class="inline-block text-[11px] font-black uppercase tracking-widest text-urb-dark bg-amber-300/60 px-3 py-1 rounded-md">
+                                New Season
+                            </span>
 
-                    <p class="text-xs sm:text-sm text-urb-dark/90 font-medium leading-relaxed max-w-sm">
-                        Fresh styles. Bright vibes. Endless possibilities.
-                    </p>
+                            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-urb-dark leading-[1.08] tracking-tight">
+                                @if(($ubSlide['title'] ?? '') !== '')
+                                    {{ $ubSlide['title'] }}
+                                @else
+                                    Summer<br>
+                                    Looks Good<br>
+                                    On <span class="font-script font-bold text-white drop-shadow-sm">You</span>
+                                @endif
+                            </h1>
 
-                    <!-- CTA Buttons: SHOP WOMEN & SHOP MEN -->
-                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3 pt-2">
-                        <a href="{{ $womenUrl }}"
-                           class="px-6 py-3 bg-urb-dark hover:bg-black text-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg hover:scale-105 transition-all">
-                            Shop Women
-                        </a>
+                            <p class="text-xs sm:text-sm text-urb-dark/90 font-medium leading-relaxed max-w-sm">
+                                {{ ($ubSlide['subtitle'] ?? '') !== '' ? $ubSlide['subtitle'] : 'Fresh styles. Bright vibes. Endless possibilities.' }}
+                            </p>
 
-                        <a href="{{ $menUrl }}"
-                           class="px-6 py-3 bg-white hover:bg-slate-50 text-urb-dark font-black text-xs uppercase tracking-wider rounded-full shadow-lg hover:scale-105 transition-all">
-                            Shop Men
-                        </a>
+                            <!-- CTA Buttons: SHOP WOMEN & SHOP MEN -->
+                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3 pt-2">
+                                <a href="{{ ($ubSlide['cta_link'] ?? '') !== '' ? $ubSlide['cta_link'] : $womenUrl }}"
+                                   class="px-6 py-3 bg-urb-dark hover:bg-black text-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg hover:scale-105 transition-all">
+                                    {{ ($ubSlide['cta_text'] ?? '') !== '' ? $ubSlide['cta_text'] : 'Shop Women' }}
+                                </a>
+
+                                <a href="{{ $menUrl }}"
+                                   class="px-6 py-3 bg-white hover:bg-slate-50 text-urb-dark font-black text-xs uppercase tracking-wider rounded-full shadow-lg hover:scale-105 transition-all">
+                                    Shop Men
+                                </a>
+                            </div>
+
+                        </div>
                     </div>
-
                 </div>
-            </div>
+            @endforeach
 
-            <!-- Pagination Dots -->
-            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-2 z-20">
-                <span class="w-6 h-2 rounded-full bg-white"></span>
-                <span class="w-2 h-2 rounded-full bg-white/50"></span>
-                <span class="w-2 h-2 rounded-full bg-white/50"></span>
-                <span class="w-2 h-2 rounded-full bg-white/50"></span>
-            </div>
+            @if(count($ubHeroSlides) > 1)
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+                    @foreach($ubHeroSlides as $ubI => $ubSlide)
+                        <button type="button" @click="ubHero = {{ $ubI }}" class="w-2 h-2 rounded-full transition-colors" :class="ubHero === {{ $ubI }} ? 'bg-white' : 'bg-white/40'" aria-label="Slide {{ $ubI + 1 }}"></button>
+                    @endforeach
+                </div>
+            @endif
 
         </div>
 
@@ -216,107 +248,51 @@
         </div>
     </section>
 
-    <!-- 3. FIVE CATEGORY COLLECTION CARDS -->
+    <!-- 3. FIVE CATEGORY COLLECTION CARDS (fully customizable via Banners: image, badge, headline, subtitle, button, colors) -->
+    @if($bannerGridEnabled ?? true)
     <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
 
-        <!-- Card 1: WOMEN -->
-        <a href="{{ $womenUrl }}" class="group rounded-3xl p-5 bg-[#FEEDE6] overflow-hidden flex flex-col justify-between min-h-[260px] relative hover:shadow-lg transition-all duration-300">
-            <div class="relative z-10">
-                <h3 class="text-base font-black text-urb-dark uppercase tracking-tight">
-                    Women
-                </h3>
-                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mt-0.5">
-                    Collection
-                </span>
-                <span class="text-xs font-bold text-urb-dark group-hover:text-orange-600 mt-2 inline-flex items-center gap-1 transition">
-                    <span>Shop Now</span>
-                    <span>→</span>
-                </span>
-            </div>
-            <img src="{{ global_asset('images/themes/urbanic/collection-women.jpg') }}"
-                 alt="Women Collection"
-                 class="absolute right-0 bottom-0 w-3/4 h-3/4 object-contain group-hover:scale-105 transition-transform duration-500 pointer-events-none">
-        </a>
+        @php
+            $collectionTiles = [
+                ['pos' => 'top_left', 'bg' => 'bg-[#FEEDE6]', 'title' => 'Women', 'img' => 'collection-women.jpg', 'href' => $womenUrl, 'colspan' => ''],
+                ['pos' => 'top_right', 'bg' => 'bg-[#E1EEFC]', 'title' => 'Men', 'img' => 'collection-men.jpg', 'href' => $menUrl, 'colspan' => ''],
+                ['pos' => 'center_left', 'bg' => 'bg-[#FEF3C7]', 'title' => 'Kids', 'img' => 'collection-kids.jpg', 'href' => $kidsUrl, 'colspan' => ''],
+                ['pos' => 'center_right', 'bg' => 'bg-[#EDE9FE]', 'title' => 'Shoes', 'img' => 'collection-shoes.jpg', 'href' => $shoesUrl, 'colspan' => ''],
+                ['pos' => 'footer_left', 'bg' => 'bg-[#DCFCE7]', 'title' => 'Bags', 'img' => 'collection-bags.jpg', 'href' => $bagsUrl, 'colspan' => 'col-span-2 sm:col-span-1'],
+            ];
+        @endphp
 
-        <!-- Card 2: MEN -->
-        <a href="{{ $menUrl }}" class="group rounded-3xl p-5 bg-[#E1EEFC] overflow-hidden flex flex-col justify-between min-h-[260px] relative hover:shadow-lg transition-all duration-300">
-            <div class="relative z-10">
-                <h3 class="text-base font-black text-urb-dark uppercase tracking-tight">
-                    Men
-                </h3>
-                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mt-0.5">
-                    Collection
-                </span>
-                <span class="text-xs font-bold text-urb-dark group-hover:text-orange-600 mt-2 inline-flex items-center gap-1 transition">
-                    <span>Shop Now</span>
-                    <span>→</span>
-                </span>
-            </div>
-            <img src="{{ global_asset('images/themes/urbanic/collection-men.jpg') }}"
-                 alt="Men Collection"
-                 class="absolute right-0 bottom-0 w-3/4 h-3/4 object-contain group-hover:scale-105 transition-transform duration-500 pointer-events-none">
-        </a>
-
-        <!-- Card 3: KIDS -->
-        <a href="{{ $kidsUrl }}" class="group rounded-3xl p-5 bg-[#FEF3C7] overflow-hidden flex flex-col justify-between min-h-[260px] relative hover:shadow-lg transition-all duration-300">
-            <div class="relative z-10">
-                <h3 class="text-base font-black text-urb-dark uppercase tracking-tight">
-                    Kids
-                </h3>
-                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mt-0.5">
-                    Collection
-                </span>
-                <span class="text-xs font-bold text-urb-dark group-hover:text-orange-600 mt-2 inline-flex items-center gap-1 transition">
-                    <span>Shop Now</span>
-                    <span>→</span>
-                </span>
-            </div>
-            <img src="{{ global_asset('images/themes/urbanic/collection-kids.jpg') }}"
-                 alt="Kids Collection"
-                 class="absolute right-0 bottom-0 w-3/4 h-3/4 object-contain group-hover:scale-105 transition-transform duration-500 pointer-events-none">
-        </a>
-
-        <!-- Card 4: SHOES -->
-        <a href="{{ $shoesUrl }}" class="group rounded-3xl p-5 bg-[#EDE9FE] overflow-hidden flex flex-col justify-between min-h-[260px] relative hover:shadow-lg transition-all duration-300">
-            <div class="relative z-10">
-                <h3 class="text-base font-black text-urb-dark uppercase tracking-tight">
-                    Shoes
-                </h3>
-                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mt-0.5">
-                    Collection
-                </span>
-                <span class="text-xs font-bold text-urb-dark group-hover:text-orange-600 mt-2 inline-flex items-center gap-1 transition">
-                    <span>Shop Now</span>
-                    <span>→</span>
-                </span>
-            </div>
-            <img src="{{ global_asset('images/themes/urbanic/collection-shoes.jpg') }}"
-                 alt="Shoes Collection"
-                 class="absolute right-0 bottom-0 w-3/4 h-3/4 object-contain group-hover:scale-105 transition-transform duration-500 pointer-events-none">
-        </a>
-
-        <!-- Card 5: BAGS -->
-        <a href="{{ $bagsUrl }}" class="group rounded-3xl p-5 bg-[#DCFCE7] overflow-hidden flex flex-col justify-between min-h-[260px] relative hover:shadow-lg transition-all duration-300 col-span-2 sm:col-span-1">
-            <div class="relative z-10">
-                <h3 class="text-base font-black text-urb-dark uppercase tracking-tight">
-                    Bags
-                </h3>
-                <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mt-0.5">
-                    Collection
-                </span>
-                <span class="text-xs font-bold text-urb-dark group-hover:text-orange-600 mt-2 inline-flex items-center gap-1 transition">
-                    <span>Shop Now</span>
-                    <span>→</span>
-                </span>
-            </div>
-            <img src="{{ global_asset('images/themes/urbanic/collection-bags.jpg') }}"
-                 alt="Bags Collection"
-                 class="absolute right-0 bottom-0 w-3/4 h-3/4 object-contain group-hover:scale-105 transition-transform duration-500 pointer-events-none">
-        </a>
+        @foreach($collectionTiles as $tile)
+            @php $tileBanner = ($byPos[$tile['pos']] ?? collect())->first(); @endphp
+            <a href="{{ $tileBanner ? ($tileBanner->link ?: $tile['href']) : $tile['href'] }}"
+               class="group rounded-3xl p-5 {{ $tile['bg'] }} overflow-hidden flex flex-col justify-between min-h-[260px] relative hover:shadow-lg transition-all duration-300 {{ $tile['colspan'] }}"
+               @if($bannerOverlayStyle($tileBanner)) style="{{ $bannerOverlayStyle($tileBanner) }}" @endif>
+                <div class="relative z-10" @if($bannerTextStyle($tileBanner)) style="{{ $bannerTextStyle($tileBanner) }}" @endif>
+                    <h3 class="text-base font-black text-urb-dark uppercase tracking-tight" @if($bannerTextStyle($tileBanner)) style="color:inherit;" @endif>
+                        {{ ($tileBanner->title ?? null) ?: $tile['title'] }}
+                    </h3>
+                    <span class="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block mt-0.5" @if($bannerTextStyle($tileBanner)) style="color:inherit;" @endif>
+                        {{ ($tileBanner->badge_text ?? null) ?: 'Collection' }}
+                    </span>
+                    @if(!empty($tileBanner->subtitle ?? null))
+                        <p class="text-[11px] font-medium text-slate-500 mt-1" @if($bannerTextStyle($tileBanner)) style="color:inherit;" @endif>{{ $tileBanner->subtitle }}</p>
+                    @endif
+                    <span class="text-xs font-bold text-urb-dark group-hover:text-orange-600 mt-2 inline-flex items-center gap-1 transition" @if($bannerTextStyle($tileBanner)) style="color:inherit;" @endif>
+                        <span>{{ ($tileBanner->button_text ?? null) ?: 'Shop Now' }}</span>
+                        <span>→</span>
+                    </span>
+                </div>
+                <img src="{{ $tileBanner ? $bannerUrl($tileBanner) : global_asset('images/themes/urbanic/'.$tile['img']) }}"
+                     alt="{{ $tile['title'] }} Collection"
+                     class="absolute right-0 bottom-0 w-3/4 h-3/4 object-contain group-hover:scale-105 transition-transform duration-500 pointer-events-none">
+            </a>
+        @endforeach
 
     </section>
+    @endif
 
     <!-- 4. DEAL OF THE DAY BANNER WITH LIVE COUNTDOWN -->
+    @if($offer['enabled'] ?? true)
     <section class="deal-dark-grad rounded-3xl p-6 sm:p-8 text-white shadow-xl">
         <div class="flex flex-col md:flex-row items-center justify-between gap-6">
 
@@ -327,18 +303,21 @@
                 </div>
                 <div>
                     <h3 class="text-lg sm:text-xl font-black uppercase tracking-tight text-white">
-                        Deal of the Day
+                        {{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Deal of the Day' }}
                     </h3>
                     <p class="text-xs text-slate-300 font-medium mt-0.5">
-                        New deals every day. Don't miss out!
+                        {{ ($offer['subtitle'] ?? '') !== '' ? $offer['subtitle'] : "New deals every day. Don't miss out!" }}
                     </p>
+                    @if(!empty($offer['discount_text']))
+                        <span class="inline-flex mt-1.5 items-center rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold text-orange-300">{{ $offer['discount_text'] }}</span>
+                    @endif
                 </div>
             </div>
 
             <!-- Center: Countdown Boxes -->
             <div class="flex flex-col items-center gap-1.5">
                 <span class="text-[10px] font-extrabold uppercase tracking-widest text-orange-400">
-                    Hurry Up!
+                    {{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'Hurry Up!' }}
                 </span>
                 <div class="flex items-center gap-2 text-xs font-black">
                     <div class="bg-white/10 px-3 py-2 rounded-xl text-center min-w-[52px]">
@@ -360,14 +339,15 @@
 
             <!-- Right: SHOP DEALS Button -->
             <div>
-                <a href="{{ $dealsUrl }}"
+                <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : $dealsUrl }}"
                    class="px-8 py-3.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-black uppercase tracking-wider rounded-full shadow-lg hover:scale-105 transition-all inline-block">
-                    Shop Deals
+                    {{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop Deals' }}
                 </a>
             </div>
 
         </div>
     </section>
+    @endif
 
     <!-- 5. BEST SELLERS SECTION -->
     <section class="space-y-6">

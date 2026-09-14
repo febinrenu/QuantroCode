@@ -13,48 +13,86 @@
   $byPos = collect($banners ?? [])->groupBy('position');
   $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
 
+  // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+  // override each tile's fixed gradient/text color; absent -> theme default.
+  $bannerOverlayStyle = function ($b) {
+    if (!$b || empty($b->bg_color)) return null;
+    $css = !empty($b->bg_color_2)
+      ? "background:linear-gradient(to right, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+      : "background:linear-gradient(to right, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+    return $css;
+  };
+  $bannerTextStyle = function ($b) {
+    return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+  };
+
   // Find the first collection block with products to power the hero's "Trending Now" mini carousel.
   $iqFirstCollectionBlock = collect($blocks)->first(function ($block) {
       return ($block['type'] ?? '') === 'collection' && collect($block['products'] ?? [])->isNotEmpty();
   });
-  $iqTrendingVms = $iqFirstCollectionBlock
-      ? collect($iqFirstCollectionBlock['products'])->take(4)->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices))
-      : collect();
+
+  // A merchant-tagged "Trending" Collection takes priority over the generic
+  // first-collection-block fallback used above for the "Trending Now" panel.
+  $iqTrendingRoleVms = collect(($collectionsByRole['trending']['products'] ?? []))
+      ->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+  $iqTrendingVms = $iqTrendingRoleVms->isNotEmpty()
+      ? $iqTrendingRoleVms->take(4)
+      : ($iqFirstCollectionBlock
+          ? collect($iqFirstCollectionBlock['products'])->take(4)->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices))
+          : collect());
 @endphp
 
 <main class="pb-24 lg:pb-0">
 
-  {{-- ===== SPLIT-SCREEN HERO ===== --}}
+  {{-- ===== SPLIT-SCREEN HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $sqHeroSlides = $heroSlides ?? []; @endphp
   <section class="relative overflow-hidden bg-brand-navy">
     <div class="absolute inset-0 iq-grid-lines opacity-40"></div>
     <div class="relative max-w-7xl mx-auto px-4 py-14 lg:py-20 grid lg:grid-cols-2 gap-10 items-center">
 
       {{-- Left: headline / subcopy / CTA --}}
-      <div>
-        <span class="eyebrow text-brand-teal text-xs font-bold inline-flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>
-          Data-driven shopping
-        </span>
-        <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
-          {{ $s->hero_title ?? 'Shop smarter, not harder.' }}
-        </h1>
-        <p class="mt-4 text-slate-300 max-w-lg">
-          {{ $s->hero_subtitle ?? 'We track prices and compare options across electronics, fashion, home, beauty, grocery and sports — so every product you see here is already a smart pick.' }}
-        </p>
-        <div class="mt-7 flex flex-wrap gap-3">
-          <a href="{{ route('store.shop') }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-lg bg-brand-teal text-white font-semibold hover:bg-brand-tealDark transition-colors">
-            Start comparing
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-lg border border-white/25 text-white font-semibold hover:bg-white/10 transition-colors">
-            See best value
-          </a>
-        </div>
-        <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-slate-300 text-xs">
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Prices verified daily</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Free returns</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Rated 4.8/5</span>
-        </div>
+      <div class="relative grid"
+           x-data="{ sqHero: 0, sqHeroCount: {{ count($sqHeroSlides) }} }"
+           @if(count($sqHeroSlides) > 1) x-init="setInterval(() => { sqHero = (sqHero + 1) % sqHeroCount }, 6000)" @endif>
+        @foreach($sqHeroSlides as $sqI => $sqSlide)
+          <div x-show="sqHero === {{ $sqI }}" @if(!$loop->first) x-cloak @endif
+               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+               x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+               class="col-start-1 row-start-1">
+            <span class="eyebrow text-brand-teal text-xs font-bold inline-flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg>
+              Data-driven shopping
+            </span>
+            <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
+              {{ ($sqSlide['title'] ?? '') !== '' ? $sqSlide['title'] : 'Shop smarter, not harder.' }}
+            </h1>
+            <p class="mt-4 text-slate-300 max-w-lg">
+              {{ ($sqSlide['subtitle'] ?? '') !== '' ? $sqSlide['subtitle'] : 'We track prices and compare options across electronics, fashion, home, beauty, grocery and sports — so every product you see here is already a smart pick.' }}
+            </p>
+            <div class="mt-7 flex flex-wrap gap-3">
+              <a href="{{ ($sqSlide['cta_link'] ?? '') !== '' ? $sqSlide['cta_link'] : route('store.shop') }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-lg bg-brand-teal text-white font-semibold hover:bg-brand-tealDark transition-colors">
+                {{ ($sqSlide['cta_text'] ?? '') !== '' ? $sqSlide['cta_text'] : 'Start comparing' }}
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              </a>
+              <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-lg border border-white/25 text-white font-semibold hover:bg-white/10 transition-colors">
+                See best value
+              </a>
+            </div>
+            <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-slate-300 text-xs">
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Prices verified daily</span>
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Free returns</span>
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-teal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Rated 4.8/5</span>
+            </div>
+          </div>
+        @endforeach
+
+        @if(count($sqHeroSlides) > 1)
+          <div class="absolute -bottom-2 left-0 flex items-center gap-2 z-10">
+            @foreach($sqHeroSlides as $sqI => $sqSlide)
+              <button type="button" @click="sqHero = {{ $sqI }}" class="w-2 h-2 rounded-full transition-colors" :class="sqHero === {{ $sqI }} ? 'bg-white' : 'bg-white/40'" aria-label="Slide {{ $sqI + 1 }}"></button>
+            @endforeach
+          </div>
+        @endif
       </div>
 
       {{-- Right: "Trending Now" mini product carousel --}}
@@ -114,6 +152,7 @@
   </section>
 
   {{-- ===== TOP BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['top_left'] ?? collect() as $b)
@@ -127,6 +166,7 @@
         </a>
       @endforeach
     </section>
+  @endif
   @endif
 
   {{-- ===== CATEGORY GRID ===== --}}
@@ -199,27 +239,44 @@
     @endif
   @endforeach
 
-  {{-- ===== PROMO STRIP ===== --}}
+  {{-- ===== PROMO STRIP (tile 1 fully customizable via Banners: center_left; tile 2 via Offers & Promotions) ===== --}}
+  @if(($bannerGridEnabled ?? true) || ($offer['enabled'] ?? true))
+  @php $centerLeft = ($byPos['center_left'] ?? collect())->first(); @endphp
   <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-3 gap-4">
-    <div class="relative rounded-2xl overflow-hidden h-56 flex items-end p-6 md:col-span-2">
-      <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
-      <div class="absolute inset-0 bg-gradient-to-t from-brand-ink/80 to-transparent"></div>
-      <div class="relative">
-        <span class="text-brand-amber text-xs font-bold uppercase">Fashion Edit</span>
-        <h3 class="text-white text-xl font-black mt-1">New season styles, smart prices</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-white underline">Shop now →</a>
+    @if($bannerGridEnabled ?? true)
+    <a href="{{ $centerLeft ? ($centerLeft->link ?: route('store.shop')) : route('store.shop') }}" class="relative rounded-2xl overflow-hidden h-56 flex items-end p-6 md:col-span-2">
+      @if($centerLeft)
+        <img src="{{ $bannerUrl($centerLeft) }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ $centerLeft->title }}">
+      @else
+        <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
+      @endif
+      <div class="absolute inset-0 bg-gradient-to-t from-brand-ink/80 to-transparent" @if($bannerOverlayStyle($centerLeft)) style="{{ $bannerOverlayStyle($centerLeft) }}" @endif></div>
+      <div class="relative" @if($bannerTextStyle($centerLeft)) style="{{ $bannerTextStyle($centerLeft) }}" @endif>
+        <span class="text-brand-amber text-xs font-bold uppercase" style="color:inherit;">{{ ($centerLeft->badge_text ?? null) ?: 'Fashion Edit' }}</span>
+        <h3 class="text-white text-xl font-black mt-1" style="color:inherit;">{{ ($centerLeft->title ?? null) ?: 'New season styles, smart prices' }}</h3>
+        @if(!empty($centerLeft->subtitle ?? null))
+          <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $centerLeft->subtitle }}</p>
+        @endif
+        <span class="mt-2 inline-flex text-sm font-semibold text-white underline" style="color:inherit;">{{ ($centerLeft->button_text ?? null) ?: 'Shop now' }} →</span>
       </div>
-    </div>
+    </a>
+    @endif
+    @if($offer['enabled'] ?? true)
     <div class="relative rounded-2xl overflow-hidden h-56 flex items-end p-6">
-      <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
+      <img src="{{ !empty($offer['image_url']) ? $offer['image_url'] : 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover" alt="">
       <div class="absolute inset-0 bg-gradient-to-t from-brand-ink/80 to-transparent"></div>
       <div class="relative">
-        <span class="text-brand-teal text-xs font-bold uppercase">Tech Deals</span>
-        <h3 class="text-white text-lg font-black mt-1">Compare audio &amp; wearables</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-white underline">Shop now →</a>
+        <span class="text-brand-teal text-xs font-bold uppercase">{{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'Tech Deals' }}</span>
+        <h3 class="text-white text-lg font-black mt-1">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Compare audio & wearables' }}</h3>
+        @if(!empty($offer['discount_text']))
+          <span class="inline-flex mt-1 items-center rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold text-white uppercase">{{ $offer['discount_text'] }}</span>
+        @endif
+        <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-white underline">{{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop now →' }}</a>
       </div>
     </div>
+    @endif
   </section>
+  @endif
 
   {{-- ===== TESTIMONIALS ===== --}}
   <section class="bg-white border-y border-brand-line">
@@ -259,6 +316,7 @@
   </section>
 
   {{-- ===== FOOTER BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['footer_left'] ?? collect())->count() || ($byPos['footer_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 pb-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['footer_left'] ?? collect() as $b)
@@ -268,6 +326,7 @@
         <a href="{{ $b->link ?: route('store.shop') }}" class="block rounded-xl overflow-hidden shadow-card"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
       @endforeach
     </section>
+  @endif
   @endif
 
 </main>

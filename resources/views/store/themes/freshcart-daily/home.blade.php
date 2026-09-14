@@ -28,11 +28,39 @@
   $fcHeroMid = (int) ceil(count($fcHeroWords) / 2);
   $fcHeroLine1 = implode(' ', array_slice($fcHeroWords, 0, $fcHeroMid));
   $fcHeroLine2 = implode(' ', array_slice($fcHeroWords, $fcHeroMid));
+
+  // Promo tiles below are wired to the Banners admin (top_left / top_right
+  // positions) so merchants can restyle them; absent a configured banner,
+  // each tile falls back to its original hardcoded copy/colors.
+  $byPos = collect($banners ?? [])->groupBy('position');
+
+  // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+  // override each tile's fixed background/text color; absent -> theme default.
+  $bannerOverlayStyle = function ($b) {
+    if (!$b || empty($b->bg_color)) return null;
+    return !empty($b->bg_color_2)
+      ? "background:linear-gradient(135deg, {$b->bg_color}, {$b->bg_color_2});"
+      : "background:{$b->bg_color};";
+  };
+  $bannerTextStyle = function ($b) {
+    return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+  };
+
+  // Role-tagged Collections -- when a merchant has assigned a dedicated
+  // "Best Sellers" Collection, its curated products win over the generic
+  // $categorySpecificProducts list for that section.
+  $currency = $s->currency_code ?? '$';
+  $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $roleVms = collect($collectionsByRole ?? [])->map(function ($r) use ($currency, $hidePrices) {
+      return collect($r['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices))->values();
+  });
+  $bestSellersProducts = ($roleVms['best_sellers'] ?? collect())->count() ? $roleVms['best_sellers'] : $categorySpecificProducts;
 @endphp
 
 <main class="pb-20 md:pb-0">
 
   {{-- ===== HERO (sidebar + banner) ===== --}}
+  @php $fdHeroSlides = $heroSlides ?? []; @endphp
   <section class="max-w-7xl mx-auto px-4 py-6">
     <div class="grid lg:grid-cols-[260px_1fr] gap-4">
       <aside class="hidden lg:block bg-white border border-fc-green/10 rounded-xl2 overflow-hidden">
@@ -48,35 +76,60 @@
         </a>
       </aside>
 
-      <div class="relative overflow-hidden bg-white border border-fc-green/10 rounded-xl2 min-h-[380px] flex items-center">
-        <div class="relative z-10 px-8 py-10 max-w-md">
-          <h1 class="font-heading text-3xl md:text-4xl font-extrabold leading-tight text-fc-ink">
-            <span>{{ $fcHeroLine1 }}</span><br>
-            <span class="text-fc-green">{{ $fcHeroLine2 }}</span>
-          </h1>
-          <p class="mt-4 text-sm text-fc-inkSoft max-w-sm">{{ $fcHeroSubtitle }}</p>
-          <div class="mt-6 flex flex-wrap items-center gap-3">
-            <a href="{{ route('store.shop') }}" class="h-11 px-6 inline-flex items-center bg-fc-green text-white text-xs font-bold rounded-full hover:bg-fc-greenDeep">
-              {{ 'Shop Fresh Produce' }}
-            </a>
-            <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-11 px-6 inline-flex items-center bg-fc-orange text-white text-xs font-bold rounded-full hover:opacity-90">
-              {{ 'View Weekly Deals' }}
-            </a>
+      <div class="relative overflow-hidden bg-white border border-fc-green/10 rounded-xl2 min-h-[380px] flex items-center grid"
+           x-data="{ fdHero: 0, fdHeroCount: {{ count($fdHeroSlides) }} }"
+           @if(count($fdHeroSlides) > 1) x-init="setInterval(() => { fdHero = (fdHero + 1) % fdHeroCount }, 6000)" @endif>
+        @foreach($fdHeroSlides as $fdI => $fdSlide)
+          @php
+            $fdSlideTitle = ($fdSlide['title'] ?? '') !== '' ? $fdSlide['title'] : $fcHeroTitle;
+            $fdSlideWords = explode(' ', $fdSlideTitle);
+            $fdSlideMid = (int) ceil(count($fdSlideWords) / 2);
+            $fdSlideLine1 = implode(' ', array_slice($fdSlideWords, 0, $fdSlideMid));
+            $fdSlideLine2 = implode(' ', array_slice($fdSlideWords, $fdSlideMid));
+          @endphp
+          <div x-show="fdHero === {{ $fdI }}" @if(!$loop->first) x-cloak @endif
+               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+               x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+               class="col-start-1 row-start-1 relative overflow-hidden flex items-center min-h-[380px]">
+            <div class="relative z-10 px-8 py-10 max-w-md">
+              <h1 class="font-heading text-3xl md:text-4xl font-extrabold leading-tight text-fc-ink">
+                <span>{{ $fdSlideLine1 }}</span><br>
+                <span class="text-fc-green">{{ $fdSlideLine2 }}</span>
+              </h1>
+              <p class="mt-4 text-sm text-fc-inkSoft max-w-sm">{{ ($fdSlide['subtitle'] ?? '') !== '' ? $fdSlide['subtitle'] : $fcHeroSubtitle }}</p>
+              <div class="mt-6 flex flex-wrap items-center gap-3">
+                <a href="{{ ($fdSlide['cta_link'] ?? '') !== '' ? $fdSlide['cta_link'] : route('store.shop') }}" class="h-11 px-6 inline-flex items-center bg-fc-green text-white text-xs font-bold rounded-full hover:bg-fc-greenDeep">
+                  {{ ($fdSlide['cta_text'] ?? '') !== '' ? $fdSlide['cta_text'] : 'Shop Fresh Produce' }}
+                </a>
+                <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-11 px-6 inline-flex items-center bg-fc-orange text-white text-xs font-bold rounded-full hover:opacity-90">
+                  {{ 'View Weekly Deals' }}
+                </a>
+              </div>
+              <div class="mt-6 flex items-center gap-4 text-[11px] font-semibold text-fc-inkSoft">
+                <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-fc-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>100% Fresh</span>
+                <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-fc-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Best Prices</span>
+                <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-fc-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>On Time, Every Time</span>
+              </div>
+            </div>
+            @php $fdSlideImg = !empty($fdSlide['image_url']) ? $fdSlide['image_url'] : $fcHeroImg; @endphp
+            @if($fdSlideImg)
+              <div class="hidden md:block absolute right-0 bottom-0 top-0 w-[45%]">
+                <img src="{{ $fdSlideImg }}" alt="{{ $fdSlideTitle }}" class="w-full h-full object-cover">
+              </div>
+            @endif
+            <span class="hidden md:flex absolute top-6 right-6 w-16 h-16 rounded-full bg-fc-green text-white text-[10px] font-bold items-center justify-center text-center leading-tight px-1 z-10">
+              {{ 'Same Day Delivery' }}
+            </span>
           </div>
-          <div class="mt-6 flex items-center gap-4 text-[11px] font-semibold text-fc-inkSoft">
-            <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-fc-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>100% Fresh</span>
-            <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-fc-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Best Prices</span>
-            <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-fc-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>On Time, Every Time</span>
-          </div>
-        </div>
-        @if($fcHeroImg)
-          <div class="hidden md:block absolute right-0 bottom-0 top-0 w-[45%]">
-            <img src="{{ $fcHeroImg }}" alt="{{ $fcHeroTitle }}" class="w-full h-full object-cover">
+        @endforeach
+
+        @if(count($fdHeroSlides) > 1)
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+            @foreach($fdHeroSlides as $fdI => $fdSlide)
+              <button type="button" @click="fdHero = {{ $fdI }}" class="w-2 h-2 rounded-full transition-colors" :class="fdHero === {{ $fdI }} ? 'bg-fc-green' : 'bg-fc-green/30'" aria-label="Slide {{ $fdI + 1 }}"></button>
+            @endforeach
           </div>
         @endif
-        <span class="hidden md:flex absolute top-6 right-6 w-16 h-16 rounded-full bg-fc-green text-white text-[10px] font-bold items-center justify-center text-center leading-tight px-1 z-10">
-          {{ 'Same Day Delivery' }}
-        </span>
       </div>
     </div>
   </section>
@@ -170,33 +223,50 @@
     </div>
   </section>
 
-  {{-- ===== PROMO BANNERS ===== --}}
+  {{-- ===== PROMO BANNERS (customizable via Offers & Promotions, and via Banners for the two static tiles) ===== --}}
+  @if($offer['enabled'] ?? true)
+  @php
+    $fcTopLeftBanner = ($byPos['top_left'] ?? collect())->first();
+    $fcTopRightBanner = ($byPos['top_right'] ?? collect())->first();
+  @endphp
   <section class="max-w-7xl mx-auto px-4 pb-10 grid md:grid-cols-3 gap-4">
-    <div class="rounded-xl2 p-6 flex items-center justify-between gap-3 bg-fc-orange/10">
-      <div>
-        <h3 class="font-heading font-extrabold text-fc-ink">{{ 'Save More with FreshCart Club' }}</h3>
-        <p class="text-xs text-fc-inkSoft mt-1 max-w-[180px]">{{ 'Get exclusive offers, free delivery and extra benefits!' }}</p>
-        <a href="{{ route('store.contact') }}" class="inline-flex mt-3 h-9 px-4 items-center bg-fc-green text-white text-xs font-bold rounded-full">{{ 'Join Now — It’s Free' }}</a>
+    <div class="rounded-xl2 p-6 flex items-center justify-between gap-3 bg-fc-orange/10" @if($bannerOverlayStyle($fcTopLeftBanner)) style="{{ $bannerOverlayStyle($fcTopLeftBanner) }}" @endif>
+      <div @if($bannerTextStyle($fcTopLeftBanner)) style="{{ $bannerTextStyle($fcTopLeftBanner) }}" @endif>
+        <h3 class="font-heading font-extrabold text-fc-ink" @if($bannerTextStyle($fcTopLeftBanner)) style="color:inherit;" @endif>{{ ($fcTopLeftBanner->title ?? null) ?: 'Save More with FreshCart Club' }}</h3>
+        @if(!empty($fcTopLeftBanner->subtitle ?? null))
+          <p class="text-xs text-fc-inkSoft mt-1 max-w-[180px]" @if($bannerTextStyle($fcTopLeftBanner)) style="color:inherit;" @endif>{{ $fcTopLeftBanner->subtitle }}</p>
+        @else
+          <p class="text-xs text-fc-inkSoft mt-1 max-w-[180px]">{{ 'Get exclusive offers, free delivery and extra benefits!' }}</p>
+        @endif
+        <a href="{{ $fcTopLeftBanner && $fcTopLeftBanner->link ? $fcTopLeftBanner->link : route('store.contact') }}" class="inline-flex mt-3 h-9 px-4 items-center bg-fc-green text-white text-xs font-bold rounded-full">{{ ($fcTopLeftBanner->button_text ?? null) ?: 'Join Now — It’s Free' }}</a>
       </div>
       <svg class="w-14 h-14 text-fc-green shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="12" cy="12" r="10"/><path d="M9 12h6M12 9v6"/></svg>
     </div>
     <div class="rounded-xl2 p-6 flex items-center justify-between gap-3 bg-fc-greenDeep text-white">
       <div>
-        <h3 class="font-heading font-extrabold">{{ 'Flat 10% OFF' }}</h3>
-        <p class="text-xs text-white/70 mt-1">{{ 'On Your First Order' }}</p>
-        <span class="inline-flex mt-3 h-9 px-4 items-center bg-white/15 text-white text-xs font-bold rounded-full border border-white/30">{{ 'Use Code: FRESH10' }}</span>
+        <h3 class="font-heading font-extrabold">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Flat 10% OFF' }}</h3>
+        <p class="text-xs text-white/70 mt-1">{{ ($offer['subtitle'] ?? '') !== '' ? $offer['subtitle'] : 'On Your First Order' }}</p>
+        <span class="inline-flex mt-3 h-9 px-4 items-center bg-white/15 text-white text-xs font-bold rounded-full border border-white/30">{{ !empty($offer['discount_text']) ? $offer['discount_text'] : 'Use Code: FRESH10' }}</span>
       </div>
     </div>
-    <div class="rounded-xl2 p-6 flex items-center justify-between gap-3 bg-fc-green/10">
-      <div>
-        <h3 class="font-heading font-extrabold text-fc-ink">{{ 'Free Delivery' }}</h3>
-        <p class="text-xs text-fc-inkSoft mt-1">{{ 'On Orders Above $50 — Limited time offer!' }}</p>
+    <div class="rounded-xl2 p-6 flex items-center justify-between gap-3 bg-fc-green/10" @if($bannerOverlayStyle($fcTopRightBanner)) style="{{ $bannerOverlayStyle($fcTopRightBanner) }}" @endif>
+      <div @if($bannerTextStyle($fcTopRightBanner)) style="{{ $bannerTextStyle($fcTopRightBanner) }}" @endif>
+        <h3 class="font-heading font-extrabold text-fc-ink" @if($bannerTextStyle($fcTopRightBanner)) style="color:inherit;" @endif>{{ ($fcTopRightBanner->title ?? null) ?: 'Free Delivery' }}</h3>
+        @if(!empty($fcTopRightBanner->subtitle ?? null))
+          <p class="text-xs text-fc-inkSoft mt-1" @if($bannerTextStyle($fcTopRightBanner)) style="color:inherit;" @endif>{{ $fcTopRightBanner->subtitle }}</p>
+        @else
+          <p class="text-xs text-fc-inkSoft mt-1">{{ 'On Orders Above $50 — Limited time offer!' }}</p>
+        @endif
+        @if(!empty($fcTopRightBanner->button_text ?? null))
+          <a href="{{ $fcTopRightBanner->link ?: route('store.shop') }}" class="inline-flex mt-3 h-9 px-4 items-center bg-fc-green text-white text-xs font-bold rounded-full">{{ $fcTopRightBanner->button_text }}</a>
+        @endif
       </div>
     </div>
   </section>
+  @endif
 
   {{-- ===== BEST SELLERS ===== --}}
-  @if($categorySpecificProducts->count())
+  @if($bestSellersProducts->count())
     <section class="max-w-7xl mx-auto px-4 pb-10">
       <div class="flex items-end justify-between mb-5">
         <h2 class="font-heading text-xl font-extrabold text-fc-ink">{{ 'Best Sellers' }}</h2>
@@ -206,7 +276,7 @@
         </a>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        @foreach($categorySpecificProducts as $product)
+        @foreach($bestSellersProducts as $product)
           @include('store.themes.freshcart-daily.partials.product-card', ['product' => $product])
         @endforeach
       </div>

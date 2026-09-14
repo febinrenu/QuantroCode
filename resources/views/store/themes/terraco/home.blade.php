@@ -18,23 +18,38 @@
 
 <main class="pb-24 lg:pb-0">
 
-  {{-- ===== 1. HERO — huge thin headline, small subhead, one CTA, lots of whitespace ===== --}}
-  <section class="max-w-6xl mx-auto px-6 pt-16 pb-20 lg:pt-28 lg:pb-28">
-    <div class="max-w-3xl">
-      <span class="eyebrow text-xs text-terra-slate">General merchandise, curated calmly</span>
-      <h1 class="font-heading font-light text-6xl lg:text-7xl leading-[1.05] text-terra-ink mt-5 tracking-tight">
-        {{ $s->hero_title ?? 'Less noise. Better choices.' }}
-      </h1>
-      <p class="text-sm text-terra-inkSoft mt-6 max-w-md leading-relaxed">
-        {{ $s->hero_subtitle ?? 'A considered selection of electronics, fashion, home and beauty — chosen so you don\'t have to sift through everything else.' }}
-      </p>
-      <div class="mt-10">
-        <a href="{{ route('store.shop') }}" class="inline-flex items-center gap-3 h-12 px-7 border border-terra-ink text-terra-ink text-sm font-medium tracking-wide hover:bg-terra-ink hover:text-white transition-colors">
-          Shop the collection
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-        </a>
+  {{-- ===== 1. HERO — huge thin headline, small subhead, one CTA, lots of whitespace (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $trcHeroSlides = $heroSlides ?? []; @endphp
+  <section class="max-w-6xl mx-auto px-6 pt-16 pb-20 lg:pt-28 lg:pb-28 grid"
+           x-data="{ trcHero: 0, trcHeroCount: {{ count($trcHeroSlides) }} }"
+           @if(count($trcHeroSlides) > 1) x-init="setInterval(() => { trcHero = (trcHero + 1) % trcHeroCount }, 6000)" @endif>
+    @foreach($trcHeroSlides as $trcI => $trcSlide)
+      <div x-show="trcHero === {{ $trcI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1 max-w-3xl">
+        <span class="eyebrow text-xs text-terra-slate">General merchandise, curated calmly</span>
+        <h1 class="font-heading font-light text-6xl lg:text-7xl leading-[1.05] text-terra-ink mt-5 tracking-tight">
+          {{ ($trcSlide['title'] ?? '') !== '' ? $trcSlide['title'] : 'Less noise. Better choices.' }}
+        </h1>
+        <p class="text-sm text-terra-inkSoft mt-6 max-w-md leading-relaxed">
+          {{ ($trcSlide['subtitle'] ?? '') !== '' ? $trcSlide['subtitle'] : 'A considered selection of electronics, fashion, home and beauty — chosen so you don\'t have to sift through everything else.' }}
+        </p>
+        <div class="mt-10 flex items-center gap-5">
+          <a href="{{ ($trcSlide['cta_link'] ?? '') !== '' ? $trcSlide['cta_link'] : route('store.shop') }}" class="inline-flex items-center gap-3 h-12 px-7 border border-terra-ink text-terra-ink text-sm font-medium tracking-wide hover:bg-terra-ink hover:text-white transition-colors">
+            {{ ($trcSlide['cta_text'] ?? '') !== '' ? $trcSlide['cta_text'] : 'Shop the collection' }}
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+          </a>
+          @if(count($trcHeroSlides) > 1)
+            <div class="flex items-center gap-2">
+              @foreach($trcHeroSlides as $trcI2 => $trcSlide2)
+                <button type="button" @click="trcHero = {{ $trcI2 }}" class="w-2 h-2 rounded-full transition-colors" :class="trcHero === {{ $trcI2 }} ? 'bg-terra-ink' : 'bg-terra-line'" aria-label="Slide {{ $trcI2 + 1 }}"></button>
+              @endforeach
+            </div>
+          @endif
+        </div>
       </div>
-    </div>
+    @endforeach
 
     @if($topBanner)
       <a href="{{ $topBanner->link ?: route('store.shop') }}" class="mt-16 block border border-terra-line overflow-hidden">

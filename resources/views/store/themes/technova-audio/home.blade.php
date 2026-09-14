@@ -15,86 +15,124 @@
 
     // Split or filter products for sections
     $allProds = $products ?? collect([]);
+    $currency = $s->currency_code ?? '$';
+    $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
 
     // Top Picks / Best Sellers / New Arrivals
     $featuredTopPicks = $allProds->take(8);
     $bestSellers = $allProds->slice(2, 4);
     $newArrivals = $allProds->slice(6, 4);
+
+    // Role-tagged Collections (Best Sellers / New Arrivals) -- when a merchant
+    // has assigned one, its own curated products win over the generic slices
+    // above for that named section.
+    $roleVms = collect($collectionsByRole ?? [])->map(function ($r) use ($currency, $hidePrices) {
+        return collect($r['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices))->values();
+    });
+    $bestSellers = ($roleVms['best_sellers'] ?? collect())->count() ? $roleVms['best_sellers'] : $bestSellers;
+    $newArrivals = ($roleVms['new_arrivals'] ?? collect())->count() ? $roleVms['new_arrivals'] : $newArrivals;
+
+    // Banner-grid tiles (customizable via Banners: image, badge, headline, subtitle, button, colors)
+    $byPos = collect($banners ?? [])->groupBy('position');
+    $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+
+    $tnaHeroSlides = $heroSlides ?? [];
 @endphp
 
 <div class="bg-slate-50 min-h-screen">
-    <!-- 1. Hero Section -->
+    <!-- 1. Hero Section (auto-rotating carousel; add slides via Store Settings > Hero Slides) -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
-        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-700/50 text-white relative">
+        <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-700/50 text-white relative grid"
+             x-data="{ tnaHero: 0, tnaHeroCount: {{ count($tnaHeroSlides) }} }"
+             @if(count($tnaHeroSlides) > 1) x-init="setInterval(() => { tnaHero = (tnaHero + 1) % tnaHeroCount }, 6000)" @endif>
             <!-- Background Glow Effects -->
             <div class="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
             <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 items-center gap-8 p-8 sm:p-12 lg:p-16 relative z-10">
-                <!-- Left Column: Copy & Actions -->
-                <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
-                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-400/30 text-blue-400 text-xs font-bold uppercase tracking-widest">
-                        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
-                        NEW ARRIVALS 2024
-                    </div>
-
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] font-heading">
-                        Upgrade Your <br />
-                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-200">
-                            Tech Lifestyle
-                        </span>
-                    </h1>
-
-                    <p class="text-slate-300 text-base sm:text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
-                        Latest electronics, flagship smart devices and precision accessories designed for unmatched performance and everyday innovation.
-                    </p>
-
-                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-                        <a href="{{ $themeUrl('online_store/shop') }}" class="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5 text-center text-sm uppercase tracking-wider">
-                            Shop Now
-                        </a>
-                        <a href="{{ $themeUrl('online_store/shop', ['collection' => 'deals']) }}" class="w-full sm:w-auto px-8 py-4 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-600 text-white font-bold rounded-xl transition text-center text-sm uppercase tracking-wider">
-                            Explore Deals
-                        </a>
-                    </div>
-
-                    <!-- Micro Trust Metrics -->
-                    <div class="pt-6 border-t border-slate-700/60 flex items-center justify-center lg:justify-start gap-8 text-xs text-slate-400">
-                        <div>
-                            <span class="block font-bold text-white text-base">15K+</span>
-                            <span>Products</span>
+            @foreach($tnaHeroSlides as $tnaI => $tnaSlide)
+              <div x-show="tnaHero === {{ $tnaI }}" @if(!$loop->first) x-cloak @endif
+                   x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                   x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                   class="col-start-1 row-start-1">
+                <div class="grid grid-cols-1 lg:grid-cols-12 items-center gap-8 p-8 sm:p-12 lg:p-16 relative z-10">
+                    <!-- Left Column: Copy & Actions -->
+                    <div class="lg:col-span-6 space-y-6 text-center lg:text-left">
+                        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-400/30 text-blue-400 text-xs font-bold uppercase tracking-widest">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                            NEW ARRIVALS 2024
                         </div>
-                        <div class="w-px h-8 bg-slate-700"></div>
-                        <div>
-                            <span class="block font-bold text-white text-base">100%</span>
-                            <span>Authentic</span>
-                        </div>
-                        <div class="w-px h-8 bg-slate-700"></div>
-                        <div>
-                            <span class="block font-bold text-white text-base">2-Year</span>
-                            <span>Warranty</span>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Right Column: Hero Still-Life Visual -->
-                <div class="lg:col-span-6 flex justify-center">
-                    <div class="relative w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl border border-slate-700/60 group">
-                        <img src="{{ global_asset('images/themes/technova/technova-hero-main.jpg') }}"
-                             alt="TechNova Premium Electronics Lineup"
-                             class="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700"
-                             onerror="this.src='{{ global_asset('images/themes/technova/generic-electronics.jpg') }}'" />
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
-                        <div class="absolute bottom-4 left-4 right-4 bg-slate-900/80 backdrop-blur-md p-3.5 rounded-xl border border-slate-700/60 flex items-center justify-between text-xs">
-                            <div class="flex items-center gap-3">
-                                <span class="w-3 h-3 rounded-full bg-cyan-400"></span>
-                                <span class="font-bold text-white">2024 Flagship Series In Stock</span>
+                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] font-heading">
+                            @if(($tnaSlide['title'] ?? '') !== '')
+                              {{ $tnaSlide['title'] }}
+                            @else
+                              Upgrade Your <br />
+                              <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-blue-200">
+                                  Tech Lifestyle
+                              </span>
+                            @endif
+                        </h1>
+
+                        <p class="text-slate-300 text-base sm:text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
+                            {{ ($tnaSlide['subtitle'] ?? '') !== '' ? $tnaSlide['subtitle'] : 'Latest electronics, flagship smart devices and precision accessories designed for unmatched performance and everyday innovation.' }}
+                        </p>
+
+                        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                            <a href="{{ ($tnaSlide['cta_link'] ?? '') !== '' ? $tnaSlide['cta_link'] : $themeUrl('online_store/shop') }}" class="w-full sm:w-auto px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-600/30 transition transform hover:-translate-y-0.5 text-center text-sm uppercase tracking-wider">
+                                {{ ($tnaSlide['cta_text'] ?? '') !== '' ? $tnaSlide['cta_text'] : 'Shop Now' }}
+                            </a>
+                            <a href="{{ $themeUrl('online_store/shop', ['collection' => 'deals']) }}" class="w-full sm:w-auto px-8 py-4 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-600 text-white font-bold rounded-xl transition text-center text-sm uppercase tracking-wider">
+                                Explore Deals
+                            </a>
+                        </div>
+
+                        <!-- Micro Trust Metrics -->
+                        <div class="pt-6 border-t border-slate-700/60 flex items-center justify-center lg:justify-start gap-8 text-xs text-slate-400">
+                            <div>
+                                <span class="block font-bold text-white text-base">15K+</span>
+                                <span>Products</span>
                             </div>
-                            <span class="text-cyan-400 font-bold">Express Shipping</span>
+                            <div class="w-px h-8 bg-slate-700"></div>
+                            <div>
+                                <span class="block font-bold text-white text-base">100%</span>
+                                <span>Authentic</span>
+                            </div>
+                            <div class="w-px h-8 bg-slate-700"></div>
+                            <div>
+                                <span class="block font-bold text-white text-base">2-Year</span>
+                                <span>Warranty</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Hero Still-Life Visual -->
+                    <div class="lg:col-span-6 flex justify-center">
+                        <div class="relative w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl border border-slate-700/60 group">
+                            <img src="{{ !empty($tnaSlide['image_url']) ? $tnaSlide['image_url'] : global_asset('images/themes/technova/technova-hero-main.jpg') }}"
+                                 alt=""
+                                 class="w-full h-auto object-cover transform group-hover:scale-105 transition-transform duration-700"
+                                 onerror="this.src='{{ global_asset('images/themes/technova/generic-electronics.jpg') }}'" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
+                            <div class="absolute bottom-4 left-4 right-4 bg-slate-900/80 backdrop-blur-md p-3.5 rounded-xl border border-slate-700/60 flex items-center justify-between text-xs">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-3 h-3 rounded-full bg-cyan-400"></span>
+                                    <span class="font-bold text-white">2024 Flagship Series In Stock</span>
+                                </div>
+                                <span class="text-cyan-400 font-bold">Express Shipping</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+              </div>
+            @endforeach
+
+            @if(count($tnaHeroSlides) > 1)
+              <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+                @foreach($tnaHeroSlides as $tnaI => $tnaSlide)
+                  <button type="button" @click="tnaHero = {{ $tnaI }}" class="w-2 h-2 rounded-full transition-colors" :class="tnaHero === {{ $tnaI }} ? 'bg-white' : 'bg-white/30'" aria-label="Slide {{ $tnaI + 1 }}"></button>
+                @endforeach
+              </div>
+            @endif
         </div>
     </section>
 
@@ -247,26 +285,44 @@
         </div>
     </section>
 
-    <!-- 5. Promotional Banners (3 Columns) -->
+    {{-- ===== 5. Promotional Banners (3 Columns) — fully customizable via Banners: image, badge, headline, subtitle, button, colors ===== --}}
+    @if($bannerGridEnabled ?? true)
+    @php
+        // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+        // override each tile's fixed gradient/text color; absent -> theme default.
+        $bannerOverlayStyle = function ($b) {
+            if (!$b || empty($b->bg_color)) return null;
+            $css = !empty($b->bg_color_2)
+                ? "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+                : "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+            return $css;
+        };
+        $bannerTextStyle = function ($b) {
+            return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+        };
+        $promoTopLeft = ($byPos['top_left'] ?? collect())->first();
+        $promoTopRight = ($byPos['top_right'] ?? collect())->first();
+        $promoCenterLeft = ($byPos['center_left'] ?? collect())->first();
+    @endphp
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Banner 1: Gaming Gear -->
             <div class="relative rounded-3xl overflow-hidden shadow-lg border border-slate-800 text-white min-h-[260px] flex flex-col justify-between p-6 bg-slate-900 group">
-                <img src="{{ global_asset('images/themes/technova/promo-gaming-gear.jpg') }}"
-                     alt="Gaming Gear Promotion"
+                <img src="{{ $promoTopLeft ? $bannerUrl($promoTopLeft) : global_asset('images/themes/technova/promo-gaming-gear.jpg') }}"
+                     alt="{{ ($promoTopLeft->title ?? null) ?: 'Gaming Gear Promotion' }}"
                      class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition duration-700"
                      onerror="this.src='{{ global_asset('images/themes/technova/generic-electronics.jpg') }}'" />
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/50 to-transparent"></div>
-                <div class="relative z-10">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/50 to-transparent" @if($bannerOverlayStyle($promoTopLeft)) style="{{ $bannerOverlayStyle($promoTopLeft) }}" @endif></div>
+                <div class="relative z-10" @if($bannerTextStyle($promoTopLeft)) style="{{ $bannerTextStyle($promoTopLeft) }}" @endif>
                     <span class="inline-block px-2.5 py-1 bg-red-600 text-white text-[10px] font-extrabold uppercase tracking-wider rounded-md mb-2">
-                        Up to 35% OFF
+                        {{ ($promoTopLeft->badge_text ?? null) ?: 'Up to 35% OFF' }}
                     </span>
-                    <h3 class="text-xl font-extrabold font-heading text-white">Next-Gen Gaming Gear</h3>
-                    <p class="text-xs text-slate-300 mt-1">Consoles, RGB mechanical keyboards & wireless headsets</p>
+                    <h3 class="text-xl font-extrabold font-heading text-white" style="color:inherit;">{{ ($promoTopLeft->title ?? null) ?: 'Next-Gen Gaming Gear' }}</h3>
+                    <p class="text-xs text-slate-300 mt-1" style="color:inherit;">{{ ($promoTopLeft->subtitle ?? null) ?: 'Consoles, RGB mechanical keyboards & wireless headsets' }}</p>
                 </div>
                 <div class="relative z-10 pt-4">
-                    <a href="{{ $themeUrl('online_store/shop', ['category' => 'Gaming']) }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition uppercase tracking-wider">
-                        <span>Shop Gaming</span>
+                    <a href="{{ $promoTopLeft ? ($promoTopLeft->link ?: $themeUrl('online_store/shop', ['category' => 'Gaming'])) : $themeUrl('online_store/shop', ['category' => 'Gaming']) }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition uppercase tracking-wider">
+                        <span>{{ ($promoTopLeft->button_text ?? null) ?: 'Shop Gaming' }}</span>
                         <span>&rarr;</span>
                     </a>
                 </div>
@@ -274,21 +330,21 @@
 
             <!-- Banner 2: Smart Home -->
             <div class="relative rounded-3xl overflow-hidden shadow-lg border border-slate-800 text-white min-h-[260px] flex flex-col justify-between p-6 bg-slate-900 group">
-                <img src="{{ global_asset('images/themes/technova/promo-smart-home.jpg') }}"
-                     alt="Smart Home Promotion"
+                <img src="{{ $promoTopRight ? $bannerUrl($promoTopRight) : global_asset('images/themes/technova/promo-smart-home.jpg') }}"
+                     alt="{{ ($promoTopRight->title ?? null) ?: 'Smart Home Promotion' }}"
                      class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition duration-700"
                      onerror="this.src='{{ global_asset('images/themes/technova/generic-electronics.jpg') }}'" />
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/50 to-transparent"></div>
-                <div class="relative z-10">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/50 to-transparent" @if($bannerOverlayStyle($promoTopRight)) style="{{ $bannerOverlayStyle($promoTopRight) }}" @endif></div>
+                <div class="relative z-10" @if($bannerTextStyle($promoTopRight)) style="{{ $bannerTextStyle($promoTopRight) }}" @endif>
                     <span class="inline-block px-2.5 py-1 bg-blue-600 text-white text-[10px] font-extrabold uppercase tracking-wider rounded-md mb-2">
-                        Up to 30% OFF
+                        {{ ($promoTopRight->badge_text ?? null) ?: 'Up to 30% OFF' }}
                     </span>
-                    <h3 class="text-xl font-extrabold font-heading text-white">Smart Home Ecosystems</h3>
-                    <p class="text-xs text-slate-300 mt-1">Intelligent cameras, ambiance lighting & voice hubs</p>
+                    <h3 class="text-xl font-extrabold font-heading text-white" style="color:inherit;">{{ ($promoTopRight->title ?? null) ?: 'Smart Home Ecosystems' }}</h3>
+                    <p class="text-xs text-slate-300 mt-1" style="color:inherit;">{{ ($promoTopRight->subtitle ?? null) ?: 'Intelligent cameras, ambiance lighting & voice hubs' }}</p>
                 </div>
                 <div class="relative z-10 pt-4">
-                    <a href="{{ $themeUrl('online_store/shop', ['category' => 'Smart Home']) }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-slate-100 text-slate-900 text-xs font-bold rounded-lg transition uppercase tracking-wider">
-                        <span>Explore Smart Home</span>
+                    <a href="{{ $promoTopRight ? ($promoTopRight->link ?: $themeUrl('online_store/shop', ['category' => 'Smart Home'])) : $themeUrl('online_store/shop', ['category' => 'Smart Home']) }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-slate-100 text-slate-900 text-xs font-bold rounded-lg transition uppercase tracking-wider">
+                        <span>{{ ($promoTopRight->button_text ?? null) ?: 'Explore Smart Home' }}</span>
                         <span>&rarr;</span>
                     </a>
                 </div>
@@ -296,27 +352,28 @@
 
             <!-- Banner 3: Audio Deals -->
             <div class="relative rounded-3xl overflow-hidden shadow-lg border border-slate-800 text-white min-h-[260px] flex flex-col justify-between p-6 bg-slate-900 group">
-                <img src="{{ global_asset('images/themes/technova/promo-audio-deals.jpg') }}"
-                     alt="Audio Deals Promotion"
+                <img src="{{ $promoCenterLeft ? $bannerUrl($promoCenterLeft) : global_asset('images/themes/technova/promo-audio-deals.jpg') }}"
+                     alt="{{ ($promoCenterLeft->title ?? null) ?: 'Audio Deals Promotion' }}"
                      class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition duration-700"
                      onerror="this.src='{{ global_asset('images/themes/technova/generic-electronics.jpg') }}'" />
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/50 to-transparent"></div>
-                <div class="relative z-10">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/50 to-transparent" @if($bannerOverlayStyle($promoCenterLeft)) style="{{ $bannerOverlayStyle($promoCenterLeft) }}" @endif></div>
+                <div class="relative z-10" @if($bannerTextStyle($promoCenterLeft)) style="{{ $bannerTextStyle($promoCenterLeft) }}" @endif>
                     <span class="inline-block px-2.5 py-1 bg-cyan-500 text-slate-950 text-[10px] font-extrabold uppercase tracking-wider rounded-md mb-2">
-                        Up to 40% OFF
+                        {{ ($promoCenterLeft->badge_text ?? null) ?: 'Up to 40% OFF' }}
                     </span>
-                    <h3 class="text-xl font-extrabold font-heading text-white">Studio Audio Deals</h3>
-                    <p class="text-xs text-slate-300 mt-1">ANC headphones, spatial earbuds & high-res monitors</p>
+                    <h3 class="text-xl font-extrabold font-heading text-white" style="color:inherit;">{{ ($promoCenterLeft->title ?? null) ?: 'Studio Audio Deals' }}</h3>
+                    <p class="text-xs text-slate-300 mt-1" style="color:inherit;">{{ ($promoCenterLeft->subtitle ?? null) ?: 'ANC headphones, spatial earbuds & high-res monitors' }}</p>
                 </div>
                 <div class="relative z-10 pt-4">
-                    <a href="{{ $themeUrl('online_store/shop', ['category' => 'Audio']) }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition uppercase tracking-wider">
-                        <span>Shop Audio</span>
+                    <a href="{{ $promoCenterLeft ? ($promoCenterLeft->link ?: $themeUrl('online_store/shop', ['category' => 'Audio'])) : $themeUrl('online_store/shop', ['category' => 'Audio']) }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition uppercase tracking-wider">
+                        <span>{{ ($promoCenterLeft->button_text ?? null) ?: 'Shop Audio' }}</span>
                         <span>&rarr;</span>
                     </a>
                 </div>
             </div>
         </div>
     </section>
+    @endif
 
     <!-- 6. Best Sellers -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">

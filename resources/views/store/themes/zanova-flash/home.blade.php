@@ -5,6 +5,22 @@
 @php
     $previewParam = request('preview_theme') ? '?preview_theme=' . request('preview_theme') : '';
     $previewAmp = request('preview_theme') ? '&preview_theme=' . request('preview_theme') : '';
+
+    // Banner-driven overrides for the category collection tiles (Banners admin:
+    // image, badge, headline, subtitle, button, colors), matching the
+    // freshcart reference implementation.
+    $byPos = collect($banners ?? [])->groupBy('position');
+    $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+    $bannerOverlayStyle = function ($b) {
+        if (!$b || empty($b->bg_color)) return null;
+        $css = !empty($b->bg_color_2)
+            ? "background:linear-gradient(to right, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+            : "background:linear-gradient(to right, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+        return $css;
+    };
+    $bannerTextStyle = function ($b) {
+        return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
 @endphp
 
 @section('content')
@@ -77,72 +93,85 @@
                 </div>
             </div>
 
-            <!-- Right Hero Tech Lifestyle Banner -->
-            <div class="relative flex-grow rounded-2xl overflow-hidden bg-zanova-navy text-white min-h-[460px] lg:min-h-[500px] flex items-center shadow-xl border border-slate-800"
-                 x-data="{ currentSlide: 0 }">
+            <!-- Right Hero Tech Lifestyle Banner (auto-rotating carousel; add slides via Store Settings > Hero Slides) -->
+            @php $zfHeroSlides = $heroSlides ?? []; @endphp
+            <div class="relative flex-grow rounded-2xl overflow-hidden bg-zanova-navy text-white min-h-[460px] lg:min-h-[500px] shadow-xl border border-slate-800 grid"
+                 x-data="{ zfHero: 0, zfHeroCount: {{ count($zfHeroSlides) }} }"
+                 @if(count($zfHeroSlides) > 1) x-init="setInterval(() => { zfHero = (zfHero + 1) % zfHeroCount }, 6000)" @endif>
 
-                <!-- Background Image with Overlay -->
-                <div class="absolute inset-0 z-0">
-                    <img src="/images/themes/zanova/zanova-hero-tech.jpg"
-                         alt="Tech That Matches Your Lifestyle"
-                         class="w-full h-full object-cover object-right sm:object-center lg:object-right">
-                    <div class="absolute inset-0 bg-gradient-to-r from-zanova-navy/90 via-zanova-navy/50 to-transparent lg:w-1/2 pointer-events-none"></div>
-                </div>
-
-                <!-- Text & Action Content Overlay (Left Side) -->
-                <div class="relative z-10 p-8 sm:p-12 lg:p-14 max-w-xl">
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">
-                        Tech That Matches Your <span class="text-zanova-yellow">Lifestyle</span>
-                    </h1>
-                    <p class="mt-4 text-sm sm:text-base font-medium text-slate-300">
-                        Innovative gadgets. Unbeatable prices.
-                    </p>
-
-                    <div class="mt-8 flex flex-wrap items-center gap-4">
-                        <!-- Yellow CTA Button -->
-                        <a href="{{ url('/online_store/shop?collection=mega-deals' . $previewAmp) }}"
-                           class="px-7 py-3.5 bg-zanova-yellow hover:bg-zanova-yellowHover text-zanova-navy font-black text-xs uppercase tracking-wider rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
-                            Shop Smart
-                        </a>
-
-                        <!-- Watch Video Glass Button -->
-                        <button type="button"
-                                class="px-5 py-3.5 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white font-bold text-xs rounded-xl border border-white/20 flex items-center gap-2 transition-all">
-                            <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[0.65rem]">▶</span>
-                            <span>Watch Video</span>
-                        </button>
+                @foreach($zfHeroSlides as $zfI => $zfSlide)
+                  <div x-show="zfHero === {{ $zfI }}" @if(!$loop->first) x-cloak @endif
+                       x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                       x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                       class="col-start-1 row-start-1 flex items-center">
+                    <!-- Background Image with Overlay -->
+                    <div class="absolute inset-0 z-0">
+                        <img src="{{ !empty($zfSlide['image_url']) ? $zfSlide['image_url'] : '/images/themes/zanova/zanova-hero-tech.jpg' }}"
+                             alt=""
+                             class="w-full h-full object-cover object-right sm:object-center lg:object-right">
+                        <div class="absolute inset-0 bg-gradient-to-r from-zanova-navy/90 via-zanova-navy/50 to-transparent lg:w-1/2 pointer-events-none"></div>
                     </div>
-                </div>
 
-                <!-- Top-Right 70% OFF Promotional Badge -->
-                <div class="absolute top-6 right-6 z-20">
-                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-zanova-navy/90 backdrop-blur-md border-2 border-dashed border-zanova-yellow flex flex-col items-center justify-center shadow-2xl transform rotate-6 hover:rotate-0 transition-transform">
-                        <span class="text-[0.62rem] font-bold text-slate-300 uppercase tracking-widest leading-none">UP TO</span>
-                        <span class="text-xl sm:text-2xl font-black text-zanova-yellow leading-none my-0.5">70%</span>
-                        <span class="text-[0.62rem] font-black text-white uppercase tracking-wider leading-none">OFF</span>
+                    <!-- Text & Action Content Overlay (Left Side) -->
+                    <div class="relative z-10 p-8 sm:p-12 lg:p-14 max-w-xl">
+                        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-white">
+                            @if(($zfSlide['title'] ?? '') !== '')
+                              {{ $zfSlide['title'] }}
+                            @else
+                              Tech That Matches Your <span class="text-zanova-yellow">Lifestyle</span>
+                            @endif
+                        </h1>
+                        <p class="mt-4 text-sm sm:text-base font-medium text-slate-300">
+                            {{ ($zfSlide['subtitle'] ?? '') !== '' ? $zfSlide['subtitle'] : 'Innovative gadgets. Unbeatable prices.' }}
+                        </p>
+
+                        <div class="mt-8 flex flex-wrap items-center gap-4">
+                            <!-- Yellow CTA Button -->
+                            <a href="{{ ($zfSlide['cta_link'] ?? '') !== '' ? $zfSlide['cta_link'] : url('/online_store/shop?collection=mega-deals' . $previewAmp) }}"
+                               class="px-7 py-3.5 bg-zanova-yellow hover:bg-zanova-yellowHover text-zanova-navy font-black text-xs uppercase tracking-wider rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5">
+                                {{ ($zfSlide['cta_text'] ?? '') !== '' ? $zfSlide['cta_text'] : 'Shop Smart' }}
+                            </a>
+
+                            <!-- Watch Video Glass Button -->
+                            <button type="button"
+                                    class="px-5 py-3.5 bg-black/40 hover:bg-black/60 backdrop-blur-md text-white font-bold text-xs rounded-xl border border-white/20 flex items-center gap-2 transition-all">
+                                <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[0.65rem]">▶</span>
+                                <span>Watch Video</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Carousel Left & Right Arrow Buttons -->
-                <button type="button"
-                        class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-md text-white flex items-center justify-center border border-white/20 transition-all shadow-md"
-                        aria-label="Previous slide">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
-                </button>
-                <button type="button"
-                        class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-md text-white flex items-center justify-center border border-white/20 transition-all shadow-md"
-                        aria-label="Next slide">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
-                </button>
+                    <!-- Top-Right 70% OFF Promotional Badge -->
+                    <div class="absolute top-6 right-6 z-20">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-zanova-navy/90 backdrop-blur-md border-2 border-dashed border-zanova-yellow flex flex-col items-center justify-center shadow-2xl transform rotate-6 hover:rotate-0 transition-transform">
+                            <span class="text-[0.62rem] font-bold text-slate-300 uppercase tracking-widest leading-none">UP TO</span>
+                            <span class="text-xl sm:text-2xl font-black text-zanova-yellow leading-none my-0.5">70%</span>
+                            <span class="text-[0.62rem] font-black text-white uppercase tracking-wider leading-none">OFF</span>
+                        </div>
+                    </div>
+                  </div>
+                @endforeach
 
-                <!-- Bottom Carousel Dots -->
-                <div class="absolute bottom-4 left-8 z-20 flex items-center gap-2">
-                    <span class="w-6 h-2 rounded-full bg-zanova-yellow transition-all"></span>
-                    <span class="w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all cursor-pointer"></span>
-                    <span class="w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all cursor-pointer"></span>
-                    <span class="w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all cursor-pointer"></span>
-                    <span class="w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all cursor-pointer"></span>
-                </div>
+                @if(count($zfHeroSlides) > 1)
+                  <!-- Carousel Left & Right Arrow Buttons -->
+                  <button type="button" @click="zfHero = (zfHero - 1 + zfHeroCount) % zfHeroCount"
+                          class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-md text-white flex items-center justify-center border border-white/20 transition-all shadow-md"
+                          aria-label="Previous slide">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                  </button>
+                  <button type="button" @click="zfHero = (zfHero + 1) % zfHeroCount"
+                          class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur-md text-white flex items-center justify-center border border-white/20 transition-all shadow-md"
+                          aria-label="Next slide">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                  </button>
+
+                  <!-- Bottom Carousel Dots -->
+                  <div class="absolute bottom-4 left-8 z-20 flex items-center gap-2">
+                    @foreach($zfHeroSlides as $zfI => $zfSlide)
+                      <button type="button" @click="zfHero = {{ $zfI }}" class="h-2 rounded-full transition-all" :class="zfHero === {{ $zfI }} ? 'w-6 bg-zanova-yellow' : 'w-2 bg-white/40 hover:bg-white/70'" aria-label="Slide {{ $zfI + 1 }}"></button>
+                    @endforeach
+                  </div>
+                @endif
 
             </div>
 
@@ -222,87 +251,40 @@
         </div>
     </section>
 
-    <!-- 3. Five Category Cards -->
+    <!-- 3. Five Category Cards (fully customizable via Banners: image, badge, headline, subtitle, button, colors) -->
+    @if($bannerGridEnabled ?? true)
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        @php
+            $zfCategoryTiles = [
+                ['pos' => 'top_left', 'bg' => 'bg-[#EBF2FA]', 'title' => 'Smartphones', 'desc' => 'Latest models & top brands', 'img' => 'cat-smartphones.jpg', 'href' => url('/online_store/shop?category=electronics' . $previewAmp)],
+                ['pos' => 'top_right', 'bg' => 'bg-[#FFF8E7]', 'title' => 'Fashion', 'desc' => 'Trendy looks for everyone', 'img' => 'cat-fashion.jpg', 'href' => url('/online_store/shop?category=fashion-apparel' . $previewAmp)],
+                ['pos' => 'center_left', 'bg' => 'bg-[#EAF7EE]', 'title' => 'Home Essentials', 'desc' => 'For a better everyday life', 'img' => 'cat-home-essentials.jpg', 'href' => url('/online_store/shop?category=home-kitchen' . $previewAmp)],
+                ['pos' => 'center_right', 'bg' => 'bg-[#FDF0ED]', 'title' => 'Beauty', 'desc' => 'Care that makes you glow', 'img' => 'cat-beauty.jpg', 'href' => url('/online_store/shop?category=beauty-personal-care' . $previewAmp)],
+                ['pos' => 'footer_left', 'bg' => 'bg-[#F4F1FA]', 'title' => 'Sports', 'desc' => 'Gear up & stay active', 'img' => 'cat-sports.jpg', 'href' => url('/online_store/shop?category=sports-outdoors' . $previewAmp)],
+            ];
+        @endphp
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
 
-            <!-- Card 1: Smartphones -->
-            <div class="group bg-[#EBF2FA] rounded-2xl p-5 border border-slate-200 hover:shadow-md transition-all flex flex-col justify-between">
-                <div>
-                    <h3 class="font-extrabold text-sm text-slate-900">Smartphones</h3>
-                    <p class="text-[0.72rem] text-slate-600 mt-0.5">Latest models & top brands</p>
+            @foreach($zfCategoryTiles as $tile)
+                @php $zfBanner = ($byPos[$tile['pos']] ?? collect())->first(); @endphp
+                <div class="group {{ $tile['bg'] }} rounded-2xl p-5 border border-slate-200 hover:shadow-md transition-all flex flex-col justify-between" @if($bannerOverlayStyle($zfBanner)) style="{{ $bannerOverlayStyle($zfBanner) }}" @endif>
+                    <div @if($bannerTextStyle($zfBanner)) style="{{ $bannerTextStyle($zfBanner) }}" @endif>
+                        <h3 class="font-extrabold text-sm text-slate-900" @if($bannerTextStyle($zfBanner)) style="color:inherit;" @endif>{{ ($zfBanner->title ?? null) ?: $tile['title'] }}</h3>
+                        <p class="text-[0.72rem] text-slate-600 mt-0.5" @if($bannerTextStyle($zfBanner)) style="color:inherit;" @endif>{{ ($zfBanner->subtitle ?? null) ?: $tile['desc'] }}</p>
+                    </div>
+                    <div class="my-4 aspect-square rounded-xl overflow-hidden flex items-center justify-center">
+                        <img src="{{ $zfBanner ? $bannerUrl($zfBanner) : '/images/themes/zanova/' . $tile['img'] }}" alt="{{ ($zfBanner->title ?? null) ?: $tile['title'] }}" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-300">
+                    </div>
+                    <a href="{{ $zfBanner ? ($zfBanner->link ?: $tile['href']) : $tile['href'] }}" class="inline-flex items-center gap-1 text-xs font-bold text-slate-900 hover:text-zanova-purple transition-colors" @if($bannerTextStyle($zfBanner)) style="color:inherit;" @endif>
+                        <span>{{ ($zfBanner->button_text ?? null) ?: 'Shop Now' }}</span>
+                        <span>→</span>
+                    </a>
                 </div>
-                <div class="my-4 aspect-square rounded-xl overflow-hidden flex items-center justify-center">
-                    <img src="/images/themes/zanova/cat-smartphones.jpg" alt="Smartphones" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-300">
-                </div>
-                <a href="{{ url('/online_store/shop?category=electronics' . $previewAmp) }}" class="inline-flex items-center gap-1 text-xs font-bold text-slate-900 hover:text-zanova-purple transition-colors">
-                    <span>Shop Now</span>
-                    <span>→</span>
-                </a>
-            </div>
-
-            <!-- Card 2: Fashion -->
-            <div class="group bg-[#FFF8E7] rounded-2xl p-5 border border-slate-200 hover:shadow-md transition-all flex flex-col justify-between">
-                <div>
-                    <h3 class="font-extrabold text-sm text-slate-900">Fashion</h3>
-                    <p class="text-[0.72rem] text-slate-600 mt-0.5">Trendy looks for everyone</p>
-                </div>
-                <div class="my-4 aspect-square rounded-xl overflow-hidden flex items-center justify-center">
-                    <img src="/images/themes/zanova/cat-fashion.jpg" alt="Fashion" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-300">
-                </div>
-                <a href="{{ url('/online_store/shop?category=fashion-apparel' . $previewAmp) }}" class="inline-flex items-center gap-1 text-xs font-bold text-slate-900 hover:text-zanova-purple transition-colors">
-                    <span>Shop Now</span>
-                    <span>→</span>
-                </a>
-            </div>
-
-            <!-- Card 3: Home Essentials -->
-            <div class="group bg-[#EAF7EE] rounded-2xl p-5 border border-slate-200 hover:shadow-md transition-all flex flex-col justify-between">
-                <div>
-                    <h3 class="font-extrabold text-sm text-slate-900">Home Essentials</h3>
-                    <p class="text-[0.72rem] text-slate-600 mt-0.5">For a better everyday life</p>
-                </div>
-                <div class="my-4 aspect-square rounded-xl overflow-hidden flex items-center justify-center">
-                    <img src="/images/themes/zanova/cat-home-essentials.jpg" alt="Home Essentials" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-300">
-                </div>
-                <a href="{{ url('/online_store/shop?category=home-kitchen' . $previewAmp) }}" class="inline-flex items-center gap-1 text-xs font-bold text-slate-900 hover:text-zanova-purple transition-colors">
-                    <span>Shop Now</span>
-                    <span>→</span>
-                </a>
-            </div>
-
-            <!-- Card 4: Beauty -->
-            <div class="group bg-[#FDF0ED] rounded-2xl p-5 border border-slate-200 hover:shadow-md transition-all flex flex-col justify-between">
-                <div>
-                    <h3 class="font-extrabold text-sm text-slate-900">Beauty</h3>
-                    <p class="text-[0.72rem] text-slate-600 mt-0.5">Care that makes you glow</p>
-                </div>
-                <div class="my-4 aspect-square rounded-xl overflow-hidden flex items-center justify-center">
-                    <img src="/images/themes/zanova/cat-beauty.jpg" alt="Beauty" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-300">
-                </div>
-                <a href="{{ url('/online_store/shop?category=beauty-personal-care' . $previewAmp) }}" class="inline-flex items-center gap-1 text-xs font-bold text-slate-900 hover:text-zanova-purple transition-colors">
-                    <span>Shop Now</span>
-                    <span>→</span>
-                </a>
-            </div>
-
-            <!-- Card 5: Sports -->
-            <div class="group bg-[#F4F1FA] rounded-2xl p-5 border border-slate-200 hover:shadow-md transition-all flex flex-col justify-between">
-                <div>
-                    <h3 class="font-extrabold text-sm text-slate-900">Sports</h3>
-                    <p class="text-[0.72rem] text-slate-600 mt-0.5">Gear up & stay active</p>
-                </div>
-                <div class="my-4 aspect-square rounded-xl overflow-hidden flex items-center justify-center">
-                    <img src="/images/themes/zanova/cat-sports.jpg" alt="Sports" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-300">
-                </div>
-                <a href="{{ url('/online_store/shop?category=sports-outdoors' . $previewAmp) }}" class="inline-flex items-center gap-1 text-xs font-bold text-slate-900 hover:text-zanova-purple transition-colors">
-                    <span>Shop Now</span>
-                    <span>→</span>
-                </a>
-            </div>
+            @endforeach
 
         </div>
     </section>
+    @endif
 
     <!-- 4. Deal Of The Day Section -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -346,6 +328,7 @@
     </section>
 
     <!-- 5. Promotional Newsletter Banner (Extra 10% OFF) -->
+    @if($offer['enabled'] ?? true)
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="relative rounded-2xl overflow-hidden bg-gradient-to-r from-purple-900 via-indigo-950 to-zanova-navy text-white p-8 sm:p-10 shadow-xl border border-purple-800 flex flex-col lg:flex-row items-center justify-between gap-8">
 
@@ -357,12 +340,12 @@
                 </div>
                 <div>
                     <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                        Extra 10% OFF
+                        {{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Extra 10% OFF' }}
                     </h3>
                     <div class="mt-1.5 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-300">
-                        <span>On your first order. Use code:</span>
+                        <span>{{ ($offer['subtitle'] ?? '') !== '' ? $offer['subtitle'] : 'On your first order. Use code:' }}</span>
                         <span class="px-2.5 py-1 bg-white/15 border border-dashed border-white/40 text-amber-300 font-mono font-black rounded-md tracking-wider">
-                            WELCOME10
+                            {{ !empty($offer['discount_text']) ? $offer['discount_text'] : 'WELCOME10' }}
                         </span>
                     </div>
                 </div>
@@ -384,6 +367,7 @@
 
         </div>
     </section>
+    @endif
 
     <!-- 6. Top Brands Section -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

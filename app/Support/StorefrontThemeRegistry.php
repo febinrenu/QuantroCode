@@ -189,4 +189,69 @@ class StorefrontThemeRegistry
 
         return is_string($code) && $code !== '' ? $code : null;
     }
+
+    /**
+     * Which of the 6 canonical banner positions (top_left, top_right,
+     * center_left, center_right, footer_left, footer_right) a theme's
+     * home.blade.php actually renders -- audited directly against each
+     * theme's Blade file (grep for `$byPos[...]` usage, including the
+     * few themes that build the position dynamically from a PHP array
+     * of tiles rather than a literal string). Themes not listed here render
+     * none (no banner-grid section exists in their homepage at all), so the
+     * admin UI can tell a merchant "this theme has no banner section" instead
+     * of offering slots that would silently do nothing.
+     */
+    protected const BANNER_POSITIONS = [
+        'aurumeclat' => ['top_left', 'top_right'],
+        'brutalex' => ['top_left', 'top_right', 'center_left', 'footer_left', 'footer_right'],
+        'casanest' => ['top_left', 'top_right', 'center_left', 'footer_left', 'footer_right'],
+        'casanest-furniture' => ['top_left', 'top_right', 'center_left'],
+        'crystalglass' => ['top_left', 'top_right', 'center_left', 'footer_left', 'footer_right'],
+        'elegance' => ['top_left', 'top_right', 'center_left', 'footer_left', 'footer_right'],
+        'elegance-boutique' => ['top_left', 'top_right'],
+        'freshcart' => ['top_left', 'top_right', 'center_left', 'footer_left', 'footer_right'],
+        'freshcart-daily' => ['top_left', 'top_right'],
+        'futurex' => ['top_left', 'top_right', 'center_left', 'footer_left', 'footer_right'],
+        'futurex-tech' => [],
+        'generalhub' => ['top_left', 'top_right', 'center_left', 'footer_left', 'footer_right'],
+        'generalhub-store' => ['top_left', 'top_right'],
+        'homely' => ['top_left', 'top_right'],
+        'littlejoy-kids' => ['top_left', 'top_right', 'center_left', 'center_right'],
+        'marketly-shop' => [],
+        'marketverse' => ['top_left', 'top_right', 'center_left', 'footer_left', 'footer_right'],
+        'marketverse-deals' => ['top_left', 'top_right', 'center_left'],
+        'medisphere-care' => ['top_left', 'top_right'],
+        'monochra' => ['top_left', 'top_right', 'center_left', 'footer_left', 'footer_right'],
+        'naturae' => ['top_left', 'top_right', 'center_left', 'center_right', 'footer_left', 'footer_right'],
+        'naturae-wellness' => ['top_left', 'top_right', 'center_left'],
+        'naturia-living' => ['top_left', 'top_right', 'center_left'],
+        'nexora' => ['top_left', 'top_right', 'center_left', 'footer_left', 'footer_right'],
+        'nexora-trending' => ['top_left', 'top_right'],
+        'novatech' => ['top_left', 'top_right', 'center_left', 'footer_left', 'footer_right'],
+        'novatech-electronics' => ['top_left', 'top_right', 'center_left'],
+        'paperloom' => ['top_left', 'top_right', 'center_left'],
+        'retropop' => ['top_left', 'top_right', 'center_left', 'center_right', 'footer_left', 'footer_right'],
+        'shopiq' => ['top_left', 'top_right', 'center_left', 'footer_left', 'footer_right'],
+        'technova' => ['top_left', 'top_right', 'center_left', 'footer_left', 'footer_right'],
+        'technova-audio' => ['top_left', 'top_right', 'center_left'],
+        'terraco' => ['top_left', 'top_right'],
+        'terraco-market' => ['top_left', 'top_right', 'center_left', 'center_right', 'footer_left'],
+        'urbana' => ['top_left', 'top_right', 'center_left', 'center_right', 'footer_left', 'footer_right'],
+        'urbana-lifestyle' => ['top_left'],
+        'urbanic' => ['top_left', 'top_right', 'center_left', 'center_right', 'footer_left'],
+        'veloura' => ['top_left', 'top_right', 'center_left', 'center_right', 'footer_left', 'footer_right'],
+        'veloura-beauty' => ['top_left', 'top_right', 'center_left'],
+        'verde' => ['top_left'],
+        'voguelane' => ['top_left', 'top_right', 'footer_left', 'footer_right'],
+        'voguelane-couture' => ['top_left', 'top_right', 'center_left', 'center_right', 'footer_left'],
+        'zanova' => ['top_left', 'top_right', 'center_left', 'center_right', 'footer_left', 'footer_right'],
+        'zanova-flash' => ['top_left', 'top_right', 'center_left', 'center_right', 'footer_left'],
+    ];
+
+    public static function bannerPositions(?string $slug): array
+    {
+        $slug = static::normalizeSlug($slug);
+
+        return static::BANNER_POSITIONS[$slug] ?? [];
+    }
 }

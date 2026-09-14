@@ -17,47 +17,64 @@
 
 <main class="pb-24 lg:pb-0">
 
-  {{-- ===== HERO ===== --}}
-  <section class="relative overflow-hidden bg-leaf-light">
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $naHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative overflow-hidden bg-leaf-light grid"
+           x-data="{ naHero: 0, naHeroCount: {{ count($naHeroSlides) }} }"
+           @if(count($naHeroSlides) > 1) x-init="setInterval(() => { naHero = (naHero + 1) % naHeroCount }, 6000)" @endif>
     <div class="absolute -top-20 -right-24 w-96 h-96 rounded-full bg-terracotta-light/60 blur-2xl"></div>
     <div class="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-leaf/20 blur-2xl"></div>
-    <div class="relative max-w-7xl mx-auto px-4 py-14 lg:py-20 grid lg:grid-cols-2 gap-10 items-center">
-      <div>
-        <span class="inline-flex items-center gap-2 eyebrow text-terracotta-dark text-xs font-bold bg-white/70 px-3 py-1.5 rounded-full">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/></svg>
-          One basket, every category
-        </span>
-        <h1 class="mt-4 text-4xl sm:text-5xl lg:text-[3.4rem] font-display font-semibold text-leaf-deep leading-[1.08]">
-          {{ $s->hero_title ?? 'Good for you, good for the planet.' }}
-        </h1>
-        <p class="mt-5 text-bark/80 max-w-lg leading-relaxed text-[15px]">
-          {{ $s->hero_subtitle ?? 'From noise-cancelling headphones to organic cotton knitwear, oak side tables to skincare oils — Naturae gathers electronics, fashion, home, beauty, grocery and sporting goods that are made responsibly, priced fairly, and packed without the plastic.' }}
-        </p>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a href="{{ route('store.shop') }}" class="h-13 px-7 py-3.5 inline-flex items-center gap-2 rounded-full bg-leaf-dark text-white font-semibold hover:bg-leaf-deep transition-colors shadow-soft">
-            Browse the whole store
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-13 px-7 py-3.5 inline-flex items-center gap-2 rounded-full border-2 border-leaf-dark/30 text-leaf-deep font-semibold hover:bg-white/60 transition-colors">
-            Everyday value picks
-          </a>
+    @foreach($naHeroSlides as $naI => $naSlide)
+      <div x-show="naHero === {{ $naI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1 relative max-w-7xl mx-auto px-4 py-14 lg:py-20 grid lg:grid-cols-2 gap-10 items-center">
+        <div>
+          <span class="inline-flex items-center gap-2 eyebrow text-terracotta-dark text-xs font-bold bg-white/70 px-3 py-1.5 rounded-full">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4-2-7-6-7-11 0-3 2-6 7-8 5 2 7 5 7 8 0 5-3 9-7 11Z"/></svg>
+            One basket, every category
+          </span>
+          <h1 class="mt-4 text-4xl sm:text-5xl lg:text-[3.4rem] font-display font-semibold text-leaf-deep leading-[1.08]">
+            {{ ($naSlide['title'] ?? '') !== '' ? $naSlide['title'] : 'Good for you, good for the planet.' }}
+          </h1>
+          <p class="mt-5 text-bark/80 max-w-lg leading-relaxed text-[15px]">
+            {{ ($naSlide['subtitle'] ?? '') !== '' ? $naSlide['subtitle'] : 'From noise-cancelling headphones to organic cotton knitwear, oak side tables to skincare oils — Naturae gathers electronics, fashion, home, beauty, grocery and sporting goods that are made responsibly, priced fairly, and packed without the plastic.' }}
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="{{ ($naSlide['cta_link'] ?? '') !== '' ? $naSlide['cta_link'] : route('store.shop') }}" class="h-13 px-7 py-3.5 inline-flex items-center gap-2 rounded-full bg-leaf-dark text-white font-semibold hover:bg-leaf-deep transition-colors shadow-soft">
+              {{ ($naSlide['cta_text'] ?? '') !== '' ? $naSlide['cta_text'] : 'Browse the whole store' }}
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            </a>
+            <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-13 px-7 py-3.5 inline-flex items-center gap-2 rounded-full border-2 border-leaf-dark/30 text-leaf-deep font-semibold hover:bg-white/60 transition-colors">
+              Everyday value picks
+            </a>
+          </div>
+          <div class="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3 text-bark/70 text-xs font-medium">
+            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg> Sustainably sourced</span>
+            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg> Plastic-free packaging</span>
+            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg> Carbon-neutral shipping</span>
+          </div>
         </div>
-        <div class="mt-9 flex flex-wrap items-center gap-x-6 gap-y-3 text-bark/70 text-xs font-medium">
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg> Sustainably sourced</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg> Plastic-free packaging</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-leaf-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg> Carbon-neutral shipping</span>
+        <div class="hidden lg:grid grid-cols-2 gap-5">
+          <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover shadow-softHover" alt="Electronics">
+          <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover mt-10 shadow-softHover" alt="Fashion">
+          <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover -mt-5 shadow-softHover" alt="Home goods">
+          <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover shadow-softHover" alt="Beauty">
         </div>
       </div>
-      <div class="hidden lg:grid grid-cols-2 gap-5">
-        <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover shadow-softHover" alt="Electronics">
-        <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover mt-10 shadow-softHover" alt="Fashion">
-        <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover -mt-5 shadow-softHover" alt="Home goods">
-        <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=520&q=70" class="rounded-4xl h-52 w-full object-cover shadow-softHover" alt="Beauty">
+    @endforeach
+
+    @if(count($naHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($naHeroSlides as $naI => $naSlide)
+          <button type="button" @click="naHero = {{ $naI }}" class="w-2 h-2 rounded-full transition-colors" :class="naHero === {{ $naI }} ? 'bg-leaf-deep' : 'bg-leaf-deep/30'" aria-label="Slide {{ $naI + 1 }}"></button>
+        @endforeach
       </div>
-    </div>
+    @endif
   </section>
 
   {{-- ===== TOP BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['top_left'] ?? collect() as $b)
@@ -71,6 +88,7 @@
         </a>
       @endforeach
     </section>
+  @endif
   @endif
 
   {{-- ===== ECO TRUST BAR (reframed, not generic) ===== --}}
@@ -188,27 +206,51 @@
     </div>
   </section>
 
-  {{-- ===== PROMO STRIP ===== --}}
+  {{-- ===== PROMO STRIP (fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @if($bannerGridEnabled ?? true)
+  @php
+    // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+    // override each tile's fixed gradient/text color; absent -> theme default.
+    $bannerOverlayStyle = function ($b) {
+      if (!$b || empty($b->bg_color)) return null;
+      $css = !empty($b->bg_color_2)
+        ? "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+        : "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+      return $css;
+    };
+    $bannerTextStyle = function ($b) {
+      return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
+    $centerLeft = ($byPos['center_left'] ?? collect())->first();
+    $centerRight = ($byPos['center_right'] ?? collect())->first();
+  @endphp
   <section class="max-w-7xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-5">
     <div class="relative rounded-4xl overflow-hidden h-60 flex items-end p-7">
-      <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="Home goods">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent"></div>
-      <div class="relative">
-        <span class="text-terracotta-light text-xs font-bold uppercase">Home Edit</span>
-        <h3 class="text-white text-2xl font-display font-semibold mt-1">Warm the house, not the planet</h3>
-        <a href="{{ route('store.shop') }}" class="mt-3 inline-flex text-sm font-semibold text-white underline">Shop home &amp; living</a>
+      <img src="{{ $centerLeft ? $bannerUrl($centerLeft) : 'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ ($centerLeft->title ?? null) ?: 'Home goods' }}">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" @if($bannerOverlayStyle($centerLeft)) style="{{ $bannerOverlayStyle($centerLeft) }}" @endif></div>
+      <div class="relative" @if($bannerTextStyle($centerLeft)) style="{{ $bannerTextStyle($centerLeft) }}" @endif>
+        <span class="text-terracotta-light text-xs font-bold uppercase">{{ ($centerLeft->badge_text ?? null) ?: 'Home Edit' }}</span>
+        <h3 class="text-white text-2xl font-display font-semibold mt-1" style="color:inherit;">{{ ($centerLeft->title ?? null) ?: 'Warm the house, not the planet' }}</h3>
+        @if(!empty($centerLeft->subtitle ?? null))
+          <p class="text-white/80 text-sm mt-1" style="color:inherit;">{{ $centerLeft->subtitle }}</p>
+        @endif
+        <a href="{{ $centerLeft ? ($centerLeft->link ?: route('store.shop')) : route('store.shop') }}" class="mt-3 inline-flex text-sm font-semibold text-white underline" style="color:inherit;">{{ ($centerLeft->button_text ?? null) ?: 'Shop home & living' }}</a>
       </div>
     </div>
     <div class="relative rounded-4xl overflow-hidden h-60 flex items-end p-7">
-      <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="Tech">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent"></div>
-      <div class="relative">
-        <span class="text-leaf-light text-xs font-bold uppercase">Tech &amp; Audio</span>
-        <h3 class="text-white text-2xl font-display font-semibold mt-1">Refurbished-friendly electronics</h3>
-        <a href="{{ route('store.shop') }}" class="mt-3 inline-flex text-sm font-semibold text-white underline">Shop electronics</a>
+      <img src="{{ $centerRight ? $bannerUrl($centerRight) : 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ ($centerRight->title ?? null) ?: 'Tech' }}">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" @if($bannerOverlayStyle($centerRight)) style="{{ $bannerOverlayStyle($centerRight) }}" @endif></div>
+      <div class="relative" @if($bannerTextStyle($centerRight)) style="{{ $bannerTextStyle($centerRight) }}" @endif>
+        <span class="text-leaf-light text-xs font-bold uppercase">{{ ($centerRight->badge_text ?? null) ?: 'Tech & Audio' }}</span>
+        <h3 class="text-white text-2xl font-display font-semibold mt-1" style="color:inherit;">{{ ($centerRight->title ?? null) ?: 'Refurbished-friendly electronics' }}</h3>
+        @if(!empty($centerRight->subtitle ?? null))
+          <p class="text-white/80 text-sm mt-1" style="color:inherit;">{{ $centerRight->subtitle }}</p>
+        @endif
+        <a href="{{ $centerRight ? ($centerRight->link ?: route('store.shop')) : route('store.shop') }}" class="mt-3 inline-flex text-sm font-semibold text-white underline" style="color:inherit;">{{ ($centerRight->button_text ?? null) ?: 'Shop electronics' }}</a>
       </div>
     </div>
   </section>
+  @endif
 
   {{-- ===== TESTIMONIALS ===== --}}
   <section class="bg-white border-y border-leaf-light">
@@ -258,6 +300,7 @@
   </section>
 
   {{-- ===== FOOTER BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['footer_left'] ?? collect())->count() || ($byPos['footer_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 pb-10 grid md:grid-cols-2 gap-4">
       @foreach($byPos['footer_left'] ?? collect() as $b)
@@ -267,6 +310,7 @@
         <a href="{{ $b->link ?: route('store.shop') }}" class="block rounded-3xl overflow-hidden shadow-soft"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
       @endforeach
     </section>
+  @endif
   @endif
 
 </main>

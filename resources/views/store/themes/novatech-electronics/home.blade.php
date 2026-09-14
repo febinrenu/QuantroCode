@@ -3,6 +3,27 @@
 @section('title', 'NOVATECH — Smarter Everyday | Leading Tech & Electronics Marketplace')
 
 @section('content')
+@php
+  $byPos = collect($banners ?? [])->groupBy('position');
+  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+  // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+  // override each tile's fixed gradient/text color; absent -> theme default.
+  $bannerOverlayStyle = function ($b) {
+    if (!$b || empty($b->bg_color)) return null;
+    $css = !empty($b->bg_color_2)
+      ? "background:linear-gradient(135deg, {$b->bg_color}, {$b->bg_color_2});"
+      : "background:linear-gradient(135deg, {$b->bg_color}, {$b->bg_color}cc);";
+    return $css;
+  };
+  $bannerTextStyle = function ($b) {
+    return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+  };
+
+  // Role-tagged Collection (Best Sellers) -- when a merchant has assigned
+  // one, its own curated products win over the theme's generic product list.
+  $nvtRoleBestSellers = collect($collectionsByRole['best_sellers']['products'] ?? []);
+  $nvtBestSellers = $nvtRoleBestSellers->isNotEmpty() ? $nvtRoleBestSellers->take(6) : $products->take(6);
+@endphp
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-12">
 
     <!-- 1. Hero Section (Sidebar + Tech Showcase Banner) -->
@@ -90,69 +111,87 @@
             </div>
         </div>
 
-        <!-- Center/Right Main Hero Showcase -->
-        <div class="lg:col-span-3 relative rounded-2xl overflow-hidden bg-[#070A13] shadow-2xl min-h-[460px] lg:min-h-[500px] flex items-center">
-            <!-- Hero Background Art -->
-            <img src="/images/themes/novatech/novatech-hero-tech.jpg"
-                 alt="NovaTech Upgrade Perform Enjoy"
-                 class="absolute inset-0 w-full h-full object-cover object-right lg:object-center"
-                 onerror="this.onerror=null; this.src='/images/products/novatech-hero-tech.jpg';">
+        <!-- Center/Right Main Hero Showcase (auto-rotating carousel; add slides via Store Settings > Hero Slides) -->
+        @php $ntcHeroSlides = $heroSlides ?? []; @endphp
+        <div class="lg:col-span-3 relative rounded-2xl overflow-hidden bg-[#070A13] shadow-2xl min-h-[460px] lg:min-h-[500px] grid"
+             x-data="{ ntcHero: 0, ntcHeroCount: {{ count($ntcHeroSlides) }} }"
+             @if(count($ntcHeroSlides) > 1) x-init="setInterval(() => { ntcHero = (ntcHero + 1) % ntcHeroCount }, 6000)" @endif>
 
-            <!-- Gradient Overlays for perfect typography contrast -->
-            <div class="absolute inset-0 bg-gradient-to-r from-[#070A13] via-[#070A13]/85 to-transparent lg:via-[#070A13]/70"></div>
-            <div class="absolute inset-0 bg-gradient-to-t from-[#070A13]/90 via-transparent to-transparent"></div>
+            @foreach($ntcHeroSlides as $ntcI => $ntcSlide)
+              <div x-show="ntcHero === {{ $ntcI }}" @if(!$loop->first) x-cloak @endif
+                   x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                   x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                   class="col-start-1 row-start-1 flex items-center">
+                <!-- Hero Background Art -->
+                <img src="{{ !empty($ntcSlide['image_url']) ? $ntcSlide['image_url'] : '/images/themes/novatech/novatech-hero-tech.jpg' }}"
+                     alt=""
+                     class="absolute inset-0 w-full h-full object-cover object-right lg:object-center"
+                     onerror="this.onerror=null; this.src='/images/products/novatech-hero-tech.jpg';">
 
-            <!-- Discount Badge top right -->
-            <div class="absolute top-6 right-6 z-20 flex items-center justify-center">
-                <div class="w-20 h-20 rounded-full border border-indigo-500/40 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center text-center p-2 shadow-lg shadow-indigo-500/20">
-                    <span class="text-[9px] uppercase tracking-wider font-bold text-slate-300 leading-none">UP TO</span>
-                    <span class="text-xl font-black text-white leading-none my-0.5">30%</span>
-                    <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest leading-none">OFF</span>
+                <!-- Gradient Overlays for perfect typography contrast -->
+                <div class="absolute inset-0 bg-gradient-to-r from-[#070A13] via-[#070A13]/85 to-transparent lg:via-[#070A13]/70"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-[#070A13]/90 via-transparent to-transparent"></div>
+
+                <!-- Discount Badge top right -->
+                <div class="absolute top-6 right-6 z-20 flex items-center justify-center">
+                    <div class="w-20 h-20 rounded-full border border-indigo-500/40 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center text-center p-2 shadow-lg shadow-indigo-500/20">
+                        <span class="text-[9px] uppercase tracking-wider font-bold text-slate-300 leading-none">UP TO</span>
+                        <span class="text-xl font-black text-white leading-none my-0.5">30%</span>
+                        <span class="text-[9px] font-bold text-indigo-400 uppercase tracking-widest leading-none">OFF</span>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Left & Right Carousel Arrows -->
-            <button class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-950/60 hover:bg-slate-900 border border-slate-700/60 text-white flex items-center justify-center transition-all shadow-md backdrop-blur-sm" aria-label="Previous Slide">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
-            </button>
-            <button class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-950/60 hover:bg-slate-900 border border-slate-700/60 text-white flex items-center justify-center transition-all shadow-md backdrop-blur-sm" aria-label="Next Slide">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
-            </button>
+                @if(count($ntcHeroSlides) > 1)
+                  <!-- Left & Right Carousel Arrows -->
+                  <button type="button" @click="ntcHero = (ntcHero - 1 + ntcHeroCount) % ntcHeroCount" class="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-950/60 hover:bg-slate-900 border border-slate-700/60 text-white flex items-center justify-center transition-all shadow-md backdrop-blur-sm" aria-label="Previous Slide">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+                  </button>
+                  <button type="button" @click="ntcHero = (ntcHero + 1) % ntcHeroCount" class="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-slate-950/60 hover:bg-slate-900 border border-slate-700/60 text-white flex items-center justify-center transition-all shadow-md backdrop-blur-sm" aria-label="Next Slide">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+                  </button>
+                @endif
 
-            <!-- Hero Text Content -->
-            <div class="relative z-10 p-8 sm:p-12 lg:p-14 max-w-xl">
-                <span class="inline-block text-[11px] font-extrabold uppercase tracking-widest text-indigo-400 mb-3">
-                    NEW TECHNOLOGY
-                </span>
+                <!-- Hero Text Content -->
+                <div class="relative z-10 p-8 sm:p-12 lg:p-14 max-w-xl">
+                    <span class="inline-block text-[11px] font-extrabold uppercase tracking-widest text-indigo-400 mb-3">
+                        NEW TECHNOLOGY
+                    </span>
 
-                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] mb-4">
-                    Upgrade.<br>
-                    Perform.<br>
-                    <span class="text-sky-400">Enjoy.</span>
-                </h1>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] mb-4">
+                        @if(($ntcSlide['title'] ?? '') !== '')
+                          {{ $ntcSlide['title'] }}
+                        @else
+                          Upgrade.<br>
+                          Perform.<br>
+                          <span class="text-sky-400">Enjoy.</span>
+                        @endif
+                    </h1>
 
-                <p class="text-sm sm:text-base text-slate-300 mb-8 max-w-md font-normal leading-relaxed">
-                    Discover the latest tech and gadgets at the best prices.
-                </p>
+                    <p class="text-sm sm:text-base text-slate-300 mb-8 max-w-md font-normal leading-relaxed">
+                        {{ ($ntcSlide['subtitle'] ?? '') !== '' ? $ntcSlide['subtitle'] : 'Discover the latest tech and gadgets at the best prices.' }}
+                    </p>
 
-                <div class="flex flex-wrap items-center gap-4">
-                    <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="inline-flex items-center space-x-2 px-7 py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-indigo-600/30">
-                        <span>SHOP NOW</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                    </a>
-                    <a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'new-arrivals']) }}" class="inline-flex items-center px-6 py-3.5 rounded-full bg-slate-950/80 hover:bg-slate-900 border border-slate-700 text-white font-bold text-xs uppercase tracking-wider transition-all backdrop-blur-sm">
-                        EXPLORE MORE
-                    </a>
+                    <div class="flex flex-wrap items-center gap-4">
+                        <a href="{{ ($ntcSlide['cta_link'] ?? '') !== '' ? $ntcSlide['cta_link'] : route('store.shop', ['preview_theme' => 'novatech']) }}" class="inline-flex items-center space-x-2 px-7 py-3.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-indigo-600/30">
+                            <span>{{ ($ntcSlide['cta_text'] ?? '') !== '' ? $ntcSlide['cta_text'] : 'SHOP NOW' }}</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </a>
+                        <a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'new-arrivals']) }}" class="inline-flex items-center px-6 py-3.5 rounded-full bg-slate-950/80 hover:bg-slate-900 border border-slate-700 text-white font-bold text-xs uppercase tracking-wider transition-all backdrop-blur-sm">
+                            EXPLORE MORE
+                        </a>
+                    </div>
                 </div>
-            </div>
+              </div>
+            @endforeach
 
             <!-- Bottom Pagination Dots -->
-            <div class="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center space-x-2">
-                <span class="w-6 h-2 rounded-full bg-indigo-500 transition-all"></span>
-                <span class="w-2 h-2 rounded-full bg-slate-600 hover:bg-slate-400 cursor-pointer transition-colors"></span>
-                <span class="w-2 h-2 rounded-full bg-slate-600 hover:bg-slate-400 cursor-pointer transition-colors"></span>
-                <span class="w-2 h-2 rounded-full bg-slate-600 hover:bg-slate-400 cursor-pointer transition-colors"></span>
-            </div>
+            @if(count($ntcHeroSlides) > 1)
+              <div class="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center space-x-2">
+                @foreach($ntcHeroSlides as $ntcI => $ntcSlide)
+                  <button type="button" @click="ntcHero = {{ $ntcI }}" class="h-2 rounded-full transition-all" :class="ntcHero === {{ $ntcI }} ? 'w-6 bg-indigo-500' : 'w-2 bg-slate-600 hover:bg-slate-400'" aria-label="Slide {{ $ntcI + 1 }}"></button>
+                @endforeach
+              </div>
+            @endif
         </div>
     </section>
 
@@ -234,68 +273,96 @@
     </section>
 
     <!-- 3. Three Promotional Cards -->
+    @if($bannerGridEnabled ?? true)
+    @php
+        $promo1 = ($byPos['top_left'] ?? collect())->first();
+        $promo2 = ($byPos['top_right'] ?? collect())->first();
+        $promo3 = ($byPos['center_left'] ?? collect())->first();
+    @endphp
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Promo 1: Sound That Moves You (Purple Gradient) -->
-        <div class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#4338CA] to-[#6D28D9] text-white p-7 flex flex-col justify-between min-h-[220px] shadow-lg">
-            <div class="relative z-10 max-w-[60%]">
-                <h3 class="text-lg font-black tracking-tight leading-snug mb-1">
-                    Sound That<br>Moves You
+        <a href="{{ $promo1 ? ($promo1->link ?: route('store.shop', ['preview_theme' => 'novatech', 'category' => 'audio'])) : route('store.shop', ['preview_theme' => 'novatech', 'category' => 'audio']) }}" class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#4338CA] to-[#6D28D9] text-white p-7 flex flex-col justify-between min-h-[220px] shadow-lg" @if($bannerOverlayStyle($promo1)) style="{{ $bannerOverlayStyle($promo1) }}" @endif>
+            <div class="relative z-10 max-w-[60%]" @if($bannerTextStyle($promo1)) style="{{ $bannerTextStyle($promo1) }}" @endif>
+                @if(!empty($promo1->badge_text ?? null))
+                  <span class="block text-[10px] font-bold uppercase tracking-widest text-indigo-100 mb-1" style="color:inherit;">{{ $promo1->badge_text }}</span>
+                @endif
+                <h3 class="text-lg font-black tracking-tight leading-snug mb-1" style="color:inherit;">
+                    {!! ($promo1->title ?? null) ? nl2br(e($promo1->title)) : 'Sound That<br>Moves You' !!}
                 </h3>
-                <p class="text-xs text-indigo-100 mb-5 font-medium">
-                    Premium audio for every moment.
+                <p class="text-xs text-indigo-100 mb-5 font-medium" style="color:inherit;">
+                    {{ ($promo1->subtitle ?? null) ?: 'Premium audio for every moment.' }}
                 </p>
-                <a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'category' => 'audio']) }}" class="inline-flex items-center space-x-1.5 px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] uppercase tracking-wider transition-colors shadow-md">
-                    <span>SHOP AUDIO</span>
+                <span class="inline-flex items-center space-x-1.5 px-4 py-2 rounded-full bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] uppercase tracking-wider transition-colors shadow-md" style="color:#fff;">
+                    <span>{{ ($promo1->button_text ?? null) ?: 'SHOP AUDIO' }}</span>
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                </a>
+                </span>
             </div>
             <!-- Promo 1 Image -->
-            <img src="/images/themes/novatech/nvt-promo-headphones.jpg"
-                 alt="Sound That Moves You"
-                 class="absolute -right-4 -bottom-4 w-44 h-44 object-contain transition-transform duration-300 hover:scale-105"
-                 onerror="this.onerror=null; this.src='/images/products/nvt-noise-headphones.jpg';">
-        </div>
+            @if($promo1)
+              <img src="{{ $bannerUrl($promo1) }}" alt="{{ $promo1->title }}" class="absolute -right-4 -bottom-4 w-44 h-44 object-contain transition-transform duration-300 hover:scale-105">
+            @else
+              <img src="/images/themes/novatech/nvt-promo-headphones.jpg"
+                   alt="Sound That Moves You"
+                   class="absolute -right-4 -bottom-4 w-44 h-44 object-contain transition-transform duration-300 hover:scale-105"
+                   onerror="this.onerror=null; this.src='/images/products/nvt-noise-headphones.jpg';">
+            @endif
+        </a>
 
         <!-- Promo 2: Light. Fast. Powerful. (Sky/Cyan Gradient) -->
-        <div class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#BAE6FD] to-[#E0F2FE] text-slate-900 p-7 flex flex-col justify-between min-h-[220px] shadow-lg">
-            <div class="relative z-10 max-w-[60%]">
-                <h3 class="text-lg font-black tracking-tight leading-snug mb-1 text-slate-900">
-                    Light. Fast.<br>Powerful.
+        <a href="{{ $promo2 ? ($promo2->link ?: route('store.shop', ['preview_theme' => 'novatech', 'category' => 'laptops'])) : route('store.shop', ['preview_theme' => 'novatech', 'category' => 'laptops']) }}" class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#BAE6FD] to-[#E0F2FE] text-slate-900 p-7 flex flex-col justify-between min-h-[220px] shadow-lg" @if($bannerOverlayStyle($promo2)) style="{{ $bannerOverlayStyle($promo2) }}" @endif>
+            <div class="relative z-10 max-w-[60%]" @if($bannerTextStyle($promo2)) style="{{ $bannerTextStyle($promo2) }}" @endif>
+                @if(!empty($promo2->badge_text ?? null))
+                  <span class="block text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-1" style="color:inherit;">{{ $promo2->badge_text }}</span>
+                @endif
+                <h3 class="text-lg font-black tracking-tight leading-snug mb-1 text-slate-900" style="color:inherit;">
+                    {!! ($promo2->title ?? null) ? nl2br(e($promo2->title)) : 'Light. Fast.<br>Powerful.' !!}
                 </h3>
-                <p class="text-xs text-slate-600 mb-5 font-medium">
-                    Laptops built for speed and performance.
+                <p class="text-xs text-slate-600 mb-5 font-medium" style="color:inherit;">
+                    {{ ($promo2->subtitle ?? null) ?: 'Laptops built for speed and performance.' }}
                 </p>
-                <a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'category' => 'laptops']) }}" class="inline-flex items-center space-x-1.5 px-4 py-2 rounded-full bg-sky-600 hover:bg-sky-700 text-white font-bold text-[11px] uppercase tracking-wider transition-colors shadow-md">
-                    <span>SHOP LAPTOPS</span>
-                </a>
+                <span class="inline-flex items-center space-x-1.5 px-4 py-2 rounded-full bg-sky-600 hover:bg-sky-700 text-white font-bold text-[11px] uppercase tracking-wider transition-colors shadow-md">
+                    <span>{{ ($promo2->button_text ?? null) ?: 'SHOP LAPTOPS' }}</span>
+                </span>
             </div>
             <!-- Promo 2 Image -->
-            <img src="/images/themes/novatech/nvt-promo-laptop.jpg"
-                 alt="Light Fast Powerful Laptop"
-                 class="absolute -right-6 -bottom-6 w-48 h-48 object-contain transition-transform duration-300 hover:scale-105"
-                 onerror="this.onerror=null; this.src='/images/products/nvt-ultrabook.jpg';">
-        </div>
+            @if($promo2)
+              <img src="{{ $bannerUrl($promo2) }}" alt="{{ $promo2->title }}" class="absolute -right-6 -bottom-6 w-48 h-48 object-contain transition-transform duration-300 hover:scale-105">
+            @else
+              <img src="/images/themes/novatech/nvt-promo-laptop.jpg"
+                   alt="Light Fast Powerful Laptop"
+                   class="absolute -right-6 -bottom-6 w-48 h-48 object-contain transition-transform duration-300 hover:scale-105"
+                   onerror="this.onerror=null; this.src='/images/products/nvt-ultrabook.jpg';">
+            @endif
+        </a>
 
         <!-- Promo 3: Stay Connected. Stay Ahead. (Indigo/Purple Gradient) -->
-        <div class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#312E81] to-[#4338CA] text-white p-7 flex flex-col justify-between min-h-[220px] shadow-lg">
-            <div class="relative z-10 max-w-[60%]">
-                <h3 class="text-lg font-black tracking-tight leading-snug mb-1">
-                    Stay Connected.<br>Stay Ahead.
+        <a href="{{ $promo3 ? ($promo3->link ?: route('store.shop', ['preview_theme' => 'novatech', 'category' => 'wearables'])) : route('store.shop', ['preview_theme' => 'novatech', 'category' => 'wearables']) }}" class="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#312E81] to-[#4338CA] text-white p-7 flex flex-col justify-between min-h-[220px] shadow-lg" @if($bannerOverlayStyle($promo3)) style="{{ $bannerOverlayStyle($promo3) }}" @endif>
+            <div class="relative z-10 max-w-[60%]" @if($bannerTextStyle($promo3)) style="{{ $bannerTextStyle($promo3) }}" @endif>
+                @if(!empty($promo3->badge_text ?? null))
+                  <span class="block text-[10px] font-bold uppercase tracking-widest text-indigo-200 mb-1" style="color:inherit;">{{ $promo3->badge_text }}</span>
+                @endif
+                <h3 class="text-lg font-black tracking-tight leading-snug mb-1" style="color:inherit;">
+                    {!! ($promo3->title ?? null) ? nl2br(e($promo3->title)) : 'Stay Connected.<br>Stay Ahead.' !!}
                 </h3>
-                <p class="text-xs text-indigo-200 mb-5 font-medium">
-                    Smartwatches for a smarter you.
+                <p class="text-xs text-indigo-200 mb-5 font-medium" style="color:inherit;">
+                    {{ ($promo3->subtitle ?? null) ?: 'Smartwatches for a smarter you.' }}
                 </p>
-                <a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'category' => 'wearables']) }}" class="inline-flex items-center space-x-1.5 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] uppercase tracking-wider transition-colors shadow-md">
-                    <span>SHOP SMART WATCHES</span>
-                </a>
+                <span class="inline-flex items-center space-x-1.5 px-4 py-2 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] uppercase tracking-wider transition-colors shadow-md">
+                    <span>{{ ($promo3->button_text ?? null) ?: 'SHOP SMART WATCHES' }}</span>
+                </span>
             </div>
             <!-- Promo 3 Image -->
-            <img src="/images/themes/novatech/nvt-smart-watch.jpg"
-                 alt="Stay Connected Smartwatch"
-                 class="absolute -right-4 -bottom-4 w-44 h-44 object-contain transition-transform duration-300 hover:scale-105"
-                 onerror="this.onerror=null; this.src='/images/products/nvt-smart-watch.jpg';">
-        </div>
+            @if($promo3)
+              <img src="{{ $bannerUrl($promo3) }}" alt="{{ $promo3->title }}" class="absolute -right-4 -bottom-4 w-44 h-44 object-contain transition-transform duration-300 hover:scale-105">
+            @else
+              <img src="/images/themes/novatech/nvt-smart-watch.jpg"
+                   alt="Stay Connected Smartwatch"
+                   class="absolute -right-4 -bottom-4 w-44 h-44 object-contain transition-transform duration-300 hover:scale-105"
+                   onerror="this.onerror=null; this.src='/images/products/nvt-smart-watch.jpg';">
+            @endif
+        </a>
     </section>
+    @endif
 
     <!-- 4. Best Sellers Section -->
     <section>
@@ -311,7 +378,7 @@
 
         <!-- 6 Best Sellers Grid Matching Reference -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
-            @forelse($products->take(6) as $product)
+            @forelse($nvtBestSellers as $product)
                 @include('store.themes.novatech-electronics.partials.product-card', ['product' => $product])
             @empty
                 <div class="col-span-full py-12 text-center text-slate-400">

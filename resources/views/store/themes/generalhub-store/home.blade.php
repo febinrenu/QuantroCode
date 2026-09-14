@@ -21,7 +21,18 @@
 
 @php
   $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
-  
+  $byPos = collect($banners ?? [])->groupBy('position');
+  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+
+  // Collection blocks (merchant-managed via Collections) get woven into the
+  // Featured / Best Sellers / New Arrivals grids below when configured, with
+  // the theme's original hardcoded product picks kept as a fallback so the
+  // page looks identical until a merchant sets up Collections.
+  $collectionBlocks = collect($blocks)->filter(fn($b) => ($b['type'] ?? '') === 'collection')->values();
+  $allBlockVms = $collectionBlocks->flatMap(function ($block) use ($currency, $hidePrices) {
+      return collect($block['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+  })->values();
+
   // 1. Featured Products (4)
   $featuredCodes = ['GEN-EAR-001', 'GEN-WAT-001', 'GEN-BAG-001', 'GEN-SOF-001'];
   $featuredProducts = \App\Models\Product::query()
@@ -72,68 +83,109 @@
   $featuredVms = $featuredProducts->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
   $bestsellerVms = $bestsellerProducts->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
   $newArrivalVms = $newArrivalProducts->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+
+  // When merchants configure Collections blocks, weave real collection
+  // products into these three grids (in order) instead of the theme's
+  // hardcoded picks; fall back to the hardcoded picks when no blocks exist
+  // so the page is unchanged for merchants who haven't touched Collections.
+  if ($allBlockVms->count()) {
+      $featuredVms = $allBlockVms->slice(0, 4)->values();
+      $bestsellerVms = $allBlockVms->slice(4, 6)->count() ? $allBlockVms->slice(4, 6)->values() : $allBlockVms->take(6)->values();
+      $newArrivalVms = $allBlockVms->slice(10, 6)->count() ? $allBlockVms->slice(10, 6)->values() : $allBlockVms->take(6)->values();
+  }
+
+  // Role-tagged Collections (Best Sellers / New Arrivals) -- when a merchant
+  // has assigned one, its own curated products win over the generic/hardcoded
+  // picks above for that named section.
+  $roleVms = collect($collectionsByRole ?? [])->map(function ($r) use ($currency, $hidePrices) {
+      return collect($r['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices))->values();
+  });
+  $bestsellerVms = ($roleVms['best_sellers'] ?? collect())->count() ? $roleVms['best_sellers'] : $bestsellerVms;
+  $newArrivalVms = ($roleVms['new_arrivals'] ?? collect())->count() ? $roleVms['new_arrivals'] : $newArrivalVms;
 @endphp
 
 <main class="overflow-x-hidden">
 
-  <!-- ==================== 1. HERO SECTION ==================== -->
+  <!-- ==================== 1. HERO SECTION (auto-rotating carousel; add slides via Store Settings > Hero Slides) ==================== -->
+  @php $ghsHeroSlides = $heroSlides ?? []; @endphp
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8 sm:py-8">
-    <div class="relative bg-gradient-to-br from-[#EBF3FE] via-[#F1F6FF] to-[#E5EFFE] rounded-2xl lg:rounded-3xl border border-blue-100 p-6 sm:p-10 lg:p-14 overflow-hidden shadow-sm">
-      
+    <div class="relative bg-gradient-to-br from-[#EBF3FE] via-[#F1F6FF] to-[#E5EFFE] rounded-2xl lg:rounded-3xl border border-blue-100 p-6 sm:p-10 lg:p-14 overflow-hidden shadow-sm grid"
+         x-data="{ ghsHero: 0, ghsHeroCount: {{ count($ghsHeroSlides) }} }"
+         @if(count($ghsHeroSlides) > 1) x-init="setInterval(() => { ghsHero = (ghsHero + 1) % ghsHeroCount }, 6000)" @endif>
+
       <!-- Ambient Soft Glow -->
       <div class="absolute -top-24 -right-24 w-96 h-96 bg-blue-300/20 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div class="grid lg:grid-cols-12 gap-8 lg:gap-6 items-center">
-        
-        <!-- Left Column: Copy & Actions -->
-        <div class="lg:col-span-6 space-y-5 sm:space-y-6 z-10">
-          
-          <!-- Trust Badge Pill -->
-          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-blue-200/80 shadow-xs text-xs font-semibold text-hub-blue">
-            <span>✦</span>
-            <span>Trusted by Thousands of Happy Customers</span>
+      @foreach($ghsHeroSlides as $ghsI => $ghsSlide)
+        <div x-show="ghsHero === {{ $ghsI }}" @if(!$loop->first) x-cloak @endif
+             x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+             class="col-start-1 row-start-1">
+          <div class="grid lg:grid-cols-12 gap-8 lg:gap-6 items-center">
+
+            <!-- Left Column: Copy & Actions -->
+            <div class="lg:col-span-6 space-y-5 sm:space-y-6 z-10">
+
+              <!-- Trust Badge Pill -->
+              <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-blue-200/80 shadow-xs text-xs font-semibold text-hub-blue">
+                <span>✦</span>
+                <span>Trusted by Thousands of Happy Customers</span>
+              </div>
+
+              <!-- Main Heading -->
+              <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-[54px] font-extrabold text-slate-900 leading-[1.1] tracking-tight">
+                @if(($ghsSlide['title'] ?? '') !== '')
+                  {{ $ghsSlide['title'] }}
+                @else
+                  Everything You Need,<br>
+                  All in <span class="text-hub-blue">One Place</span>
+                @endif
+              </h1>
+
+              <!-- Subtitle -->
+              <p class="text-xs sm:text-sm lg:text-base text-slate-600 font-normal leading-relaxed max-w-md">
+                {{ ($ghsSlide['subtitle'] ?? '') !== '' ? $ghsSlide['subtitle'] : 'Shop from a wide range of products across electronics, fashion, home, beauty & more.' }}
+              </p>
+
+              <!-- CTAs -->
+              <div class="flex flex-wrap items-center gap-3.5 pt-2">
+                <a href="{{ ($ghsSlide['cta_link'] ?? '') !== '' ? $ghsSlide['cta_link'] : $hubRoute('store.shop') }}" class="h-11 sm:h-12 px-7 sm:px-8 inline-flex items-center justify-center bg-hub-blue hover:bg-hub-blueHover text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95">
+                  {{ ($ghsSlide['cta_text'] ?? '') !== '' ? $ghsSlide['cta_text'] : 'Shop Now' }}
+                </a>
+                <a href="{{ $hubRoute('store.shop', ['collection' => 'deals']) }}" class="h-11 sm:h-12 px-6 sm:px-7 inline-flex items-center justify-center bg-white hover:bg-slate-50 text-slate-700 hover:text-hub-blue text-xs sm:text-sm font-semibold rounded-xl border border-slate-300 transition-all shadow-xs">
+                  Explore Deals
+                </a>
+              </div>
+
+            </div>
+
+            <!-- Right Column: Hero Product Composition Imagery Matching Reference -->
+            <div class="lg:col-span-6 relative">
+              <div class="relative mx-auto max-w-md lg:max-w-none">
+                <img src="{{ !empty($ghsSlide['image_url']) ? $ghsSlide['image_url'] : global_asset('images/themes/generalhub/hero-products.jpg') }}"
+                     alt="Everything You Need, All in One Place"
+                     class="w-full h-auto object-contain filter drop-shadow-xl rounded-2xl">
+              </div>
+            </div>
+
           </div>
-
-          <!-- Main Heading -->
-          <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-[54px] font-extrabold text-slate-900 leading-[1.1] tracking-tight">
-            Everything You Need,<br>
-            All in <span class="text-hub-blue">One Place</span>
-          </h1>
-
-          <!-- Subtitle -->
-          <p class="text-xs sm:text-sm lg:text-base text-slate-600 font-normal leading-relaxed max-w-md">
-            Shop from a wide range of products across electronics, fashion, home, beauty &amp; more.
-          </p>
-
-          <!-- CTAs -->
-          <div class="flex flex-wrap items-center gap-3.5 pt-2">
-            <a href="{{ $hubRoute('store.shop') }}" class="h-11 sm:h-12 px-7 sm:px-8 inline-flex items-center justify-center bg-hub-blue hover:bg-hub-blueHover text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95">
-              Shop Now
-            </a>
-            <a href="{{ $hubRoute('store.shop', ['collection' => 'deals']) }}" class="h-11 sm:h-12 px-6 sm:px-7 inline-flex items-center justify-center bg-white hover:bg-slate-50 text-slate-700 hover:text-hub-blue text-xs sm:text-sm font-semibold rounded-xl border border-slate-300 transition-all shadow-xs">
-              Explore Deals
-            </a>
-          </div>
-
         </div>
+      @endforeach
 
-        <!-- Right Column: Hero Product Composition Imagery Matching Reference -->
-        <div class="lg:col-span-6 relative">
-          <div class="relative mx-auto max-w-md lg:max-w-none">
-            <img src="{{ global_asset('images/themes/generalhub/hero-products.jpg') }}" 
-                 alt="Everything You Need, All in One Place" 
-                 class="w-full h-auto object-contain filter drop-shadow-xl rounded-2xl">
-          </div>
+      <!-- Carousel Pagination Dots -->
+      @if(count($ghsHeroSlides) > 1)
+        <div class="relative flex items-center justify-center gap-2 mt-4 pt-2">
+          @foreach($ghsHeroSlides as $ghsI => $ghsSlide)
+            <button type="button" @click="ghsHero = {{ $ghsI }}" class="rounded-full transition-colors" :class="ghsHero === {{ $ghsI }} ? 'w-2.5 h-2.5 bg-hub-blue' : 'w-2 h-2 bg-slate-300'" aria-label="Slide {{ $ghsI + 1 }}"></button>
+          @endforeach
         </div>
-
-      </div>
-
-      <!-- Carousel Pagination Dots (Matching Reference) -->
-      <div class="flex items-center justify-center gap-2 mt-4 pt-2">
-        <span class="w-2.5 h-2.5 rounded-full bg-hub-blue"></span>
-        <span class="w-2 h-2 rounded-full bg-slate-300"></span>
-        <span class="w-2 h-2 rounded-full bg-slate-300"></span>
-      </div>
+      @else
+        <div class="relative flex items-center justify-center gap-2 mt-4 pt-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-hub-blue"></span>
+          <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+          <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+        </div>
+      @endif
 
     </div>
   </section>
@@ -259,61 +311,81 @@
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
       
-      <!-- Promo 1: Summer Sale -->
+      <!-- Promo 1: Summer Sale (customizable via Offers & Promotions) -->
+      @if($offer['enabled'] ?? true)
       <div class="relative bg-[#FDEAE2] rounded-2xl border border-orange-200/80 p-6 flex flex-col justify-between overflow-hidden shadow-xs group">
         <div class="relative z-10 space-y-2 max-w-[65%]">
-          <span class="text-xs font-bold uppercase tracking-wider text-rose-600">Summer Sale</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-rose-600">{{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'Summer Sale' }}</span>
           <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
-            Up to 50% Off
+            {{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Up to 50% Off' }}
           </h3>
-          <p class="text-xs text-slate-600 font-normal">On Fashion &amp; Accessories</p>
+          <p class="text-xs text-slate-600 font-normal">{{ ($offer['subtitle'] ?? '') !== '' ? $offer['subtitle'] : 'On Fashion & Accessories' }}</p>
+          @if(!empty($offer['discount_text']))
+            <span class="inline-flex items-center rounded-full bg-white/70 px-2.5 py-0.5 text-[11px] font-bold text-rose-700">{{ $offer['discount_text'] }}</span>
+          @endif
           <div class="pt-2">
-            <a href="{{ $hubRoute('store.shop', ['category' => 'Fashion']) }}" class="inline-flex items-center gap-1 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg shadow-sm transition-colors">
-              <span>Shop Now</span> <span>&rarr;</span>
+            <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : $hubRoute('store.shop', ['category' => 'Fashion']) }}" class="inline-flex items-center gap-1 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-lg shadow-sm transition-colors">
+              <span>{{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop Now' }}</span> <span>&rarr;</span>
             </a>
           </div>
         </div>
         <div class="absolute right-0 bottom-0 top-0 w-1/2 overflow-hidden pointer-events-none">
-          <img src="{{ global_asset('images/themes/generalhub/promo-summer-sale.jpg') }}" alt="Summer Sale" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
+          <img src="{{ !empty($offer['image_url']) ? $offer['image_url'] : global_asset('images/themes/generalhub/promo-summer-sale.jpg') }}" alt="Summer Sale" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
         </div>
       </div>
+      @endif
 
-      <!-- Promo 2: Smart Home Devices -->
-      <div class="relative bg-[#E8F3FE] rounded-2xl border border-blue-200/80 p-6 flex flex-col justify-between overflow-hidden shadow-xs group">
-        <div class="relative z-10 space-y-2 max-w-[65%]">
-          <span class="text-xs font-bold uppercase tracking-wider text-hub-blue">Smart Home Devices</span>
-          <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
-            Make life easier
+      <!-- Promo 2: Smart Home Devices (fully customizable via Banners: image, badge, headline, subtitle, button, colors) -->
+      @if($bannerGridEnabled ?? true)
+      @php $topLeft = ($byPos['top_left'] ?? collect())->first(); @endphp
+      <a href="{{ $topLeft ? ($topLeft->link ?: $hubRoute('store.shop', ['category' => 'Home & Living'])) : $hubRoute('store.shop', ['category' => 'Home & Living']) }}" class="relative bg-[#E8F3FE] rounded-2xl border border-blue-200/80 p-6 flex flex-col justify-between overflow-hidden shadow-xs group">
+        <div class="relative z-10 space-y-2 max-w-[65%]" @if($topLeft && !empty($topLeft->text_color)) style="color:{{ $topLeft->text_color }};" @endif>
+          <span class="text-xs font-bold uppercase tracking-wider text-hub-blue" style="color:inherit;">{{ ($topLeft->badge_text ?? null) ?: 'Smart Home Devices' }}</span>
+          <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight" style="color:inherit;">
+            {{ ($topLeft->title ?? null) ?: 'Make life easier' }}
           </h3>
+          @if(!empty($topLeft->subtitle ?? null))
+            <p class="text-xs text-slate-600 font-normal" style="color:inherit;">{{ $topLeft->subtitle }}</p>
+          @endif
           <div class="pt-4">
-            <a href="{{ $hubRoute('store.shop', ['category' => 'Home & Living']) }}" class="inline-flex items-center gap-1 px-4 py-2 bg-hub-blue hover:bg-hub-blueHover text-white text-xs font-bold rounded-lg shadow-sm transition-colors">
-              <span>Shop Now</span> <span>&rarr;</span>
-            </a>
+            <span class="inline-flex items-center gap-1 px-4 py-2 bg-hub-blue hover:bg-hub-blueHover text-white text-xs font-bold rounded-lg shadow-sm transition-colors">
+              <span>{{ ($topLeft->button_text ?? null) ?: 'Shop Now' }}</span> <span>&rarr;</span>
+            </span>
           </div>
         </div>
         <div class="absolute right-0 bottom-0 top-0 w-1/2 overflow-hidden pointer-events-none">
-          <img src="{{ global_asset('images/themes/generalhub/promo-smart-home.jpg') }}" alt="Smart Home Devices" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
+          @if($topLeft)
+            <img src="{{ $bannerUrl($topLeft) }}" alt="{{ $topLeft->title }}" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
+          @else
+            <img src="{{ global_asset('images/themes/generalhub/promo-smart-home.jpg') }}" alt="Smart Home Devices" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
+          @endif
         </div>
-      </div>
+      </a>
 
-      <!-- Promo 3: Beauty Picks For You -->
-      <div class="relative bg-[#EAF5EC] rounded-2xl border border-emerald-200/80 p-6 flex flex-col justify-between overflow-hidden shadow-xs group">
-        <div class="relative z-10 space-y-2 max-w-[65%]">
-          <span class="text-xs font-bold uppercase tracking-wider text-emerald-700">Beauty Picks</span>
-          <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
-            For You
+      <!-- Promo 3: Beauty Picks For You (fully customizable via Banners: image, badge, headline, subtitle, button, colors) -->
+      @php $topRight = ($byPos['top_right'] ?? collect())->first(); @endphp
+      <a href="{{ $topRight ? ($topRight->link ?: $hubRoute('store.shop', ['category' => 'Beauty'])) : $hubRoute('store.shop', ['category' => 'Beauty']) }}" class="relative bg-[#EAF5EC] rounded-2xl border border-emerald-200/80 p-6 flex flex-col justify-between overflow-hidden shadow-xs group">
+        <div class="relative z-10 space-y-2 max-w-[65%]" @if($topRight && !empty($topRight->text_color)) style="color:{{ $topRight->text_color }};" @endif>
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-700" style="color:inherit;">{{ ($topRight->badge_text ?? null) ?: 'Beauty Picks' }}</span>
+          <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight" style="color:inherit;">
+            {{ ($topRight->title ?? null) ?: 'For You' }}
           </h3>
-          <p class="text-xs text-slate-600 font-normal">Up to 30% Off</p>
+          <p class="text-xs text-slate-600 font-normal" style="color:inherit;">{{ ($topRight->subtitle ?? null) ?: 'Up to 30% Off' }}</p>
           <div class="pt-2">
-            <a href="{{ $hubRoute('store.shop', ['category' => 'Beauty']) }}" class="inline-flex items-center gap-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition-colors">
-              <span>Shop Now</span> <span>&rarr;</span>
-            </a>
+            <span class="inline-flex items-center gap-1 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition-colors">
+              <span>{{ ($topRight->button_text ?? null) ?: 'Shop Now' }}</span> <span>&rarr;</span>
+            </span>
           </div>
         </div>
         <div class="absolute right-0 bottom-0 top-0 w-1/2 overflow-hidden pointer-events-none">
-          <img src="{{ global_asset('images/themes/generalhub/promo-beauty-picks.jpg') }}" alt="Beauty Picks" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
+          @if($topRight)
+            <img src="{{ $bannerUrl($topRight) }}" alt="{{ $topRight->title }}" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
+          @else
+            <img src="{{ global_asset('images/themes/generalhub/promo-beauty-picks.jpg') }}" alt="Beauty Picks" class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
+          @endif
         </div>
-      </div>
+      </a>
+      @endif
 
     </div>
   </section>

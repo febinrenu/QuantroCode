@@ -8,13 +8,11 @@
 @include('store.themes.medisphere-care.partials.header', ['categories' => $categories])
 
 @php
-  $msHeroTitleLine1 = 'Care Delivered';
-  $msHeroTitleLine2 = 'With Confidence';
-  $msHeroSubtitle = $s->hero_subtitle ?? 'Genuine medicines, expert guidance and fast delivery to your doorstep.';
   // Category-specific themes always lead with their own category's product
   // photo -- the admin's store-wide hero_image_path (set for a different,
   // general-purpose theme) would otherwise show an unrelated image here.
-  $msHeroImg = $categorySpecificProducts->first()['image_url'] ?? (!empty($s->hero_image_path) ? global_asset($s->hero_image_path) : null);
+  $msFallbackHeroImg = $categorySpecificProducts->first()['image_url'] ?? (!empty($s->hero_image_path) ? global_asset($s->hero_image_path) : null);
+  $msHeroSlides = $heroSlides ?? [];
   $msImgs = $categorySpecificProducts->pluck('image_url')->filter()->values();
   $msImgAt = fn ($i) => $msImgs->count() ? $msImgs[$i % $msImgs->count()] : null;
 
@@ -28,11 +26,38 @@
     ->map(fn ($name, $i) => ['label' => $name, 'sub_category' => $msSubcatId($name), 'img' => $msImgAt($i)]);
 
   $msSymptoms = ['Cold & Cough', 'Fever', 'Pain Relief', 'Allergy', 'Digestion', 'Sleep Support', "Women's Care", 'Skin Treatment'];
+
+  // Promo banner tiles: merchant-managed via the Banners module, falling back
+  // to this theme's original hardcoded copy when no banner is assigned.
+  $byPos = collect($banners ?? [])->groupBy('position');
+  $msTileBg = function ($b) {
+    return ($b && !empty($b->bg_color)) ? "background-color:{$b->bg_color};" : null;
+  };
+  $msTileText = function ($b) {
+    return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+  };
+
+  // Role-tagged Collections (Recommended / Best Sellers) -- when a merchant
+  // has assigned one, its own curated products win over the generic
+  // category-specific product list for that named section.
+  $msCurrency = $s->currency_code ?? '$';
+  $msHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $msRoleVms = collect($collectionsByRole ?? [])->map(function ($r) use ($msCurrency, $msHidePrices) {
+      return collect($r['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $msCurrency, $msHidePrices))->values();
+  });
+  $msRecommendedVms = ($msRoleVms['recommended'] ?? collect())->count() ? $msRoleVms['recommended'] : $categorySpecificProducts;
+  $msBestSellersVms = ($msRoleVms['best_sellers'] ?? collect())->count() ? $msRoleVms['best_sellers'] : $categorySpecificProducts->reverse();
+
+  // Category-specific themes like this one otherwise never render a
+  // merchant's generic homepage Collections (they only auto-show the
+  // locked category's own products) -- so any Collection placed in the
+  // Homepage Blocks list gets its own section here too.
+  $msCollectionBlocks = collect($blocks ?? [])->filter(fn($b) => ($b['type'] ?? '') === 'collection')->values();
 @endphp
 
 <main class="pb-20 md:pb-0">
 
-  {{-- ===== HERO ===== --}}
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
   <section class="max-w-7xl mx-auto px-4 py-6">
     <div class="grid lg:grid-cols-[220px_1fr_240px] gap-4">
       <aside class="hidden lg:block bg-white border border-ms-teal/10 rounded-xl2 p-4">
@@ -49,25 +74,47 @@
         <a href="{{ route('store.shop') }}" class="block mt-4 text-xs font-bold text-ms-teal hover:underline">{{ 'View All' }} &rarr;</a>
       </aside>
 
-      <div class="relative overflow-hidden bg-white border border-ms-teal/10 rounded-xl2 min-h-[340px] flex items-center">
-        <div class="relative z-10 px-8 py-8 max-w-md">
-          <h1 class="font-heading text-3xl md:text-4xl font-extrabold leading-tight text-ms-ink">
-            {{ $msHeroTitleLine1 }}<br>
-            <span class="text-ms-teal">{{ $msHeroTitleLine2 }}</span>
-          </h1>
-          <p class="mt-4 text-sm text-ms-inkSoft max-w-sm">{{ $msHeroSubtitle }}</p>
-          <div class="mt-6 flex flex-wrap items-center gap-3">
-            <a href="{{ route('store.shop') }}" class="h-11 px-6 inline-flex items-center bg-ms-teal text-white text-xs font-bold rounded hover:bg-ms-tealDeep">
-              {{ 'Shop Medicines' }}
-            </a>
-            <a href="{{ route('store.contact') }}" class="h-11 px-6 inline-flex items-center border border-ms-teal/40 text-ms-ink text-xs font-bold rounded hover:bg-ms-tealLight">
-              {{ 'Book Consultation' }}
-            </a>
+      <div class="relative overflow-hidden bg-white border border-ms-teal/10 rounded-xl2 min-h-[340px] grid"
+           x-data="{ msHero: 0, msHeroCount: {{ count($msHeroSlides) }} }"
+           @if(count($msHeroSlides) > 1) x-init="setInterval(() => { msHero = (msHero + 1) % msHeroCount }, 6000)" @endif>
+        @foreach($msHeroSlides as $msI => $msSlide)
+          <div x-show="msHero === {{ $msI }}" @if(!$loop->first) x-cloak @endif
+               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+               x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+               class="col-start-1 row-start-1 flex items-center">
+            <div class="relative z-10 px-8 py-8 max-w-md">
+              <h1 class="font-heading text-3xl md:text-4xl font-extrabold leading-tight text-ms-ink">
+                @if(($msSlide['title'] ?? '') !== '')
+                  {{ $msSlide['title'] }}
+                @else
+                  Care Delivered<br>
+                  <span class="text-ms-teal">With Confidence</span>
+                @endif
+              </h1>
+              <p class="mt-4 text-sm text-ms-inkSoft max-w-sm">{{ ($msSlide['subtitle'] ?? '') !== '' ? $msSlide['subtitle'] : 'Genuine medicines, expert guidance and fast delivery to your doorstep.' }}</p>
+              <div class="mt-6 flex flex-wrap items-center gap-3">
+                <a href="{{ ($msSlide['cta_link'] ?? '') !== '' ? $msSlide['cta_link'] : route('store.shop') }}" class="h-11 px-6 inline-flex items-center bg-ms-teal text-white text-xs font-bold rounded hover:bg-ms-tealDeep">
+                  {{ ($msSlide['cta_text'] ?? '') !== '' ? $msSlide['cta_text'] : 'Shop Medicines' }}
+                </a>
+                <a href="{{ route('store.contact') }}" class="h-11 px-6 inline-flex items-center border border-ms-teal/40 text-ms-ink text-xs font-bold rounded hover:bg-ms-tealLight">
+                  {{ 'Book Consultation' }}
+                </a>
+              </div>
+            </div>
+            @php $msHeroImg = !empty($msSlide['image_url']) ? $msSlide['image_url'] : $msFallbackHeroImg; @endphp
+            @if($msHeroImg)
+              <div class="hidden md:block absolute right-0 bottom-0 top-0 w-[42%]">
+                <img src="{{ $msHeroImg }}" alt="" class="w-full h-full object-cover">
+              </div>
+            @endif
           </div>
-        </div>
-        @if($msHeroImg)
-          <div class="hidden md:block absolute right-0 bottom-0 top-0 w-[42%]">
-            <img src="{{ $msHeroImg }}" alt="MediSphere" class="w-full h-full object-cover">
+        @endforeach
+
+        @if(count($msHeroSlides) > 1)
+          <div class="absolute bottom-4 left-8 flex items-center gap-1.5 z-10">
+            @foreach($msHeroSlides as $msI => $msSlide)
+              <button type="button" @click="msHero = {{ $msI }}" class="w-2 h-2 rounded-full transition-colors" :class="msHero === {{ $msI }} ? 'bg-ms-teal' : 'bg-ms-teal/25'" aria-label="Slide {{ $msI + 1 }}"></button>
+            @endforeach
           </div>
         @endif
       </div>
@@ -140,44 +187,57 @@
   </section>
 
   {{-- ===== RECOMMENDED FOR YOU ===== --}}
-  @if($categorySpecificProducts->count())
+  @if($msRecommendedVms->count())
     <section class="max-w-7xl mx-auto px-4 pb-10">
       <div class="flex items-end justify-between mb-5">
         <h2 class="font-heading text-xl font-extrabold text-ms-ink">{{ 'Recommended For You' }}</h2>
         <a href="{{ route('store.shop') }}" class="text-xs font-bold text-ms-teal hover:underline">{{ 'View All' }} &rarr;</a>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        @foreach($categorySpecificProducts as $product)
+        @foreach($msRecommendedVms as $product)
           @include('store.themes.medisphere-care.partials.product-card', ['product' => $product])
         @endforeach
       </div>
     </section>
   @endif
 
-  {{-- ===== PROMO BANNERS ===== --}}
+  {{-- ===== PROMO BANNERS (side tiles via Banners; center tile via Offers & Promotions) ===== --}}
+  @if(($bannerGridEnabled ?? true) || ($offer['enabled'] ?? true))
   <section class="max-w-7xl mx-auto px-4 pb-10 grid md:grid-cols-3 gap-4">
-    <div class="rounded-xl2 p-6 bg-blue-50 flex items-center justify-between gap-3">
-      <div>
-        <h3 class="font-heading font-extrabold text-ms-ink">{{ 'Free Health Check Campaign' }}</h3>
-        <p class="text-xs text-ms-inkSoft mt-1">{{ 'Stay Healthy, Stay Happy' }}</p>
-        <a href="{{ route('store.contact') }}" class="inline-flex mt-3 h-9 px-4 items-center bg-blue-600 text-white text-xs font-bold rounded">{{ 'Book Now' }}</a>
+    @if($bannerGridEnabled ?? true)
+    @php $topLeft = ($byPos['top_left'] ?? collect())->first(); @endphp
+    <div class="rounded-xl2 p-6 bg-blue-50 flex items-center justify-between gap-3" @if($msTileBg($topLeft)) style="{{ $msTileBg($topLeft) }}" @endif>
+      <div @if($msTileText($topLeft)) style="{{ $msTileText($topLeft) }}" @endif>
+        <h3 class="font-heading font-extrabold text-ms-ink" style="color:inherit;">{{ ($topLeft->title ?? null) ?: 'Free Health Check Campaign' }}</h3>
+        <p class="text-xs text-ms-inkSoft mt-1" style="color:inherit;">{{ ($topLeft->subtitle ?? null) ?: 'Stay Healthy, Stay Happy' }}</p>
+        <a href="{{ $topLeft ? ($topLeft->link ?: route('store.contact')) : route('store.contact') }}" class="inline-flex mt-3 h-9 px-4 items-center bg-blue-600 text-white text-xs font-bold rounded">{{ ($topLeft->button_text ?? null) ?: 'Book Now' }}</a>
       </div>
     </div>
+    @endif
+    @if($offer['enabled'] ?? true)
     <div class="rounded-xl2 p-6 bg-ms-tealLight flex items-center justify-between gap-3">
       <div>
-        <h3 class="font-heading font-extrabold text-ms-ink">{{ 'Immunity Essentials' }}</h3>
-        <p class="text-xs text-ms-inkSoft mt-1">{{ 'Top picks to keep your immunity strong — Up to 30% Off' }}</p>
-        <a href="{{ route('store.shop') }}" class="inline-flex mt-3 h-9 px-4 items-center bg-ms-teal text-white text-xs font-bold rounded">{{ 'Shop Now' }}</a>
+        <h3 class="font-heading font-extrabold text-ms-ink">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Immunity Essentials' }}</h3>
+        <p class="text-xs text-ms-inkSoft mt-1">{{ ($offer['subtitle'] ?? '') !== '' ? $offer['subtitle'] : 'Top picks to keep your immunity strong — Up to 30% Off' }}</p>
+        @if(!empty($offer['discount_text']))
+          <span class="inline-flex mt-2 items-center rounded-full bg-white/60 px-2 py-0.5 text-[10px] font-bold text-ms-ink">{{ $offer['discount_text'] }}</span>
+        @endif
+        <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop') }}" class="inline-flex mt-3 h-9 px-4 items-center bg-ms-teal text-white text-xs font-bold rounded">{{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop Now' }}</a>
       </div>
     </div>
-    <div class="rounded-xl2 p-6 bg-pink-50 flex items-center justify-between gap-3">
-      <div>
-        <h3 class="font-heading font-extrabold text-ms-ink">{{ 'Baby & Mom Care' }}</h3>
-        <p class="text-xs text-ms-inkSoft mt-1">{{ 'Gentle care for your little ones — Up to 25% Off' }}</p>
-        <a href="{{ route('store.shop') }}" class="inline-flex mt-3 h-9 px-4 items-center bg-ms-red text-white text-xs font-bold rounded">{{ 'Shop Now' }}</a>
+    @endif
+    @if($bannerGridEnabled ?? true)
+    @php $topRight = ($byPos['top_right'] ?? collect())->first(); @endphp
+    <div class="rounded-xl2 p-6 bg-pink-50 flex items-center justify-between gap-3" @if($msTileBg($topRight)) style="{{ $msTileBg($topRight) }}" @endif>
+      <div @if($msTileText($topRight)) style="{{ $msTileText($topRight) }}" @endif>
+        <h3 class="font-heading font-extrabold text-ms-ink" style="color:inherit;">{{ ($topRight->title ?? null) ?: 'Baby & Mom Care' }}</h3>
+        <p class="text-xs text-ms-inkSoft mt-1" style="color:inherit;">{{ ($topRight->subtitle ?? null) ?: 'Gentle care for your little ones — Up to 25% Off' }}</p>
+        <a href="{{ $topRight ? ($topRight->link ?: route('store.shop')) : route('store.shop') }}" class="inline-flex mt-3 h-9 px-4 items-center bg-ms-red text-white text-xs font-bold rounded">{{ ($topRight->button_text ?? null) ?: 'Shop Now' }}</a>
       </div>
     </div>
+    @endif
   </section>
+  @endif
 
   {{-- ===== HEALTH SERVICES ===== --}}
   <section class="max-w-7xl mx-auto px-4 pb-10">
@@ -200,19 +260,43 @@
   </section>
 
   {{-- ===== BEST SELLERS ===== --}}
-  @if($categorySpecificProducts->count())
+  @if($msBestSellersVms->count())
     <section class="max-w-7xl mx-auto px-4 pb-10">
       <div class="flex items-end justify-between mb-5">
         <h2 class="font-heading text-xl font-extrabold text-ms-ink">{{ 'Best Sellers' }}</h2>
         <a href="{{ route('store.shop') }}" class="text-xs font-bold text-ms-teal hover:underline">{{ 'View All' }} &rarr;</a>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        @foreach($categorySpecificProducts->reverse() as $product)
+        @foreach($msBestSellersVms as $product)
           @include('store.themes.medisphere-care.partials.product-card', ['product' => $product])
         @endforeach
       </div>
     </section>
   @endif
+
+  {{-- ===== FEATURED COLLECTIONS (merchant-managed via Homepage Blocks) ===== --}}
+  @foreach($msCollectionBlocks as $msBlock)
+    @php
+      $msBlockProducts = collect($msBlock['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $msCurrency, $msHidePrices));
+      $msBlockCollection = $msBlock['collection'] ?? null;
+      $msBlockTitle = $msBlock['title'] ?? ($msBlockCollection->title ?? 'Featured');
+    @endphp
+    @if($msBlockProducts->count())
+      <section class="max-w-7xl mx-auto px-4 pb-10">
+        <div class="flex items-end justify-between mb-5">
+          <h2 class="font-heading text-xl font-extrabold text-ms-ink">{{ $msBlockTitle }}</h2>
+          @if($msBlockCollection && $msBlockCollection->slug)
+            <a href="{{ route('store.shop', ['collection' => $msBlockCollection->slug]) }}" class="text-xs font-bold text-ms-teal hover:underline">{{ 'View All' }} &rarr;</a>
+          @endif
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          @foreach($msBlockProducts as $product)
+            @include('store.themes.medisphere-care.partials.product-card', ['product' => $product])
+          @endforeach
+        </div>
+      </section>
+    @endif
+  @endforeach
 
   {{-- ===== STATS STRIP ===== --}}
   <section class="bg-ms-teal text-white">

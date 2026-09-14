@@ -32,6 +32,7 @@
           'cta' => 'Discover Scents',
           'category' => 'Fragrance',
           'img' => 'promo-fragrance-wardrobe.jpg',
+          'position' => 'top_left',
       ],
       [
           'title' => 'Hydration Essentials',
@@ -39,6 +40,7 @@
           'cta' => 'Explore Skincare',
           'category' => 'Skincare',
           'img' => 'promo-hydration-essentials.jpg',
+          'position' => 'top_right',
       ],
       [
           'title' => 'Glow Makeup Edit',
@@ -46,8 +48,26 @@
           'cta' => 'Shop Makeup',
           'category' => 'Makeup',
           'img' => 'promo-glow-makeup.jpg',
+          'position' => 'center_left',
       ],
   ];
+
+  // $banners/$blocks/$offer/$bannerGridEnabled are fed by the controller but
+  // this theme didn't previously reference them -- wire up the same
+  // Banners-admin plumbing every other theme uses (image/badge/subtitle/
+  // button/colors), matching the freshcart reference implementation.
+  $byPos = collect($banners ?? [])->groupBy('position');
+  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+  $bannerOverlayStyle = function ($b) {
+    if (!$b || empty($b->bg_color)) return null;
+    $css = !empty($b->bg_color_2)
+      ? "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+      : "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+    return $css;
+  };
+  $bannerTextStyle = function ($b) {
+    return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+  };
 
   $routineSteps = [
       [
@@ -153,80 +173,96 @@
 <div class="space-y-16 sm:space-y-24 pb-16">
 
   <!-- =========================================================================
-       1. HERO SECTION
+       1. HERO SECTION -- auto-rotating carousel; add slides via Store Settings > Hero Slides
        ========================================================================= -->
-  <section class="relative overflow-hidden vel-gradient-hero border-b border-vel-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 lg:py-24">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+  @php $vbHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative overflow-hidden vel-gradient-hero border-b border-vel-border grid"
+           x-data="{ vbHero: 0, vbHeroCount: {{ count($vbHeroSlides) }} }"
+           @if(count($vbHeroSlides) > 1) x-init="setInterval(() => { vbHero = (vbHero + 1) % vbHeroCount }, 6000)" @endif>
+    @foreach($vbHeroSlides as $vbI => $vbSlide)
+      <div x-show="vbHero === {{ $vbI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 lg:py-24">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
 
-        <!-- Hero Text / Copy -->
-        <div class="lg:col-span-6 space-y-6 sm:space-y-8 text-center lg:text-left">
+            <!-- Hero Text / Copy -->
+            <div class="lg:col-span-6 space-y-6 sm:space-y-8 text-center lg:text-left">
 
-          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-xs border border-vel-border text-vel-roseDeep text-xs font-bold uppercase tracking-widest shadow-xs">
-            <span>✨</span> Maison Veloura Paris
-          </div>
-
-          <h1 class="font-serif-luxury text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-vel-charcoal leading-[1.15]">
-            Scent.<br>
-            <span class="text-vel-roseDark">Glow.</span><br>
-            Indulge.
-          </h1>
-
-          <p class="text-sm sm:text-base text-vel-muted leading-relaxed max-w-lg mx-auto lg:mx-0 font-normal">
-            Immerse yourself in clean botanical skincare, haute French parfumerie, and bespoke beauty rituals crafted to elevate your daily routine.
-          </p>
-
-          <!-- CTAs -->
-          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-            <a href="{{ $velRoute('store.shop', ['collection' => 'bestsellers']) }}"
-               class="w-full sm:w-auto px-8 py-4 bg-vel-charcoal hover:bg-vel-espresso text-white font-bold text-xs rounded-full shadow-lg active:scale-95 transition-all uppercase tracking-widest text-center">
-              Shop Bestsellers &rarr;
-            </a>
-            <a href="#rituals"
-               class="w-full sm:w-auto px-8 py-4 bg-white/90 hover:bg-white text-vel-charcoal hover:text-vel-rose font-bold text-xs rounded-full border border-vel-border shadow-xs active:scale-95 transition-all uppercase tracking-widest text-center">
-              Explore Rituals
-            </a>
-          </div>
-
-          <!-- Feature Micro-Badges -->
-          <div class="pt-6 border-t border-vel-border/60 flex items-center justify-center lg:justify-start gap-6 sm:gap-8 text-xs text-vel-muted font-medium">
-            <span class="flex items-center gap-1.5">
-              <span class="text-vel-rose">✓</span> Cruelty-Free
-            </span>
-            <span class="flex items-center gap-1.5">
-              <span class="text-vel-rose">✓</span> 100% Clean
-            </span>
-            <span class="flex items-center gap-1.5">
-              <span class="text-vel-rose">✓</span> Haute Formulations
-            </span>
-          </div>
-
-        </div>
-
-        <!-- Hero Image Composition -->
-        <div class="lg:col-span-6 relative">
-          <div class="relative mx-auto max-w-lg lg:max-w-none rounded-3xl overflow-hidden shadow-2xl border-4 border-white/80">
-            <img src="{{ global_asset('images/themes/veloura/veloura-hero-main.jpg') }}"
-                 alt="Veloura Luxury Beauty Rituals"
-                 class="w-full h-auto max-h-[540px] object-cover hover:scale-105 transition-transform duration-700">
-
-            <!-- Floating Floating Badge -->
-            <div class="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 bg-white/95 backdrop-blur-md rounded-2xl p-4 border border-vel-border shadow-xl max-w-xs flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-vel-roseLight flex items-center justify-center text-xl shrink-0">
-                🌸
+              <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-xs border border-vel-border text-vel-roseDeep text-xs font-bold uppercase tracking-widest shadow-xs">
+                <span>✨</span> Maison Veloura Paris
               </div>
-              <div class="text-left">
-                <span class="text-[10px] font-bold text-vel-rose uppercase tracking-wider block">Signature Release</span>
-                <span class="font-serif-luxury text-xs font-bold text-vel-charcoal block">Élan Eau de Parfum</span>
-                <span class="text-[11px] text-vel-muted">$135.00 &bull; 100ml</span>
+
+              <h1 class="font-serif-luxury text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-vel-charcoal leading-[1.15]">
+                {!! ($vbSlide['title'] ?? '') !== '' ? nl2br(e($vbSlide['title'])) : 'Scent.<br><span class="text-vel-roseDark">Glow.</span><br>Indulge.' !!}
+              </h1>
+
+              <p class="text-sm sm:text-base text-vel-muted leading-relaxed max-w-lg mx-auto lg:mx-0 font-normal">
+                {{ ($vbSlide['subtitle'] ?? '') !== '' ? $vbSlide['subtitle'] : 'Immerse yourself in clean botanical skincare, haute French parfumerie, and bespoke beauty rituals crafted to elevate your daily routine.' }}
+              </p>
+
+              <!-- CTAs -->
+              <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+                <a href="{{ ($vbSlide['cta_link'] ?? '') !== '' ? $vbSlide['cta_link'] : $velRoute('store.shop', ['collection' => 'bestsellers']) }}"
+                   class="w-full sm:w-auto px-8 py-4 bg-vel-charcoal hover:bg-vel-espresso text-white font-bold text-xs rounded-full shadow-lg active:scale-95 transition-all uppercase tracking-widest text-center">
+                  {{ ($vbSlide['cta_text'] ?? '') !== '' ? $vbSlide['cta_text'] : 'Shop Bestsellers' }} &rarr;
+                </a>
+                <a href="#rituals"
+                   class="w-full sm:w-auto px-8 py-4 bg-white/90 hover:bg-white text-vel-charcoal hover:text-vel-rose font-bold text-xs rounded-full border border-vel-border shadow-xs active:scale-95 transition-all uppercase tracking-widest text-center">
+                  Explore Rituals
+                </a>
+              </div>
+
+              <!-- Feature Micro-Badges -->
+              <div class="pt-6 border-t border-vel-border/60 flex items-center justify-center lg:justify-start gap-6 sm:gap-8 text-xs text-vel-muted font-medium">
+                <span class="flex items-center gap-1.5">
+                  <span class="text-vel-rose">✓</span> Cruelty-Free
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <span class="text-vel-rose">✓</span> 100% Clean
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <span class="text-vel-rose">✓</span> Haute Formulations
+                </span>
+              </div>
+
+            </div>
+
+            <!-- Hero Image Composition -->
+            <div class="lg:col-span-6 relative">
+              <div class="relative mx-auto max-w-lg lg:max-w-none rounded-3xl overflow-hidden shadow-2xl border-4 border-white/80">
+                <img src="{{ !empty($vbSlide['image_url']) ? $vbSlide['image_url'] : global_asset('images/themes/veloura/veloura-hero-main.jpg') }}"
+                     alt="Veloura Luxury Beauty Rituals"
+                     class="w-full h-auto max-h-[540px] object-cover hover:scale-105 transition-transform duration-700">
+
+                <!-- Floating Floating Badge -->
+                <div class="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 bg-white/95 backdrop-blur-md rounded-2xl p-4 border border-vel-border shadow-xl max-w-xs flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-xl bg-vel-roseLight flex items-center justify-center text-xl shrink-0">
+                    🌸
+                  </div>
+                  <div class="text-left">
+                    <span class="text-[10px] font-bold text-vel-rose uppercase tracking-wider block">Signature Release</span>
+                    <span class="font-serif-luxury text-xs font-bold text-vel-charcoal block">Élan Eau de Parfum</span>
+                    <span class="text-[11px] text-vel-muted">$135.00 &bull; 100ml</span>
+                  </div>
+                </div>
+
               </div>
             </div>
 
           </div>
         </div>
-
       </div>
-    </div>
+    @endforeach
+
+    @if(count($vbHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($vbHeroSlides as $vbI => $vbSlide)
+          <button type="button" @click="vbHero = {{ $vbI }}" class="w-2 h-2 rounded-full transition-colors" :class="vbHero === {{ $vbI }} ? 'bg-vel-charcoal' : 'bg-vel-charcoal/30'" aria-label="Slide {{ $vbI + 1 }}"></button>
+        @endforeach
+      </div>
+    @endif
   </section>
 
   <!-- =========================================================================
@@ -304,43 +340,47 @@
   </section>
 
   <!-- =========================================================================
-       4. PROMOTIONAL COLLECTIONS (3 Banner Cards)
+       4. PROMOTIONAL COLLECTIONS (3 Banner Cards, fully customizable via Banners:
+          image, badge, headline, subtitle, button, colors)
        ========================================================================= -->
+  @if($bannerGridEnabled ?? true)
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       @foreach($promoBanners as $promo)
-        <div class="group relative rounded-3xl overflow-hidden border border-vel-border shadow-md bg-vel-charcoal min-h-[360px] flex flex-col justify-end p-6 sm:p-8">
+        @php $vbB = ($byPos[$promo['position']] ?? collect())->first(); @endphp
+        <a href="{{ $vbB ? ($vbB->link ?: $velRoute('store.shop', ['category' => $promo['category']])) : $velRoute('store.shop', ['category' => $promo['category']]) }}"
+           class="group relative block rounded-3xl overflow-hidden border border-vel-border shadow-md bg-vel-charcoal min-h-[360px] flex flex-col justify-end p-6 sm:p-8">
 
           <!-- Background Image with Overlay -->
-          <img src="{{ global_asset('images/themes/veloura/' . $promo['img']) }}"
-               alt="{{ $promo['title'] }}"
+          <img src="{{ $vbB ? $bannerUrl($vbB) : global_asset('images/themes/veloura/' . $promo['img']) }}"
+               alt="{{ $vbB->title ?? $promo['title'] }}"
                class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 group-hover:opacity-75 transition-all duration-700">
 
-          <div class="absolute inset-0 bg-gradient-to-t from-vel-charcoal via-vel-charcoal/40 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-vel-charcoal via-vel-charcoal/40 to-transparent" @if($bannerOverlayStyle($vbB)) style="{{ $bannerOverlayStyle($vbB) }}" @endif></div>
 
           <!-- Content -->
-          <div class="relative z-10 space-y-2">
-            <span class="text-[10px] font-extrabold uppercase tracking-widest text-rose-200 block">
-              Curated Edit
+          <div class="relative z-10 space-y-2" @if($bannerTextStyle($vbB)) style="{{ $bannerTextStyle($vbB) }}" @endif>
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-rose-200 block" style="color:inherit;">
+              {{ ($vbB->badge_text ?? null) ?: 'Curated Edit' }}
             </span>
-            <h3 class="font-serif-luxury text-xl sm:text-2xl font-bold text-white tracking-wide">
-              {{ $promo['title'] }}
+            <h3 class="font-serif-luxury text-xl sm:text-2xl font-bold text-white tracking-wide" style="color:inherit;">
+              {{ ($vbB->title ?? null) ?: $promo['title'] }}
             </h3>
-            <p class="text-xs text-slate-200 leading-relaxed font-light">
-              {{ $promo['tagline'] }}
+            <p class="text-xs text-slate-200 leading-relaxed font-light" style="color:inherit;">
+              {{ ($vbB->subtitle ?? null) ?: $promo['tagline'] }}
             </p>
             <div class="pt-3">
-              <a href="{{ $velRoute('store.shop', ['category' => $promo['category']]) }}"
-                 class="inline-block px-5 py-2.5 bg-white hover:bg-vel-rose text-vel-charcoal hover:text-white font-bold text-xs rounded-full shadow-md active:scale-95 transition-all uppercase tracking-wider">
-                {{ $promo['cta'] }} &rarr;
-              </a>
+              <span class="inline-block px-5 py-2.5 bg-white hover:bg-vel-rose text-vel-charcoal hover:text-white font-bold text-xs rounded-full shadow-md active:scale-95 transition-all uppercase tracking-wider">
+                {{ ($vbB->button_text ?? null) ?: $promo['cta'] }} &rarr;
+              </span>
             </div>
           </div>
 
-        </div>
+        </a>
       @endforeach
     </div>
   </section>
+  @endif
 
   <!-- =========================================================================
        5. BUILD YOUR ROUTINE (4 Step Beauty Ritual)

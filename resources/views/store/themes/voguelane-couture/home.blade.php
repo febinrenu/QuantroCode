@@ -17,6 +17,22 @@
   $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
   $warehouseId = (int) ($s->default_warehouse_id ?: 1);
 
+  // Banner-grid tiles (Section 5: Editorial / Promotional Grid) pull from
+  // the merchant's Banners (by position) with the theme's original
+  // hardcoded copy/image as fallback, so nothing changes visually until a
+  // merchant edits a Banner.
+  $byPos = collect($banners ?? [])->groupBy('position');
+  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+  $bannerOverlayStyle = function ($b) {
+      if (!$b || empty($b->bg_color)) return null;
+      return !empty($b->bg_color_2)
+          ? "background:linear-gradient(135deg, {$b->bg_color}, {$b->bg_color_2});"
+          : "background:{$b->bg_color};";
+  };
+  $bannerTextStyle = function ($b) {
+      return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+  };
+
   // 1. Curated For You Products (6)
   $curatedCodes = ['VOG-DRS-001', 'VOG-BLZ-001', 'VOG-BAG-001', 'VOG-SHO-001', 'VOG-ACC-001', 'VOG-JWL-001'];
   $curatedProducts = \App\Models\Product::query()
@@ -73,33 +89,49 @@
   $trendingVms = $trendingProducts->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
   $newArrivalVms = $newArrivalProducts->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
   $topRatedVms = $topRatedProducts->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+
+  // Role-tagged Collections (Best Sellers / New Arrivals) -- when a merchant
+  // has assigned one, its own curated products win over the theme's fixed
+  // product-code lists for that named tab, so the tab's fixed label always
+  // reflects what the merchant actually tagged.
+  $roleVms = collect($collectionsByRole ?? [])->map(function ($r) use ($currency, $hidePrices) {
+      return collect($r['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices))->values();
+  });
+  $bestSellersVms = ($roleVms['best_sellers'] ?? collect())->count() ? $roleVms['best_sellers'] : $trendingVms;
+  $roleNewArrivalVms = ($roleVms['new_arrivals'] ?? collect())->count() ? $roleVms['new_arrivals'] : $newArrivalVms;
 @endphp
 
 <!-- ==================== 1. HERO SECTION ==================== -->
+@php $vcHeroSlides = $heroSlides ?? []; @endphp
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-8">
-  <div class="relative bg-[#F4EFEA] rounded-2xl sm:rounded-3xl overflow-hidden border border-black/5">
-    <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[460px] sm:min-h-[540px] items-center">
-      
+  <div class="relative bg-[#F4EFEA] rounded-2xl sm:rounded-3xl overflow-hidden border border-black/5 grid"
+       x-data="{ vcHero: 0, vcHeroCount: {{ count($vcHeroSlides) }} }"
+       @if(count($vcHeroSlides) > 1) x-init="setInterval(() => { vcHero = (vcHero + 1) % vcHeroCount }, 6000)" @endif>
+    @foreach($vcHeroSlides as $vcI => $vcSlide)
+    <div x-show="vcHero === {{ $vcI }}" @if(!$loop->first) x-cloak @endif
+         x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+         class="col-start-1 row-start-1 grid grid-cols-1 lg:grid-cols-12 min-h-[460px] sm:min-h-[540px] items-center">
+
       <!-- Left Editorial Copy (7 cols on desktop) -->
       <div class="lg:col-span-6 p-6 sm:p-10 lg:p-14 z-10 space-y-4 sm:space-y-6">
         <span class="inline-block text-[11px] sm:text-xs font-bold uppercase tracking-[0.2em] text-vog-tan">
           New Season 2024
         </span>
         <h1 class="font-serif-luxury text-3xl sm:text-5xl lg:text-6xl font-normal text-slate-900 leading-[1.1] tracking-tight">
-          Wear Your <br>
-          <span class="font-bold italic">Signature Style</span>
+          {!! ($vcSlide['title'] ?? '') !== '' ? e($vcSlide['title']) : 'Wear Your <br><span class="font-bold italic">Signature Style</span>' !!}
         </h1>
         <p class="text-xs sm:text-sm text-slate-600 font-normal max-w-md leading-relaxed">
-          Timeless pieces. Modern silhouettes. Made for every moment that matters.
+          {{ ($vcSlide['subtitle'] ?? '') !== '' ? $vcSlide['subtitle'] : 'Timeless pieces. Modern silhouettes. Made for every moment that matters.' }}
         </p>
-        
+
         <!-- Hero CTAs -->
         <div class="flex flex-wrap items-center gap-3 sm:gap-4 pt-2">
-          <a href="{{ $vogRoute('store.shop', ['collection' => 'new-in']) }}" 
+          <a href="{{ ($vcSlide['cta_link'] ?? '') !== '' ? $vcSlide['cta_link'] : $vogRoute('store.shop', ['collection' => 'new-in']) }}"
              class="px-6 sm:px-8 py-3 bg-vog-black hover:bg-neutral-800 text-white text-xs sm:text-sm font-semibold rounded-full shadow-sm active:scale-95 transition-all">
-            Shop New In
+            {{ ($vcSlide['cta_text'] ?? '') !== '' ? $vcSlide['cta_text'] : 'Shop New In' }}
           </a>
-          <a href="{{ $vogRoute('store.shop') }}" 
+          <a href="{{ $vogRoute('store.shop') }}"
              class="px-6 sm:px-8 py-3 bg-white/80 hover:bg-white text-slate-900 border border-slate-300 text-xs sm:text-sm font-semibold rounded-full shadow-2xs active:scale-95 transition-all">
             Explore Collection
           </a>
@@ -117,10 +149,10 @@
 
       <!-- Right Editorial Photography (5 cols on desktop) -->
       <div class="lg:col-span-6 relative h-72 sm:h-96 lg:h-full min-h-[380px] lg:min-h-[540px] overflow-hidden flex items-end justify-center">
-        <img src="{{ global_asset('images/themes/voguelane/hero-model.jpg') }}" 
-             alt="VogueLane High Fashion Model" 
+        <img src="{{ !empty($vcSlide['image_url']) ? $vcSlide['image_url'] : global_asset('images/themes/voguelane/hero-model.jpg') }}"
+             alt="VogueLane High Fashion Model"
              class="absolute inset-0 w-full h-full object-cover object-center">
-        
+
         <!-- Floating Secondary Card: Summer Elegance Collection -->
         <div class="absolute bottom-6 left-6 z-20 bg-white/95 backdrop-blur-md p-3.5 sm:p-4 rounded-xl shadow-lg border border-black/5 flex items-center gap-3.5 max-w-[240px]">
           <div class="w-12 h-14 rounded-lg overflow-hidden bg-slate-100 shrink-0">
@@ -137,6 +169,15 @@
       </div>
 
     </div>
+    @endforeach
+
+    @if(count($vcHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($vcHeroSlides as $vcI => $vcSlide)
+          <button type="button" @click="vcHero = {{ $vcI }}" class="w-2 h-2 rounded-full transition-colors" :class="vcHero === {{ $vcI }} ? 'bg-vog-black' : 'bg-slate-300'" aria-label="Slide {{ $vcI + 1 }}"></button>
+        @endforeach
+      </div>
+    @endif
   </div>
 </section>
 
@@ -249,95 +290,106 @@
   </div>
 </section>
 
-<!-- ==================== 5. EDITORIAL / PROMOTIONAL GRID ==================== -->
+<!-- ==================== 5. EDITORIAL / PROMOTIONAL GRID (fully customizable via Banners) ==================== -->
+@if($bannerGridEnabled ?? true)
+@php
+  $edTopLeft = ($byPos['top_left'] ?? collect())->first();
+  $edTopRight = ($byPos['top_right'] ?? collect())->first();
+  $edCenterLeft = ($byPos['center_left'] ?? collect())->first();
+  $edCenterRight = ($byPos['center_right'] ?? collect())->first();
+  $edFooterLeft = ($byPos['footer_left'] ?? collect())->first();
+@endphp
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
-    
+
     <!-- Large Left Card: Effortless Looks For Sunny Days (6 cols) -->
-    <div class="lg:col-span-6 relative bg-[#EFEAE3] rounded-2xl overflow-hidden min-h-[380px] sm:min-h-[460px] flex flex-col justify-between p-6 sm:p-10 group">
-      <div class="relative z-10 space-y-3 max-w-[65%]">
-        <span class="text-[11px] font-bold uppercase tracking-widest text-slate-500">New Season</span>
-        <h3 class="font-serif-luxury text-2xl sm:text-4xl font-bold text-slate-900 leading-tight">
-          Effortless Looks <br>For Sunny Days
+    <div class="lg:col-span-6 relative bg-[#EFEAE3] rounded-2xl overflow-hidden min-h-[380px] sm:min-h-[460px] flex flex-col justify-between p-6 sm:p-10 group" @if($bannerOverlayStyle($edTopLeft)) style="{{ $bannerOverlayStyle($edTopLeft) }}" @endif>
+      <div class="relative z-10 space-y-3 max-w-[65%]" @if($bannerTextStyle($edTopLeft)) style="{{ $bannerTextStyle($edTopLeft) }}" @endif>
+        <span class="text-[11px] font-bold uppercase tracking-widest text-slate-500" style="color:inherit;">{{ ($edTopLeft->badge_text ?? null) ?: 'New Season' }}</span>
+        <h3 class="font-serif-luxury text-2xl sm:text-4xl font-bold text-slate-900 leading-tight" style="color:inherit;">
+          {{ ($edTopLeft->title ?? null) ?: 'Effortless Looks For Sunny Days' }}
         </h3>
+        @if(!empty($edTopLeft->subtitle ?? null))
+          <p class="text-xs sm:text-sm text-slate-600" style="color:inherit;">{{ $edTopLeft->subtitle }}</p>
+        @endif
         <div class="pt-2">
-          <a href="{{ $vogRoute('store.shop', ['category' => 'Women']) }}" 
-             class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-900 hover:text-vog-tan underline transition-colors">
-            <span>Shop Now</span> <span>&rarr;</span>
+          <a href="{{ $edTopLeft ? ($edTopLeft->link ?: $vogRoute('store.shop', ['category' => 'Women'])) : $vogRoute('store.shop', ['category' => 'Women']) }}"
+             class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-900 hover:text-vog-tan underline transition-colors" style="color:inherit;">
+            <span>{{ ($edTopLeft->button_text ?? null) ?: 'Shop Now' }}</span> <span>&rarr;</span>
           </a>
         </div>
       </div>
       <div class="absolute right-0 bottom-0 top-0 w-3/5 overflow-hidden pointer-events-none">
-        <img src="{{ global_asset('images/themes/voguelane/effortless-sunny-days.jpg') }}" 
-             alt="Effortless Looks For Sunny Days" 
+        <img src="{{ $edTopLeft ? $bannerUrl($edTopLeft) : global_asset('images/themes/voguelane/effortless-sunny-days.jpg') }}"
+             alt="{{ ($edTopLeft->title ?? null) ?: 'Effortless Looks For Sunny Days' }}"
              class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700">
       </div>
     </div>
 
     <!-- 4-Card Right Grid (6 cols) -->
     <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-      
+
       <!-- Card 1: Minimal Essentials -->
-      <div class="relative bg-vog-warm rounded-2xl p-5 flex flex-col justify-between overflow-hidden group min-h-[200px]">
-        <div class="relative z-10 space-y-1 max-w-[60%]">
-          <h4 class="font-serif-luxury text-base sm:text-lg font-bold text-slate-900 leading-snug">Minimal Essentials</h4>
-          <p class="text-[11px] text-slate-500">Clean. Chic. Timeless.</p>
+      <div class="relative bg-vog-warm rounded-2xl p-5 flex flex-col justify-between overflow-hidden group min-h-[200px]" @if($bannerOverlayStyle($edTopRight)) style="{{ $bannerOverlayStyle($edTopRight) }}" @endif>
+        <div class="relative z-10 space-y-1 max-w-[60%]" @if($bannerTextStyle($edTopRight)) style="{{ $bannerTextStyle($edTopRight) }}" @endif>
+          <h4 class="font-serif-luxury text-base sm:text-lg font-bold text-slate-900 leading-snug" style="color:inherit;">{{ ($edTopRight->title ?? null) ?: 'Minimal Essentials' }}</h4>
+          <p class="text-[11px] text-slate-500" style="color:inherit;">{{ ($edTopRight->subtitle ?? null) ?: 'Clean. Chic. Timeless.' }}</p>
           <div class="pt-3">
-            <a href="{{ $vogRoute('store.shop', ['category' => 'Women']) }}" class="text-[11px] font-bold uppercase tracking-wider text-slate-900 hover:text-vog-tan underline">
-              Shop Now &rarr;
+            <a href="{{ $edTopRight ? ($edTopRight->link ?: $vogRoute('store.shop', ['category' => 'Women'])) : $vogRoute('store.shop', ['category' => 'Women']) }}" class="text-[11px] font-bold uppercase tracking-wider text-slate-900 hover:text-vog-tan underline" style="color:inherit;">
+              {{ ($edTopRight->button_text ?? null) ?: 'Shop Now' }} &rarr;
             </a>
           </div>
         </div>
         <div class="absolute right-0 bottom-0 top-0 w-1/2 overflow-hidden pointer-events-none">
-          <img src="{{ global_asset('images/themes/voguelane/minimal-essentials.jpg') }}" alt="Minimal Essentials" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <img src="{{ $edTopRight ? $bannerUrl($edTopRight) : global_asset('images/themes/voguelane/minimal-essentials.jpg') }}" alt="Minimal Essentials" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
         </div>
       </div>
 
       <!-- Card 2: Street Style -->
-      <div class="relative bg-vog-warm rounded-2xl p-5 flex flex-col justify-between overflow-hidden group min-h-[200px]">
-        <div class="relative z-10 space-y-1 max-w-[60%]">
-          <h4 class="font-serif-luxury text-base sm:text-lg font-bold text-slate-900 leading-snug">Street Style</h4>
-          <p class="text-[11px] text-slate-500">Bold fits. Real moments.</p>
+      <div class="relative bg-vog-warm rounded-2xl p-5 flex flex-col justify-between overflow-hidden group min-h-[200px]" @if($bannerOverlayStyle($edCenterLeft)) style="{{ $bannerOverlayStyle($edCenterLeft) }}" @endif>
+        <div class="relative z-10 space-y-1 max-w-[60%]" @if($bannerTextStyle($edCenterLeft)) style="{{ $bannerTextStyle($edCenterLeft) }}" @endif>
+          <h4 class="font-serif-luxury text-base sm:text-lg font-bold text-slate-900 leading-snug" style="color:inherit;">{{ ($edCenterLeft->title ?? null) ?: 'Street Style' }}</h4>
+          <p class="text-[11px] text-slate-500" style="color:inherit;">{{ ($edCenterLeft->subtitle ?? null) ?: 'Bold fits. Real moments.' }}</p>
           <div class="pt-3">
-            <a href="{{ $vogRoute('store.shop', ['category' => 'Men']) }}" class="text-[11px] font-bold uppercase tracking-wider text-slate-900 hover:text-vog-tan underline">
-              Shop Now &rarr;
+            <a href="{{ $edCenterLeft ? ($edCenterLeft->link ?: $vogRoute('store.shop', ['category' => 'Men'])) : $vogRoute('store.shop', ['category' => 'Men']) }}" class="text-[11px] font-bold uppercase tracking-wider text-slate-900 hover:text-vog-tan underline" style="color:inherit;">
+              {{ ($edCenterLeft->button_text ?? null) ?: 'Shop Now' }} &rarr;
             </a>
           </div>
         </div>
         <div class="absolute right-0 bottom-0 top-0 w-1/2 overflow-hidden pointer-events-none">
-          <img src="{{ global_asset('images/themes/voguelane/street-style.jpg') }}" alt="Street Style" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <img src="{{ $edCenterLeft ? $bannerUrl($edCenterLeft) : global_asset('images/themes/voguelane/street-style.jpg') }}" alt="Street Style" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
         </div>
       </div>
 
       <!-- Card 3: Luxury Bags -->
-      <div class="relative bg-vog-warm rounded-2xl p-5 flex flex-col justify-between overflow-hidden group min-h-[200px]">
-        <div class="relative z-10 space-y-1 max-w-[60%]">
-          <h4 class="font-serif-luxury text-base sm:text-lg font-bold text-slate-900 leading-snug">Luxury Bags</h4>
-          <p class="text-[11px] text-slate-500">Iconic pieces. Lasting value.</p>
+      <div class="relative bg-vog-warm rounded-2xl p-5 flex flex-col justify-between overflow-hidden group min-h-[200px]" @if($bannerOverlayStyle($edCenterRight)) style="{{ $bannerOverlayStyle($edCenterRight) }}" @endif>
+        <div class="relative z-10 space-y-1 max-w-[60%]" @if($bannerTextStyle($edCenterRight)) style="{{ $bannerTextStyle($edCenterRight) }}" @endif>
+          <h4 class="font-serif-luxury text-base sm:text-lg font-bold text-slate-900 leading-snug" style="color:inherit;">{{ ($edCenterRight->title ?? null) ?: 'Luxury Bags' }}</h4>
+          <p class="text-[11px] text-slate-500" style="color:inherit;">{{ ($edCenterRight->subtitle ?? null) ?: 'Iconic pieces. Lasting value.' }}</p>
           <div class="pt-3">
-            <a href="{{ $vogRoute('store.shop', ['category' => 'Bags']) }}" class="text-[11px] font-bold uppercase tracking-wider text-slate-900 hover:text-vog-tan underline">
-              Shop Now &rarr;
+            <a href="{{ $edCenterRight ? ($edCenterRight->link ?: $vogRoute('store.shop', ['category' => 'Bags'])) : $vogRoute('store.shop', ['category' => 'Bags']) }}" class="text-[11px] font-bold uppercase tracking-wider text-slate-900 hover:text-vog-tan underline" style="color:inherit;">
+              {{ ($edCenterRight->button_text ?? null) ?: 'Shop Now' }} &rarr;
             </a>
           </div>
         </div>
         <div class="absolute right-0 bottom-0 top-0 w-1/2 overflow-hidden pointer-events-none">
-          <img src="{{ global_asset('images/themes/voguelane/luxury-bags.jpg') }}" alt="Luxury Bags" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <img src="{{ $edCenterRight ? $bannerUrl($edCenterRight) : global_asset('images/themes/voguelane/luxury-bags.jpg') }}" alt="Luxury Bags" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
         </div>
       </div>
 
       <!-- Card 4: Beauty Edit -->
-      <div class="relative bg-vog-warm rounded-2xl p-5 flex flex-col justify-between overflow-hidden group min-h-[200px]">
-        <div class="relative z-10 space-y-1 max-w-[60%]">
-          <h4 class="font-serif-luxury text-base sm:text-lg font-bold text-slate-900 leading-snug">Beauty Edit</h4>
-          <p class="text-[11px] text-slate-500">Your glow. Your way.</p>
+      <div class="relative bg-vog-warm rounded-2xl p-5 flex flex-col justify-between overflow-hidden group min-h-[200px]" @if($bannerOverlayStyle($edFooterLeft)) style="{{ $bannerOverlayStyle($edFooterLeft) }}" @endif>
+        <div class="relative z-10 space-y-1 max-w-[60%]" @if($bannerTextStyle($edFooterLeft)) style="{{ $bannerTextStyle($edFooterLeft) }}" @endif>
+          <h4 class="font-serif-luxury text-base sm:text-lg font-bold text-slate-900 leading-snug" style="color:inherit;">{{ ($edFooterLeft->title ?? null) ?: 'Beauty Edit' }}</h4>
+          <p class="text-[11px] text-slate-500" style="color:inherit;">{{ ($edFooterLeft->subtitle ?? null) ?: 'Your glow. Your way.' }}</p>
           <div class="pt-3">
-            <a href="{{ $vogRoute('store.shop', ['category' => 'Beauty']) }}" class="text-[11px] font-bold uppercase tracking-wider text-slate-900 hover:text-vog-tan underline">
-              Shop Now &rarr;
+            <a href="{{ $edFooterLeft ? ($edFooterLeft->link ?: $vogRoute('store.shop', ['category' => 'Beauty'])) : $vogRoute('store.shop', ['category' => 'Beauty']) }}" class="text-[11px] font-bold uppercase tracking-wider text-slate-900 hover:text-vog-tan underline" style="color:inherit;">
+              {{ ($edFooterLeft->button_text ?? null) ?: 'Shop Now' }} &rarr;
             </a>
           </div>
         </div>
         <div class="absolute right-0 bottom-0 top-0 w-1/2 overflow-hidden pointer-events-none">
-          <img src="{{ global_asset('images/themes/voguelane/beauty-edit.jpg') }}" alt="Beauty Edit" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <img src="{{ $edFooterLeft ? $bannerUrl($edFooterLeft) : global_asset('images/themes/voguelane/beauty-edit.jpg') }}" alt="Beauty Edit" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
         </div>
       </div>
 
@@ -345,6 +397,7 @@
 
   </div>
 </section>
+@endif
 
 <!-- ==================== 6. TRENDING NOW (Tabs: Best Sellers, New Arrivals, Top Rated) ==================== -->
 <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10" x-data="{ currentTab: 'bestsellers' }">
@@ -385,14 +438,14 @@
 
   <!-- Tab 1: Best Sellers -->
   <div x-show="currentTab === 'bestsellers'" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
-    @foreach($trendingVms as $product)
+    @foreach($bestSellersVms as $product)
       @include('store.themes.voguelane-couture.partials.product-card', ['product' => $product])
     @endforeach
   </div>
 
   <!-- Tab 2: New Arrivals -->
   <div x-show="currentTab === 'newarrivals'" x-cloak class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
-    @foreach($newArrivalVms as $product)
+    @foreach($roleNewArrivalVms as $product)
       @include('store.themes.voguelane-couture.partials.product-card', ['product' => $product])
     @endforeach
   </div>

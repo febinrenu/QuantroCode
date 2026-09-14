@@ -8,13 +8,15 @@
 @include('store.themes.littlejoy-kids.partials.header', ['categories' => $categories])
 
 @php
-  $ljHeroTitle = $s->hero_title ?? 'Little Ones\' Big Smiles';
-  $ljHeroSubtitle = $s->hero_subtitle ?? 'Safe, quality products for every stage of your child\'s journey.';
+  $byPos = collect($banners ?? [])->groupBy('position');
+  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+
   $ljImgs = $categorySpecificProducts->pluck('image_url')->filter()->values();
   // Category-specific themes always lead with their own category's product
   // photo -- the admin's store-wide hero_image_path (set for a different,
   // general-purpose theme) would otherwise show an unrelated image here.
-  $ljHeroImg = $ljImgs[0] ?? (!empty($s->hero_image_path) ? global_asset($s->hero_image_path) : null);
+  $ljFallbackHeroImg = $ljImgs[0] ?? (!empty($s->hero_image_path) ? global_asset($s->hero_image_path) : null);
+  $ljHeroSlides = $heroSlides ?? [];
 
   $ljSubcatsHome = optional($categories->first())->subcategories ?? collect();
   $ljSubIdHome = fn ($name) => optional($ljSubcatsHome->firstWhere('name', $name))->id;
@@ -34,51 +36,72 @@
     ['label' => 'Nursery Must-Haves', 'sub' => 'Nursery', 'bg' => 'bg-lj-mint/20', 'text' => 'text-emerald-700', 'desc' => 'Create the perfect space for baby'],
     ['label' => 'Feeding Time', 'sub' => 'Feeding', 'bg' => 'bg-pink-50', 'text' => 'text-lj-pink', 'desc' => 'Smart choices for happy meals'],
   ];
+  // Position slots assigned sequentially to the four featured tiles below so
+  // merchants can override each tile's image/copy/colors via Banners.
+  $ljTilePositions = ['top_left', 'top_right', 'center_left', 'center_right'];
 @endphp
 
 <main class="pb-20 md:pb-0">
 
-  {{-- ===== HERO ===== --}}
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
   <section class="max-w-7xl mx-auto px-4 pt-4">
-    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-100 via-lj-cream to-lj-lavender" style="min-height:420px;">
-      <div class="relative grid md:grid-cols-2 items-center h-full px-8 md:px-14 py-14">
-        <div>
-          <span class="inline-flex items-center gap-1.5 text-lj-ink/70 text-sm font-medium">
-            {{ 'Everything for your' }}
-            <svg class="w-4 h-4 text-lj-pink" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.35-9.3-8.1C1 10.3 1.8 6.9 4.7 5.6 7 4.6 9.4 5.4 12 8c2.6-2.6 5-3.4 7.3-2.4 2.9 1.3 3.7 4.7 2 7.3C18.7 16.65 12 21 12 21Z"/></svg>
-          </span>
-          <h1 class="font-heading font-extrabold text-4xl md:text-6xl leading-[1.05] text-lj-ink mt-3">
-            <span class="block">{{ \Illuminate\Support\Str::before($ljHeroTitle, "'") }}'</span>
-            <span class="block text-lj-pink">{{ trim(\Illuminate\Support\Str::after($ljHeroTitle, "'")) }}</span>
-          </h1>
-          <p class="mt-5 text-lj-inkSoft max-w-sm">{{ $ljHeroSubtitle }}</p>
-          <div class="mt-8 flex flex-wrap items-center gap-3">
-            <a href="{{ route('store.shop') }}" class="h-12 px-7 inline-flex items-center gap-2 bg-lj-purple text-white text-sm font-bold rounded-full hover:bg-lj-purpleDeep">
-              {{ 'Shop Now' }}
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </a>
-            <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-7 inline-flex items-center bg-white text-lj-ink text-sm font-bold rounded-full border border-lj-ink/15 hover:bg-lj-cream">
-              {{ 'Explore Deals' }}
-            </a>
-          </div>
-        </div>
-        <div class="relative hidden md:flex items-center justify-center">
-          @if($ljHeroImg)
-            <div class="w-72 h-72 rounded-full overflow-hidden border-4 border-white shadow-cardHover">
-              <img src="{{ $ljHeroImg }}" alt="{{ $ljHeroTitle }}" class="w-full h-full object-cover">
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-100 via-lj-cream to-lj-lavender grid" style="min-height:420px;"
+         x-data="{ ljHero: 0, ljHeroCount: {{ count($ljHeroSlides) }} }"
+         @if(count($ljHeroSlides) > 1) x-init="setInterval(() => { ljHero = (ljHero + 1) % ljHeroCount }, 6000)" @endif>
+      @foreach($ljHeroSlides as $ljI => $ljSlide)
+        @php
+          $ljHeroTitle = ($ljSlide['title'] ?? '') !== '' ? $ljSlide['title'] : 'Little Ones\' Big Smiles';
+          $ljHeroImg = !empty($ljSlide['image_url']) ? $ljSlide['image_url'] : $ljFallbackHeroImg;
+        @endphp
+        <div x-show="ljHero === {{ $ljI }}" @if(!$loop->first) x-cloak @endif
+             x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+             class="col-start-1 row-start-1">
+          <div class="relative grid md:grid-cols-2 items-center h-full px-8 md:px-14 py-14">
+            <div>
+              <span class="inline-flex items-center gap-1.5 text-lj-ink/70 text-sm font-medium">
+                {{ 'Everything for your' }}
+                <svg class="w-4 h-4 text-lj-pink" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.35-9.3-8.1C1 10.3 1.8 6.9 4.7 5.6 7 4.6 9.4 5.4 12 8c2.6-2.6 5-3.4 7.3-2.4 2.9 1.3 3.7 4.7 2 7.3C18.7 16.65 12 21 12 21Z"/></svg>
+              </span>
+              <h1 class="font-heading font-extrabold text-4xl md:text-6xl leading-[1.05] text-lj-ink mt-3">
+                @if(\Illuminate\Support\Str::contains($ljHeroTitle, "'"))
+                  <span class="block">{{ \Illuminate\Support\Str::before($ljHeroTitle, "'") }}'</span>
+                  <span class="block text-lj-pink">{{ trim(\Illuminate\Support\Str::after($ljHeroTitle, "'")) }}</span>
+                @else
+                  <span class="block">{{ $ljHeroTitle }}</span>
+                @endif
+              </h1>
+              <p class="mt-5 text-lj-inkSoft max-w-sm">{{ ($ljSlide['subtitle'] ?? '') !== '' ? $ljSlide['subtitle'] : 'Safe, quality products for every stage of your child\'s journey.' }}</p>
+              <div class="mt-8 flex flex-wrap items-center gap-3">
+                <a href="{{ ($ljSlide['cta_link'] ?? '') !== '' ? $ljSlide['cta_link'] : route('store.shop') }}" class="h-12 px-7 inline-flex items-center gap-2 bg-lj-purple text-white text-sm font-bold rounded-full hover:bg-lj-purpleDeep">
+                  {{ ($ljSlide['cta_text'] ?? '') !== '' ? $ljSlide['cta_text'] : 'Shop Now' }}
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+                <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-7 inline-flex items-center bg-white text-lj-ink text-sm font-bold rounded-full border border-lj-ink/15 hover:bg-lj-cream">
+                  {{ 'Explore Deals' }}
+                </a>
+              </div>
             </div>
-          @endif
-          <div class="absolute -top-2 -right-2 w-24 h-24 rounded-full bg-lj-purple text-white flex flex-col items-center justify-center text-center leading-tight shadow-cardHover">
-            <span class="text-[10px] font-bold eyebrow">{{ 'Up to' }}</span>
-            <span class="text-xl font-heading font-extrabold">40%</span>
-            <span class="text-[10px] font-bold eyebrow">{{ 'Off' }}</span>
+            <div class="relative hidden md:flex items-center justify-center">
+              @if($ljHeroImg)
+                <div class="w-72 h-72 rounded-full overflow-hidden border-4 border-white shadow-cardHover">
+                  <img src="{{ $ljHeroImg }}" alt="{{ $ljHeroTitle }}" class="w-full h-full object-cover">
+                </div>
+              @endif
+              <div class="absolute -top-2 -right-2 w-24 h-24 rounded-full bg-lj-purple text-white flex flex-col items-center justify-center text-center leading-tight shadow-cardHover">
+                <span class="text-[10px] font-bold eyebrow">{{ 'Up to' }}</span>
+                <span class="text-xl font-heading font-extrabold">40%</span>
+                <span class="text-[10px] font-bold eyebrow">{{ 'Off' }}</span>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-        @for($i=0;$i<4;$i++)
-          <span class="{{ $i === 0 ? 'w-6 bg-lj-purple' : 'w-1.5 bg-lj-ink/20' }} h-1.5 rounded-full"></span>
-        @endfor
+      @endforeach
+
+      <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10">
+        @foreach($ljHeroSlides as $ljI => $ljSlide)
+          <button type="button" @click="ljHero = {{ $ljI }}" class="h-1.5 rounded-full transition-all" :class="ljHero === {{ $ljI }} ? 'w-6 bg-lj-purple' : 'w-1.5 bg-lj-ink/20'" aria-label="Slide {{ $ljI + 1 }}"></button>
+        @endforeach
       </div>
     </div>
   </section>
@@ -105,33 +128,47 @@
     </div>
   </section>
 
-  {{-- ===== FEATURED TILES ===== --}}
+  {{-- ===== FEATURED TILES (customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @if($bannerGridEnabled ?? true)
   <section class="max-w-7xl mx-auto px-4 py-2">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       @foreach($ljTileMap as $i => $tile)
         @php
+          $tPos = $ljTilePositions[$i] ?? null;
+          $tBanner = $tPos ? ($byPos[$tPos] ?? collect())->first() : null;
           $tHref = $tile['sub'] && $ljSubIdHome($tile['sub'])
             ? route('store.shop', ['sub_category' => $ljSubIdHome($tile['sub'])])
             : route('store.shop', ['sort' => $tile['sort'] ?? 'latest']);
+          $tHref = $tBanner ? ($tBanner->link ?: $tHref) : $tHref;
           $tImg = $tile['sub'] ? ($subcategoryImages[$tile['sub']] ?? null) : null;
           $tImg = $tImg ?? ($ljImgs->count() ? $ljImgs[$i % $ljImgs->count()] : null);
+          $tImg = $tBanner ? $bannerUrl($tBanner) : $tImg;
+          $tLabel = ($tBanner->title ?? null) ?: $tile['label'];
+          $tDesc = ($tBanner->subtitle ?? null) ?: $tile['desc'];
+          $tCta = ($tBanner->button_text ?? null) ?: 'Shop Now';
+          $tBgStyle = ($tBanner && !empty($tBanner->bg_color)) ? "background-color:{$tBanner->bg_color};" : null;
+          $tTextStyle = ($tBanner && !empty($tBanner->text_color)) ? "color:{$tBanner->text_color};" : null;
         @endphp
-        <a href="{{ $tHref }}" class="group rounded-2xl p-5 flex flex-col justify-between min-h-[210px] {{ $tile['bg'] }}">
+        <a href="{{ $tHref }}" class="group rounded-2xl p-5 flex flex-col justify-between min-h-[210px] {{ $tile['bg'] }}" @if($tBgStyle) style="{{ $tBgStyle }}" @endif>
           <div>
-            <h3 class="font-heading font-bold text-lg {{ $tile['text'] }} leading-tight">{{ $tile['label'] }}</h3>
-            <p class="text-[11px] text-lj-inkSoft mt-1">{{ $tile['desc'] }}</p>
-            <span class="mt-3 inline-flex items-center gap-1 text-[11px] font-bold {{ $tile['text'] }} group-hover:underline">
-              {{ 'Shop Now' }}
+            @if(!empty($tBanner->badge_text ?? null))
+              <span class="text-[10px] font-bold uppercase tracking-wide {{ $tile['text'] }}" @if($tTextStyle) style="{{ $tTextStyle }}" @endif>{{ $tBanner->badge_text }}</span>
+            @endif
+            <h3 class="font-heading font-bold text-lg {{ $tile['text'] }} leading-tight" @if($tTextStyle) style="{{ $tTextStyle }}" @endif>{{ $tLabel }}</h3>
+            <p class="text-[11px] text-lj-inkSoft mt-1" @if($tTextStyle) style="{{ $tTextStyle }}" @endif>{{ $tDesc }}</p>
+            <span class="mt-3 inline-flex items-center gap-1 text-[11px] font-bold {{ $tile['text'] }} group-hover:underline" @if($tTextStyle) style="{{ $tTextStyle }}" @endif>
+              {{ $tCta }}
               <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </span>
           </div>
           @if($tImg)
-            <img src="{{ $tImg }}" alt="{{ $tile['label'] }}" class="w-24 h-24 object-cover rounded-xl self-end mt-2 shadow-card">
+            <img src="{{ $tImg }}" alt="{{ $tLabel }}" class="w-24 h-24 object-cover rounded-xl self-end mt-2 shadow-card">
           @endif
         </a>
       @endforeach
     </div>
   </section>
+  @endif
 
   {{-- ===== POPULAR PICKS ===== --}}
   @if($categorySpecificProducts->count())

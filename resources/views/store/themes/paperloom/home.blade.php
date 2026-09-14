@@ -54,6 +54,21 @@
       ['name' => 'Index Tabs & Flags', 'category' => 'Stationery', 'icon' => 'morandi-index-tabs.jpg'],
       ['name' => 'Desk Organizers', 'category' => 'Desk Accessories', 'icon' => 'desk-organizer-bamboo.jpg'],
   ];
+
+  // Banner-grid wiring (Banners admin): lets a merchant swap image/copy/colors
+  // on the promotional/editorial cards below without touching this template.
+  $byPos = collect($banners ?? [])->groupBy('position');
+  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+  $bannerOverlayStyle = function ($b) {
+      if (!$b || empty($b->bg_color)) return null;
+      $css = !empty($b->bg_color_2)
+        ? "background:linear-gradient(135deg, {$b->bg_color}, {$b->bg_color_2});"
+        : "background:linear-gradient(135deg, {$b->bg_color}, {$b->bg_color}cc);";
+      return $css;
+  };
+  $bannerTextStyle = function ($b) {
+      return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+  };
 @endphp
 
 <div class="space-y-12 sm:space-y-16 pb-16">
@@ -64,39 +79,61 @@
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
-      <!-- Main Hero Card (8 cols on desktop) -->
-      <div class="lg:col-span-8 rounded-3xl overflow-hidden relative bg-[#F3EFE6] border border-pl-border shadow-sm flex flex-col justify-between min-h-[440px] sm:min-h-[500px]">
-        <!-- Background Editorial Image -->
-        <img src="{{ global_asset('images/themes/paperloom/hero-main.jpg') }}"
-             alt="PaperLoom Read, Write, Create"
-             class="absolute inset-0 w-full h-full object-cover object-center">
+      <!-- Main Hero Card (8 cols on desktop) -- auto-rotating carousel; add slides via Store Settings > Hero Slides -->
+      @php $plHeroSlides = $heroSlides ?? []; @endphp
+      <div class="lg:col-span-8 rounded-3xl overflow-hidden relative bg-[#F3EFE6] border border-pl-border shadow-sm min-h-[440px] sm:min-h-[500px] grid"
+           x-data="{ plHero: 0, plHeroCount: {{ count($plHeroSlides) }} }"
+           @if(count($plHeroSlides) > 1) x-init="setInterval(() => { plHero = (plHero + 1) % plHeroCount }, 6000)" @endif>
+        @foreach($plHeroSlides as $plI => $plSlide)
+          <div x-show="plHero === {{ $plI }}" @if(!$loop->first) x-cloak @endif
+               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+               x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+               class="col-start-1 row-start-1 flex flex-col justify-between">
+            <!-- Background Editorial Image -->
+            <img src="{{ !empty($plSlide['image_url']) ? $plSlide['image_url'] : global_asset('images/themes/paperloom/hero-main.jpg') }}"
+                 alt=""
+                 class="absolute inset-0 w-full h-full object-cover object-center">
 
-        <!-- Gradient Overlay for readability -->
-        <div class="absolute inset-0 bg-gradient-to-r from-[#F8F5EE]/95 via-[#F8F5EE]/80 to-transparent sm:w-3/5"></div>
+            <!-- Gradient Overlay for readability -->
+            <div class="absolute inset-0 bg-gradient-to-r from-[#F8F5EE]/95 via-[#F8F5EE]/80 to-transparent sm:w-3/5"></div>
 
-        <!-- Content -->
-        <div class="relative z-10 p-6 sm:p-12 max-w-lg space-y-4 sm:space-y-6 my-auto">
-          <span class="inline-block px-3 py-1 bg-pl-forest text-white rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider">
-            Curated Bookstore & Stationery
-          </span>
-          <h1 class="font-serif-book text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 tracking-tight leading-[1.1]">
-            Read, Write,<br>Create.
-          </h1>
-          <p class="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
-            Discover inspiring books and premium stationery for study, work, and everyday creativity.
-          </p>
+            <!-- Content -->
+            <div class="relative z-10 p-6 sm:p-12 max-w-lg space-y-4 sm:space-y-6 my-auto">
+              <span class="inline-block px-3 py-1 bg-pl-forest text-white rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                Curated Bookstore & Stationery
+              </span>
+              <h1 class="font-serif-book text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 tracking-tight leading-[1.1]">
+                @if(($plSlide['title'] ?? '') !== '')
+                  {{ $plSlide['title'] }}
+                @else
+                  Read, Write,<br>Create.
+                @endif
+              </h1>
+              <p class="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">
+                {{ ($plSlide['subtitle'] ?? '') !== '' ? $plSlide['subtitle'] : 'Discover inspiring books and premium stationery for study, work, and everyday creativity.' }}
+              </p>
 
-          <div class="pt-2 flex flex-wrap items-center gap-3">
-            <a href="{{ $plRoute('store.shop', ['category' => 'Books']) }}"
-               class="px-6 sm:px-8 py-3.5 bg-pl-terracotta hover:bg-pl-terracottaHover text-white text-xs sm:text-sm font-bold rounded-full transition-all shadow-md active:scale-95">
-              Shop Books
-            </a>
-            <a href="{{ $plRoute('store.shop', ['category' => 'Stationery']) }}"
-               class="px-6 sm:px-8 py-3.5 bg-white/90 hover:bg-white text-slate-900 border border-pl-border text-xs sm:text-sm font-bold rounded-full transition-all shadow-xs active:scale-95">
-              Explore Stationery
-            </a>
+              <div class="pt-2 flex flex-wrap items-center gap-3">
+                <a href="{{ ($plSlide['cta_link'] ?? '') !== '' ? $plSlide['cta_link'] : $plRoute('store.shop', ['category' => 'Books']) }}"
+                   class="px-6 sm:px-8 py-3.5 bg-pl-terracotta hover:bg-pl-terracottaHover text-white text-xs sm:text-sm font-bold rounded-full transition-all shadow-md active:scale-95">
+                  {{ ($plSlide['cta_text'] ?? '') !== '' ? $plSlide['cta_text'] : 'Shop Books' }}
+                </a>
+                <a href="{{ $plRoute('store.shop', ['category' => 'Stationery']) }}"
+                   class="px-6 sm:px-8 py-3.5 bg-white/90 hover:bg-white text-slate-900 border border-pl-border text-xs sm:text-sm font-bold rounded-full transition-all shadow-xs active:scale-95">
+                  Explore Stationery
+                </a>
+              </div>
+            </div>
           </div>
-        </div>
+        @endforeach
+
+        @if(count($plHeroSlides) > 1)
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+            @foreach($plHeroSlides as $plI => $plSlide)
+              <button type="button" @click="plHero = {{ $plI }}" class="w-2 h-2 rounded-full transition-colors" :class="plHero === {{ $plI }} ? 'bg-pl-forest' : 'bg-pl-forest/30'" aria-label="Slide {{ $plI + 1 }}"></button>
+            @endforeach
+          </div>
+        @endif
       </div>
 
       <!-- Right Supporting Cards (4 cols on desktop, 2 stacked cards) -->
@@ -265,65 +302,88 @@
   <!-- =========================================================================
        5. PROMOTIONAL / EDITORIAL CARDS (3 Cards)
        ========================================================================= -->
+  @if($bannerGridEnabled ?? true)
+  @php
+    $promoCard1 = ($byPos['top_left'] ?? collect())->first();
+    $promoCard2 = ($byPos['top_right'] ?? collect())->first();
+    $promoCard3 = ($byPos['center_left'] ?? collect())->first();
+  @endphp
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
       <!-- Card 1: Back to School -->
-      <div class="rounded-3xl overflow-hidden relative bg-[#2D524A] text-white border border-pl-border p-7 flex flex-col justify-between min-h-[280px] group shadow-xs">
-        <img src="{{ global_asset('images/themes/paperloom/promo-back-to-school.jpg') }}"
-             alt="Back to School"
-             class="absolute inset-0 w-full h-full object-cover opacity-35 group-hover:scale-105 transition-transform duration-700">
-        <div class="relative z-10 space-y-2">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-amber-300">New Semester</span>
-          <h3 class="font-serif-book text-2xl sm:text-3xl font-bold leading-tight">Back to School<br>Ready, Set, Learn!</h3>
-          <p class="text-xs text-slate-200">Backpacks, notebooks, pens & more – everything for a great start.</p>
+      <a href="{{ $promoCard1 ? ($promoCard1->link ?: $plRoute('store.shop', ['category' => 'Academic'])) : $plRoute('store.shop', ['category' => 'Academic']) }}" class="rounded-3xl overflow-hidden relative bg-[#2D524A] text-white border border-pl-border p-7 flex flex-col justify-between min-h-[280px] group shadow-xs" @if($bannerOverlayStyle($promoCard1)) style="{{ $bannerOverlayStyle($promoCard1) }}" @endif>
+        @if($promoCard1)
+          <img src="{{ $bannerUrl($promoCard1) }}" alt="{{ $promoCard1->title }}" class="absolute inset-0 w-full h-full object-cover opacity-35 group-hover:scale-105 transition-transform duration-700">
+        @else
+          <img src="{{ global_asset('images/themes/paperloom/promo-back-to-school.jpg') }}"
+               alt="Back to School"
+               class="absolute inset-0 w-full h-full object-cover opacity-35 group-hover:scale-105 transition-transform duration-700">
+        @endif
+        <div class="relative z-10 space-y-2" @if($bannerTextStyle($promoCard1)) style="{{ $bannerTextStyle($promoCard1) }}" @endif>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-amber-300" style="color:inherit;">{{ ($promoCard1->badge_text ?? null) ?: 'New Semester' }}</span>
+          <h3 class="font-serif-book text-2xl sm:text-3xl font-bold leading-tight" style="color:inherit;">{{ ($promoCard1->title ?? null) ?: 'Back to School' }}{!! !($promoCard1->title ?? null) ? '<br>Ready, Set, Learn!' : '' !!}</h3>
+          @if(!empty($promoCard1->subtitle ?? null))
+            <p class="text-xs text-slate-200" style="color:inherit;">{{ $promoCard1->subtitle }}</p>
+          @else
+            <p class="text-xs text-slate-200" style="color:inherit;">Backpacks, notebooks, pens & more – everything for a great start.</p>
+          @endif
         </div>
         <div class="relative z-10 pt-4">
-          <a href="{{ $plRoute('store.shop', ['category' => 'Academic']) }}" class="inline-flex items-center gap-2 text-xs font-bold text-amber-300 hover:text-white transition-colors">
-            <span>Shop Now</span>
+          <span class="inline-flex items-center gap-2 text-xs font-bold text-amber-300 group-hover:text-white transition-colors" style="color:inherit;">
+            <span>{{ ($promoCard1->button_text ?? null) ?: 'Shop Now' }}</span>
             <span>&rarr;</span>
-          </a>
+          </span>
         </div>
-      </div>
+      </a>
 
       <!-- Card 2: Writer's Corner -->
-      <div class="rounded-3xl overflow-hidden relative bg-[#FAF6F0] text-slate-900 border border-pl-border p-7 flex flex-col justify-between min-h-[280px] group shadow-xs">
-        <img src="{{ global_asset('images/themes/paperloom/promo-writers-corner.jpg') }}"
-             alt="Writer's Corner"
-             class="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700">
-        <div class="relative z-10 space-y-2">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-pl-terracotta">Craft & Words</span>
-          <h3 class="font-serif-book text-2xl sm:text-3xl font-bold leading-tight">Writer's Corner</h3>
-          <p class="text-xs text-slate-600">Tools for thoughts that inspire.</p>
+      <a href="{{ $promoCard2 ? ($promoCard2->link ?: $plRoute('store.shop', ['category' => 'Journals'])) : $plRoute('store.shop', ['category' => 'Journals']) }}" class="rounded-3xl overflow-hidden relative bg-[#FAF6F0] text-slate-900 border border-pl-border p-7 flex flex-col justify-between min-h-[280px] group shadow-xs" @if($bannerOverlayStyle($promoCard2)) style="{{ $bannerOverlayStyle($promoCard2) }}" @endif>
+        @if($promoCard2)
+          <img src="{{ $bannerUrl($promoCard2) }}" alt="{{ $promoCard2->title }}" class="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700">
+        @else
+          <img src="{{ global_asset('images/themes/paperloom/promo-writers-corner.jpg') }}"
+               alt="Writer's Corner"
+               class="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700">
+        @endif
+        <div class="relative z-10 space-y-2" @if($bannerTextStyle($promoCard2)) style="{{ $bannerTextStyle($promoCard2) }}" @endif>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-pl-terracotta" style="color:inherit;">{{ ($promoCard2->badge_text ?? null) ?: 'Craft & Words' }}</span>
+          <h3 class="font-serif-book text-2xl sm:text-3xl font-bold leading-tight" style="color:inherit;">{{ ($promoCard2->title ?? null) ?: "Writer's Corner" }}</h3>
+          <p class="text-xs text-slate-600" style="color:inherit;">{{ ($promoCard2->subtitle ?? null) ?: 'Tools for thoughts that inspire.' }}</p>
         </div>
         <div class="relative z-10 pt-4">
-          <a href="{{ $plRoute('store.shop', ['category' => 'Journals']) }}" class="inline-flex items-center gap-2 text-xs font-bold text-pl-terracotta hover:text-pl-terracottaHover transition-colors">
-            <span>Explore Collection</span>
+          <span class="inline-flex items-center gap-2 text-xs font-bold text-pl-terracotta group-hover:text-pl-terracottaHover transition-colors" style="color:inherit;">
+            <span>{{ ($promoCard2->button_text ?? null) ?: 'Explore Collection' }}</span>
             <span>&rarr;</span>
-          </a>
+          </span>
         </div>
-      </div>
+      </a>
 
       <!-- Card 3: Kids Reading Club -->
-      <div class="rounded-3xl overflow-hidden relative bg-[#F5EFE6] text-slate-900 border border-pl-border p-7 flex flex-col justify-between min-h-[280px] group shadow-xs">
-        <img src="{{ global_asset('images/themes/paperloom/promo-kids-club.jpg') }}"
-             alt="Kids Reading Club"
-             class="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700">
-        <div class="relative z-10 space-y-2">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700">Young Readers</span>
-          <h3 class="font-serif-book text-2xl sm:text-3xl font-bold leading-tight">Kids Reading Club</h3>
-          <p class="text-xs text-slate-600">Stories today, bright minds tomorrow.</p>
+      <a href="{{ $promoCard3 ? ($promoCard3->link ?: $plRoute('store.shop', ['category' => 'Children'])) : $plRoute('store.shop', ['category' => 'Children']) }}" class="rounded-3xl overflow-hidden relative bg-[#F5EFE6] text-slate-900 border border-pl-border p-7 flex flex-col justify-between min-h-[280px] group shadow-xs" @if($bannerOverlayStyle($promoCard3)) style="{{ $bannerOverlayStyle($promoCard3) }}" @endif>
+        @if($promoCard3)
+          <img src="{{ $bannerUrl($promoCard3) }}" alt="{{ $promoCard3->title }}" class="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700">
+        @else
+          <img src="{{ global_asset('images/themes/paperloom/promo-kids-club.jpg') }}"
+               alt="Kids Reading Club"
+               class="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700">
+        @endif
+        <div class="relative z-10 space-y-2" @if($bannerTextStyle($promoCard3)) style="{{ $bannerTextStyle($promoCard3) }}" @endif>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700" style="color:inherit;">{{ ($promoCard3->badge_text ?? null) ?: 'Young Readers' }}</span>
+          <h3 class="font-serif-book text-2xl sm:text-3xl font-bold leading-tight" style="color:inherit;">{{ ($promoCard3->title ?? null) ?: 'Kids Reading Club' }}</h3>
+          <p class="text-xs text-slate-600" style="color:inherit;">{{ ($promoCard3->subtitle ?? null) ?: 'Stories today, bright minds tomorrow.' }}</p>
         </div>
         <div class="relative z-10 pt-4">
-          <a href="{{ $plRoute('store.shop', ['category' => 'Children']) }}" class="inline-flex items-center gap-2 text-xs font-bold text-pl-terracotta hover:text-pl-terracottaHover transition-colors">
-            <span>Explore Books</span>
+          <span class="inline-flex items-center gap-2 text-xs font-bold text-pl-terracotta group-hover:text-pl-terracottaHover transition-colors" style="color:inherit;">
+            <span>{{ ($promoCard3->button_text ?? null) ?: 'Explore Books' }}</span>
             <span>&rarr;</span>
-          </a>
+          </span>
         </div>
-      </div>
+      </a>
 
     </div>
   </section>
+  @endif
 
   <!-- =========================================================================
        6. STAFF PICKS (6 Products)

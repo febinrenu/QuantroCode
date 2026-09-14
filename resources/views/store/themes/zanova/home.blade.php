@@ -12,65 +12,136 @@
   $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
   $byPos = collect($banners ?? [])->groupBy('position');
   $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+
+  // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+  // override each tile's fixed gradient/text color; absent -> theme default.
+  $bannerOverlayStyle = function ($b) {
+    if (!$b || empty($b->bg_color)) return null;
+    $css = !empty($b->bg_color_2)
+      ? "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+      : "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+    return $css;
+  };
+  $bannerTextStyle = function ($b) {
+    return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+  };
 @endphp
 
 <main class="pb-24 lg:pb-0">
 
-  {{-- ===== HERO ===== --}}
-  <section class="relative overflow-hidden bg-zn-bg zn-noise-grid">
-    <div class="absolute inset-0">
-      <img src="https://images.unsplash.com/photo-1550928431-ee0ec6db30d3?auto=format&fit=crop&w=1600&q=70"
-           alt="" class="w-full h-full object-cover opacity-25">
-      <div class="absolute inset-0 bg-gradient-to-b from-zn-bg via-zn-bg/85 to-zn-bg"></div>
-      <div class="absolute inset-0 bg-gradient-to-r from-zn-bg via-transparent to-zn-bg/60"></div>
-    </div>
-    <div class="relative max-w-7xl mx-auto px-4 py-20 lg:py-28 grid lg:grid-cols-2 gap-10 items-center">
-      <div>
-        <span class="eyebrow text-zn-cyan text-xs font-bold">Every category, one neon marketplace</span>
-        <h1 class="mt-3 text-4xl sm:text-5xl lg:text-6xl font-black leading-tight text-gradient font-heading">
-          {{ $s->hero_title ?? 'Shop the future.' }}
-        </h1>
-        <p class="mt-4 text-slate-300 max-w-lg text-base">
-          {{ $s->hero_subtitle ?? 'Electronics, fashion, home, beauty, grocery and sports — thousands of curated products delivered fast, wrapped in a shopping experience that actually feels exciting.' }}
-        </p>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a href="{{ route('store.shop') }}" class="btn-glass h-12 px-6 inline-flex items-center gap-2 rounded-lg text-white font-semibold">
-            Enter the marketplace
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="btn-outline-glow h-12 px-6 inline-flex items-center gap-2 rounded-lg text-slate-100 font-semibold">
-            Today's deals
-          </a>
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $znHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative overflow-hidden bg-zn-bg zn-noise-grid grid"
+           x-data="{ znHero: 0, znHeroCount: {{ count($znHeroSlides) }} }"
+           @if(count($znHeroSlides) > 1) x-init="setInterval(() => { znHero = (znHero + 1) % znHeroCount }, 6000)" @endif>
+    @foreach($znHeroSlides as $znI => $znSlide)
+      <div x-show="znHero === {{ $znI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1">
+        <div class="absolute inset-0">
+          <img src="{{ !empty($znSlide['image_url']) ? $znSlide['image_url'] : 'https://images.unsplash.com/photo-1550928431-ee0ec6db30d3?auto=format&fit=crop&w=1600&q=70' }}"
+               alt="" class="w-full h-full object-cover opacity-25">
+          <div class="absolute inset-0 bg-gradient-to-b from-zn-bg via-zn-bg/85 to-zn-bg"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-zn-bg via-transparent to-zn-bg/60"></div>
         </div>
-        <div class="mt-9 flex flex-wrap items-center gap-6 text-slate-400 text-xs">
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-zn-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Buyer protection</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-zn-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Free returns</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-zn-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> 24/7 support</span>
+        <div class="relative max-w-7xl mx-auto px-4 py-20 lg:py-28 grid lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <span class="eyebrow text-zn-cyan text-xs font-bold">Every category, one neon marketplace</span>
+            <h1 class="mt-3 text-4xl sm:text-5xl lg:text-6xl font-black leading-tight text-gradient font-heading">
+              {{ ($znSlide['title'] ?? '') !== '' ? $znSlide['title'] : 'Shop the future.' }}
+            </h1>
+            <p class="mt-4 text-slate-300 max-w-lg text-base">
+              {{ ($znSlide['subtitle'] ?? '') !== '' ? $znSlide['subtitle'] : 'Electronics, fashion, home, beauty, grocery and sports — thousands of curated products delivered fast, wrapped in a shopping experience that actually feels exciting.' }}
+            </p>
+            <div class="mt-8 flex flex-wrap gap-3">
+              <a href="{{ ($znSlide['cta_link'] ?? '') !== '' ? $znSlide['cta_link'] : route('store.shop') }}" class="btn-glass h-12 px-6 inline-flex items-center gap-2 rounded-lg text-white font-semibold">
+                {{ ($znSlide['cta_text'] ?? '') !== '' ? $znSlide['cta_text'] : 'Enter the marketplace' }}
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              </a>
+              <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="btn-outline-glow h-12 px-6 inline-flex items-center gap-2 rounded-lg text-slate-100 font-semibold">
+                Today's deals
+              </a>
+            </div>
+            <div class="mt-9 flex flex-wrap items-center gap-6 text-slate-400 text-xs">
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-zn-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Buyer protection</span>
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-zn-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Free returns</span>
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-zn-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> 24/7 support</span>
+            </div>
+          </div>
+          <div class="hidden lg:grid grid-cols-2 gap-4">
+            <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=500&q=70" class="rounded-2xl h-48 w-full object-cover shadow-glow border border-violet-500/20" alt="">
+            <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=500&q=70" class="rounded-2xl h-48 w-full object-cover mt-8 shadow-glow border border-violet-500/20" alt="">
+            <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=500&q=70" class="rounded-2xl h-48 w-full object-cover -mt-4 shadow-glow border border-violet-500/20" alt="">
+            <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=500&q=70" class="rounded-2xl h-48 w-full object-cover shadow-glow border border-violet-500/20" alt="">
+          </div>
         </div>
       </div>
-      <div class="hidden lg:grid grid-cols-2 gap-4">
-        <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=500&q=70" class="rounded-2xl h-48 w-full object-cover shadow-glow border border-violet-500/20" alt="">
-        <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=500&q=70" class="rounded-2xl h-48 w-full object-cover mt-8 shadow-glow border border-violet-500/20" alt="">
-        <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=500&q=70" class="rounded-2xl h-48 w-full object-cover -mt-4 shadow-glow border border-violet-500/20" alt="">
-        <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=500&q=70" class="rounded-2xl h-48 w-full object-cover shadow-glow border border-violet-500/20" alt="">
+    @endforeach
+
+    @if(count($znHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($znHeroSlides as $znI => $znSlide)
+          <button type="button" @click="znHero = {{ $znI }}" class="w-2 h-2 rounded-full transition-colors" :class="znHero === {{ $znI }} ? 'bg-white' : 'bg-white/40'" aria-label="Slide {{ $znI + 1 }}"></button>
+        @endforeach
       </div>
-    </div>
+    @endif
   </section>
 
-  {{-- ===== TOP BANNERS ===== --}}
+  {{-- ===== TOP BANNERS (fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['top_left'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="glow-card block rounded-xl overflow-hidden border border-violet-500/20">
+        <a href="{{ $b->link ?: route('store.shop') }}" class="glow-card relative block rounded-xl overflow-hidden border border-violet-500/20">
           <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
+          @if($bannerOverlayStyle($b))
+            <div class="absolute inset-0 pointer-events-none" style="{{ $bannerOverlayStyle($b) }}"></div>
+          @endif
+          @if(!empty($b->badge_text) || !empty($b->title) || !empty($b->subtitle) || !empty($b->button_text))
+            <div class="absolute inset-0 p-6 flex flex-col justify-end" @if($bannerTextStyle($b)) style="{{ $bannerTextStyle($b) }}" @endif>
+              @if(!empty($b->badge_text))
+                <span class="text-zn-cyan text-xs font-bold uppercase" style="color:inherit;">{{ $b->badge_text }}</span>
+              @endif
+              @if(!empty($b->title))
+                <h3 class="text-white text-xl font-black mt-1 font-heading" style="color:inherit;">{{ $b->title }}</h3>
+              @endif
+              @if(!empty($b->subtitle))
+                <p class="text-white/80 text-sm mt-1" style="color:inherit;">{{ $b->subtitle }}</p>
+              @endif
+              @if(!empty($b->button_text))
+                <span class="mt-2 inline-flex text-sm font-semibold text-white underline decoration-zn-cyan" style="color:inherit;">{{ $b->button_text }} →</span>
+              @endif
+            </div>
+          @endif
         </a>
       @endforeach
       @foreach($byPos['top_right'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="glow-card block rounded-xl overflow-hidden border border-violet-500/20">
+        <a href="{{ $b->link ?: route('store.shop') }}" class="glow-card relative block rounded-xl overflow-hidden border border-violet-500/20">
           <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
+          @if($bannerOverlayStyle($b))
+            <div class="absolute inset-0 pointer-events-none" style="{{ $bannerOverlayStyle($b) }}"></div>
+          @endif
+          @if(!empty($b->badge_text) || !empty($b->title) || !empty($b->subtitle) || !empty($b->button_text))
+            <div class="absolute inset-0 p-6 flex flex-col justify-end" @if($bannerTextStyle($b)) style="{{ $bannerTextStyle($b) }}" @endif>
+              @if(!empty($b->badge_text))
+                <span class="text-zn-cyan text-xs font-bold uppercase" style="color:inherit;">{{ $b->badge_text }}</span>
+              @endif
+              @if(!empty($b->title))
+                <h3 class="text-white text-xl font-black mt-1 font-heading" style="color:inherit;">{{ $b->title }}</h3>
+              @endif
+              @if(!empty($b->subtitle))
+                <p class="text-white/80 text-sm mt-1" style="color:inherit;">{{ $b->subtitle }}</p>
+              @endif
+              @if(!empty($b->button_text))
+                <span class="mt-2 inline-flex text-sm font-semibold text-white underline decoration-zn-cyan" style="color:inherit;">{{ $b->button_text }} →</span>
+              @endif
+            </div>
+          @endif
         </a>
       @endforeach
     </section>
+  @endif
   @endif
 
   {{-- ===== CATEGORY GRID ===== --}}
@@ -140,27 +211,39 @@
     @endif
   @endforeach
 
-  {{-- ===== PROMO STRIP ===== --}}
+  {{-- ===== PROMO STRIP (fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @if($bannerGridEnabled ?? true)
+  @php
+    $znPromo1 = ($byPos['center_left'] ?? collect())->first();
+    $znPromo2 = ($byPos['center_right'] ?? collect())->first();
+  @endphp
   <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
-    <div class="glow-card relative rounded-2xl overflow-hidden h-56 flex items-end p-6 border border-violet-500/20">
-      <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
-      <div class="absolute inset-0 bg-gradient-to-t from-zn-bg via-zn-bg/60 to-transparent"></div>
-      <div class="relative">
-        <span class="text-zn-cyan text-xs font-bold uppercase">Fashion Edit</span>
-        <h3 class="text-white text-xl font-black mt-1 font-heading">New season styles</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-white underline decoration-zn-cyan">Shop now →</a>
+    <a href="{{ $znPromo1 ? ($znPromo1->link ?: route('store.shop')) : route('store.shop') }}" class="glow-card relative block rounded-2xl overflow-hidden h-56 flex items-end p-6 border border-violet-500/20">
+      <img src="{{ $znPromo1 ? $bannerUrl($znPromo1) : 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ $znPromo1->title ?? '' }}">
+      <div class="absolute inset-0 bg-gradient-to-t from-zn-bg via-zn-bg/60 to-transparent" @if($bannerOverlayStyle($znPromo1)) style="{{ $bannerOverlayStyle($znPromo1) }}" @endif></div>
+      <div class="relative" @if($bannerTextStyle($znPromo1)) style="{{ $bannerTextStyle($znPromo1) }}" @endif>
+        <span class="text-zn-cyan text-xs font-bold uppercase" style="color:inherit;">{{ ($znPromo1->badge_text ?? null) ?: 'Fashion Edit' }}</span>
+        <h3 class="text-white text-xl font-black mt-1 font-heading" style="color:inherit;">{{ ($znPromo1->title ?? null) ?: 'New season styles' }}</h3>
+        @if(!empty($znPromo1->subtitle ?? null))
+          <p class="text-white/80 text-sm mt-1" style="color:inherit;">{{ $znPromo1->subtitle }}</p>
+        @endif
+        <span class="mt-2 inline-flex text-sm font-semibold text-white underline decoration-zn-cyan" style="color:inherit;">{{ ($znPromo1->button_text ?? null) ?: 'Shop now' }} →</span>
       </div>
-    </div>
-    <div class="glow-card relative rounded-2xl overflow-hidden h-56 flex items-end p-6 border border-violet-500/20">
-      <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
-      <div class="absolute inset-0 bg-gradient-to-t from-zn-bg via-zn-bg/60 to-transparent"></div>
-      <div class="relative">
-        <span class="text-zn-pink text-xs font-bold uppercase">Tech Deals</span>
-        <h3 class="text-white text-xl font-black mt-1 font-heading">Up to 40% off audio &amp; wearables</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-white underline decoration-zn-pink">Shop now →</a>
+    </a>
+    <a href="{{ $znPromo2 ? ($znPromo2->link ?: route('store.shop')) : route('store.shop') }}" class="glow-card relative block rounded-2xl overflow-hidden h-56 flex items-end p-6 border border-violet-500/20">
+      <img src="{{ $znPromo2 ? $bannerUrl($znPromo2) : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ $znPromo2->title ?? '' }}">
+      <div class="absolute inset-0 bg-gradient-to-t from-zn-bg via-zn-bg/60 to-transparent" @if($bannerOverlayStyle($znPromo2)) style="{{ $bannerOverlayStyle($znPromo2) }}" @endif></div>
+      <div class="relative" @if($bannerTextStyle($znPromo2)) style="{{ $bannerTextStyle($znPromo2) }}" @endif>
+        <span class="text-zn-pink text-xs font-bold uppercase" style="color:inherit;">{{ ($znPromo2->badge_text ?? null) ?: 'Tech Deals' }}</span>
+        <h3 class="text-white text-xl font-black mt-1 font-heading" style="color:inherit;">{{ ($znPromo2->title ?? null) ?: 'Up to 40% off audio & wearables' }}</h3>
+        @if(!empty($znPromo2->subtitle ?? null))
+          <p class="text-white/80 text-sm mt-1" style="color:inherit;">{{ $znPromo2->subtitle }}</p>
+        @endif
+        <span class="mt-2 inline-flex text-sm font-semibold text-white underline decoration-zn-pink" style="color:inherit;">{{ ($znPromo2->button_text ?? null) ?: 'Shop now' }} →</span>
       </div>
-    </div>
+    </a>
   </section>
+  @endif
 
   {{-- ===== SECOND PROMO ROW (home/grocery/sports mix) ===== --}}
   <section class="max-w-7xl mx-auto px-4 py-4 grid md:grid-cols-3 gap-4">
@@ -228,14 +311,56 @@
     </div>
   </section>
 
-  {{-- ===== FOOTER BANNERS ===== --}}
+  {{-- ===== FOOTER BANNERS (fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
   @if(($byPos['footer_left'] ?? collect())->count() || ($byPos['footer_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 pb-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['footer_left'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="glow-card block rounded-xl overflow-hidden border border-violet-500/20"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
+        <a href="{{ $b->link ?: route('store.shop') }}" class="glow-card relative block rounded-xl overflow-hidden border border-violet-500/20">
+          <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
+          @if($bannerOverlayStyle($b))
+            <div class="absolute inset-0 pointer-events-none" style="{{ $bannerOverlayStyle($b) }}"></div>
+          @endif
+          @if(!empty($b->badge_text) || !empty($b->title) || !empty($b->subtitle) || !empty($b->button_text))
+            <div class="absolute inset-0 p-6 flex flex-col justify-end" @if($bannerTextStyle($b)) style="{{ $bannerTextStyle($b) }}" @endif>
+              @if(!empty($b->badge_text))
+                <span class="text-zn-cyan text-xs font-bold uppercase" style="color:inherit;">{{ $b->badge_text }}</span>
+              @endif
+              @if(!empty($b->title))
+                <h3 class="text-white text-xl font-black mt-1 font-heading" style="color:inherit;">{{ $b->title }}</h3>
+              @endif
+              @if(!empty($b->subtitle))
+                <p class="text-white/80 text-sm mt-1" style="color:inherit;">{{ $b->subtitle }}</p>
+              @endif
+              @if(!empty($b->button_text))
+                <span class="mt-2 inline-flex text-sm font-semibold text-white underline decoration-zn-cyan" style="color:inherit;">{{ $b->button_text }} →</span>
+              @endif
+            </div>
+          @endif
+        </a>
       @endforeach
       @foreach($byPos['footer_right'] ?? collect() as $b)
-        <a href="{{ $b->link ?: route('store.shop') }}" class="glow-card block rounded-xl overflow-hidden border border-violet-500/20"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
+        <a href="{{ $b->link ?: route('store.shop') }}" class="glow-card relative block rounded-xl overflow-hidden border border-violet-500/20">
+          <img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt="{{ $b->title }}">
+          @if($bannerOverlayStyle($b))
+            <div class="absolute inset-0 pointer-events-none" style="{{ $bannerOverlayStyle($b) }}"></div>
+          @endif
+          @if(!empty($b->badge_text) || !empty($b->title) || !empty($b->subtitle) || !empty($b->button_text))
+            <div class="absolute inset-0 p-6 flex flex-col justify-end" @if($bannerTextStyle($b)) style="{{ $bannerTextStyle($b) }}" @endif>
+              @if(!empty($b->badge_text))
+                <span class="text-zn-cyan text-xs font-bold uppercase" style="color:inherit;">{{ $b->badge_text }}</span>
+              @endif
+              @if(!empty($b->title))
+                <h3 class="text-white text-xl font-black mt-1 font-heading" style="color:inherit;">{{ $b->title }}</h3>
+              @endif
+              @if(!empty($b->subtitle))
+                <p class="text-white/80 text-sm mt-1" style="color:inherit;">{{ $b->subtitle }}</p>
+              @endif
+              @if(!empty($b->button_text))
+                <span class="mt-2 inline-flex text-sm font-semibold text-white underline decoration-zn-cyan" style="color:inherit;">{{ $b->button_text }} →</span>
+              @endif
+            </div>
+          @endif
+        </a>
       @endforeach
     </section>
   @endif

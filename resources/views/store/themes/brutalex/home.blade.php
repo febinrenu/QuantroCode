@@ -16,54 +16,71 @@
 
 <main class="pb-24 lg:pb-0">
 
-  {{-- ===== HERO — raw split slab ===== --}}
-  <section class="border-b-4 border-ink-black">
-    <div class="grid lg:grid-cols-[1.1fr_0.9fr] divide-y-4 lg:divide-y-0 lg:divide-x-4 divide-ink-black">
-      <div class="px-6 py-14 lg:py-20 flex flex-col justify-center">
-        <span class="inline-block w-fit eyebrow bg-ink-red text-white text-xs font-bold px-3 py-1 mb-5">General Merchandise. Zero Nonsense.</span>
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl leading-[0.95] text-ink-black">
-          {{ $s->hero_title ?? 'NO FLUFF. JUST THE GOODS.' }}
-        </h1>
-        <p class="bx-copy mt-6 text-base text-ink-black/80 max-w-lg leading-relaxed">
-          {{ $s->hero_subtitle ?? 'Electronics, fashion, home, beauty, grocery, sports — stacked in one raw catalog with straight prices and zero marketing fluff. If it works, we stock it. If it doesn\'t, we don\'t.' }}
-        </p>
-        <div class="mt-8 flex flex-wrap gap-4">
-          <a href="{{ route('store.shop') }}" class="h-14 px-7 inline-flex items-center gap-2 bg-ink-black text-white font-bold uppercase tracking-wide border-4 border-ink-black bx-shadow-red bx-shadow-hover">
-            Shop The Catalog
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path stroke-linecap="square" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-14 px-7 inline-flex items-center gap-2 bg-white text-ink-black font-bold uppercase tracking-wide border-4 border-ink-black bx-shadow-sm bx-shadow-hover">
-            Cheapest First
-          </a>
+  {{-- ===== HERO — raw split slab (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $bxHeroSlides = $heroSlides ?? []; @endphp
+  <section class="border-b-4 border-ink-black relative overflow-hidden grid"
+           x-data="{ bxHero: 0, bxHeroCount: {{ count($bxHeroSlides) }} }"
+           @if(count($bxHeroSlides) > 1) x-init="setInterval(() => { bxHero = (bxHero + 1) % bxHeroCount }, 6000)" @endif>
+    @foreach($bxHeroSlides as $bxI => $bxSlide)
+      <div x-show="bxHero === {{ $bxI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1 grid lg:grid-cols-[1.1fr_0.9fr] divide-y-4 lg:divide-y-0 lg:divide-x-4 divide-ink-black">
+        <div class="px-6 py-14 lg:py-20 flex flex-col justify-center">
+          <span class="inline-block w-fit eyebrow bg-ink-red text-white text-xs font-bold px-3 py-1 mb-5">General Merchandise. Zero Nonsense.</span>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl leading-[0.95] text-ink-black">
+            {{ ($bxSlide['title'] ?? '') !== '' ? $bxSlide['title'] : 'NO FLUFF. JUST THE GOODS.' }}
+          </h1>
+          <p class="bx-copy mt-6 text-base text-ink-black/80 max-w-lg leading-relaxed">
+            {{ ($bxSlide['subtitle'] ?? '') !== '' ? $bxSlide['subtitle'] : 'Electronics, fashion, home, beauty, grocery, sports — stacked in one raw catalog with straight prices and zero marketing fluff. If it works, we stock it. If it doesn\'t, we don\'t.' }}
+          </p>
+          <div class="mt-8 flex flex-wrap gap-4">
+            <a href="{{ ($bxSlide['cta_link'] ?? '') !== '' ? $bxSlide['cta_link'] : route('store.shop') }}" class="h-14 px-7 inline-flex items-center gap-2 bg-ink-black text-white font-bold uppercase tracking-wide border-4 border-ink-black bx-shadow-red bx-shadow-hover">
+              {{ ($bxSlide['cta_text'] ?? '') !== '' ? $bxSlide['cta_text'] : 'Shop The Catalog' }}
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path stroke-linecap="square" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            </a>
+            <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-14 px-7 inline-flex items-center gap-2 bg-white text-ink-black font-bold uppercase tracking-wide border-4 border-ink-black bx-shadow-sm bx-shadow-hover">
+              Cheapest First
+            </a>
+          </div>
+          <div class="mt-10 grid grid-cols-3 gap-0 border-4 border-ink-black divide-x-4 divide-ink-black w-fit font-mono">
+            <div class="px-4 py-2 text-center"><div class="text-lg font-bold">6</div><div class="text-[10px] uppercase text-ink-black/60">Categories</div></div>
+            <div class="px-4 py-2 text-center"><div class="text-lg font-bold">48H</div><div class="text-[10px] uppercase text-ink-black/60">Dispatch</div></div>
+            <div class="px-4 py-2 text-center"><div class="text-lg font-bold">0%</div><div class="text-[10px] uppercase text-ink-black/60">B.S.</div></div>
+          </div>
         </div>
-        <div class="mt-10 grid grid-cols-3 gap-0 border-4 border-ink-black divide-x-4 divide-ink-black w-fit font-mono">
-          <div class="px-4 py-2 text-center"><div class="text-lg font-bold">6</div><div class="text-[10px] uppercase text-ink-black/60">Categories</div></div>
-          <div class="px-4 py-2 text-center"><div class="text-lg font-bold">48H</div><div class="text-[10px] uppercase text-ink-black/60">Dispatch</div></div>
-          <div class="px-4 py-2 text-center"><div class="text-lg font-bold">0%</div><div class="text-[10px] uppercase text-ink-black/60">B.S.</div></div>
+        <div class="grid grid-cols-2 divide-x-4 divide-y-4 divide-ink-black">
+          <div class="relative aspect-square overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=700&q=70" class="w-full h-full object-cover" alt="Electronics">
+            <span class="absolute bottom-2 left-2 bg-ink-black text-white text-[10px] font-bold uppercase px-2 py-1 border-2 border-white">Tech</span>
+          </div>
+          <div class="relative aspect-square overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=700&q=70" class="w-full h-full object-cover" alt="Fashion">
+            <span class="absolute bottom-2 left-2 bg-ink-black text-white text-[10px] font-bold uppercase px-2 py-1 border-2 border-white">Fashion</span>
+          </div>
+          <div class="relative aspect-square overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=700&q=70" class="w-full h-full object-cover" alt="Home">
+            <span class="absolute bottom-2 left-2 bg-ink-black text-white text-[10px] font-bold uppercase px-2 py-1 border-2 border-white">Home</span>
+          </div>
+          <div class="relative aspect-square overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=700&q=70" class="w-full h-full object-cover" alt="Beauty">
+            <span class="absolute bottom-2 left-2 bg-ink-black text-white text-[10px] font-bold uppercase px-2 py-1 border-2 border-white">Beauty</span>
+          </div>
         </div>
       </div>
-      <div class="grid grid-cols-2 divide-x-4 divide-y-4 divide-ink-black">
-        <div class="relative aspect-square overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=700&q=70" class="w-full h-full object-cover" alt="Electronics">
-          <span class="absolute bottom-2 left-2 bg-ink-black text-white text-[10px] font-bold uppercase px-2 py-1 border-2 border-white">Tech</span>
-        </div>
-        <div class="relative aspect-square overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=700&q=70" class="w-full h-full object-cover" alt="Fashion">
-          <span class="absolute bottom-2 left-2 bg-ink-black text-white text-[10px] font-bold uppercase px-2 py-1 border-2 border-white">Fashion</span>
-        </div>
-        <div class="relative aspect-square overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=700&q=70" class="w-full h-full object-cover" alt="Home">
-          <span class="absolute bottom-2 left-2 bg-ink-black text-white text-[10px] font-bold uppercase px-2 py-1 border-2 border-white">Home</span>
-        </div>
-        <div class="relative aspect-square overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=700&q=70" class="w-full h-full object-cover" alt="Beauty">
-          <span class="absolute bottom-2 left-2 bg-ink-black text-white text-[10px] font-bold uppercase px-2 py-1 border-2 border-white">Beauty</span>
-        </div>
+    @endforeach
+
+    @if(count($bxHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($bxHeroSlides as $bxI => $bxSlide)
+          <button type="button" @click="bxHero = {{ $bxI }}" class="w-2 h-2 rounded-full transition-colors border border-ink-black" :class="bxHero === {{ $bxI }} ? 'bg-ink-black' : 'bg-ink-black/20'" aria-label="Slide {{ $bxI + 1 }}"></button>
+        @endforeach
       </div>
-    </div>
+    @endif
   </section>
 
   {{-- ===== TOP BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
     <section class="border-b-4 border-ink-black grid md:grid-cols-2 divide-y-4 md:divide-y-0 md:divide-x-4 divide-ink-black">
       @foreach($byPos['top_left'] ?? collect() as $b)
@@ -77,6 +94,7 @@
         </a>
       @endforeach
     </section>
+  @endif
   @endif
 
   {{-- ===== MANIFESTO STRIP ===== --}}
@@ -151,26 +169,49 @@
     @endif
   @endforeach
 
-  {{-- ===== PROMO SLABS ===== --}}
+  {{-- ===== PROMO SLABS (tile 1 customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @php
+    // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+    // override this slab's fixed dark overlay/text color; absent -> theme default.
+    $bannerOverlayStyle = function ($b) {
+      if (!$b || empty($b->bg_color)) return null;
+      $css = !empty($b->bg_color_2)
+        ? "background:linear-gradient(to bottom, {$b->bg_color}99, {$b->bg_color_2}99);"
+        : "background:{$b->bg_color}99;";
+      return $css;
+    };
+    $bannerTextStyle = function ($b) {
+      return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
+    $centerLeft = ($byPos['center_left'] ?? collect())->first();
+  @endphp
   <section class="border-b-4 border-ink-black grid md:grid-cols-2 divide-y-4 md:divide-y-0 md:divide-x-4 divide-ink-black">
     <div class="relative overflow-hidden h-64 flex items-end p-6">
-      <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover grayscale" alt="">
-      <div class="absolute inset-0 bg-ink-black/60"></div>
-      <div class="relative">
-        <span class="text-ink-red text-xs font-mono font-bold uppercase">FASHION EDIT</span>
-        <h3 class="text-white text-2xl bx-head mt-1">GEAR THAT WORKS AS HARD AS YOU DO</h3>
-        <a href="{{ route('store.shop') }}" class="mt-3 inline-flex items-center gap-2 h-10 px-4 bg-ink-red text-white text-xs font-bold uppercase border-2 border-white">Shop Now →</a>
+      <img src="{{ $centerLeft ? $bannerUrl($centerLeft) : 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover grayscale" alt="{{ $centerLeft->title ?? '' }}">
+      <div class="absolute inset-0 bg-ink-black/60" @if($bannerOverlayStyle($centerLeft)) style="{{ $bannerOverlayStyle($centerLeft) }}" @endif></div>
+      <div class="relative" @if($bannerTextStyle($centerLeft)) style="{{ $bannerTextStyle($centerLeft) }}" @endif>
+        <span class="text-ink-red text-xs font-mono font-bold uppercase">{{ ($centerLeft->badge_text ?? null) ?: 'FASHION EDIT' }}</span>
+        <h3 class="text-white text-2xl bx-head mt-1" @if($bannerTextStyle($centerLeft)) style="color:inherit;" @endif>{{ ($centerLeft->title ?? null) ?: 'GEAR THAT WORKS AS HARD AS YOU DO' }}</h3>
+        @if(!empty($centerLeft->subtitle ?? null))
+          <p class="text-white/80 text-sm mt-1 bx-copy" @if($bannerTextStyle($centerLeft)) style="color:inherit;" @endif>{{ $centerLeft->subtitle }}</p>
+        @endif
+        <a href="{{ $centerLeft ? ($centerLeft->link ?: route('store.shop')) : route('store.shop') }}" class="mt-3 inline-flex items-center gap-2 h-10 px-4 bg-ink-red text-white text-xs font-bold uppercase border-2 border-white">{{ ($centerLeft->button_text ?? null) ?: 'Shop Now' }} →</a>
       </div>
     </div>
+    @if($offer['enabled'] ?? true)
     <div class="relative overflow-hidden h-64 flex items-end p-6">
-      <img src="https://images.unsplash.com/photo-1550928431-ee0ec6db30d3?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover grayscale" alt="">
+      <img src="{{ !empty($offer['image_url']) ? $offer['image_url'] : 'https://images.unsplash.com/photo-1550928431-ee0ec6db30d3?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover grayscale" alt="">
       <div class="absolute inset-0 bg-ink-black/60"></div>
       <div class="relative">
-        <span class="text-ink-red text-xs font-mono font-bold uppercase">TECH DUMP</span>
-        <h3 class="text-white text-2xl bx-head mt-1">UP TO 40% OFF AUDIO &amp; WEARABLES</h3>
-        <a href="{{ route('store.shop') }}" class="mt-3 inline-flex items-center gap-2 h-10 px-4 bg-white text-ink-black text-xs font-bold uppercase border-2 border-white">Shop Now →</a>
+        <span class="text-ink-red text-xs font-mono font-bold uppercase">{{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'TECH DUMP' }}</span>
+        <h3 class="text-white text-2xl bx-head mt-1">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'UP TO 40% OFF AUDIO & WEARABLES' }}</h3>
+        @if(!empty($offer['discount_text']))
+          <span class="inline-flex mt-2 items-center rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold text-white uppercase">{{ $offer['discount_text'] }}</span>
+        @endif
+        <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop') }}" class="mt-3 inline-flex items-center gap-2 h-10 px-4 bg-white text-ink-black text-xs font-bold uppercase border-2 border-white">{{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop Now →' }}</a>
       </div>
     </div>
+    @endif
   </section>
 
   {{-- ===== TESTIMONIALS — raw transcript style ===== --}}
@@ -213,6 +254,7 @@
   </section>
 
   {{-- ===== FOOTER BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['footer_left'] ?? collect())->count() || ($byPos['footer_right'] ?? collect())->count())
     <section class="grid md:grid-cols-2 divide-y-4 md:divide-y-0 md:divide-x-4 divide-ink-black border-b-4 border-ink-black">
       @foreach($byPos['footer_left'] ?? collect() as $b)
@@ -222,6 +264,7 @@
         <a href="{{ $b->link ?: route('store.shop') }}" class="block overflow-hidden"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
       @endforeach
     </section>
+  @endif
   @endif
 
 </main>

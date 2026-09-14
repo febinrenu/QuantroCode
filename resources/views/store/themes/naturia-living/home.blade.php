@@ -8,12 +8,13 @@
 @include('store.themes.naturia-living.partials.header', ['categories' => $categories])
 
 @php
-  $ntHeroTitle = $s->hero_title ?? 'Pure Ingredients. Better Living.';
-  $ntHeroSubtitle = $s->hero_subtitle ?? 'Discover natural & sustainable products for a healthier you and a greener planet.';
-  $ntHeroWords = explode(' ', $ntHeroTitle);
-  $ntHeroMid = (int) ceil(count($ntHeroWords) / 2);
-  $ntHeroLine1 = implode(' ', array_slice($ntHeroWords, 0, $ntHeroMid));
-  $ntHeroLine2 = implode(' ', array_slice($ntHeroWords, $ntHeroMid));
+  // Auto-rotating hero carousel; add slides via Store Settings > Hero Slides.
+  $nlHeroSlides = $heroSlides ?? [];
+  $nlSplitTitle = function ($title) {
+    $words = explode(' ', $title);
+    $mid = (int) ceil(count($words) / 2);
+    return [implode(' ', array_slice($words, 0, $mid)), implode(' ', array_slice($words, $mid))];
+  };
   // Category-specific themes always lead with their own category's product
   // photo -- the admin's store-wide hero_image_path (set for a different,
   // general-purpose theme) would otherwise show an unrelated image here.
@@ -25,53 +26,98 @@
   $ntSubcatId = fn ($name) => optional($ntSubcats->firstWhere('name', $name))->id;
   $ntCatTiles = collect(['Skin Care', 'Hair Care', 'Supplements', 'Bath & Body', 'Home Care', 'Organic Food', 'Tea & Drinks'])
     ->map(fn ($name) => ['label' => $name, 'sub_category' => $ntSubcatId($name)]);
+
+  // Merchant-customizable promo banners (Banners admin): position-keyed lookup
+  // plus overlay/text style overrides so a merchant-set bg_color/text_color
+  // can restyle a tile without touching markup.
+  $byPos = collect($banners ?? [])->groupBy('position');
+  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+  $bannerOverlayStyle = function ($b) {
+    if (!$b || empty($b->bg_color)) return null;
+    return !empty($b->bg_color_2)
+      ? "background:linear-gradient(135deg, {$b->bg_color}, {$b->bg_color_2});"
+      : "background:{$b->bg_color};";
+  };
+  $bannerTextStyle = function ($b) {
+    return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+  };
+
+  // Role-tagged Collection (Best Sellers) -- when a merchant has assigned
+  // one, its own curated products win over the generic category listing.
+  $ntCurrency = $s->currency_code ?? '$';
+  $ntHidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $ntRoleBestSellers = collect($collectionsByRole['best_sellers']['products'] ?? [])
+    ->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $ntCurrency, $ntHidePrices))
+    ->values();
+  $ntBestSellersProducts = $ntRoleBestSellers->isNotEmpty() ? $ntRoleBestSellers : $categorySpecificProducts;
 @endphp
 
 <main class="pb-20 md:pb-0">
 
-  {{-- ===== HERO ===== --}}
-  <section class="bg-nt-creamDark">
-    <div class="max-w-7xl mx-auto px-4 py-10 relative">
-      <div class="grid md:grid-cols-2 gap-8 items-center">
-        <div>
-          <h1 class="font-serif text-4xl md:text-5xl leading-[1.1] text-nt-ink">
-            <span class="text-nt-green">{{ $ntHeroLine1 }}</span><br>
-            {{ $ntHeroLine2 }}
-          </h1>
-          <p class="mt-5 text-nt-inkSoft max-w-md">{{ $ntHeroSubtitle }}</p>
-          <div class="mt-8 flex flex-wrap items-center gap-3">
-            <a href="{{ route('store.shop') }}" class="h-12 px-7 inline-flex items-center bg-nt-green text-white text-xs font-bold rounded-full hover:bg-nt-greenDeep">
-              {{ 'Shop Now' }}
-            </a>
-            <a href="{{ route('store.contact') }}" class="h-12 px-7 inline-flex items-center border border-nt-green text-nt-ink text-xs font-bold rounded-full hover:bg-white">
-              {{ 'Learn More' }}
-            </a>
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  <section class="relative bg-nt-creamDark grid"
+           x-data="{ nlHero: 0, nlHeroCount: {{ count($nlHeroSlides) }} }"
+           @if(count($nlHeroSlides) > 1) x-init="setInterval(() => { nlHero = (nlHero + 1) % nlHeroCount }, 6000)" @endif>
+    @foreach($nlHeroSlides as $nlI => $nlSlide)
+      @php
+        $nlTitle = ($nlSlide['title'] ?? '') !== '' ? $nlSlide['title'] : 'Pure Ingredients. Better Living.';
+        [$nlLine1, $nlLine2] = $nlSplitTitle($nlTitle);
+        $nlSubtitle = ($nlSlide['subtitle'] ?? '') !== '' ? $nlSlide['subtitle'] : 'Discover natural & sustainable products for a healthier you and a greener planet.';
+        $nlImg = !empty($nlSlide['image_url']) ? $nlSlide['image_url'] : $ntHeroImg;
+      @endphp
+      <div x-show="nlHero === {{ $nlI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1 max-w-7xl mx-auto px-4 py-10 relative">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div>
+            <h1 class="font-serif text-4xl md:text-5xl leading-[1.1] text-nt-ink">
+              <span class="text-nt-green">{{ $nlLine1 }}</span><br>
+              {{ $nlLine2 }}
+            </h1>
+            <p class="mt-5 text-nt-inkSoft max-w-md">{{ $nlSubtitle }}</p>
+            <div class="mt-8 flex flex-wrap items-center gap-3">
+              <a href="{{ ($nlSlide['cta_link'] ?? '') !== '' ? $nlSlide['cta_link'] : route('store.shop') }}" class="h-12 px-7 inline-flex items-center bg-nt-green text-white text-xs font-bold rounded-full hover:bg-nt-greenDeep">
+                {{ ($nlSlide['cta_text'] ?? '') !== '' ? $nlSlide['cta_text'] : 'Shop Now' }}
+              </a>
+              <a href="{{ route('store.contact') }}" class="h-12 px-7 inline-flex items-center border border-nt-green text-nt-ink text-xs font-bold rounded-full hover:bg-white">
+                {{ 'Learn More' }}
+              </a>
+            </div>
+            <div class="mt-10 flex flex-wrap items-center gap-8">
+              @foreach([
+                ['icon' => 'M12 2c-4 3-7 6-7 10a7 7 0 0 0 14 0c0-4-3-7-7-10Z', 'label' => '100% Natural Ingredients'],
+                ['icon' => 'M12 2 3 7v10l9 5 9-5V7l-9-5Z M9 12l2 2 4-4', 'label' => 'Cruelty Free & Vegan'],
+                ['icon' => 'M4 4h5v5H4z M15 4h5v5h-5z M4 15h5v5H4z M15 15h5v5h-5z', 'label' => 'Eco Friendly Packaging'],
+              ] as $item)
+                <div class="flex flex-col items-center gap-1.5 text-center w-24">
+                  <svg class="w-6 h-6 text-nt-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="{{ $item['icon'] }}"/></svg>
+                  <span class="text-[11px] font-semibold text-nt-inkSoft leading-tight">{{ $item['label'] }}</span>
+                </div>
+              @endforeach
+            </div>
           </div>
-          <div class="mt-10 flex flex-wrap items-center gap-8">
-            @foreach([
-              ['icon' => 'M12 2c-4 3-7 6-7 10a7 7 0 0 0 14 0c0-4-3-7-7-10Z', 'label' => '100% Natural Ingredients'],
-              ['icon' => 'M12 2 3 7v10l9 5 9-5V7l-9-5Z M9 12l2 2 4-4', 'label' => 'Cruelty Free & Vegan'],
-              ['icon' => 'M4 4h5v5H4z M15 4h5v5h-5z M4 15h5v5H4z M15 15h5v5h-5z', 'label' => 'Eco Friendly Packaging'],
-            ] as $item)
-              <div class="flex flex-col items-center gap-1.5 text-center w-24">
-                <svg class="w-6 h-6 text-nt-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="{{ $item['icon'] }}"/></svg>
-                <span class="text-[11px] font-semibold text-nt-inkSoft leading-tight">{{ $item['label'] }}</span>
-              </div>
-            @endforeach
+          <div class="relative aspect-[6/5] overflow-hidden rounded-2xl bg-nt-creamDark">
+            @if($nlImg)
+              <img src="{{ $nlImg }}" alt="{{ $nlTitle }}" class="w-full h-full object-cover">
+            @endif
+            <span class="absolute top-6 right-6 w-20 h-20 rounded-full bg-nt-greenDeep text-white text-[11px] font-bold flex flex-col items-center justify-center text-center leading-tight">
+              <span class="text-[9px]">{{ 'UP TO' }}</span>
+              <span class="text-base">{{ '35%' }}</span>
+              <span class="text-[9px]">{{ 'OFF' }}</span>
+            </span>
           </div>
-        </div>
-        <div class="relative aspect-[6/5] overflow-hidden rounded-2xl bg-nt-creamDark">
-          @if($ntHeroImg)
-            <img src="{{ $ntHeroImg }}" alt="{{ $ntHeroTitle }}" class="w-full h-full object-cover">
-          @endif
-          <span class="absolute top-6 right-6 w-20 h-20 rounded-full bg-nt-greenDeep text-white text-[11px] font-bold flex flex-col items-center justify-center text-center leading-tight">
-            <span class="text-[9px]">{{ 'UP TO' }}</span>
-            <span class="text-base">{{ '35%' }}</span>
-            <span class="text-[9px]">{{ 'OFF' }}</span>
-          </span>
         </div>
       </div>
-    </div>
+    @endforeach
+
+    @if(count($nlHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($nlHeroSlides as $nlI => $nlSlide)
+          <button type="button" @click="nlHero = {{ $nlI }}" class="w-2 h-2 rounded-full transition-colors" :class="nlHero === {{ $nlI }} ? 'bg-nt-green' : 'bg-nt-green/30'" aria-label="Slide {{ $nlI + 1 }}"></button>
+        @endforeach
+      </div>
+    @endif
   </section>
 
   {{-- ===== CATEGORY ICON ROW ===== --}}
@@ -110,49 +156,75 @@
     </div>
   </section>
 
-  {{-- ===== PROMO BANNERS ===== --}}
+  {{-- ===== PROMO BANNERS (fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @if($bannerGridEnabled ?? true)
+  @php
+    $ntPromo1 = ($byPos['top_left'] ?? collect())->first();
+    $ntPromo2 = ($byPos['top_right'] ?? collect())->first();
+    $ntPromo3 = ($byPos['center_left'] ?? collect())->first();
+  @endphp
   <section class="max-w-7xl mx-auto px-4 pb-10 grid md:grid-cols-3 gap-4">
-    <div class="rounded-xl overflow-hidden bg-nt-creamDark relative min-h-[180px] flex items-end">
-      @if($ntImgAt(0))
+    <div class="rounded-xl overflow-hidden bg-nt-creamDark relative min-h-[180px] flex items-end" @if($bannerOverlayStyle($ntPromo1)) style="{{ $bannerOverlayStyle($ntPromo1) }}" @endif>
+      @if($ntPromo1 && $ntPromo1->image_url)
+        <img src="{{ $bannerUrl($ntPromo1) }}" class="absolute inset-0 w-full h-full object-cover opacity-40" alt="{{ $ntPromo1->title }}">
+      @elseif($ntImgAt(0))
         <img src="{{ $ntImgAt(0) }}" class="absolute inset-0 w-full h-full object-cover opacity-40">
       @endif
-      <div class="relative p-6">
-        <h3 class="font-serif text-xl text-nt-ink">{{ 'Wellness' }}<br>{{ 'Essentials' }}</h3>
-        <p class="text-xs text-nt-inkSoft mt-1">{{ 'Boost your daily wellness routine' }}</p>
-        <a href="{{ route('store.shop') }}" class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-nt-green hover:underline">{{ 'Shop Now' }} &rarr;</a>
+      <div class="relative p-6" @if($bannerTextStyle($ntPromo1)) style="{{ $bannerTextStyle($ntPromo1) }}" @endif>
+        @if(!empty($ntPromo1->badge_text ?? null))
+          <span class="block text-[11px] font-bold uppercase tracking-wide text-nt-green mb-1" style="color:inherit;">{{ $ntPromo1->badge_text }}</span>
+        @endif
+        <h3 class="font-serif text-xl text-nt-ink" style="color:inherit;">
+          @if(!empty($ntPromo1->title ?? null)){{ $ntPromo1->title }}@else{{ 'Wellness' }}<br>{{ 'Essentials' }}@endif
+        </h3>
+        <p class="text-xs text-nt-inkSoft mt-1" style="color:inherit;">{{ ($ntPromo1->subtitle ?? null) ?: 'Boost your daily wellness routine' }}</p>
+        <a href="{{ $ntPromo1 ? ($ntPromo1->link ?: route('store.shop')) : route('store.shop') }}" class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-nt-green hover:underline" style="color:inherit;">{{ ($ntPromo1->button_text ?? null) ?: 'Shop Now' }} &rarr;</a>
       </div>
     </div>
-    <div class="rounded-xl overflow-hidden bg-nt-greenLight relative min-h-[180px] flex items-end">
-      @if($ntImgAt(1))
+    <div class="rounded-xl overflow-hidden bg-nt-greenLight relative min-h-[180px] flex items-end" @if($bannerOverlayStyle($ntPromo2)) style="{{ $bannerOverlayStyle($ntPromo2) }}" @endif>
+      @if($ntPromo2 && $ntPromo2->image_url)
+        <img src="{{ $bannerUrl($ntPromo2) }}" class="absolute inset-0 w-full h-full object-cover opacity-40" alt="{{ $ntPromo2->title }}">
+      @elseif($ntImgAt(1))
         <img src="{{ $ntImgAt(1) }}" class="absolute inset-0 w-full h-full object-cover opacity-40">
       @endif
-      <div class="relative p-6">
-        <h3 class="font-serif text-xl text-nt-green">{{ 'Glow Naturally' }}</h3>
-        <p class="text-xs text-nt-inkSoft mt-1">{{ 'Clean beauty for radiant skin' }}</p>
-        <a href="{{ route('store.shop') }}" class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-nt-green hover:underline">{{ 'Shop Now' }} &rarr;</a>
+      <div class="relative p-6" @if($bannerTextStyle($ntPromo2)) style="{{ $bannerTextStyle($ntPromo2) }}" @endif>
+        @if(!empty($ntPromo2->badge_text ?? null))
+          <span class="block text-[11px] font-bold uppercase tracking-wide text-nt-green mb-1" style="color:inherit;">{{ $ntPromo2->badge_text }}</span>
+        @endif
+        <h3 class="font-serif text-xl text-nt-green" style="color:inherit;">{{ ($ntPromo2->title ?? null) ?: 'Glow Naturally' }}</h3>
+        <p class="text-xs text-nt-inkSoft mt-1" style="color:inherit;">{{ ($ntPromo2->subtitle ?? null) ?: 'Clean beauty for radiant skin' }}</p>
+        <a href="{{ $ntPromo2 ? ($ntPromo2->link ?: route('store.shop')) : route('store.shop') }}" class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-nt-green hover:underline" style="color:inherit;">{{ ($ntPromo2->button_text ?? null) ?: 'Shop Now' }} &rarr;</a>
       </div>
     </div>
-    <div class="rounded-xl overflow-hidden bg-orange-50 relative min-h-[180px] flex items-end">
-      @if($ntImgAt(2))
+    <div class="rounded-xl overflow-hidden bg-orange-50 relative min-h-[180px] flex items-end" @if($bannerOverlayStyle($ntPromo3)) style="{{ $bannerOverlayStyle($ntPromo3) }}" @endif>
+      @if($ntPromo3 && $ntPromo3->image_url)
+        <img src="{{ $bannerUrl($ntPromo3) }}" class="absolute inset-0 w-full h-full object-cover opacity-40" alt="{{ $ntPromo3->title }}">
+      @elseif($ntImgAt(2))
         <img src="{{ $ntImgAt(2) }}" class="absolute inset-0 w-full h-full object-cover opacity-40">
       @endif
-      <div class="relative p-6">
-        <h3 class="font-serif text-xl text-nt-ink">{{ 'Healthy' }}<br>{{ 'Inside Out' }}</h3>
-        <p class="text-xs text-nt-inkSoft mt-1">{{ 'Organic foods for a better you' }}</p>
-        <a href="{{ route('store.shop') }}" class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-nt-green hover:underline">{{ 'Shop Now' }} &rarr;</a>
+      <div class="relative p-6" @if($bannerTextStyle($ntPromo3)) style="{{ $bannerTextStyle($ntPromo3) }}" @endif>
+        @if(!empty($ntPromo3->badge_text ?? null))
+          <span class="block text-[11px] font-bold uppercase tracking-wide text-nt-green mb-1" style="color:inherit;">{{ $ntPromo3->badge_text }}</span>
+        @endif
+        <h3 class="font-serif text-xl text-nt-ink" style="color:inherit;">
+          @if(!empty($ntPromo3->title ?? null)){{ $ntPromo3->title }}@else{{ 'Healthy' }}<br>{{ 'Inside Out' }}@endif
+        </h3>
+        <p class="text-xs text-nt-inkSoft mt-1" style="color:inherit;">{{ ($ntPromo3->subtitle ?? null) ?: 'Organic foods for a better you' }}</p>
+        <a href="{{ $ntPromo3 ? ($ntPromo3->link ?: route('store.shop')) : route('store.shop') }}" class="mt-3 inline-flex items-center gap-1 text-xs font-bold text-nt-green hover:underline" style="color:inherit;">{{ ($ntPromo3->button_text ?? null) ?: 'Shop Now' }} &rarr;</a>
       </div>
     </div>
   </section>
+  @endif
 
   {{-- ===== BEST SELLERS ===== --}}
-  @if($categorySpecificProducts->count())
+  @if($ntBestSellersProducts->count())
     <section class="max-w-7xl mx-auto px-4 pb-10">
       <div class="flex items-end justify-between mb-5">
         <h2 class="font-serif text-2xl text-nt-ink">{{ 'Best Sellers' }}</h2>
         <a href="{{ route('store.shop') }}" class="text-xs font-bold text-nt-green hover:underline">{{ 'View All Products' }} &rarr;</a>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        @foreach($categorySpecificProducts as $product)
+        @foreach($ntBestSellersProducts as $product)
           @include('store.themes.naturia-living.partials.product-card', ['product' => $product])
         @endforeach
       </div>
