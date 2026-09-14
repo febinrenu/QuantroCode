@@ -103,8 +103,8 @@ html[dir="rtl"] .l6-lang-btn { font-family: 'IBM Plex Sans Arabic', sans-serif; 
 [data-theme="dark"] .l6-logo-light { display: none; }
 [data-theme="dark"] .l6-logo-dark { display: block; }
 
-.l6-nav-link { color: var(--ink2); padding: 8px 11px; border-radius: 8px; font-weight: 600; font-size: 12.5px; transition: color .15s; }
-.l6-nav-link:hover { color: #2563EB; }
+.l6-nav-link { color: var(--ink2) !important; padding: 8px 11px; border-radius: 8px; font-weight: 600; font-size: 12.5px; transition: color .15s; }
+.l6-nav-link:hover { color: #2563EB !important; }
 
 .l6-btn-primary { background: #2563EB; color: #fff !important; border-radius: 12px; font-weight: 700; box-shadow: 0 12px 26px -8px rgba(37,99,235,.5); transition: background .15s; }
 .l6-btn-primary:hover { background: #1D53D0; color: #fff !important; }
@@ -150,10 +150,10 @@ html[dir="rtl"] .l6-price-tab { font-family: 'IBM Plex Sans Arabic', sans-serif;
 .l6-plan-price[data-period="yearly"] { display: none; }
 .l6-plan-card.show-yearly .l6-plan-price[data-period="monthly"] { display: none; }
 .l6-plan-card.show-yearly .l6-plan-price[data-period="yearly"] { display: flex; }
-.l6-plan-btn-outline { margin-top: 18px; border: 1px solid var(--bd2); background: var(--card2); color: var(--ink); border-radius: 11px; padding: 12px; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 13px; width: 100%; text-align: center; display: block; transition: all .15s; }
-.l6-plan-btn-solid { margin-top: 18px; border: none; background: #2563EB; color: #fff; border-radius: 11px; padding: 12px; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 13px; width: 100%; text-align: center; display: block; box-shadow: 0 10px 22px -8px rgba(37,99,235,.5); transition: background .15s; }
-.l6-plan-btn-solid:hover { background: #1D53D0; color: #fff; }
-.l6-plan-btn-outline:hover { border-color: #2563EB; color: #2563EB; }
+.l6-plan-btn-outline { margin-top: 18px; border: 1px solid var(--bd2); background: var(--card2); color: var(--ink) !important; border-radius: 11px; padding: 12px; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 13px; width: 100%; text-align: center; display: block; transition: all .15s; }
+.l6-plan-btn-solid { margin-top: 18px; border: none; background: #2563EB; color: #fff !important; border-radius: 11px; padding: 12px; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 13px; width: 100%; text-align: center; display: block; box-shadow: 0 10px 22px -8px rgba(37,99,235,.5); transition: background .15s; }
+.l6-plan-btn-solid:hover { background: #1D53D0; color: #fff !important; }
+.l6-plan-btn-outline:hover { border-color: #2563EB; color: #2563EB !important; }
 
 .l6-testimonial-card { background: var(--card); border: 1px solid var(--bd); box-shadow: var(--sh); border-radius: 15px; }
 
@@ -166,14 +166,40 @@ html[dir="rtl"] .l6-price-tab { font-family: 'IBM Plex Sans Arabic', sans-serif;
 .l6-faq-item.is-open .l6-faq-body { display: block; }
 
 /* Hero slideshow */
-.l6-hero-slide-stage { position: relative; width: 100%; min-height: 340px; display: flex; align-items: center; justify-content: center; }
-@media (min-width: 1024px) { .l6-hero-slide-stage { min-height: 460px; } }
-.l6-hero-slide-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .5s ease; pointer-events: none; }
+.l6-hero-glow-a, .l6-hero-glow-b { position: absolute; z-index: 0; border-radius: 50%; pointer-events: none; filter: blur(60px); opacity: .55; }
+.l6-hero-glow-a { top: -10%; inset-inline-end: 4%; width: 46vw; height: 46vw; max-width: 640px; max-height: 640px; background: radial-gradient(circle, rgba(37,99,235,.24), transparent 70%); }
+.l6-hero-glow-b { bottom: -14%; inset-inline-end: 18%; width: 34vw; height: 34vw; max-width: 480px; max-height: 480px; background: radial-gradient(circle, rgba(0,196,154,.22), transparent 70%); }
+[data-theme="dark"] .l6-hero-glow-a { opacity: .35; }
+[data-theme="dark"] .l6-hero-glow-b { opacity: .3; }
+
+.l6-hero-slide-stage { position: relative; z-index: 1; width: 100%; min-height: 340px; display: flex; align-items: center; justify-content: center; }
+@media (min-width: 1024px) { .l6-hero-slide-stage { min-height: 480px; } }
+.l6-hero-slide-img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0;
+    transition: opacity .6s ease; pointer-events: none;
+    -webkit-mask-image: radial-gradient(ellipse 70% 78% at 50% 50%, #000 52%, transparent 100%);
+    mask-image: radial-gradient(ellipse 70% 78% at 50% 50%, #000 52%, transparent 100%);
+}
 .l6-hero-slide-img.is-active { position: relative; opacity: 1; pointer-events: auto; }
+:root:not([data-theme="dark"]) .l6-hero-slide-img { mix-blend-mode: multiply; }
+[data-theme="dark"] .l6-hero-slide-img {
+    -webkit-mask-image: radial-gradient(ellipse 60% 64% at 50% 50%, #000 28%, transparent 100%);
+    mask-image: radial-gradient(ellipse 60% 64% at 50% 50%, #000 28%, transparent 100%);
+    filter: brightness(.92);
+}
 .l6-hero-dot { width: 9px; height: 9px; border-radius: 20px; border: none; cursor: pointer; padding: 0; background: var(--bd2); transition: all .25s; }
 .l6-hero-dot.is-active { width: 24px; background: #2563EB; }
-.l6-hero-arrow { width: 34px; height: 34px; border: 1px solid var(--bd2); background: var(--card); border-radius: 50%; cursor: pointer; color: var(--ink2); display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.l6-hero-arrow { width: 34px; height: 34px; border: 1px solid var(--bd2); background: var(--card); border-radius: 50%; cursor: pointer; color: var(--ink2); display: flex; align-items: center; justify-content: center; transition: all .15s; box-shadow: 0 10px 24px -12px rgba(11,27,51,.3); }
 .l6-hero-arrow:hover { border-color: #2563EB; color: #2563EB; }
+@media (min-width: 1024px) {
+    .l6-hero-arrow-prev, .l6-hero-arrow-next { position: absolute; top: 52%; transform: translateY(-50%); z-index: 20; }
+    .l6-hero-arrow-prev { inset-inline-start: 20px; }
+    .l6-hero-arrow-next { inset-inline-end: 20px; }
+}
+@media (max-width: 1023px) {
+    .l6-hero-arrow-prev, .l6-hero-arrow-next { position: static; margin: 0 6px; }
+    .l6-hero-nav { flex-wrap: wrap; }
+}
 
 .l6-partner-logo { font-family: 'Sora', sans-serif; font-weight: 700; }
 

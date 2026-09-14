@@ -81,11 +81,11 @@
                 </button>
             </div>
             <nav class="flex flex-col gap-1 font-semibold" style="color:var(--ink)">
-                <a href="#features" class="py-3 px-3 rounded-xl"><span class="i18n-en">Features</span><span class="i18n-ar">المميزات</span></a>
-                <a href="#industries" class="py-3 px-3 rounded-xl"><span class="i18n-en">Industries</span><span class="i18n-ar">القطاعات</span></a>
-                <a href="#pricing" class="py-3 px-3 rounded-xl"><span class="i18n-en">Pricing</span><span class="i18n-ar">الأسعار</span></a>
-                <a href="#testimonials" class="py-3 px-3 rounded-xl"><span class="i18n-en">Customers</span><span class="i18n-ar">العملاء</span></a>
-                <a href="#faq" class="py-3 px-3 rounded-xl"><span class="i18n-en">FAQ</span><span class="i18n-ar">الأسئلة</span></a>
+                <a href="#features" class="py-3 px-3 rounded-xl" style="color:var(--ink)"><span class="i18n-en">Features</span><span class="i18n-ar">المميزات</span></a>
+                <a href="#industries" class="py-3 px-3 rounded-xl" style="color:var(--ink)"><span class="i18n-en">Industries</span><span class="i18n-ar">القطاعات</span></a>
+                <a href="#pricing" class="py-3 px-3 rounded-xl" style="color:var(--ink)"><span class="i18n-en">Pricing</span><span class="i18n-ar">الأسعار</span></a>
+                <a href="#testimonials" class="py-3 px-3 rounded-xl" style="color:var(--ink)"><span class="i18n-en">Customers</span><span class="i18n-ar">العملاء</span></a>
+                <a href="#faq" class="py-3 px-3 rounded-xl" style="color:var(--ink)"><span class="i18n-en">FAQ</span><span class="i18n-ar">الأسئلة</span></a>
             </nav>
             <div class="mt-auto pt-8 flex flex-col gap-3 border-t" style="border-color:var(--bd)">
                 <a href="{{ route('central.login') }}" class="py-3 text-center rounded-full border-2 font-semibold" style="border-color:var(--ink);color:var(--ink)"><span class="i18n-en">Login</span><span class="i18n-ar">تسجيل الدخول</span></a>
@@ -97,7 +97,9 @@
     <main id="main">
     {{-- ============ HERO ============ --}}
     <section id="top" class="relative overflow-hidden" style="background:var(--herobg)">
-        <div class="l6-hero-grid relative grid lg:grid-cols-[0.86fr_1.14fr] gap-9 max-w-[1400px] mx-auto px-5 py-11 md:py-14 items-center">
+        <div class="l6-hero-glow-a" aria-hidden="true"></div>
+        <div class="l6-hero-glow-b" aria-hidden="true"></div>
+        <div class="l6-hero-grid grid lg:grid-cols-[minmax(0,600px)_1fr] gap-9 lg:gap-2 max-w-[1680px] mx-auto ps-5 pe-5 lg:pe-0 py-11 md:py-14 items-center">
             <div class="max-w-[560px] mx-auto lg:mx-0 text-center lg:text-start">
                 <div class="text-[12px] font-bold uppercase tracking-[1.6px]" style="color:#00A882">
                     <span class="i18n-en">All-in-one Business Management Platform</span><span class="i18n-ar" style="letter-spacing:0;font-size:13px;text-transform:none">منصة متكاملة لإدارة الأعمال</span>
@@ -169,14 +171,14 @@
                 </div>
             </div>
 
-            <div class="relative flex flex-col items-center">
+            <div class="flex flex-col items-center lg:items-stretch">
                 <div class="l6-hero-slide-stage" id="l6HeroSlides">
                     @foreach($heroSlides as $i => $src)
                         <img src="{{ $src }}" alt="Quantro platform preview {{ $i + 1 }}" class="l6-hero-slide-img @if($i === 0) is-active @endif" decoding="async">
                     @endforeach
                 </div>
-                <div class="relative flex items-center justify-center gap-[9px] mt-[18px]">
-                    <button type="button" id="l6HeroPrev" class="l6-hero-arrow" aria-label="Previous slide">
+                <div class="l6-hero-nav flex items-center justify-center gap-[9px] mt-[14px] lg:mt-[-6px]">
+                    <button type="button" id="l6HeroPrev" class="l6-hero-arrow l6-hero-arrow-prev" aria-label="Previous slide">
                         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="m15 6-6 6 6 6"></path></svg>
                     </button>
                     <div id="l6HeroDots" class="flex items-center gap-[9px]">
@@ -184,7 +186,7 @@
                             <button type="button" class="l6-hero-dot @if($i === 0) is-active @endif" aria-label="Go to slide {{ $i + 1 }}"></button>
                         @endfor
                     </div>
-                    <button type="button" id="l6HeroNext" class="l6-hero-arrow" aria-label="Next slide">
+                    <button type="button" id="l6HeroNext" class="l6-hero-arrow l6-hero-arrow-next" aria-label="Next slide">
                         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="m9 6 6 6-6 6"></path></svg>
                     </button>
                 </div>
