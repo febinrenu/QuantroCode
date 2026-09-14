@@ -99,7 +99,7 @@
     <section id="top" class="relative overflow-hidden" style="background:var(--herobg)">
         <div class="l6-hero-glow-a" aria-hidden="true"></div>
         <div class="l6-hero-glow-b" aria-hidden="true"></div>
-        <div class="l6-hero-grid grid lg:grid-cols-[minmax(0,600px)_1fr] gap-9 lg:gap-2 max-w-[1680px] mx-auto ps-5 pe-5 lg:pe-0 py-11 md:py-14 items-center">
+        <div class="l6-hero-grid grid lg:grid-cols-[0.92fr_1.08fr] gap-10 lg:gap-12 max-w-[1360px] mx-auto px-5 py-11 md:py-16 items-center">
             <div class="max-w-[560px] mx-auto lg:mx-0 text-center lg:text-start">
                 <div class="text-[12px] font-bold uppercase tracking-[1.6px]" style="color:#00A882">
                     <span class="i18n-en">All-in-one Business Management Platform</span><span class="i18n-ar" style="letter-spacing:0;font-size:13px;text-transform:none">منصة متكاملة لإدارة الأعمال</span>
@@ -171,14 +171,14 @@
                 </div>
             </div>
 
-            <div class="flex flex-col items-center lg:items-stretch">
+            <div class="flex flex-col items-center">
                 <div class="l6-hero-slide-stage" id="l6HeroSlides">
                     @foreach($heroSlides as $i => $src)
                         <img src="{{ $src }}" alt="Quantro platform preview {{ $i + 1 }}" class="l6-hero-slide-img @if($i === 0) is-active @endif" decoding="async">
                     @endforeach
                 </div>
-                <div class="l6-hero-nav flex items-center justify-center gap-[9px] mt-[14px] lg:mt-[-6px]">
-                    <button type="button" id="l6HeroPrev" class="l6-hero-arrow l6-hero-arrow-prev" aria-label="Previous slide">
+                <div class="l6-hero-nav flex items-center justify-center gap-3 mt-4">
+                    <button type="button" id="l6HeroPrev" class="l6-hero-arrow" aria-label="Previous slide">
                         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="m15 6-6 6 6 6"></path></svg>
                     </button>
                     <div id="l6HeroDots" class="flex items-center gap-[9px]">
@@ -186,7 +186,7 @@
                             <button type="button" class="l6-hero-dot @if($i === 0) is-active @endif" aria-label="Go to slide {{ $i + 1 }}"></button>
                         @endfor
                     </div>
-                    <button type="button" id="l6HeroNext" class="l6-hero-arrow l6-hero-arrow-next" aria-label="Next slide">
+                    <button type="button" id="l6HeroNext" class="l6-hero-arrow" aria-label="Next slide">
                         <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="m9 6 6 6-6 6"></path></svg>
                     </button>
                 </div>

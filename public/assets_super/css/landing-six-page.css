@@ -191,15 +191,6 @@ html[dir="rtl"] .l6-price-tab { font-family: 'IBM Plex Sans Arabic', sans-serif;
 .l6-hero-dot.is-active { width: 24px; background: #2563EB; }
 .l6-hero-arrow { width: 34px; height: 34px; border: 1px solid var(--bd2); background: var(--card); border-radius: 50%; cursor: pointer; color: var(--ink2); display: flex; align-items: center; justify-content: center; transition: all .15s; box-shadow: 0 10px 24px -12px rgba(11,27,51,.3); }
 .l6-hero-arrow:hover { border-color: #2563EB; color: #2563EB; }
-@media (min-width: 1024px) {
-    .l6-hero-arrow-prev, .l6-hero-arrow-next { position: absolute; top: 52%; transform: translateY(-50%); z-index: 20; }
-    .l6-hero-arrow-prev { inset-inline-start: 20px; }
-    .l6-hero-arrow-next { inset-inline-end: 20px; }
-}
-@media (max-width: 1023px) {
-    .l6-hero-arrow-prev, .l6-hero-arrow-next { position: static; margin: 0 6px; }
-    .l6-hero-nav { flex-wrap: wrap; }
-}
 
 .l6-partner-logo { font-family: 'Sora', sans-serif; font-weight: 700; }
 
