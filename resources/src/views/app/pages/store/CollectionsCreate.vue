@@ -44,6 +44,12 @@
                       <b-form-input type="text" min="1" v-model.number="form.limit"/>
                     </b-form-group>
                   </div>
+                  <div class="col-md-8">
+                    <b-form-group :label="$t('Homepage_Role')">
+                      <b-form-select v-model="form.role" :options="roleOptions" />
+                      <small class="text-muted d-block mt-1">{{ $t('Homepage_Role_Help') }}</small>
+                    </b-form-group>
+                  </div>
                 </div>
               </div>
             </div>
@@ -242,10 +248,18 @@ export default {
       form: {
         title: '',
         slug: '',
+        role: null,
         description: '',
         limit: 8,
         sort_order: 0,
       },
+      roleOptions: [
+        { value: null, text: this.$t('None_Generic_Collection') },
+        { value: 'best_sellers', text: 'Best Sellers' },
+        { value: 'recommended', text: 'Recommended For You' },
+        { value: 'new_arrivals', text: 'New Arrivals' },
+        { value: 'trending', text: 'Trending Now' },
+      ],
 
       // product picker
       productQuery: '',

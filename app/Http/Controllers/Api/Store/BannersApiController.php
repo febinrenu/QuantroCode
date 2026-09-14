@@ -48,9 +48,24 @@ class BannersApiController extends Controller
             'title' => 'nullable|string|max:190',
             'position' => 'nullable|string|max:60',
             'active' => 'boolean',
+            'badge_text' => 'nullable|string|max:60',
+            'subtitle' => 'nullable|string|max:190',
+            'button_text' => 'nullable|string|max:60',
+            'link' => 'nullable|string|max:255',
+            // BannerForm.vue sends every unset field as '' (not null), so the
+            // pattern must accept an empty string as "no color chosen".
+            'bg_color' => ['nullable', 'regex:/^(#[0-9a-fA-F]{3,8})?$/'],
+            'bg_color_2' => ['nullable', 'regex:/^(#[0-9a-fA-F]{3,8})?$/'],
+            'text_color' => ['nullable', 'regex:/^(#[0-9a-fA-F]{3,8})?$/'],
             // Laravel 12: image rule excludes SVG by default; use file + mimes
             'image' => 'nullable|file|mimes:jpg,jpeg,png,webp,gif|max:4096',
         ]);
+
+        foreach (['badge_text', 'subtitle', 'button_text', 'bg_color', 'bg_color_2', 'text_color'] as $optionalField) {
+            if (array_key_exists($optionalField, $data) && $data[$optionalField] === '') {
+                $data[$optionalField] = null;
+            }
+        }
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
@@ -102,11 +117,25 @@ class BannersApiController extends Controller
         $data = $request->validate([
             'title' => 'nullable|string|max:190',
             'position' => 'nullable|string|max:60',
-            'link' => 'nullable|url',
+            'link' => 'nullable|string|max:255',
             'active' => 'boolean',
+            'badge_text' => 'nullable|string|max:60',
+            'subtitle' => 'nullable|string|max:190',
+            'button_text' => 'nullable|string|max:60',
+            // BannerForm.vue sends every unset field as '' (not null), so the
+            // pattern must accept an empty string as "no color chosen".
+            'bg_color' => ['nullable', 'regex:/^(#[0-9a-fA-F]{3,8})?$/'],
+            'bg_color_2' => ['nullable', 'regex:/^(#[0-9a-fA-F]{3,8})?$/'],
+            'text_color' => ['nullable', 'regex:/^(#[0-9a-fA-F]{3,8})?$/'],
             // Laravel 12: image rule excludes SVG by default; use file + mimes
             'image' => 'nullable|file|mimes:jpg,jpeg,png,webp,gif|max:4096',
         ]);
+
+        foreach (['badge_text', 'subtitle', 'button_text', 'bg_color', 'bg_color_2', 'text_color'] as $optionalField) {
+            if (array_key_exists($optionalField, $data) && $data[$optionalField] === '') {
+                $data[$optionalField] = null;
+            }
+        }
 
         // If a new image is uploaded, delete the old one (simple unlink pattern) and save the new one.
         if ($request->hasFile('image')) {

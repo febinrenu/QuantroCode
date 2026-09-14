@@ -10,7 +10,7 @@ class StoreSetting extends Model
         'enabled', 'registration_enabled', 'require_invite_code', 'require_admin_approval',
         'store_name', 'theme', 'theme_tokens', 'logo_path', 'favicon_path',
         'primary_color', 'secondary_color', 'font_family',
-        'hero_title', 'hero_subtitle', 'hero_image_path',
+        'hero_title', 'hero_subtitle', 'hero_image_path', 'hero_slides',
         'homepage_lineup', 'homepage_layout', 'social_links',
         'default_warehouse_id', 'allow_overselling', 'hide_out_of_stock', 'hide_prices_for_guests', 'show_stock', 'currency_code', 'language',
         'contact_email', 'contact_phone', 'contact_address',
@@ -28,6 +28,7 @@ class StoreSetting extends Model
         'hide_prices_for_guests' => 'boolean',
         'show_stock' => 'boolean',
         'homepage_lineup' => 'array',
+        'hero_slides' => 'array',
         'social_links' => 'array',
         'theme_tokens' => 'array',
     ];

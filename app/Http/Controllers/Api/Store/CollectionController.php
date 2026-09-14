@@ -54,6 +54,7 @@ class CollectionController extends Controller
         $data = $request->validate([
             'title' => ['required', 'string', 'max:190'],
             'slug' => ['required', 'string', 'max:190', 'alpha_dash', 'unique:collections,slug'],
+            'role' => ['nullable', Rule::in(array_keys(\App\Models\Collection::ROLES))],
             'description' => ['nullable', 'string'],
             'limit' => ['nullable', 'integer', 'min:1'],
             'sort_order' => ['nullable', 'integer'],
@@ -64,6 +65,13 @@ class CollectionController extends Controller
         $data['sort_order'] = $data['sort_order'] ?? ((\App\Models\Collection::max('sort_order') ?? 0) + 10);
 
         return DB::transaction(function () use ($data) {
+            // A role can only belong to one Collection at a time -- claiming
+            // it here vacates whoever held it before, so the storefront
+            // never has to guess which of two "Best Sellers" collections wins.
+            if (! empty($data['role'])) {
+                \App\Models\Collection::where('role', $data['role'])->update(['role' => null]);
+            }
+
             // 1) Create collection
             $c = \App\Models\Collection::create($data);
 
@@ -123,12 +131,21 @@ class CollectionController extends Controller
             'title' => ['sometimes', 'string', 'max:190'],
             'slug' => ['sometimes', 'string', 'max:190', 'alpha_dash',
                 Rule::unique('collections', 'slug')->ignore($collection->id)],
+            'role' => ['sometimes', 'nullable', Rule::in(array_keys(\App\Models\Collection::ROLES))],
             'description' => ['sometimes', 'nullable', 'string'],
             'limit' => ['sometimes', 'nullable', 'integer', 'min:1'],
             'sort_order' => ['sometimes', 'nullable', 'integer'],
         ]);
 
         return DB::transaction(function () use ($collection, $data) {
+            // Same single-owner rule as store(): claiming a role vacates
+            // whoever held it before (excluding this collection itself).
+            if (array_key_exists('role', $data) && ! empty($data['role'])) {
+                \App\Models\Collection::where('role', $data['role'])
+                    ->where('id', '!=', $collection->id)
+                    ->update(['role' => null]);
+            }
+
             $oldSlug = $collection->slug;
 
             // Update the collection itself

@@ -6,12 +6,29 @@
 @php
     $previewParam = request('preview_theme') ? '?preview_theme=' . request('preview_theme') : '';
     $previewAmp = request('preview_theme') ? '&preview_theme=' . request('preview_theme') : '';
+    $byPos = collect($banners ?? [])->groupBy('position');
+
+    // Role-tagged Collection (Best Sellers) -- when a merchant has assigned a
+    // dedicated "Best Sellers" Collection, its curated products win over the
+    // generic $products slice for that section.
+    $homelyBestSellers = ($collectionsByRole['best_sellers']['products'] ?? collect())->count()
+        ? $collectionsByRole['best_sellers']['products']
+        : $products->take(6);
 @endphp
 
 <div class="space-y-12 sm:space-y-16 pb-16">
-    <!-- 1. HERO SECTION -->
+    <!-- 1. HERO SECTION (auto-rotating carousel; add slides via Store Settings > Hero Slides) -->
     <section class="max-w-7xl mx-auto px-4 sm:px-8 pt-4 sm:pt-6">
-        <div class="grid grid-cols-1 lg:grid-cols-12 rounded-3xl overflow-hidden shadow-sm border border-homely-borderLight bg-homely-sand">
+        @php $hmHeroSlides = $heroSlides ?? []; @endphp
+        <div class="relative grid rounded-3xl overflow-hidden shadow-sm border border-homely-borderLight bg-homely-sand"
+             x-data="{ hmHero: 0, hmHeroCount: {{ count($hmHeroSlides) }} }"
+             @if(count($hmHeroSlides) > 1) x-init="setInterval(() => { hmHero = (hmHero + 1) % hmHeroCount }, 6000)" @endif>
+        @foreach($hmHeroSlides as $hmI => $hmSlide)
+        <div x-show="hmHero === {{ $hmI }}" @if(!$loop->first) x-cloak @endif
+             x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+             class="col-start-1 row-start-1">
+        <div class="grid grid-cols-1 lg:grid-cols-12">
             <!-- Left Hero Content (7 cols) -->
             <div class="lg:col-span-5 p-8 sm:p-12 lg:p-14 flex flex-col justify-between relative">
                 <!-- Botanical watermark leaf -->
@@ -26,16 +43,20 @@
                         New Collection
                     </span>
                     <h1 class="font-serif text-4xl sm:text-5xl lg:text-5xl font-bold text-homely-primary leading-[1.15]">
-                        Bring Nature <br>Into Your Home
+                        @if(($hmSlide['title'] ?? '') !== '')
+                            {{ $hmSlide['title'] }}
+                        @else
+                            Bring Nature <br>Into Your Home
+                        @endif
                     </h1>
                     <p class="text-sm sm:text-base text-stone-600 max-w-sm leading-relaxed">
-                        Thoughtfully designed pieces for a calm, cozy and conscious living.
+                        {{ ($hmSlide['subtitle'] ?? '') !== '' ? $hmSlide['subtitle'] : 'Thoughtfully designed pieces for a calm, cozy and conscious living.' }}
                     </p>
 
                     <div class="pt-2">
-                        <a href="{{ url('/online_store/shop' . $previewParam) }}" 
+                        <a href="{{ ($hmSlide['cta_link'] ?? '') !== '' ? $hmSlide['cta_link'] : url('/online_store/shop' . $previewParam) }}"
                            class="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-homely-primary hover:bg-homely-primaryDark text-white text-xs font-bold tracking-wider uppercase transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                            <span>SHOP THE COLLECTION</span>
+                            <span>{{ ($hmSlide['cta_text'] ?? '') !== '' ? $hmSlide['cta_text'] : 'SHOP THE COLLECTION' }}</span>
                             <span class="text-sm">&rarr;</span>
                         </a>
                     </div>
@@ -62,18 +83,26 @@
                     </div>
 
                     <!-- Carousel Dots -->
-                    <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-homely-primary"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-stone-300"></span>
-                        <span class="w-2.5 h-2.5 rounded-full bg-stone-300"></span>
-                    </div>
+                    @if(count($hmHeroSlides) > 1)
+                        <div class="flex items-center gap-2">
+                            @foreach($hmHeroSlides as $hmDotI => $hmDotSlide)
+                                <button type="button" @click="hmHero = {{ $hmDotI }}" class="w-2.5 h-2.5 rounded-full transition-colors" :class="hmHero === {{ $hmDotI }} ? 'bg-homely-primary' : 'bg-stone-300'" aria-label="Slide {{ $hmDotI + 1 }}"></button>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-homely-primary"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-stone-300"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-stone-300"></span>
+                        </div>
+                    @endif
                 </div>
             </div>
 
             <!-- Right Hero Image (7 cols) -->
             <div class="lg:col-span-7 relative min-h-[380px] sm:min-h-[460px] lg:min-h-full">
-                <img src="/images/themes/homely/homely-hero-livingroom.jpg" 
-                     alt="Homely Living Room Interior" 
+                <img src="{{ !empty($hmSlide['image_url']) ? $hmSlide['image_url'] : '/images/themes/homely/homely-hero-livingroom.jpg' }}"
+                     alt="Homely Living Room Interior"
                      class="w-full h-full object-cover object-center"
                      loading="eager">
 
@@ -85,6 +114,9 @@
                     <span class="text-[8px] sm:text-[9px] tracking-wider text-emerald-200">CHOICES 🌿</span>
                 </div>
             </div>
+        </div>
+        </div>
+        @endforeach
         </div>
     </section>
 
@@ -254,7 +286,7 @@
 
         <!-- 6 Products Grid -->
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5">
-            @forelse($products->take(6) as $product)
+            @forelse($homelyBestSellers as $product)
                 @include('store.themes.homely.partials.product-card', ['product' => $product])
             @empty
                 <div class="col-span-full py-12 text-center text-stone-500">
@@ -265,25 +297,30 @@
     </section>
 
     <!-- 5. THREE PROMOTIONAL HIGHLIGHT CARDS -->
+    @if($bannerGridEnabled ?? true)
     <section class="max-w-7xl mx-auto px-4 sm:px-8">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- 1. Earth Friendly Card -->
-            <div class="rounded-3xl p-8 bg-homely-primary text-white flex flex-col justify-between relative overflow-hidden min-h-[220px]">
-                <div class="space-y-2 relative z-10">
+            @php $topLeft = ($byPos['top_left'] ?? collect())->first(); @endphp
+            <div class="rounded-3xl p-8 bg-homely-primary text-white flex flex-col justify-between relative overflow-hidden min-h-[220px]"
+                 @if(!empty($topLeft->bg_color ?? null))
+                 style="background:{{ !empty($topLeft->bg_color_2 ?? null) ? 'linear-gradient(135deg, '.$topLeft->bg_color.', '.$topLeft->bg_color_2.')' : $topLeft->bg_color }};"
+                 @endif>
+                <div class="space-y-2 relative z-10" @if(!empty($topLeft->text_color ?? null)) style="color:{{ $topLeft->text_color }};" @endif>
                     <div class="w-8 h-8 text-emerald-300 text-2xl mb-1">
                         🌿
                     </div>
-                    <h3 class="font-serif text-xl sm:text-2xl font-bold leading-tight">
-                        Earth Friendly
+                    <h3 class="font-serif text-xl sm:text-2xl font-bold leading-tight" style="color:inherit;">
+                        {{ ($topLeft->title ?? null) ?: 'Earth Friendly' }}
                     </h3>
-                    <p class="text-xs text-stone-300 font-medium">
-                        Every Choice Matters
+                    <p class="text-xs text-stone-300 font-medium" style="color:inherit;">
+                        {{ ($topLeft->subtitle ?? null) ?: 'Every Choice Matters' }}
                     </p>
                 </div>
                 <div class="pt-6 relative z-10">
-                    <a href="{{ url('/online_store/shop' . $previewParam) }}" 
-                       class="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-white hover:text-emerald-300 transition-colors">
-                        <span>SHOP SUSTAINABLE</span>
+                    <a href="{{ $topLeft ? ($topLeft->link ?: url('/online_store/shop' . $previewParam)) : url('/online_store/shop' . $previewParam) }}"
+                       class="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-white hover:text-emerald-300 transition-colors" style="color:inherit;">
+                        <span>{{ ($topLeft->button_text ?? null) ?: 'SHOP SUSTAINABLE' }}</span>
                         <span>&rarr;</span>
                     </a>
                 </div>
@@ -317,28 +354,33 @@
             </div>
 
             <!-- 3. Gift With Meaning Card -->
-            <div class="rounded-3xl p-8 bg-homely-sage text-white flex flex-col justify-between min-h-[220px]">
-                <div class="space-y-2">
+            @php $topRight = ($byPos['top_right'] ?? collect())->first(); @endphp
+            <div class="rounded-3xl p-8 bg-homely-sage text-white flex flex-col justify-between min-h-[220px]"
+                 @if(!empty($topRight->bg_color ?? null))
+                 style="background:{{ !empty($topRight->bg_color_2 ?? null) ? 'linear-gradient(135deg, '.$topRight->bg_color.', '.$topRight->bg_color_2.')' : $topRight->bg_color }};"
+                 @endif>
+                <div class="space-y-2" @if(!empty($topRight->text_color ?? null)) style="color:{{ $topRight->text_color }};" @endif>
                     <div class="w-8 h-8 text-stone-100 text-2xl mb-1">
                         🎁
                     </div>
-                    <h3 class="font-serif text-xl sm:text-2xl font-bold leading-tight">
-                        Gift With Meaning
+                    <h3 class="font-serif text-xl sm:text-2xl font-bold leading-tight" style="color:inherit;">
+                        {{ ($topRight->title ?? null) ?: 'Gift With Meaning' }}
                     </h3>
-                    <p class="text-xs text-stone-100">
-                        Thoughtful gifts for every occasion.
+                    <p class="text-xs text-stone-100" style="color:inherit;">
+                        {{ ($topRight->subtitle ?? null) ?: 'Thoughtful gifts for every occasion.' }}
                     </p>
                 </div>
                 <div class="pt-6">
-                    <a href="{{ url('/online_store/shop?category=decor' . $previewAmp) }}" 
-                       class="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-white hover:text-stone-200 transition-colors">
-                        <span>SHOP GIFT GUIDE</span>
+                    <a href="{{ $topRight ? ($topRight->link ?: url('/online_store/shop?category=decor' . $previewAmp)) : url('/online_store/shop?category=decor' . $previewAmp) }}"
+                       class="inline-flex items-center gap-2 text-xs font-bold tracking-wider uppercase text-white hover:text-stone-200 transition-colors" style="color:inherit;">
+                        <span>{{ ($topRight->button_text ?? null) ?: 'SHOP GIFT GUIDE' }}</span>
                         <span>&rarr;</span>
                     </a>
                 </div>
             </div>
         </div>
     </section>
+    @endif
 
     <!-- 6. VALUE GUARANTEE STRIP -->
     <section class="max-w-7xl mx-auto px-4 sm:px-8">

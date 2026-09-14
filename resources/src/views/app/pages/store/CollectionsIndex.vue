@@ -39,6 +39,7 @@
               <th class="d-none d-md-table-cell">{{ $t('Slug') }}</th>
               <th class="text-center d-none d-md-table-cell" style="width: 120px">{{ $t('Limit') }}</th>
               <th class="text-center d-none d-lg-table-cell" style="width: 120px">{{ $t('Products') }}</th>
+              <th class="text-center" style="width: 160px">{{ $t('Homepage') }}</th>
               <th class="text-right" style="width: 300px">{{ $t('Actions') }}</th>
             </tr>
           </thead>
@@ -50,7 +51,12 @@
               </td>
 
               <td>
-                <div class="fw-600">{{ c.title }}</div>
+                <div class="d-flex align-items-center" style="gap:.4rem;">
+                  <span class="fw-600">{{ c.title }}</span>
+                  <b-badge v-if="c.role" pill variant="primary" v-b-tooltip.hover :title="$t('Homepage_Role_Badge_Help')">
+                    {{ roleLabel(c.role) }}
+                  </b-badge>
+                </div>
                 <div class="text-muted small" v-if="c.description" style="max-width: 520px;">
                   {{ c.description }}
                 </div>
@@ -68,6 +74,13 @@
                 <span class="badge badge-pill badge-light">
                   {{ c.products_count != null ? c.products_count : '—' }}
                 </span>
+              </td>
+
+              <td class="text-center">
+                <span v-if="homepageStatus(c).shown" class="badge badge-pill badge-success" v-b-tooltip.hover :title="$t('Shown_On_Active_Theme_Homepage')">
+                  {{ $t('On_Homepage') }} #{{ homepageStatus(c).order }}
+                </span>
+                <span v-else class="badge badge-pill badge-outline-secondary">{{ $t('Not_Shown') }}</span>
               </td>
 
               <td class="text-right">
@@ -100,7 +113,7 @@
             </tr>
 
             <tr v-if="!filtered.length">
-              <td colspan="6" class="text-center text-muted py-4">
+              <td colspan="7" class="text-center text-muted py-4">
                 {{ $t('No_items') }}
               </td>
             </tr>
@@ -124,7 +137,14 @@ export default {
       busy: false,
       busyId: null,
       q: '',
-      collections: []
+      collections: [],
+      homepageLineup: [],
+      roleLabels: {
+        best_sellers: 'Best Sellers',
+        recommended: 'Recommended For You',
+        new_arrivals: 'New Arrivals',
+        trending: 'Trending Now',
+      },
     }
   },
 
@@ -166,10 +186,16 @@ export default {
     async fetch () {
       this.isLoading = true
       try {
-        const resp = await axios.get('/admin/store/collections')
-        let payload = (resp && resp.data && Array.isArray(resp.data.data)) ? resp.data.data : (resp && resp.data ? resp.data : [])
+        const [collectionsResp, settingsResp] = await Promise.all([
+          axios.get('/admin/store/collections'),
+          axios.get('/admin/store/settings').catch(() => null),
+        ])
+        let payload = (collectionsResp && collectionsResp.data && Array.isArray(collectionsResp.data.data)) ? collectionsResp.data.data : (collectionsResp && collectionsResp.data ? collectionsResp.data : [])
         if (!Array.isArray(payload)) payload = []
         this.collections = payload
+
+        const lineupRaw = settingsResp && settingsResp.data && settingsResp.data.settings && settingsResp.data.settings.homepage_lineup
+        this.homepageLineup = Array.isArray(lineupRaw) ? lineupRaw : []
       } catch (e) {
         this.makeToast('danger', this.$t('Failed_to_load'), this.$t('Failed'))
       } finally {
@@ -177,8 +203,20 @@ export default {
       }
     },
 
+    // Whether this collection is actually included in the active theme's
+    // homepage lineup right now (not just "exists"), and at what position
+    // among the OTHER homepage collection blocks (hero/offer/banners/newsletter
+    // blocks don't count toward the number).
+    homepageStatus (collection) {
+      const collectionItems = this.homepageLineup.filter(it => it && it.type === 'collection')
+      const idx = collectionItems.findIndex(it => String(it.slug) === String(collection.slug))
+      return idx === -1 ? { shown: false, order: null } : { shown: true, order: idx + 1 }
+    },
+
     refresh () { this.fetch() },
     onSearch () {},
+
+    roleLabel (role) { return this.roleLabels[role] || role },
 
     displayOrder (idx) { return idx + 1 },
 

@@ -17,8 +17,11 @@
 
 <main class="pb-24 lg:pb-0 overflow-x-hidden">
 
-  {{-- ===== HERO — teal band with sunburst ===== --}}
-  <section class="relative overflow-hidden bg-pop-teal">
+  {{-- ===== HERO — teal band with sunburst (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $rpHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative overflow-hidden bg-pop-teal grid"
+           x-data="{ rpHero: 0, rpHeroCount: {{ count($rpHeroSlides) }} }"
+           @if(count($rpHeroSlides) > 1) x-init="setInterval(() => { rpHero = (rpHero + 1) % rpHeroCount }, 6000)" @endif>
     <svg class="absolute -top-20 -right-20 w-[520px] h-[520px] text-pop-tealDark/40 opacity-60" viewBox="0 0 200 200">
       <g fill="currentColor">
         @for($i=0;$i<16;$i++)
@@ -27,41 +30,55 @@
       </g>
     </svg>
     <svg class="absolute top-10 left-4 w-24 h-24 text-pop-mustard/50" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
-    <div class="relative max-w-7xl mx-auto px-4 py-16 lg:py-24 grid lg:grid-cols-2 gap-10 items-center">
-      <div>
-        <span class="eyebrow inline-flex items-center gap-2 bg-pop-mustard text-pop-ink text-xs font-extrabold px-4 py-1.5 rounded-full">🕺 One store, every category, all the vibes</span>
-        <h1 class="mt-5 text-4xl sm:text-5xl lg:text-6xl font-heading font-extrabold text-white leading-[1.05]">
-          {{ $s->hero_title ?? 'Shop like it\'s the best decade ever' }}
-        </h1>
-        <p class="mt-5 text-pop-cream/90 max-w-lg text-base leading-relaxed">
-          {{ $s->hero_subtitle ?? 'Electronics, fashion, home, beauty, grocery and sports — thousands of far-out finds, funky fast shipping, and prices that keep the good times rolling.' }}
-        </p>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a href="{{ route('store.shop') }}" class="h-14 px-8 inline-flex items-center gap-2 rounded-full bg-pop-orange text-white font-heading font-bold text-lg shadow-pop hover:shadow-popHover hover:-translate-y-0.5 active:translate-y-0 active:shadow-none transition-all">
-            Shop the catalog
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-14 px-8 inline-flex items-center gap-2 rounded-full border-2 border-white/60 text-white font-heading font-bold text-lg hover:bg-white/10 transition-colors">
-            Today's deals
-          </a>
+    @foreach($rpHeroSlides as $rpI => $rpSlide)
+      <div x-show="rpHero === {{ $rpI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1 relative max-w-7xl mx-auto px-4 py-16 lg:py-24 grid lg:grid-cols-2 gap-10 items-center">
+        <div>
+          <span class="eyebrow inline-flex items-center gap-2 bg-pop-mustard text-pop-ink text-xs font-extrabold px-4 py-1.5 rounded-full">🕺 One store, every category, all the vibes</span>
+          <h1 class="mt-5 text-4xl sm:text-5xl lg:text-6xl font-heading font-extrabold text-white leading-[1.05]">
+            {{ ($rpSlide['title'] ?? '') !== '' ? $rpSlide['title'] : 'Shop like it\'s the best decade ever' }}
+          </h1>
+          <p class="mt-5 text-pop-cream/90 max-w-lg text-base leading-relaxed">
+            {{ ($rpSlide['subtitle'] ?? '') !== '' ? $rpSlide['subtitle'] : 'Electronics, fashion, home, beauty, grocery and sports — thousands of far-out finds, funky fast shipping, and prices that keep the good times rolling.' }}
+          </p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="{{ ($rpSlide['cta_link'] ?? '') !== '' ? $rpSlide['cta_link'] : route('store.shop') }}" class="h-14 px-8 inline-flex items-center gap-2 rounded-full bg-pop-orange text-white font-heading font-bold text-lg shadow-pop hover:shadow-popHover hover:-translate-y-0.5 active:translate-y-0 active:shadow-none transition-all">
+              {{ ($rpSlide['cta_text'] ?? '') !== '' ? $rpSlide['cta_text'] : 'Shop the catalog' }}
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            </a>
+            <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-14 px-8 inline-flex items-center gap-2 rounded-full border-2 border-white/60 text-white font-heading font-bold text-lg hover:bg-white/10 transition-colors">
+              Today's deals
+            </a>
+          </div>
+          <div class="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 text-pop-cream/90 text-xs font-semibold">
+            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-pop-mustard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Buyer protection</span>
+            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-pop-mustard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Free returns</span>
+            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-pop-mustard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> 24/7 support</span>
+          </div>
         </div>
-        <div class="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 text-pop-cream/90 text-xs font-semibold">
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-pop-mustard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Buyer protection</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-pop-mustard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Free returns</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-pop-mustard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> 24/7 support</span>
+        <div class="hidden lg:grid grid-cols-2 gap-4 relative z-10">
+          <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=500&q=70" class="rounded-groovy h-48 w-full object-cover border-4 border-pop-mustard shadow-pop" alt="">
+          <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=500&q=70" class="rounded-groovy h-48 w-full object-cover mt-8 border-4 border-pop-mustard shadow-pop" alt="">
+          <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=500&q=70" class="rounded-groovy h-48 w-full object-cover -mt-4 border-4 border-pop-mustard shadow-pop" alt="">
+          <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=500&q=70" class="rounded-groovy h-48 w-full object-cover border-4 border-pop-mustard shadow-pop" alt="">
         </div>
       </div>
-      <div class="hidden lg:grid grid-cols-2 gap-4 relative z-10">
-        <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=500&q=70" class="rounded-groovy h-48 w-full object-cover border-4 border-pop-mustard shadow-pop" alt="">
-        <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=500&q=70" class="rounded-groovy h-48 w-full object-cover mt-8 border-4 border-pop-mustard shadow-pop" alt="">
-        <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=500&q=70" class="rounded-groovy h-48 w-full object-cover -mt-4 border-4 border-pop-mustard shadow-pop" alt="">
-        <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=500&q=70" class="rounded-groovy h-48 w-full object-cover border-4 border-pop-mustard shadow-pop" alt="">
+    @endforeach
+
+    @if(count($rpHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($rpHeroSlides as $rpI => $rpSlide)
+          <button type="button" @click="rpHero = {{ $rpI }}" class="w-2 h-2 rounded-full transition-colors" :class="rpHero === {{ $rpI }} ? 'bg-white' : 'bg-white/40'" aria-label="Slide {{ $rpI + 1 }}"></button>
+        @endforeach
       </div>
-    </div>
+    @endif
     <svg class="rp-wave" viewBox="0 0 1200 60" preserveAspectRatio="none"><path d="M0,30 C150,60 350,0 600,30 C850,60 1050,0 1200,30 L1200,60 L0,60 Z" fill="#FFF8EC"/></svg>
   </section>
 
   {{-- ===== TOP BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['top_left'] ?? collect() as $b)
@@ -75,6 +92,7 @@
         </a>
       @endforeach
     </section>
+  @endif
   @endif
 
   {{-- ===== TRUST STRIP — mustard band ===== --}}
@@ -121,17 +139,22 @@
     </section>
   @endif
 
-  {{-- ===== DAY-GLOW PROMO BAND #1 — orange ===== --}}
+  {{-- ===== DAY-GLOW PROMO BAND #1 — orange (customizable via Offers & Promotions) ===== --}}
+  @if($offer['enabled'] ?? true)
   <section class="relative bg-pop-orange overflow-hidden">
     <svg class="absolute -bottom-16 -left-16 w-72 h-72 text-white/10" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
     <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 relative">
       <div class="text-center sm:text-left">
-        <span class="text-white/80 text-xs font-extrabold uppercase tracking-widest">Weekend Flashback</span>
-        <h3 class="text-2xl lg:text-3xl font-heading font-extrabold text-white mt-1">Up to 40% off — this weekend only, cats and kittens</h3>
+        <span class="text-white/80 text-xs font-extrabold uppercase tracking-widest">{{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'Weekend Flashback' }}</span>
+        <h3 class="text-2xl lg:text-3xl font-heading font-extrabold text-white mt-1">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Up to 40% off — this weekend only, cats and kittens' }}</h3>
+        @if(!empty($offer['discount_text']))
+          <span class="inline-flex mt-2 items-center rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white">{{ $offer['discount_text'] }}</span>
+        @endif
       </div>
-      <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="shrink-0 h-12 px-7 inline-flex items-center rounded-full bg-white text-pop-orangeDark font-heading font-bold hover:-translate-y-0.5 transition-transform shadow-pop">Grab the deal →</a>
+      <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop', ['sort' => 'price_asc']) }}" class="shrink-0 h-12 px-7 inline-flex items-center rounded-full bg-white text-pop-orangeDark font-heading font-bold hover:-translate-y-0.5 transition-transform shadow-pop">{{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Grab the deal →' }}</a>
     </div>
   </section>
+  @endif
 
   {{-- ===== CONTENT BLOCKS (collections from homepage_lineup) — alternating bands ===== --}}
   @foreach($collectionBlocks as $bi => $block)
@@ -178,7 +201,24 @@
     @endif
   @endforeach
 
-  {{-- ===== PROMO STRIP — white band ===== --}}
+  {{-- ===== PROMO STRIP — white band (fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @if($bannerGridEnabled ?? true)
+  @php
+    // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+    // override each tile's fixed gradient/text color; absent -> theme default.
+    $bannerOverlayStyle = function ($b) {
+      if (!$b || empty($b->bg_color)) return null;
+      $css = !empty($b->bg_color_2)
+        ? "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+        : "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+      return $css;
+    };
+    $bannerTextStyle = function ($b) {
+      return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
+    $centerLeft = ($byPos['center_left'] ?? collect())->first();
+    $centerRight = ($byPos['center_right'] ?? collect())->first();
+  @endphp
   <section class="bg-white py-10">
     <div class="max-w-7xl mx-auto px-4">
       <div class="flex items-end justify-between mb-6">
@@ -186,26 +226,41 @@
       </div>
       <div class="grid md:grid-cols-2 gap-5">
         <div class="relative rounded-groovy overflow-hidden h-64 flex items-end p-7 border-4 border-pop-mustard">
-          <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
-          <div class="absolute inset-0 bg-gradient-to-t from-pop-ink/85 via-pop-ink/20 to-transparent"></div>
-          <div class="relative">
-            <span class="inline-block bg-pop-orange text-white text-xs font-extrabold uppercase px-3 py-1 rounded-full">Fashion Edit</span>
-            <h3 class="text-white text-2xl font-heading font-extrabold mt-2">New season, new swagger</h3>
-            <a href="{{ route('store.shop') }}" class="mt-3 inline-flex h-10 px-5 items-center rounded-full bg-white text-pop-ink text-sm font-bold">Shop now →</a>
+          @if($centerLeft)
+            <img src="{{ $bannerUrl($centerLeft) }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ $centerLeft->title }}">
+          @else
+            <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
+          @endif
+          <div class="absolute inset-0 bg-gradient-to-t from-pop-ink/85 via-pop-ink/20 to-transparent" @if($bannerOverlayStyle($centerLeft)) style="{{ $bannerOverlayStyle($centerLeft) }}" @endif></div>
+          <div class="relative" @if($bannerTextStyle($centerLeft)) style="{{ $bannerTextStyle($centerLeft) }}" @endif>
+            <span class="inline-block bg-pop-orange text-white text-xs font-extrabold uppercase px-3 py-1 rounded-full">{{ ($centerLeft->badge_text ?? null) ?: 'Fashion Edit' }}</span>
+            <h3 class="text-white text-2xl font-heading font-extrabold mt-2" style="color:inherit;">{{ ($centerLeft->title ?? null) ?: 'New season, new swagger' }}</h3>
+            @if(!empty($centerLeft->subtitle ?? null))
+              <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $centerLeft->subtitle }}</p>
+            @endif
+            <a href="{{ $centerLeft ? ($centerLeft->link ?: route('store.shop')) : route('store.shop') }}" class="mt-3 inline-flex h-10 px-5 items-center rounded-full bg-white text-pop-ink text-sm font-bold" style="color:inherit;">{{ ($centerLeft->button_text ?? null) ?: 'Shop now' }} →</a>
           </div>
         </div>
         <div class="relative rounded-groovy overflow-hidden h-64 flex items-end p-7 border-4 border-pop-teal">
-          <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
-          <div class="absolute inset-0 bg-gradient-to-t from-pop-ink/85 via-pop-ink/20 to-transparent"></div>
-          <div class="relative">
-            <span class="inline-block bg-pop-teal text-white text-xs font-extrabold uppercase px-3 py-1 rounded-full">Tech Deals</span>
-            <h3 class="text-white text-2xl font-heading font-extrabold mt-2">Up to 40% off audio &amp; wearables</h3>
-            <a href="{{ route('store.shop') }}" class="mt-3 inline-flex h-10 px-5 items-center rounded-full bg-white text-pop-ink text-sm font-bold">Shop now →</a>
+          @if($centerRight)
+            <img src="{{ $bannerUrl($centerRight) }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ $centerRight->title }}">
+          @else
+            <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
+          @endif
+          <div class="absolute inset-0 bg-gradient-to-t from-pop-ink/85 via-pop-ink/20 to-transparent" @if($bannerOverlayStyle($centerRight)) style="{{ $bannerOverlayStyle($centerRight) }}" @endif></div>
+          <div class="relative" @if($bannerTextStyle($centerRight)) style="{{ $bannerTextStyle($centerRight) }}" @endif>
+            <span class="inline-block bg-pop-teal text-white text-xs font-extrabold uppercase px-3 py-1 rounded-full">{{ ($centerRight->badge_text ?? null) ?: 'Tech Deals' }}</span>
+            <h3 class="text-white text-2xl font-heading font-extrabold mt-2" style="color:inherit;">{{ ($centerRight->title ?? null) ?: 'Up to 40% off audio & wearables' }}</h3>
+            @if(!empty($centerRight->subtitle ?? null))
+              <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $centerRight->subtitle }}</p>
+            @endif
+            <a href="{{ $centerRight ? ($centerRight->link ?: route('store.shop')) : route('store.shop') }}" class="mt-3 inline-flex h-10 px-5 items-center rounded-full bg-white text-pop-ink text-sm font-bold" style="color:inherit;">{{ ($centerRight->button_text ?? null) ?: 'Shop now' }} →</a>
           </div>
         </div>
       </div>
     </div>
   </section>
+  @endif
 
   {{-- ===== TESTIMONIALS — mustard band ===== --}}
   <section class="relative bg-pop-mustard overflow-hidden">

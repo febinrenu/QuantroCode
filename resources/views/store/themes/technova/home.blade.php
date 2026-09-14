@@ -13,53 +13,85 @@
   $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
   $byPos = collect($banners ?? [])->groupBy('position');
   $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+
+  // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+  // override each tile's fixed gradient/text color; absent -> theme default.
+  $bannerOverlayStyle = function ($b) {
+    if (!$b || empty($b->bg_color)) return null;
+    $css = !empty($b->bg_color_2)
+      ? "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+      : "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+    return $css;
+  };
+  $bannerTextStyle = function ($b) {
+    return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+  };
 @endphp
 
 <main class="pb-24 lg:pb-0">
 
-  {{-- ===== HERO ===== --}}
-  <section class="relative overflow-hidden bg-tn-bg border-b border-tn-border">
-    <div class="absolute inset-0">
-      <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=70"
-           alt="" class="w-full h-full object-cover opacity-20 grayscale">
-      <div class="absolute inset-0 bg-gradient-to-r from-tn-bg via-tn-bg/95 to-tn-bg/60"></div>
-    </div>
-    <div class="relative max-w-7xl mx-auto px-4 py-16 lg:py-24 grid lg:grid-cols-2 gap-10 items-center">
-      <div>
-        <span class="text-tn-amber text-xs font-bold tn-bracket">general_merchandise --all-categories</span>
-        <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-tn-ink leading-tight">
-          {{ $s->hero_title ?? 'Shop the terminal.' }}<span class="tn-cursor text-tn-green"></span>
-        </h1>
-        <p class="mt-4 text-tn-mute max-w-lg leading-relaxed">
-          {{ $s->hero_subtitle ?? 'Electronics, fashion, home, beauty, grocery and sports — compiled into one clean catalog. No bloat, no noise, just fast checkout and a command line that actually works.' }}
-        </p>
-        <div class="mt-7 flex flex-wrap gap-3">
-          <a href="{{ route('store.shop') }}" class="tn-glow-btn h-12 px-6 inline-flex items-center gap-2 border border-tn-green bg-tn-green text-black font-bold">
-            run ./shop
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="tn-glow-btn h-12 px-6 inline-flex items-center gap-2 border border-tn-amber text-tn-amber font-bold">
-            ./deals --today
-          </a>
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $tnHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative overflow-hidden bg-tn-bg border-b border-tn-border grid"
+           x-data="{ tnHero: 0, tnHeroCount: {{ count($tnHeroSlides) }} }"
+           @if(count($tnHeroSlides) > 1) x-init="setInterval(() => { tnHero = (tnHero + 1) % tnHeroCount }, 6000)" @endif>
+    @foreach($tnHeroSlides as $tnI => $tnSlide)
+      <div x-show="tnHero === {{ $tnI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1">
+        <div class="absolute inset-0">
+          <img src="{{ !empty($tnSlide['image_url']) ? $tnSlide['image_url'] : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=70' }}"
+               alt="" class="w-full h-full object-cover opacity-20 grayscale">
+          <div class="absolute inset-0 bg-gradient-to-r from-tn-bg via-tn-bg/95 to-tn-bg/60"></div>
         </div>
-        <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-tn-mute text-xs">
-          <span class="flex items-center gap-1.5 tn-bracket">buyer_protection</span>
-          <span class="flex items-center gap-1.5 tn-bracket">free_returns</span>
-          <span class="flex items-center gap-1.5 tn-bracket">24_7_support</span>
+        <div class="relative max-w-7xl mx-auto px-4 py-16 lg:py-24 grid lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <span class="text-tn-amber text-xs font-bold tn-bracket">general_merchandise --all-categories</span>
+            <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-tn-ink leading-tight">
+              {{ ($tnSlide['title'] ?? '') !== '' ? $tnSlide['title'] : 'Shop the terminal.' }}<span class="tn-cursor text-tn-green"></span>
+            </h1>
+            <p class="mt-4 text-tn-mute max-w-lg leading-relaxed">
+              {{ ($tnSlide['subtitle'] ?? '') !== '' ? $tnSlide['subtitle'] : 'Electronics, fashion, home, beauty, grocery and sports — compiled into one clean catalog. No bloat, no noise, just fast checkout and a command line that actually works.' }}
+            </p>
+            <div class="mt-7 flex flex-wrap gap-3">
+              <a href="{{ ($tnSlide['cta_link'] ?? '') !== '' ? $tnSlide['cta_link'] : route('store.shop') }}" class="tn-glow-btn h-12 px-6 inline-flex items-center gap-2 border border-tn-green bg-tn-green text-black font-bold">
+                {{ ($tnSlide['cta_text'] ?? '') !== '' ? $tnSlide['cta_text'] : 'run ./shop' }}
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              </a>
+              <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="tn-glow-btn h-12 px-6 inline-flex items-center gap-2 border border-tn-amber text-tn-amber font-bold">
+                ./deals --today
+              </a>
+            </div>
+            <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-tn-mute text-xs">
+              <span class="flex items-center gap-1.5 tn-bracket">buyer_protection</span>
+              <span class="flex items-center gap-1.5 tn-bracket">free_returns</span>
+              <span class="flex items-center gap-1.5 tn-bracket">24_7_support</span>
+            </div>
+          </div>
+          <div class="hidden lg:block tn-window">
+            <div class="tn-window-pad p-5 grid grid-cols-2 gap-3">
+              <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=70" class="h-40 w-full object-cover border border-tn-border grayscale-[30%]" alt="">
+              <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=500&q=70" class="h-40 w-full object-cover mt-6 border border-tn-border grayscale-[30%]" alt="">
+              <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=500&q=70" class="h-40 w-full object-cover -mt-3 border border-tn-border grayscale-[30%]" alt="">
+              <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=500&q=70" class="h-40 w-full object-cover border border-tn-border grayscale-[30%]" alt="">
+            </div>
+          </div>
         </div>
       </div>
-      <div class="hidden lg:block tn-window">
-        <div class="tn-window-pad p-5 grid grid-cols-2 gap-3">
-          <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=70" class="h-40 w-full object-cover border border-tn-border grayscale-[30%]" alt="">
-          <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=500&q=70" class="h-40 w-full object-cover mt-6 border border-tn-border grayscale-[30%]" alt="">
-          <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=500&q=70" class="h-40 w-full object-cover -mt-3 border border-tn-border grayscale-[30%]" alt="">
-          <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=500&q=70" class="h-40 w-full object-cover border border-tn-border grayscale-[30%]" alt="">
-        </div>
+    @endforeach
+
+    @if(count($tnHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($tnHeroSlides as $tnI => $tnSlide)
+          <button type="button" @click="tnHero = {{ $tnI }}" class="w-2 h-2 rounded-full transition-colors" :class="tnHero === {{ $tnI }} ? 'bg-tn-green' : 'bg-tn-border'" aria-label="Slide {{ $tnI + 1 }}"></button>
+        @endforeach
       </div>
-    </div>
+    @endif
   </section>
 
   {{-- ===== TOP BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['top_left'] ?? collect() as $b)
@@ -73,6 +105,7 @@
         </a>
       @endforeach
     </section>
+  @endif
   @endif
 
   {{-- ===== CATEGORY GRID ===== --}}
@@ -144,24 +177,35 @@
 
   {{-- ===== PROMO STRIP ===== --}}
   <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
+    @php $centerLeft = ($byPos['center_left'] ?? collect())->first(); @endphp
+    @if($bannerGridEnabled ?? true)
     <div class="relative tn-window overflow-hidden h-56 flex items-end p-6 tn-window-pad">
-      <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover grayscale-[40%]" alt="">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/85 to-transparent"></div>
-      <div class="relative">
-        <span class="text-tn-amber text-xs font-bold tn-bracket">fashion_edit</span>
-        <h3 class="text-tn-ink text-xl font-bold mt-1">New season styles, compiled</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-tn-green underline">./shop_now &gt;</a>
+      <img src="{{ $centerLeft ? $bannerUrl($centerLeft) : 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover grayscale-[40%]" alt="{{ $centerLeft->title ?? '' }}">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/85 to-transparent" @if($bannerOverlayStyle($centerLeft)) style="{{ $bannerOverlayStyle($centerLeft) }}" @endif></div>
+      <div class="relative" @if($bannerTextStyle($centerLeft)) style="{{ $bannerTextStyle($centerLeft) }}" @endif>
+        <span class="text-tn-amber text-xs font-bold tn-bracket">{{ ($centerLeft->badge_text ?? null) ?: 'fashion_edit' }}</span>
+        <h3 class="text-tn-ink text-xl font-bold mt-1" style="color:inherit;">{{ ($centerLeft->title ?? null) ?: 'New season styles, compiled' }}</h3>
+        @if(!empty($centerLeft->subtitle ?? null))
+          <p class="text-tn-mute text-xs mt-1" style="color:inherit;">{{ $centerLeft->subtitle }}</p>
+        @endif
+        <a href="{{ $centerLeft ? ($centerLeft->link ?: route('store.shop')) : route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-tn-green underline" style="color:inherit;">{{ ($centerLeft->button_text ?? null) ?: './shop_now' }} &gt;</a>
       </div>
     </div>
+    @endif
+    @if($offer['enabled'] ?? true)
     <div class="relative tn-window overflow-hidden h-56 flex items-end p-6 tn-window-pad">
-      <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover grayscale-[40%]" alt="">
+      <img src="{{ !empty($offer['image_url']) ? $offer['image_url'] : 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover grayscale-[40%]" alt="">
       <div class="absolute inset-0 bg-gradient-to-t from-black/85 to-transparent"></div>
       <div class="relative">
-        <span class="text-tn-green text-xs font-bold tn-bracket">tech_deals</span>
-        <h3 class="text-tn-ink text-xl font-bold mt-1">Up to 40% off audio &amp; wearables</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-tn-green underline">./shop_now &gt;</a>
+        <span class="text-tn-green text-xs font-bold tn-bracket">{{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'tech_deals' }}</span>
+        <h3 class="text-tn-ink text-xl font-bold mt-1">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Up to 40% off audio & wearables' }}</h3>
+        @if(!empty($offer['discount_text']))
+          <span class="block mt-1 text-[10px] font-bold text-tn-amber tn-bracket">{{ $offer['discount_text'] }}</span>
+        @endif
+        <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-tn-green underline">{{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : './shop_now >' }}</a>
       </div>
     </div>
+    @endif
   </section>
 
   {{-- ===== TESTIMONIALS ===== --}}

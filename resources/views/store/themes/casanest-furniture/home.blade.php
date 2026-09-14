@@ -25,32 +25,62 @@
     ->map(fn ($name, $i) => ['label' => $name, 'sub_category' => $cnSubcatId($name), 'img' => $cnImgAt($i)]);
 
   $cnStyles = ['Scandinavian', 'Modern Minimal', 'Japandi', 'Industrial', 'Contemporary'];
+
+  $byPos = collect($banners ?? [])->groupBy('position');
+  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+
+  // Role-tagged Collections -- when a merchant has assigned a dedicated
+  // "Best Sellers" Collection, its curated products win over the generic
+  // $categorySpecificProducts slice for that section.
+  $currency = $s->currency_code ?? '$';
+  $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $roleVms = collect($collectionsByRole ?? [])->map(function ($r) use ($currency, $hidePrices) {
+      return collect($r['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices))->values();
+  });
+  $bestSellersProducts = ($roleVms['best_sellers'] ?? collect())->count() ? $roleVms['best_sellers'] : $categorySpecificProducts->take(5);
 @endphp
 
 <main class="pb-20 md:pb-0">
 
-  {{-- ===== HERO ===== --}}
-  <section class="max-w-7xl mx-auto px-4 py-6">
-    <div class="grid md:grid-cols-2 gap-8 items-center">
-      <div class="relative aspect-[4/3] md:aspect-[6/5] overflow-hidden bg-cn-creamDark order-2 md:order-1">
-        @if($cnHeroImg)
-          <img src="{{ $cnHeroImg }}" alt="{{ $cnHeroTitle }}" class="w-full h-full object-cover">
-        @endif
-      </div>
-      <div class="order-1 md:order-2">
-        <span class="eyebrow text-cn-olive text-xs font-bold">{{ $cnHeroEyebrow }}</span>
-        <h1 class="font-serif text-4xl md:text-5xl leading-[1.1] text-cn-ink mt-3">{{ $cnHeroTitle }}</h1>
-        <p class="mt-5 text-cn-inkSoft max-w-md">{{ $cnHeroSubtitle }}</p>
-        <div class="mt-8 flex flex-wrap items-center gap-3">
-          <a href="{{ $cnSubcatId('Living Room') ? route('store.shop', ['sub_category' => $cnSubcatId('Living Room')]) : route('store.shop') }}" class="h-12 px-7 inline-flex items-center bg-cn-olive text-white text-xs font-bold eyebrow hover:bg-cn-oliveDeep">
-            {{ 'Shop Living Room' }}
-          </a>
-          <a href="{{ route('store.shop') }}" class="h-12 px-7 inline-flex items-center border border-cn-olive/40 text-cn-ink text-xs font-bold eyebrow hover:bg-cn-creamDark">
-            {{ 'Explore Collection' }}
-          </a>
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $cfHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative max-w-7xl mx-auto px-4 py-6 grid"
+           x-data="{ cfHero: 0, cfHeroCount: {{ count($cfHeroSlides) }} }"
+           @if(count($cfHeroSlides) > 1) x-init="setInterval(() => { cfHero = (cfHero + 1) % cfHeroCount }, 6000)" @endif>
+    @foreach($cfHeroSlides as $cfI => $cfSlide)
+      <div x-show="cfHero === {{ $cfI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1 grid md:grid-cols-2 gap-8 items-center">
+        <div class="relative aspect-[4/3] md:aspect-[6/5] overflow-hidden bg-cn-creamDark order-2 md:order-1">
+          @php $cfHeroImg = !empty($cfSlide['image_url']) ? $cfSlide['image_url'] : $cnHeroImg; @endphp
+          @if($cfHeroImg)
+            <img src="{{ $cfHeroImg }}" alt="{{ ($cfSlide['title'] ?? '') !== '' ? $cfSlide['title'] : $cnHeroTitle }}" class="w-full h-full object-cover">
+          @endif
+        </div>
+        <div class="order-1 md:order-2">
+          <span class="eyebrow text-cn-olive text-xs font-bold">{{ $cnHeroEyebrow }}</span>
+          <h1 class="font-serif text-4xl md:text-5xl leading-[1.1] text-cn-ink mt-3">{{ ($cfSlide['title'] ?? '') !== '' ? $cfSlide['title'] : $cnHeroTitle }}</h1>
+          <p class="mt-5 text-cn-inkSoft max-w-md">{{ ($cfSlide['subtitle'] ?? '') !== '' ? $cfSlide['subtitle'] : $cnHeroSubtitle }}</p>
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a href="{{ ($cfSlide['cta_link'] ?? '') !== '' ? $cfSlide['cta_link'] : ($cnSubcatId('Living Room') ? route('store.shop', ['sub_category' => $cnSubcatId('Living Room')]) : route('store.shop')) }}" class="h-12 px-7 inline-flex items-center bg-cn-olive text-white text-xs font-bold eyebrow hover:bg-cn-oliveDeep">
+              {{ ($cfSlide['cta_text'] ?? '') !== '' ? $cfSlide['cta_text'] : 'Shop Living Room' }}
+            </a>
+            <a href="{{ route('store.shop') }}" class="h-12 px-7 inline-flex items-center border border-cn-olive/40 text-cn-ink text-xs font-bold eyebrow hover:bg-cn-creamDark">
+              {{ 'Explore Collection' }}
+            </a>
+          </div>
         </div>
       </div>
-    </div>
+    @endforeach
+
+    @if(count($cfHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($cfHeroSlides as $cfI => $cfSlide)
+          <button type="button" @click="cfHero = {{ $cfI }}" class="w-2 h-2 rounded-full transition-colors" :class="cfHero === {{ $cfI }} ? 'bg-cn-olive' : 'bg-cn-olive/30'" aria-label="Slide {{ $cfI + 1 }}"></button>
+        @endforeach
+      </div>
+    @endif
   </section>
 
   {{-- ===== TRUST STRIP ===== --}}
@@ -114,32 +144,63 @@
     </section>
   @endif
 
-  {{-- ===== NATURAL MATERIALS BANNER ===== --}}
+  {{-- ===== NATURAL MATERIALS BANNER (fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @if($bannerGridEnabled ?? true)
+  @php
+    // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+    // override each tile's fixed gradient/text color; absent -> theme default.
+    $bannerOverlayStyle = function ($b) {
+      if (!$b || empty($b->bg_color)) return null;
+      $css = !empty($b->bg_color_2)
+        ? "background:linear-gradient(to top, {$b->bg_color}b3, {$b->bg_color_2}33, transparent);"
+        : "background:linear-gradient(to top, {$b->bg_color}b3, {$b->bg_color}33, transparent);";
+      return $css;
+    };
+    $bannerTextStyle = function ($b) {
+      return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
+    $cnTopLeft = ($byPos['top_left'] ?? collect())->first();
+    $cnTopRight = ($byPos['top_right'] ?? collect())->first();
+    $cnCenterLeft = ($byPos['center_left'] ?? collect())->first();
+    $cnBannerImg = $cnTopLeft ? $bannerUrl($cnTopLeft) : $cnImgAt(1);
+  @endphp
   <section class="max-w-7xl mx-auto px-4 py-6 grid md:grid-cols-[1.4fr_1fr] gap-4">
-    @php $cnBannerImg = $cnImgAt(1); @endphp
-    <div class="relative overflow-hidden bg-cn-oliveDeep min-h-[280px] flex items-end">
+    <a href="{{ $cnTopLeft ? ($cnTopLeft->link ?: route('store.shop')) : route('store.shop') }}" class="relative overflow-hidden bg-cn-oliveDeep min-h-[280px] flex items-end">
       @if($cnBannerImg)
         <img src="{{ $cnBannerImg }}" alt="Natural Materials" class="absolute inset-0 w-full h-full object-cover opacity-70">
       @endif
-      <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-      <div class="relative p-8 text-white">
-        <span class="eyebrow text-xs font-bold text-cn-tanSoft">{{ 'The Art of Living' }}</span>
-        <h3 class="font-serif text-3xl mt-2 leading-tight">{{ 'Natural Materials.' }}<br>{{ 'Lasting Beauty.' }}</h3>
-        <p class="text-white/70 text-sm mt-2 max-w-xs">{{ 'Crafted from solid wood, natural stone, and premium textiles — designed to be loved for years.' }}</p>
-        <a href="{{ route('store.shop') }}" class="mt-4 inline-flex h-10 px-5 items-center bg-cn-tan text-white text-xs font-bold eyebrow hover:opacity-90">{{ 'Shop the Look' }} &rarr;</a>
+      <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" @if($bannerOverlayStyle($cnTopLeft)) style="{{ $bannerOverlayStyle($cnTopLeft) }}" @endif></div>
+      <div class="relative p-8 text-white" @if($bannerTextStyle($cnTopLeft)) style="{{ $bannerTextStyle($cnTopLeft) }}" @endif>
+        <span class="eyebrow text-xs font-bold text-cn-tanSoft" style="color:inherit;">{{ ($cnTopLeft->badge_text ?? null) ?: 'The Art of Living' }}</span>
+        <h3 class="font-serif text-3xl mt-2 leading-tight" style="color:inherit;">{{ ($cnTopLeft->title ?? null) ?: 'Natural Materials. Lasting Beauty.' }}</h3>
+        <p class="text-white/70 text-sm mt-2 max-w-xs" style="color:inherit;">{{ ($cnTopLeft->subtitle ?? null) ?: 'Crafted from solid wood, natural stone, and premium textiles — designed to be loved for years.' }}</p>
+        <span class="mt-4 inline-flex h-10 px-5 items-center bg-cn-tan text-white text-xs font-bold eyebrow hover:opacity-90">{{ ($cnTopLeft->button_text ?? null) ?: 'Shop the Look' }} &rarr;</span>
       </div>
-    </div>
+    </a>
     <div class="grid grid-rows-2 gap-4">
-      <div class="bg-cn-creamDark p-6 flex flex-col justify-center">
-        <h4 class="font-serif text-lg text-cn-ink">{{ 'Layer Your Space with Textures' }}</h4>
-        <a href="{{ route('store.shop') }}" class="mt-2 text-xs font-bold eyebrow text-cn-olive hover:underline">{{ 'Shop Rugs' }} &rarr;</a>
-      </div>
-      <div class="bg-cn-oliveDeep text-white p-6 flex flex-col justify-center">
-        <h4 class="font-serif text-lg">{{ 'Outdoor Living Reimagined' }}</h4>
-        <a href="{{ route('store.shop') }}" class="mt-2 text-xs font-bold eyebrow text-cn-tanSoft hover:underline">{{ 'Shop Outdoor' }} &rarr;</a>
-      </div>
+      <a href="{{ $cnTopRight ? ($cnTopRight->link ?: route('store.shop')) : route('store.shop') }}" class="relative overflow-hidden bg-cn-creamDark p-6 flex flex-col justify-center" @if($bannerOverlayStyle($cnTopRight)) style="{{ $bannerOverlayStyle($cnTopRight) }}" @endif>
+        @if($cnTopRight && $cnTopRight->image_url)
+          <img src="{{ $bannerUrl($cnTopRight) }}" alt="{{ $cnTopRight->title }}" class="absolute inset-0 w-full h-full object-cover">
+          <div class="absolute inset-0 bg-cn-creamDark/80"></div>
+        @endif
+        <div class="relative" @if($bannerTextStyle($cnTopRight)) style="{{ $bannerTextStyle($cnTopRight) }}" @endif>
+          <h4 class="font-serif text-lg text-cn-ink" style="color:inherit;">{{ ($cnTopRight->title ?? null) ?: 'Layer Your Space with Textures' }}</h4>
+          <span class="mt-2 inline-flex text-xs font-bold eyebrow text-cn-olive hover:underline" style="color:inherit;">{{ ($cnTopRight->button_text ?? null) ?: 'Shop Rugs' }} &rarr;</span>
+        </div>
+      </a>
+      <a href="{{ $cnCenterLeft ? ($cnCenterLeft->link ?: route('store.shop')) : route('store.shop') }}" class="relative overflow-hidden bg-cn-oliveDeep text-white p-6 flex flex-col justify-center" @if($bannerOverlayStyle($cnCenterLeft)) style="{{ $bannerOverlayStyle($cnCenterLeft) }}" @endif>
+        @if($cnCenterLeft && $cnCenterLeft->image_url)
+          <img src="{{ $bannerUrl($cnCenterLeft) }}" alt="{{ $cnCenterLeft->title }}" class="absolute inset-0 w-full h-full object-cover">
+          <div class="absolute inset-0 bg-cn-oliveDeep/80"></div>
+        @endif
+        <div class="relative" @if($bannerTextStyle($cnCenterLeft)) style="{{ $bannerTextStyle($cnCenterLeft) }}" @endif>
+          <h4 class="font-serif text-lg" style="color:inherit;">{{ ($cnCenterLeft->title ?? null) ?: 'Outdoor Living Reimagined' }}</h4>
+          <span class="mt-2 inline-flex text-xs font-bold eyebrow text-cn-tanSoft hover:underline" style="color:inherit;">{{ ($cnCenterLeft->button_text ?? null) ?: 'Shop Outdoor' }} &rarr;</span>
+        </div>
+      </a>
     </div>
   </section>
+  @endif
 
   {{-- ===== BROWSE BY STYLE ===== --}}
   <section class="max-w-7xl mx-auto px-4 py-10">
@@ -163,14 +224,14 @@
   </section>
 
   {{-- ===== BEST SELLERS ===== --}}
-  @if($categorySpecificProducts->count())
+  @if($bestSellersProducts->count())
     <section class="max-w-7xl mx-auto px-4 py-6">
       <div class="flex items-end justify-between mb-5">
         <h2 class="font-serif text-2xl text-cn-ink">{{ 'Best Sellers' }}</h2>
         <a href="{{ route('store.shop') }}" class="text-xs font-bold eyebrow text-cn-olive hover:underline">{{ 'View All' }} &rarr;</a>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        @foreach($categorySpecificProducts->take(5) as $product)
+        @foreach($bestSellersProducts as $product)
           @include('store.themes.casanest-furniture.partials.product-card', ['product' => $product])
         @endforeach
       </div>

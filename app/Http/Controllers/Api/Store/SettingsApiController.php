@@ -87,12 +87,16 @@ class SettingsApiController extends Controller
             ->whereNull('deleted_at')
             ->count();
 
+        $activeTheme = StorefrontThemeRegistry::find($s->theme);
+
         return response()->json([
             'settings' => $s,
             'warehouses' => $warehouses,
             'currencies' => $currencies,
             'pending_customers_count' => $pendingCustomersCount,
             'themes' => StorefrontThemeRegistry::all(),
+            'active_theme_label' => $activeTheme['name'] ?? $s->theme,
+            'active_theme_banner_positions' => StorefrontThemeRegistry::bannerPositions($s->theme),
         ]);
     }
 
@@ -172,6 +176,7 @@ class SettingsApiController extends Controller
 
             'hero_title' => 'nullable|string|max:255',
             'hero_subtitle' => 'nullable|string|max:1000',
+            'hero_slides' => 'nullable',
 
             'seo_meta_title' => 'nullable|string|max:255',
             'seo_meta_description' => 'nullable|string|max:1000',
@@ -192,10 +197,12 @@ class SettingsApiController extends Controller
             'logo' => 'nullable|file|mimes:jpg,jpeg,png,webp|max:4096',
             'favicon' => 'nullable|file|mimes:jpg,jpeg,png,webp,ico|mimetypes:image/png,image/jpeg,image/webp,image/x-icon,image/vnd.microsoft.icon|max:2048',
             'hero_image' => 'nullable|file|mimes:jpg,jpeg,png,webp|max:8192',
+            'offer_image' => 'nullable|file|mimes:jpg,jpeg,png,webp|max:8192',
+            'offer_image_clear' => 'nullable|in:0,1',
         ]);
 
         // --- Decode JSON fields ---
-        foreach (['social_links', 'homepage_lineup', 'home_collections'] as $key) {
+        foreach (['social_links', 'homepage_lineup', 'home_collections', 'hero_slides'] as $key) {
             if (array_key_exists($key, $data) && is_string($data[$key])) {
                 $decoded = json_decode($data[$key], true);
                 if (json_last_error() === JSON_ERROR_NONE) {
@@ -250,6 +257,11 @@ class SettingsApiController extends Controller
         // --- Normalize unified lineup ---
         if (array_key_exists('homepage_lineup', $data)) {
             $data['homepage_lineup'] = $this->normalizeHomepageLineup($data['homepage_lineup']);
+        }
+
+        // --- Normalize hero slides ---
+        if (array_key_exists('hero_slides', $data)) {
+            $data['hero_slides'] = $this->normalizeHeroSlides($data['hero_slides']);
         }
 
         // --- Migrate legacy collections if needed ---
@@ -335,6 +347,113 @@ class SettingsApiController extends Controller
             $data['hero_image_path'] = 'images/store/'.$filename;
         }
 
+        // --- HERO SLIDE IMAGES: like offer_image, uploaded as separate indexed
+        //     files (hero_slide_image_0, hero_slide_image_1, ...) since a file
+        //     can't travel inside the hero_slides JSON array -- splice each
+        //     upload's resulting path into the matching slide by position. ---
+        if (array_key_exists('hero_slides', $data) && is_array($data['hero_slides'])) {
+            $existingSlides = is_array($s->hero_slides) ? $s->hero_slides : [];
+
+            foreach ($data['hero_slides'] as $i => &$slide) {
+                if (! is_array($slide)) {
+                    continue;
+                }
+
+                $fileKey = "hero_slide_image_{$i}";
+                $clearKey = "hero_slide_image_clear_{$i}";
+                $existingImage = $existingSlides[$i]['image'] ?? null;
+
+                if ($request->hasFile($fileKey)) {
+                    $file = $request->file($fileKey);
+                    if (! in_array(strtolower($file->getClientOriginalExtension() ?: ''), ['jpg', 'jpeg', 'png', 'webp'], true)
+                        && ! in_array($file->getMimeType(), ['image/jpeg', 'image/png', 'image/webp'], true)) {
+                        continue; // silently skip an invalid upload rather than fail the whole save
+                    }
+
+                    if ($existingImage && File::exists(public_path($existingImage))) {
+                        File::delete(public_path($existingImage));
+                    }
+
+                    $ext = strtolower($file->guessExtension() ?: 'jpg');
+                    $filename = (string) Str::uuid().'.'.$ext;
+
+                    Image::make($file->getRealPath())
+                        ->resize(1600, 800, function ($c) {
+                            $c->aspectRatio();
+                            $c->upsize();
+                        })
+                        ->encode($ext, 82)
+                        ->save($targetDir.'/'.$filename);
+
+                    $slide['image'] = 'images/store/'.$filename;
+                } elseif ($request->boolean($clearKey)) {
+                    if ($existingImage && File::exists(public_path($existingImage))) {
+                        File::delete(public_path($existingImage));
+                    }
+                    $slide['image'] = null;
+                } else {
+                    // No new upload/clear -- keep whatever the client round-tripped.
+                    $slide['image'] = $slide['image'] ?? $existingImage;
+                }
+            }
+            unset($slide);
+
+            // Any images belonging to slides that were REMOVED entirely (fewer
+            // slides submitted than existed before) are now orphaned -- clean
+            // them up rather than leaking files on every delete.
+            $keptImages = collect($data['hero_slides'])->pluck('image')->filter()->all();
+            foreach ($existingSlides as $oldSlide) {
+                $oldImage = $oldSlide['image'] ?? null;
+                if ($oldImage && ! in_array($oldImage, $keptImages, true) && File::exists(public_path($oldImage))) {
+                    File::delete(public_path($oldImage));
+                }
+            }
+        }
+
+        // --- OFFER / PROMO BANNER IMAGE: uploaded separately from the
+        //     lineup JSON (a file can't travel inside JSON), so splice the
+        //     resulting path into the already-normalized promo_banner item. ---
+        if (array_key_exists('homepage_lineup', $data) && is_array($data['homepage_lineup'])) {
+            $existingOfferImage = collect(is_array($s->homepage_lineup) ? $s->homepage_lineup : [])
+                ->first(fn ($it) => is_array($it) && ($it['type'] ?? null) === 'promo_banner')['image'] ?? null;
+
+            foreach ($data['homepage_lineup'] as &$lineupItem) {
+                if (! is_array($lineupItem) || ($lineupItem['type'] ?? null) !== 'promo_banner') {
+                    continue;
+                }
+
+                if ($request->hasFile('offer_image')) {
+                    if ($existingOfferImage && File::exists(public_path($existingOfferImage))) {
+                        File::delete(public_path($existingOfferImage));
+                    }
+
+                    $ext = strtolower($request->file('offer_image')->guessExtension() ?: 'jpg');
+                    $filename = (string) Str::uuid().'.'.$ext;
+
+                    Image::make($request->file('offer_image')->getRealPath())
+                        ->resize(1600, 800, function ($c) {
+                            $c->aspectRatio();
+                            $c->upsize();
+                        })
+                        ->encode($ext, 82)
+                        ->save($targetDir.'/'.$filename);
+
+                    $lineupItem['image'] = 'images/store/'.$filename;
+                } elseif ($request->boolean('offer_image_clear')) {
+                    if ($existingOfferImage && File::exists(public_path($existingOfferImage))) {
+                        File::delete(public_path($existingOfferImage));
+                    }
+                    $lineupItem['image'] = null;
+                } else {
+                    // No new upload/clear request — keep the previously saved image.
+                    $lineupItem['image'] = $existingOfferImage;
+                }
+
+                break;
+            }
+            unset($lineupItem);
+        }
+
         // ============================
         // CURRENCY HANDLING
         // ============================
@@ -417,6 +536,37 @@ class SettingsApiController extends Controller
     }
 
     /**
+     * Normalize hero_slides to an ordered array of
+     * {"title":"","subtitle":"","cta_text":"","cta_link":"","image":null}
+     * rows. `image` is intentionally left alone here -- it's spliced in
+     * separately by the per-slide image upload handling in update(), since a
+     * file can't travel inside this JSON payload.
+     */
+    private function normalizeHeroSlides($val): array
+    {
+        if (! $val || ! is_array($val)) {
+            return [];
+        }
+
+        $out = [];
+        foreach ($val as $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+
+            $out[] = [
+                'title' => isset($row['title']) ? (string) $row['title'] : '',
+                'subtitle' => isset($row['subtitle']) ? (string) $row['subtitle'] : '',
+                'cta_text' => isset($row['cta_text']) ? (string) $row['cta_text'] : '',
+                'cta_link' => isset($row['cta_link']) ? (string) $row['cta_link'] : '',
+                'image' => (isset($row['image']) && $row['image'] !== '') ? (string) $row['image'] : null,
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
      * Normalize homepage_lineup to an array of items like:
      *  - {"type":"hero"}
      *  - {"type":"newsletter"}
@@ -433,6 +583,7 @@ class SettingsApiController extends Controller
         $hasHero = false;
         $hasNewsletter = false;
         $hasPromoBanner = false;
+        $hasBannerGrid = false;
         $hasCategories = false;
 
         foreach ($val as $row) {
@@ -466,12 +617,39 @@ class SettingsApiController extends Controller
                     continue;
                 }
                 $hasPromoBanner = true;
+
+                $startsAt = isset($row['starts_at']) ? (string) $row['starts_at'] : '';
+                $endsAt = isset($row['ends_at']) ? (string) $row['ends_at'] : '';
+
                 $out[] = [
                     'type' => 'promo_banner',
+                    'enabled' => array_key_exists('enabled', $row)
+                        ? filter_var($row['enabled'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== false
+                        : true,
+                    'badge_text' => isset($row['badge_text']) ? (string) $row['badge_text'] : '',
                     'title' => isset($row['title']) ? (string) $row['title'] : '',
                     'subtitle' => isset($row['subtitle']) ? (string) $row['subtitle'] : '',
+                    'discount_text' => isset($row['discount_text']) ? (string) $row['discount_text'] : '',
                     'button_text' => isset($row['button_text']) ? (string) $row['button_text'] : __('Shop Now'),
                     'link' => isset($row['link']) ? (string) $row['link'] : '',
+                    'image' => isset($row['image']) && $row['image'] !== '' ? (string) $row['image'] : null,
+                    'starts_at' => $startsAt !== '' ? $startsAt : null,
+                    'ends_at' => $endsAt !== '' ? $endsAt : null,
+                ];
+
+                continue;
+            }
+
+            if ($type === 'banner_grid') {
+                if ($hasBannerGrid) {
+                    continue;
+                }
+                $hasBannerGrid = true;
+                $out[] = [
+                    'type' => 'banner_grid',
+                    'enabled' => array_key_exists('enabled', $row)
+                        ? filter_var($row['enabled'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== false
+                        : true,
                 ];
 
                 continue;

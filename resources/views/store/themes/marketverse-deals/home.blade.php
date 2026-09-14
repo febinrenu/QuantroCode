@@ -17,6 +17,17 @@
   };
   $shopUrl = $mvRoute('store.shop');
 
+  // Banners admin: position-keyed collection of active banners + safe image fallback.
+  $byPos = collect($banners ?? [])->groupBy('position');
+  $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+
+  // Homepage Collections (admin-configured lineup blocks). When the merchant
+  // has wired up real Collections, the three product rails below prefer that
+  // data; otherwise they keep their original hardcoded MarketVerse picks so
+  // stores that haven't touched Collections yet look exactly the same.
+  $collectionBlocks = collect($blocks ?? [])->filter(fn($b) => ($b['type'] ?? '') === 'collection')->values();
+  $allBlockProducts = $collectionBlocks->flatMap(fn($block) => collect($block['products'] ?? []))->values();
+
   // Query MarketVerse products
   $flashSaleProducts = Product::where('code', 'like', 'MKT-%')
       ->whereIn('code', [
@@ -51,6 +62,33 @@
   }
   if ($newArrivals->isEmpty()) {
       $newArrivals = Product::where('code', 'like', 'MKT-%')->skip(12)->take(6)->get();
+  }
+
+  // Merchant-configured Collections (from the homepage lineup) take priority
+  // over the hardcoded picks above, once the merchant has actually set one up.
+  if ($allBlockProducts->isNotEmpty()) {
+      $onSale = $allBlockProducts->filter(function ($p) {
+          return (float) ($p->base_price ?? 0) > (float) ($p->display_price ?? $p->final_display_price ?? 0);
+      })->values();
+      $flashSaleProducts = $onSale->count() ? $onSale->take(6)->values() : $allBlockProducts->take(6)->values();
+
+      $recommendedProducts = $allBlockProducts->slice(6, 6)->count()
+          ? $allBlockProducts->slice(6, 6)->values()
+          : $allBlockProducts->take(6)->values();
+
+      $newArrivals = $allBlockProducts->sortByDesc(fn($p) => $p->created_at ?? null)->take(6)->values();
+  }
+
+  // Role-tagged Collections (Recommended / New Arrivals) -- when a merchant
+  // has explicitly assigned one of these roles to a Collection, its curated
+  // products win over both the hardcoded picks and the generic lineup blocks.
+  $roleRecommended = collect(($collectionsByRole['recommended']['products'] ?? []));
+  if ($roleRecommended->isNotEmpty()) {
+      $recommendedProducts = $roleRecommended->take(6)->values();
+  }
+  $roleNewArrivals = collect(($collectionsByRole['new_arrivals']['products'] ?? []));
+  if ($roleNewArrivals->isNotEmpty()) {
+      $newArrivals = $roleNewArrivals->take(6)->values();
   }
 
   $departmentsList = [
@@ -146,45 +184,55 @@
         </div>
       </div>
 
-      <!-- Center Hero Banner (6 cols on desktop) -->
-      <div class="lg:col-span-6 rounded-3xl overflow-hidden relative bg-gradient-to-tr from-[#371B97] via-[#4F28D9] to-[#6D38E0] text-white p-6 sm:p-10 flex flex-col justify-between shadow-lg min-h-[380px] sm:min-h-[440px]">
-        <!-- Background Decorative Illustration -->
-        <img src="{{ global_asset('images/themes/marketverse/hero-marketverse-main.jpg') }}"
-             alt="MarketVerse Marketplace"
-             class="absolute right-0 bottom-0 w-3/5 h-4/5 object-contain object-bottom opacity-85 pointer-events-none">
+      <!-- Center Hero Banner (6 cols on desktop) -- auto-rotating carousel; add slides via Store Settings > Hero Slides -->
+      @php $mvdHeroSlides = $heroSlides ?? []; @endphp
+      <div class="lg:col-span-6 rounded-3xl overflow-hidden relative bg-gradient-to-tr from-[#371B97] via-[#4F28D9] to-[#6D38E0] text-white shadow-lg min-h-[380px] sm:min-h-[440px] grid"
+           x-data="{ mvdHero: 0, mvdHeroCount: {{ count($mvdHeroSlides) }} }"
+           @if(count($mvdHeroSlides) > 1) x-init="setInterval(() => { mvdHero = (mvdHero + 1) % mvdHeroCount }, 6000)" @endif>
+        @foreach($mvdHeroSlides as $mvdI => $mvdSlide)
+          <div x-show="mvdHero === {{ $mvdI }}" @if(!$loop->first) x-cloak @endif
+               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+               x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+               class="col-start-1 row-start-1 p-6 sm:p-10 flex flex-col justify-between">
+            <!-- Background Decorative Illustration -->
+            <img src="{{ !empty($mvdSlide['image_url']) ? $mvdSlide['image_url'] : global_asset('images/themes/marketverse/hero-marketverse-main.jpg') }}"
+                 alt=""
+                 class="absolute right-0 bottom-0 w-3/5 h-4/5 object-contain object-bottom opacity-85 pointer-events-none">
 
-        <!-- Gradient Readability Shield -->
-        <div class="absolute inset-0 bg-gradient-to-r from-[#371B97]/90 via-[#4F28D9]/70 to-transparent w-4/5 pointer-events-none"></div>
+            <!-- Gradient Readability Shield -->
+            <div class="absolute inset-0 bg-gradient-to-r from-[#371B97]/90 via-[#4F28D9]/70 to-transparent w-4/5 pointer-events-none"></div>
 
-        <!-- Banner Content -->
-        <div class="relative z-10 space-y-4 max-w-sm my-auto">
-          <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-xs rounded-full text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
-            ★ All In One Mega Marketplace
-          </span>
-          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15]">
-            Everything from <span class="text-amber-300">Every Store</span>, All in One Marketplace.
-          </h1>
-          <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
-            Millions of products. Thousands of stores. Endless choices. One trusted marketplace.
-          </p>
-          <div class="pt-2 flex flex-wrap items-center gap-3">
-            <a href="{{ $shopUrl }}"
-               class="px-6 py-3 bg-mv-orange hover:bg-mv-orangeHover text-white text-xs sm:text-sm font-extrabold rounded-full shadow-lg active:scale-95 transition-all">
-              Shop All Categories
-            </a>
-            <a href="{{ $mvRoute('store.shop', ['collection' => 'top-deals']) }}"
-               class="px-6 py-3 bg-white/15 hover:bg-white/25 text-white border border-white/20 text-xs sm:text-sm font-bold rounded-full backdrop-blur-xs active:scale-95 transition-all">
-              Explore Top Stores
-            </a>
+            <!-- Banner Content -->
+            <div class="relative z-10 space-y-4 max-w-sm my-auto">
+              <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-xs rounded-full text-[10px] font-extrabold uppercase tracking-wider text-amber-300">
+                ★ All In One Mega Marketplace
+              </span>
+              <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-[1.15]">
+                {{ ($mvdSlide['title'] ?? '') !== '' ? $mvdSlide['title'] : 'Everything from Every Store, All in One Marketplace.' }}
+              </h1>
+              <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
+                {{ ($mvdSlide['subtitle'] ?? '') !== '' ? $mvdSlide['subtitle'] : 'Millions of products. Thousands of stores. Endless choices. One trusted marketplace.' }}
+              </p>
+              <div class="pt-2 flex flex-wrap items-center gap-3">
+                <a href="{{ ($mvdSlide['cta_link'] ?? '') !== '' ? $mvdSlide['cta_link'] : $shopUrl }}"
+                   class="px-6 py-3 bg-mv-orange hover:bg-mv-orangeHover text-white text-xs sm:text-sm font-extrabold rounded-full shadow-lg active:scale-95 transition-all">
+                  {{ ($mvdSlide['cta_text'] ?? '') !== '' ? $mvdSlide['cta_text'] : 'Shop All Categories' }}
+                </a>
+                <a href="{{ $mvRoute('store.shop', ['collection' => 'top-deals']) }}"
+                   class="px-6 py-3 bg-white/15 hover:bg-white/25 text-white border border-white/20 text-xs sm:text-sm font-bold rounded-full backdrop-blur-xs active:scale-95 transition-all">
+                  Explore Top Stores
+                </a>
+              </div>
+            </div>
+
+            <!-- Carousel Indicators -->
+            <div class="relative z-10 flex items-center gap-1.5 pt-4">
+              @foreach($mvdHeroSlides as $mvdDotI => $mvdDotSlide)
+                <button type="button" @click="mvdHero = {{ $mvdDotI }}" class="h-1.5 rounded-full transition-all" :class="mvdHero === {{ $mvdDotI }} ? 'w-6 bg-amber-400' : 'w-2 bg-white/40'" aria-label="Slide {{ $mvdDotI + 1 }}"></button>
+              @endforeach
+            </div>
           </div>
-        </div>
-
-        <!-- Carousel Indicators -->
-        <div class="relative z-10 flex items-center gap-1.5 pt-4">
-          <span class="w-6 h-1.5 bg-amber-400 rounded-full"></span>
-          <span class="w-2 h-1.5 bg-white/40 rounded-full"></span>
-          <span class="w-2 h-1.5 bg-white/40 rounded-full"></span>
-        </div>
+        @endforeach
       </div>
 
       <!-- Right 3 Promo Cards (3 cols on desktop) -->
@@ -390,16 +438,20 @@
   </section>
 
   <!-- =========================================================================
-       5. FLASH SALE (Countdown + 6 Products in Grid)
+       5. FLASH SALE (Countdown + 6 Products in Grid) (customizable via Offers & Promotions)
        ========================================================================= -->
+  @if($offer['enabled'] ?? true)
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="bg-gradient-to-r from-red-600 via-rose-600 to-orange-600 rounded-3xl p-5 sm:p-7 text-white shadow-md space-y-6">
 
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="flex flex-wrap items-center gap-3">
           <span class="text-2xl font-black tracking-tight flex items-center gap-2">
-            <span>⚡</span> Flash Sale
+            <span>⚡</span> {{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Flash Sale' }}
           </span>
+          @if(!empty($offer['discount_text']))
+            <span class="text-xs font-bold bg-white/20 px-2.5 py-1 rounded-full">{{ $offer['discount_text'] }}</span>
+          @endif
           <span class="text-xs font-semibold text-rose-100 hidden sm:inline">Ends in:</span>
           <div class="flex items-center gap-1 font-mono font-black text-xs text-slate-900">
             <span class="px-2.5 py-1 bg-white rounded-md shadow-xs">02</span> :
@@ -408,9 +460,9 @@
           </div>
         </div>
 
-        <a href="{{ $mvRoute('store.shop', ['collection' => 'flash-sale']) }}"
+        <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : $mvRoute('store.shop', ['collection' => 'flash-sale']) }}"
            class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-bold text-xs rounded-full backdrop-blur-xs transition-colors shrink-0">
-          View All Deals &rarr;
+          {{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'View All Deals' }} &rarr;
         </a>
       </div>
 
@@ -423,6 +475,7 @@
 
     </div>
   </section>
+  @endif
 
   <!-- =========================================================================
        6. COUPONS & DEALS CENTER (5 Coupon Badges)
@@ -509,67 +562,89 @@
   </section>
 
   <!-- =========================================================================
-       9. PROMOTIONAL BANNERS GRID (3 Banners)
+       9. PROMOTIONAL BANNERS GRID (3 Banners) (fully customizable via Banners: image, badge, headline, subtitle, button, colors)
        ========================================================================= -->
+  @if($bannerGridEnabled ?? true)
+  @php
+    // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+    // overrides each tile's fixed gradient/text color; absent -> theme default.
+    $bannerOverlayStyle = function ($b) {
+      if (!$b || empty($b->bg_color)) return null;
+      $css = !empty($b->bg_color_2)
+        ? "background:linear-gradient(to top, {$b->bg_color}f2, {$b->bg_color_2}bf, transparent);"
+        : "background:linear-gradient(to top, {$b->bg_color}f2, {$b->bg_color}bf, transparent);";
+      return $css;
+    };
+    $bannerTextStyle = function ($b) {
+      return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
+  @endphp
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
       <!-- Banner 1: Vendor Spotlight (TechWorld) -->
-      <div class="rounded-3xl relative text-white p-7 flex flex-col justify-between min-h-[260px] shadow-sm overflow-hidden group">
-        <img src="{{ global_asset('images/themes/marketverse/promo-vendor-spotlight.jpg') }}"
-             alt="TechWorld Electronics Spotlight"
+      @php $topLeft = ($byPos['top_left'] ?? collect())->first(); @endphp
+      <a href="{{ $topLeft ? ($topLeft->link ?: $mvRoute('store.shop', ['category' => 'Electronics'])) : $mvRoute('store.shop', ['category' => 'Electronics']) }}"
+         class="rounded-3xl relative text-white p-7 flex flex-col justify-between min-h-[260px] shadow-sm overflow-hidden group">
+        <img src="{{ $topLeft ? $bannerUrl($topLeft) : global_asset('images/themes/marketverse/promo-vendor-spotlight.jpg') }}"
+             alt="{{ ($topLeft->title ?? null) ?: 'TechWorld Electronics Spotlight' }}"
              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-        <div class="absolute inset-0 bg-gradient-to-t from-[#1F0E54]/95 via-[#2D1680]/75 to-transparent"></div>
-        <div class="space-y-2 relative z-10">
-          <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-300">Vendor Spotlight</span>
-          <h3 class="text-2xl font-black leading-tight">TechWorld Electronics</h3>
-          <p class="text-xs text-slate-200">★★★★★ Top Rated Seller • Up to 40% OFF on Bestselling Electronics</p>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#1F0E54]/95 via-[#2D1680]/75 to-transparent" @if($bannerOverlayStyle($topLeft)) style="{{ $bannerOverlayStyle($topLeft) }}" @endif></div>
+        <div class="space-y-2 relative z-10" @if($bannerTextStyle($topLeft)) style="{{ $bannerTextStyle($topLeft) }}" @endif>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-300" style="color:inherit;">{{ ($topLeft->badge_text ?? null) ?: 'Vendor Spotlight' }}</span>
+          <h3 class="text-2xl font-black leading-tight" style="color:inherit;">{{ ($topLeft->title ?? null) ?: 'TechWorld Electronics' }}</h3>
+          <p class="text-xs text-slate-200" style="color:inherit;">{{ ($topLeft->subtitle ?? null) ?: '★★★★★ Top Rated Seller • Up to 40% OFF on Bestselling Electronics' }}</p>
         </div>
         <div class="pt-4 relative z-10">
-          <a href="{{ $mvRoute('store.shop', ['category' => 'Electronics']) }}" class="inline-block px-5 py-2.5 bg-white text-mv-purple font-extrabold text-xs rounded-full shadow-md hover:bg-slate-100 transition-colors">
-            Visit Store &rarr;
-          </a>
+          <span class="inline-block px-5 py-2.5 bg-white text-mv-purple font-extrabold text-xs rounded-full shadow-md group-hover:bg-slate-100 transition-colors">
+            {{ ($topLeft->button_text ?? null) ?: 'Visit Store' }} &rarr;
+          </span>
         </div>
-      </div>
+      </a>
 
       <!-- Banner 2: Home Essentials -->
-      <div class="rounded-3xl relative text-white p-7 flex flex-col justify-between min-h-[260px] shadow-sm overflow-hidden group">
-        <img src="{{ global_asset('images/themes/marketverse/promo-home-essentials.jpg') }}"
-             alt="Home Essentials"
+      @php $topRight = ($byPos['top_right'] ?? collect())->first(); @endphp
+      <a href="{{ $topRight ? ($topRight->link ?: $mvRoute('store.shop', ['category' => 'Home & Living'])) : $mvRoute('store.shop', ['category' => 'Home & Living']) }}"
+         class="rounded-3xl relative text-white p-7 flex flex-col justify-between min-h-[260px] shadow-sm overflow-hidden group">
+        <img src="{{ $topRight ? $bannerUrl($topRight) : global_asset('images/themes/marketverse/promo-home-essentials.jpg') }}"
+             alt="{{ ($topRight->title ?? null) ?: 'Home Essentials' }}"
              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-        <div class="absolute inset-0 bg-gradient-to-t from-[#064E3B]/95 via-[#0F766E]/75 to-transparent"></div>
-        <div class="space-y-2 relative z-10">
-          <span class="text-[10px] font-extrabold uppercase tracking-wider text-teal-200">Mega Savings</span>
-          <h3 class="text-2xl font-black leading-tight">Home Essentials</h3>
-          <p class="text-xs text-slate-200">Sofas, kitchenware & decor • Up to 60% OFF</p>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#064E3B]/95 via-[#0F766E]/75 to-transparent" @if($bannerOverlayStyle($topRight)) style="{{ $bannerOverlayStyle($topRight) }}" @endif></div>
+        <div class="space-y-2 relative z-10" @if($bannerTextStyle($topRight)) style="{{ $bannerTextStyle($topRight) }}" @endif>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-teal-200" style="color:inherit;">{{ ($topRight->badge_text ?? null) ?: 'Mega Savings' }}</span>
+          <h3 class="text-2xl font-black leading-tight" style="color:inherit;">{{ ($topRight->title ?? null) ?: 'Home Essentials' }}</h3>
+          <p class="text-xs text-slate-200" style="color:inherit;">{{ ($topRight->subtitle ?? null) ?: 'Sofas, kitchenware & decor • Up to 60% OFF' }}</p>
         </div>
         <div class="pt-4 relative z-10">
-          <a href="{{ $mvRoute('store.shop', ['category' => 'Home & Living']) }}" class="inline-block px-5 py-2.5 bg-white text-teal-800 font-extrabold text-xs rounded-full shadow-md hover:bg-slate-100 transition-colors">
-            Shop Now &rarr;
-          </a>
+          <span class="inline-block px-5 py-2.5 bg-white text-teal-800 font-extrabold text-xs rounded-full shadow-md group-hover:bg-slate-100 transition-colors">
+            {{ ($topRight->button_text ?? null) ?: 'Shop Now' }} &rarr;
+          </span>
         </div>
-      </div>
+      </a>
 
       <!-- Banner 3: Fashion Drop -->
-      <div class="rounded-3xl relative text-white p-7 flex flex-col justify-between min-h-[260px] shadow-sm overflow-hidden group">
-        <img src="{{ global_asset('images/themes/marketverse/promo-fashion-drop.jpg') }}"
-             alt="Fashion Drop"
+      @php $centerLeft = ($byPos['center_left'] ?? collect())->first(); @endphp
+      <a href="{{ $centerLeft ? ($centerLeft->link ?: $mvRoute('store.shop', ['category' => 'Fashion'])) : $mvRoute('store.shop', ['category' => 'Fashion']) }}"
+         class="rounded-3xl relative text-white p-7 flex flex-col justify-between min-h-[260px] shadow-sm overflow-hidden group">
+        <img src="{{ $centerLeft ? $bannerUrl($centerLeft) : global_asset('images/themes/marketverse/promo-fashion-drop.jpg') }}"
+             alt="{{ ($centerLeft->title ?? null) ?: 'Fashion Drop' }}"
              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-        <div class="absolute inset-0 bg-gradient-to-t from-[#881337]/95 via-[#BE185D]/75 to-transparent"></div>
-        <div class="space-y-2 relative z-10">
-          <span class="text-[10px] font-extrabold uppercase tracking-wider text-rose-200">New Collection</span>
-          <h3 class="text-2xl font-black leading-tight">Fashion Drop</h3>
-          <p class="text-xs text-slate-200">Trendy apparel, footwear & bags • Extra 25% OFF</p>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#881337]/95 via-[#BE185D]/75 to-transparent" @if($bannerOverlayStyle($centerLeft)) style="{{ $bannerOverlayStyle($centerLeft) }}" @endif></div>
+        <div class="space-y-2 relative z-10" @if($bannerTextStyle($centerLeft)) style="{{ $bannerTextStyle($centerLeft) }}" @endif>
+          <span class="text-[10px] font-extrabold uppercase tracking-wider text-rose-200" style="color:inherit;">{{ ($centerLeft->badge_text ?? null) ?: 'New Collection' }}</span>
+          <h3 class="text-2xl font-black leading-tight" style="color:inherit;">{{ ($centerLeft->title ?? null) ?: 'Fashion Drop' }}</h3>
+          <p class="text-xs text-slate-200" style="color:inherit;">{{ ($centerLeft->subtitle ?? null) ?: 'Trendy apparel, footwear & bags • Extra 25% OFF' }}</p>
         </div>
         <div class="pt-4 relative z-10">
-          <a href="{{ $mvRoute('store.shop', ['category' => 'Fashion']) }}" class="inline-block px-5 py-2.5 bg-white text-rose-700 font-extrabold text-xs rounded-full shadow-md hover:bg-slate-100 transition-colors">
-            Shop Now &rarr;
-          </a>
+          <span class="inline-block px-5 py-2.5 bg-white text-rose-700 font-extrabold text-xs rounded-full shadow-md group-hover:bg-slate-100 transition-colors">
+            {{ ($centerLeft->button_text ?? null) ?: 'Shop Now' }} &rarr;
+          </span>
         </div>
-      </div>
+      </a>
 
     </div>
   </section>
+  @endif
 
   <!-- =========================================================================
        10. NEW ARRIVALS (6 Products)

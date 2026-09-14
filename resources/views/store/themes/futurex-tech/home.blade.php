@@ -40,6 +40,16 @@
     ['Wearables', 'bg-orange-50', 'text-fx-ink', 'Health, fitness & smart features.'],
   ];
   $fxTiles = collect($fxTileMap)->filter(fn ($t) => $fxSubIdHome($t[0]))->values();
+
+  // Role-tagged Collections -- when a merchant has assigned a dedicated
+  // "Best Sellers" Collection, its curated products win over the generic
+  // $categorySpecificProducts list for that section.
+  $currency = $s->currency_code ?? '$';
+  $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
+  $roleVms = collect($collectionsByRole ?? [])->map(function ($r) use ($currency, $hidePrices) {
+      return collect($r['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices))->values();
+  });
+  $bestSellersProducts = ($roleVms['best_sellers'] ?? collect())->count() ? $roleVms['best_sellers'] : $categorySpecificProducts;
 @endphp
 
 <main class="pb-20 md:pb-0">
@@ -65,38 +75,63 @@
         </a>
       </aside>
 
-      <div class="relative overflow-hidden bg-fx-hero rounded-lg" style="min-height:420px;">
+      @php $fxHeroSlides = $heroSlides ?? []; @endphp
+      <div class="relative overflow-hidden bg-fx-hero rounded-lg grid"
+           style="min-height:420px;"
+           x-data="{ fxHero: 0, fxHeroCount: {{ count($fxHeroSlides) }} }"
+           @if(count($fxHeroSlides) > 1) x-init="setInterval(() => { fxHero = (fxHero + 1) % fxHeroCount }, 6000)" @endif>
         <div class="absolute inset-0 opacity-40" style="background:radial-gradient(circle at 65% 45%, #3F8CFF33, transparent 60%);"></div>
-        <div class="relative px-8 md:px-12 py-14 md:py-16 grid md:grid-cols-2 items-center gap-6 h-full">
-          <div>
-            <span class="eyebrow text-fx-cyan text-xs font-bold">{{ $fxHeroEyebrow }}</span>
-            <h1 class="font-heading font-extrabold text-3xl md:text-5xl leading-tight text-white mt-3">{{ $fxHeroTitle }}</h1>
-            <p class="mt-4 text-white/60 max-w-sm">{{ $fxHeroSubtitle }}</p>
-            <div class="mt-7">
-              <a href="{{ route('store.shop') }}" class="h-12 px-7 inline-flex items-center gap-2 bg-fx-badge text-white text-sm font-bold rounded-full hover:opacity-90">
-                {{ 'Explore Now' }}
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              </a>
-            </div>
-          </div>
-          <div class="relative flex items-center justify-center">
-            @if($fxHeroImg)
-              <div class="w-56 h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-2 border-fx-cyan/40" style="box-shadow:0 0 60px 10px #3F8CFF22;">
-                <img src="{{ $fxHeroImg }}" alt="{{ $fxHeroTitle }}" class="w-full h-full object-cover">
+        @foreach($fxHeroSlides as $fxI => $fxSlide)
+          @php $fxSlideImg = !empty($fxSlide['image_url']) ? $fxSlide['image_url'] : $fxHeroImg; @endphp
+          <div x-show="fxHero === {{ $fxI }}" @if(!$loop->first) x-cloak @endif
+               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+               x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+               class="col-start-1 row-start-1">
+            <div class="relative px-8 md:px-12 py-14 md:py-16 grid md:grid-cols-2 items-center gap-6 h-full">
+              <div>
+                <span class="eyebrow text-fx-cyan text-xs font-bold">{{ $fxHeroEyebrow }}</span>
+                <h1 class="font-heading font-extrabold text-3xl md:text-5xl leading-tight text-white mt-3">
+                  {{ ($fxSlide['title'] ?? '') !== '' ? $fxSlide['title'] : $fxHeroTitle }}
+                </h1>
+                <p class="mt-4 text-white/60 max-w-sm">
+                  {{ ($fxSlide['subtitle'] ?? '') !== '' ? $fxSlide['subtitle'] : $fxHeroSubtitle }}
+                </p>
+                <div class="mt-7">
+                  <a href="{{ ($fxSlide['cta_link'] ?? '') !== '' ? $fxSlide['cta_link'] : route('store.shop') }}" class="h-12 px-7 inline-flex items-center gap-2 bg-fx-badge text-white text-sm font-bold rounded-full hover:opacity-90">
+                    {{ ($fxSlide['cta_text'] ?? '') !== '' ? $fxSlide['cta_text'] : 'Explore Now' }}
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </a>
+                </div>
               </div>
-            @endif
-            <div class="absolute -top-2 right-4 md:right-8 w-20 h-20 rounded-full bg-white text-fx-purpleDeep flex flex-col items-center justify-center text-center leading-tight shadow-cardHover">
-              <span class="text-[9px] font-bold eyebrow">{{ 'Up to' }}</span>
-              <span class="text-lg font-heading font-extrabold">45%</span>
-              <span class="text-[9px] font-bold eyebrow">{{ 'Off' }}</span>
+              <div class="relative flex items-center justify-center">
+                @if($fxSlideImg)
+                  <div class="w-56 h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-2 border-fx-cyan/40" style="box-shadow:0 0 60px 10px #3F8CFF22;">
+                    <img src="{{ $fxSlideImg }}" alt="{{ $fxHeroTitle }}" class="w-full h-full object-cover">
+                  </div>
+                @endif
+                <div class="absolute -top-2 right-4 md:right-8 w-20 h-20 rounded-full bg-white text-fx-purpleDeep flex flex-col items-center justify-center text-center leading-tight shadow-cardHover">
+                  <span class="text-[9px] font-bold eyebrow">{{ 'Up to' }}</span>
+                  <span class="text-lg font-heading font-extrabold">45%</span>
+                  <span class="text-[9px] font-bold eyebrow">{{ 'Off' }}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-          @for($i=0;$i<4;$i++)
-            <span class="{{ $i === 0 ? 'w-6 bg-fx-cyan' : 'w-1.5 bg-white/40' }} h-1.5 rounded-full"></span>
-          @endfor
-        </div>
+        @endforeach
+
+        @if(count($fxHeroSlides) > 1)
+          <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+            @foreach($fxHeroSlides as $fxI => $fxSlide)
+              <button type="button" @click="fxHero = {{ $fxI }}" class="w-2 h-2 rounded-full transition-colors" :class="fxHero === {{ $fxI }} ? 'bg-fx-cyan' : 'bg-white/40'" aria-label="Slide {{ $fxI + 1 }}"></button>
+            @endforeach
+          </div>
+        @else
+          <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+            @for($i=0;$i<4;$i++)
+              <span class="{{ $i === 0 ? 'w-6 bg-fx-cyan' : 'w-1.5 bg-white/40' }} h-1.5 rounded-full"></span>
+            @endfor
+          </div>
+        @endif
       </div>
     </div>
   </section>
@@ -146,14 +181,20 @@
     </section>
   @endif
 
-  {{-- ===== DEAL OF THE DAY ===== --}}
+  {{-- ===== DEAL OF THE DAY (customizable via Offers & Promotions) ===== --}}
+  @if($offer['enabled'] ?? true)
   <section class="max-w-7xl mx-auto px-4 py-2">
     <div class="rounded-lg bg-fx-badge px-6 py-6 flex flex-wrap items-center gap-5 justify-between overflow-hidden relative">
       <div class="flex items-center gap-4 relative z-10">
         <svg class="w-8 h-8 text-white shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7l-1 8 11-14h-8l1-6Z"/></svg>
         <div>
-          <h3 class="font-heading font-bold text-xl text-white">{{ 'Deal of the Day' }}</h3>
-          <p class="text-xs text-white/70">{{ 'Limited time offer on selected items' }}</p>
+          <h3 class="font-heading font-bold text-xl text-white">
+            {{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Deal of the Day' }}
+            @if(!empty($offer['discount_text']))
+              <span class="ms-2 align-middle text-[10px] font-bold uppercase bg-white/20 text-white px-2 py-0.5 rounded-full">{{ $offer['discount_text'] }}</span>
+            @endif
+          </h3>
+          <p class="text-xs text-white/70">{{ ($offer['subtitle'] ?? '') !== '' ? $offer['subtitle'] : 'Limited time offer on selected items' }}</p>
         </div>
       </div>
       <div class="flex items-center gap-2 relative z-10">
@@ -164,17 +205,19 @@
           </div>
         @endforeach
       </div>
-      <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-11 px-6 inline-flex items-center bg-white text-fx-purpleDeep text-sm font-bold rounded-md hover:bg-fx-cream relative z-10">
-        {{ 'Shop Deals' }}
+      <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop', ['sort' => 'price_asc']) }}" class="h-11 px-6 inline-flex items-center bg-white text-fx-purpleDeep text-sm font-bold rounded-md hover:bg-fx-cream relative z-10">
+        {{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop Deals' }}
       </a>
-      @if($fxImgs->last())
-        <img src="{{ $fxImgs->last() }}" alt="Deal of the day" class="hidden lg:block absolute right-0 bottom-0 w-40 h-40 object-cover opacity-30 rounded-tl-lg">
+      @php $fxDealImg = !empty($offer['image_url']) ? $offer['image_url'] : $fxImgs->last(); @endphp
+      @if($fxDealImg)
+        <img src="{{ $fxDealImg }}" alt="Deal of the day" class="hidden lg:block absolute right-0 bottom-0 w-40 h-40 object-cover opacity-30 rounded-tl-lg">
       @endif
     </div>
   </section>
+  @endif
 
   {{-- ===== BEST SELLERS ===== --}}
-  @if($categorySpecificProducts->count())
+  @if($bestSellersProducts->count())
     <section class="max-w-7xl mx-auto px-4 py-6">
       <div class="flex items-end justify-between mb-5">
         <h2 class="font-heading font-bold text-2xl text-fx-ink eyebrow">{{ 'Best Sellers' }}</h2>
@@ -184,7 +227,7 @@
         </a>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        @foreach($categorySpecificProducts as $product)
+        @foreach($bestSellersProducts as $product)
           @include('store.themes.futurex-tech.partials.product-card', ['product' => $product])
         @endforeach
       </div>

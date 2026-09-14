@@ -36,59 +36,82 @@
 
 <main class="pb-24 lg:pb-0">
 
-  {{-- ===== HERO ===== --}}
-  <section class="relative overflow-hidden">
-    <div class="absolute inset-0">
-      <img src="https://images.unsplash.com/photo-1550928431-ee0ec6db30d3?auto=format&fit=crop&w=1600&q=70"
-           alt="" class="w-full h-full object-cover opacity-40">
-      <div class="absolute inset-0 bg-gradient-to-r from-nova-bg via-nova-bg/85 to-nova-bg/50"></div>
-      <div class="absolute inset-0 bg-nova-radial"></div>
-    </div>
-    <div class="relative max-w-7xl mx-auto px-4 py-16 lg:py-28 grid lg:grid-cols-2 gap-10 items-center">
-      <div>
-        <span class="eyebrow text-nova-violetLight text-xs font-bold inline-flex items-center gap-2">
-          <span class="w-1.5 h-1.5 rounded-full bg-nova-cyan animate-pulse"></span>
-          Every category. One premium store.
-        </span>
-        <h1 class="mt-3 text-3xl sm:text-4xl lg:text-6xl font-black text-white leading-[1.05]">
-          Tomorrow's <span class="nt-gradient-text">essentials</span>,<br class="hidden sm:block"> today.
-        </h1>
-        <p class="mt-4 text-slate-300 max-w-lg">
-          {{ $s->hero_subtitle ?? 'From next-gen electronics to everyday fashion, home, beauty, grocery and sports — NovaTech curates it all with fast delivery and a checkout you can trust.' }}
-        </p>
-        <div class="mt-7 flex flex-wrap gap-3">
-          <a href="{{ route('store.shop') }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-full bg-nova-violet text-white font-semibold hover:bg-nova-violetDark shadow-glow transition-colors">
-            Shop the catalog
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-full nt-glass text-white font-semibold hover:bg-white/10 transition-colors">
-            Today's deals
-          </a>
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $ntHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative overflow-hidden grid"
+           x-data="{ ntHero: 0, ntHeroCount: {{ count($ntHeroSlides) }} }"
+           @if(count($ntHeroSlides) > 1) x-init="setInterval(() => { ntHero = (ntHero + 1) % ntHeroCount }, 6000)" @endif>
+    @foreach($ntHeroSlides as $ntI => $ntSlide)
+      <div x-show="ntHero === {{ $ntI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1">
+        <div class="absolute inset-0">
+          <img src="{{ !empty($ntSlide['image_url']) ? $ntSlide['image_url'] : 'https://images.unsplash.com/photo-1550928431-ee0ec6db30d3?auto=format&fit=crop&w=1600&q=70' }}"
+               alt="" class="w-full h-full object-cover opacity-40">
+          <div class="absolute inset-0 bg-gradient-to-r from-nova-bg via-nova-bg/85 to-nova-bg/50"></div>
+          <div class="absolute inset-0 bg-nova-radial"></div>
         </div>
-        <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-slate-300 text-xs">
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-nova-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Buyer protection</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-nova-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Free returns</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-nova-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> 24/7 support</span>
+        <div class="relative max-w-7xl mx-auto px-4 py-16 lg:py-28 grid lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <span class="eyebrow text-nova-violetLight text-xs font-bold inline-flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-nova-cyan animate-pulse"></span>
+              Every category. One premium store.
+            </span>
+            <h1 class="mt-3 text-3xl sm:text-4xl lg:text-6xl font-black text-white leading-[1.05]">
+              @if(($ntSlide['title'] ?? '') !== '')
+                {{ $ntSlide['title'] }}
+              @else
+                Tomorrow's <span class="nt-gradient-text">essentials</span>,<br class="hidden sm:block"> today.
+              @endif
+            </h1>
+            <p class="mt-4 text-slate-300 max-w-lg">
+              {{ ($ntSlide['subtitle'] ?? '') !== '' ? $ntSlide['subtitle'] : 'From next-gen electronics to everyday fashion, home, beauty, grocery and sports — NovaTech curates it all with fast delivery and a checkout you can trust.' }}
+            </p>
+            <div class="mt-7 flex flex-wrap gap-3">
+              <a href="{{ ($ntSlide['cta_link'] ?? '') !== '' ? $ntSlide['cta_link'] : route('store.shop') }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-full bg-nova-violet text-white font-semibold hover:bg-nova-violetDark shadow-glow transition-colors">
+                {{ ($ntSlide['cta_text'] ?? '') !== '' ? $ntSlide['cta_text'] : 'Shop the catalog' }}
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              </a>
+              <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-full nt-glass text-white font-semibold hover:bg-white/10 transition-colors">
+                Today's deals
+              </a>
+            </div>
+            <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-slate-300 text-xs">
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-nova-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Buyer protection</span>
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-nova-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Free returns</span>
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-nova-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> 24/7 support</span>
+            </div>
+          </div>
+          <div class="hidden lg:grid grid-cols-2 gap-4">
+            <div class="nt-glass rounded-2xl h-48 overflow-hidden shadow-glass">
+              <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=500&q=70" class="w-full h-full object-cover" alt="Electronics">
+            </div>
+            <div class="nt-glass rounded-2xl h-48 overflow-hidden mt-8 shadow-glass">
+              <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=500&q=70" class="w-full h-full object-cover" alt="Fashion">
+            </div>
+            <div class="nt-glass rounded-2xl h-48 overflow-hidden -mt-4 shadow-glass">
+              <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=500&q=70" class="w-full h-full object-cover" alt="Grocery">
+            </div>
+            <div class="nt-glass rounded-2xl h-48 overflow-hidden shadow-glass">
+              <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=500&q=70" class="w-full h-full object-cover" alt="Beauty">
+            </div>
+          </div>
         </div>
       </div>
-      <div class="hidden lg:grid grid-cols-2 gap-4">
-        <div class="nt-glass rounded-2xl h-48 overflow-hidden shadow-glass">
-          <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=500&q=70" class="w-full h-full object-cover" alt="Electronics">
-        </div>
-        <div class="nt-glass rounded-2xl h-48 overflow-hidden mt-8 shadow-glass">
-          <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=500&q=70" class="w-full h-full object-cover" alt="Fashion">
-        </div>
-        <div class="nt-glass rounded-2xl h-48 overflow-hidden -mt-4 shadow-glass">
-          <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=500&q=70" class="w-full h-full object-cover" alt="Grocery">
-        </div>
-        <div class="nt-glass rounded-2xl h-48 overflow-hidden shadow-glass">
-          <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=500&q=70" class="w-full h-full object-cover" alt="Beauty">
-        </div>
+    @endforeach
+
+    @if(count($ntHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($ntHeroSlides as $ntI => $ntSlide)
+          <button type="button" @click="ntHero = {{ $ntI }}" class="w-2 h-2 rounded-full transition-colors" :class="ntHero === {{ $ntI }} ? 'bg-white' : 'bg-white/40'" aria-label="Slide {{ $ntI + 1 }}"></button>
+        @endforeach
       </div>
-    </div>
+    @endif
   </section>
 
   {{-- ===== TOP BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['top_left'] ?? collect() as $b)
@@ -102,6 +125,7 @@
         </a>
       @endforeach
     </section>
+  @endif
   @endif
 
   {{-- ===== CATEGORY BENTO GRID ===== --}}
@@ -191,25 +215,57 @@
   @endforeach
 
   {{-- ===== PROMO STRIP ===== --}}
+  @php
+    // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+    // override the tile's fixed gradient/text color; absent -> theme default.
+    $bannerOverlayStyle = function ($b) {
+      if (!$b || empty($b->bg_color)) return null;
+      $css = !empty($b->bg_color_2)
+        ? "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+        : "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+      return $css;
+    };
+    $bannerTextStyle = function ($b) {
+      return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
+    $promoLeft = ($byPos['center_left'] ?? collect())->first();
+  @endphp
   <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
+    @if($bannerGridEnabled ?? true)
+    <a href="{{ $promoLeft ? ($promoLeft->link ?: route('store.shop')) : route('store.shop') }}" class="relative rounded-2xl overflow-hidden h-56 flex items-end p-6 nt-glass block">
+      @if($promoLeft)
+        <img src="{{ $bannerUrl($promoLeft) }}" class="absolute inset-0 w-full h-full object-cover opacity-70" alt="{{ $promoLeft->title }}">
+      @else
+        <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover opacity-70" alt="">
+      @endif
+      <div class="absolute inset-0 bg-gradient-to-t from-nova-bgDeep/90 to-transparent" @if($bannerOverlayStyle($promoLeft)) style="{{ $bannerOverlayStyle($promoLeft) }}" @endif></div>
+      <div class="relative" @if($bannerTextStyle($promoLeft)) style="{{ $bannerTextStyle($promoLeft) }}" @endif>
+        <span class="text-nova-cyan text-xs font-bold uppercase eyebrow" style="color:inherit;">{{ ($promoLeft->badge_text ?? null) ?: 'Fashion Edit' }}</span>
+        <h3 class="text-white text-xl font-black mt-1" style="color:inherit;">{{ ($promoLeft->title ?? null) ?: 'New season styles' }}</h3>
+        @if(!empty($promoLeft->subtitle ?? null))
+          <p class="text-slate-300 text-sm mt-1" style="color:inherit;">{{ $promoLeft->subtitle }}</p>
+        @endif
+        <span class="mt-2 inline-flex text-sm font-semibold text-white underline" style="color:inherit;">{{ ($promoLeft->button_text ?? null) ?: 'Shop now' }} →</span>
+      </div>
+    </a>
+    @endif
+    @if($offer['enabled'] ?? true)
     <div class="relative rounded-2xl overflow-hidden h-56 flex items-end p-6 nt-glass">
-      <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover opacity-70" alt="">
+      <img src="{{ !empty($offer['image_url']) ? $offer['image_url'] : 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover opacity-70" alt="">
       <div class="absolute inset-0 bg-gradient-to-t from-nova-bgDeep/90 to-transparent"></div>
       <div class="relative">
-        <span class="text-nova-cyan text-xs font-bold uppercase eyebrow">Fashion Edit</span>
-        <h3 class="text-white text-xl font-black mt-1">New season styles</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-white underline">Shop now →</a>
+        <span class="text-nova-violetLight text-xs font-bold uppercase eyebrow">{{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'Tech Deals' }}</span>
+        <h3 class="text-white text-xl font-black mt-1">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : "Up to 40% off audio & wearables" }}</h3>
+        @if(($offer['subtitle'] ?? '') !== '')
+          <p class="text-slate-300 text-sm mt-1">{{ $offer['subtitle'] }}</p>
+        @endif
+        @if(!empty($offer['discount_text']))
+          <span class="inline-block mt-1 text-[10px] font-bold uppercase text-nova-cyan">{{ $offer['discount_text'] }}</span>
+        @endif
+        <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-white underline">{{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop now →' }}</a>
       </div>
     </div>
-    <div class="relative rounded-2xl overflow-hidden h-56 flex items-end p-6 nt-glass">
-      <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover opacity-70" alt="">
-      <div class="absolute inset-0 bg-gradient-to-t from-nova-bgDeep/90 to-transparent"></div>
-      <div class="relative">
-        <span class="text-nova-violetLight text-xs font-bold uppercase eyebrow">Tech Deals</span>
-        <h3 class="text-white text-xl font-black mt-1">Up to 40% off audio &amp; wearables</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-white underline">Shop now →</a>
-      </div>
-    </div>
+    @endif
   </section>
 
   {{-- ===== TESTIMONIALS ===== --}}
@@ -253,6 +309,7 @@
   </section>
 
   {{-- ===== FOOTER BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['footer_left'] ?? collect())->count() || ($byPos['footer_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 pb-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['footer_left'] ?? collect() as $b)
@@ -262,6 +319,7 @@
         <a href="{{ $b->link ?: route('store.shop') }}" class="block rounded-2xl overflow-hidden nt-glass"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
       @endforeach
     </section>
+  @endif
   @endif
 
 </main>

@@ -12,48 +12,74 @@
   $hidePrices = !Auth::guard('store')->check() && ($s->hide_prices_for_guests ?? false);
   $byPos = collect($banners ?? [])->groupBy('position');
   $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+  $bannerOverlayStyle = function ($b) {
+    if (!$b || empty($b->bg_color)) return null;
+    return !empty($b->bg_color_2)
+      ? "background:linear-gradient(135deg, {$b->bg_color}, {$b->bg_color_2});"
+      : "background:{$b->bg_color};";
+  };
+  $bannerTextStyle = function ($b) {
+    return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+  };
 @endphp
 
 <main class="pb-28 lg:pb-0">
 
-  {{-- ===== HERO ===== --}}
-  <section class="relative overflow-hidden nx-chrome">
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $nxHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative overflow-hidden nx-chrome grid"
+           x-data="{ nxHero: 0, nxHeroCount: {{ count($nxHeroSlides) }} }"
+           @if(count($nxHeroSlides) > 1) x-init="setInterval(() => { nxHero = (nxHero + 1) % nxHeroCount }, 6000)" @endif>
     <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full nx-holo-bg opacity-30 blur-3xl"></div>
     <div class="absolute -bottom-24 -left-24 w-96 h-96 rounded-full nx-holo-bg opacity-20 blur-3xl"></div>
-    <div class="relative max-w-7xl mx-auto px-4 py-16 lg:py-24 grid lg:grid-cols-2 gap-10 items-center">
-      <div>
-        <span class="inline-flex items-center gap-1.5 px-4 py-1.5 nx-pill nx-sticker text-xs font-bold text-nx-ink">✨ One store, every category</span>
-        <h1 class="mt-4 text-4xl sm:text-5xl lg:text-6xl font-black leading-tight nx-holo-text">
-          {{ $s->hero_title ?? 'The future of shopping, unlocked.' }}
-        </h1>
-        <p class="mt-4 text-nx-mute max-w-lg text-lg">
-          {{ $s->hero_subtitle ?? 'Electronics, fashion, home, beauty, grocery and more — thousands of trusted products wrapped in chrome, shipped fast, priced fair.' }}
-        </p>
-        <div class="mt-7 flex flex-wrap gap-3">
-          <a href="{{ route('store.shop') }}" class="nx-shine h-14 px-8 inline-flex items-center gap-2 nx-pill nx-holo-bg text-white font-bold text-base shadow-cardHover">
-            Shop the catalog
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="nx-shine h-14 px-8 inline-flex items-center gap-2 nx-pill nx-chrome border border-nx-chrome1 text-nx-ink font-bold text-base shadow-card">
-            Today's deals
-          </a>
+    @foreach($nxHeroSlides as $nxI => $nxSlide)
+      <div x-show="nxHero === {{ $nxI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1 relative max-w-7xl mx-auto px-4 py-16 lg:py-24 grid lg:grid-cols-2 gap-10 items-center">
+        <div>
+          <span class="inline-flex items-center gap-1.5 px-4 py-1.5 nx-pill nx-sticker text-xs font-bold text-nx-ink">✨ One store, every category</span>
+          <h1 class="mt-4 text-4xl sm:text-5xl lg:text-6xl font-black leading-tight nx-holo-text">
+            {{ ($nxSlide['title'] ?? '') !== '' ? $nxSlide['title'] : 'The future of shopping, unlocked.' }}
+          </h1>
+          <p class="mt-4 text-nx-mute max-w-lg text-lg">
+            {{ ($nxSlide['subtitle'] ?? '') !== '' ? $nxSlide['subtitle'] : 'Electronics, fashion, home, beauty, grocery and more — thousands of trusted products wrapped in chrome, shipped fast, priced fair.' }}
+          </p>
+          <div class="mt-7 flex flex-wrap gap-3">
+            <a href="{{ ($nxSlide['cta_link'] ?? '') !== '' ? $nxSlide['cta_link'] : route('store.shop') }}" class="nx-shine h-14 px-8 inline-flex items-center gap-2 nx-pill nx-holo-bg text-white font-bold text-base shadow-cardHover">
+              {{ ($nxSlide['cta_text'] ?? '') !== '' ? $nxSlide['cta_text'] : 'Shop the catalog' }}
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            </a>
+            <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="nx-shine h-14 px-8 inline-flex items-center gap-2 nx-pill nx-chrome border border-nx-chrome1 text-nx-ink font-bold text-base shadow-card">
+              Today's deals
+            </a>
+          </div>
+          <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-nx-mute text-xs font-semibold">
+            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-nx-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Buyer protection</span>
+            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-nx-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Free returns</span>
+            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-nx-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> 24/7 support</span>
+          </div>
         </div>
-        <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-nx-mute text-xs font-semibold">
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-nx-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Buyer protection</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-nx-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Free returns</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-nx-violet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> 24/7 support</span>
+        <div class="hidden lg:grid grid-cols-2 gap-4">
+          <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover shadow-cardHover border-4 border-white" alt="">
+          <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover mt-8 shadow-cardHover border-4 border-white" alt="">
+          <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover -mt-4 shadow-cardHover border-4 border-white" alt="">
+          <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover shadow-cardHover border-4 border-white" alt="">
         </div>
       </div>
-      <div class="hidden lg:grid grid-cols-2 gap-4">
-        <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover shadow-cardHover border-4 border-white" alt="">
-        <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover mt-8 shadow-cardHover border-4 border-white" alt="">
-        <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover -mt-4 shadow-cardHover border-4 border-white" alt="">
-        <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=500&q=70" class="rounded-3xl h-48 w-full object-cover shadow-cardHover border-4 border-white" alt="">
+    @endforeach
+
+    @if(count($nxHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($nxHeroSlides as $nxI => $nxSlide)
+          <button type="button" @click="nxHero = {{ $nxI }}" class="w-2 h-2 rounded-full transition-colors" :class="nxHero === {{ $nxI }} ? 'nx-holo-bg' : 'bg-nx-chrome1'" aria-label="Slide {{ $nxI + 1 }}"></button>
+        @endforeach
       </div>
-    </div>
+    @endif
   </section>
 
   {{-- ===== TOP BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['top_left'] ?? collect() as $b)
@@ -67,6 +93,7 @@
         </a>
       @endforeach
     </section>
+  @endif
   @endif
 
   {{-- ===== CATEGORY GRID ===== --}}
@@ -138,24 +165,35 @@
 
   {{-- ===== PROMO STRIP ===== --}}
   <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
+    @if($bannerGridEnabled ?? true)
+    @php $nxPromo = ($byPos['center_left'] ?? collect())->first(); @endphp
     <div class="relative rounded-3xl overflow-hidden h-56 flex items-end p-6 border border-nx-chrome1">
-      <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-      <div class="relative">
-        <span class="text-nx-cyan text-xs font-black uppercase">Fashion Edit</span>
-        <h3 class="text-white text-xl font-black mt-1">New season styles just dropped</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-white underline">Shop now →</a>
+      <img src="{{ $nxPromo && $nxPromo->image_url ? $bannerUrl($nxPromo) : 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ $nxPromo->title ?? '' }}">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" @if($bannerOverlayStyle($nxPromo)) style="{{ $bannerOverlayStyle($nxPromo) }}" @endif></div>
+      <div class="relative" @if($bannerTextStyle($nxPromo)) style="{{ $bannerTextStyle($nxPromo) }}" @endif>
+        <span class="text-nx-cyan text-xs font-black uppercase" style="color:inherit;">{{ ($nxPromo->badge_text ?? null) ?: 'Fashion Edit' }}</span>
+        <h3 class="text-white text-xl font-black mt-1" style="color:inherit;">{{ ($nxPromo->title ?? null) ?: 'New season styles just dropped' }}</h3>
+        @if(!empty($nxPromo->subtitle ?? null))
+          <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $nxPromo->subtitle }}</p>
+        @endif
+        <a href="{{ $nxPromo ? ($nxPromo->link ?: route('store.shop')) : route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-white underline" style="color:inherit;">{{ ($nxPromo->button_text ?? null) ?: 'Shop now' }} →</a>
       </div>
     </div>
+    @endif
+    @if($offer['enabled'] ?? true)
     <div class="relative rounded-3xl overflow-hidden h-56 flex items-end p-6 border border-nx-chrome1">
-      <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
+      <img src="{{ !empty($offer['image_url']) ? $offer['image_url'] : 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover" alt="">
       <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
       <div class="relative">
-        <span class="text-nx-pink text-xs font-black uppercase">Tech Deals</span>
-        <h3 class="text-white text-xl font-black mt-1">Up to 40% off audio &amp; wearables</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-white underline">Shop now →</a>
+        <span class="text-nx-pink text-xs font-black uppercase">{{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'Tech Deals' }}</span>
+        <h3 class="text-white text-xl font-black mt-1">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Up to 40% off audio & wearables' }}</h3>
+        @if(!empty($offer['discount_text']))
+          <span class="mt-1 inline-flex text-xs font-bold text-white/80 uppercase">{{ $offer['discount_text'] }}</span>
+        @endif
+        <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-white underline">{{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop now →' }}</a>
       </div>
     </div>
+    @endif
   </section>
 
   {{-- ===== TESTIMONIALS ===== --}}
@@ -196,6 +234,7 @@
   </section>
 
   {{-- ===== FOOTER BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['footer_left'] ?? collect())->count() || ($byPos['footer_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 pb-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['footer_left'] ?? collect() as $b)
@@ -205,6 +244,7 @@
         <a href="{{ $b->link ?: route('store.shop') }}" class="block rounded-3xl overflow-hidden shadow-card border border-nx-chrome1"><img src="{{ $bannerUrl($b) }}" class="w-full h-full object-cover" alt=""></a>
       @endforeach
     </section>
+  @endif
   @endif
 
 </main>

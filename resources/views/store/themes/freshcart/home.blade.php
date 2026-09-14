@@ -20,6 +20,15 @@
       return collect($block['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
   })->values();
 
+  // Role-tagged Collections (Best Sellers / Recommended / New Arrivals /
+  // Trending) -- when a merchant has assigned one, its own curated products
+  // win over the generic $allBlockVms slice for that named tab/section.
+  $roleVms = collect($collectionsByRole ?? [])->map(function ($r) use ($currency, $hidePrices) {
+      return collect($r['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices))->values();
+  });
+  $newArrivalsVms = ($roleVms['new_arrivals'] ?? collect())->count() ? $roleVms['new_arrivals'] : $allBlockVms->take(5);
+  $bestSellersVms = ($roleVms['best_sellers'] ?? collect())->count() ? $roleVms['best_sellers'] : ($allBlockVms->slice(5, 5)->count() ? $allBlockVms->slice(5, 5) : $allBlockVms->take(5));
+
   // Icon glyphs cycled across category tiles / aisle chips for visual variety.
   $catIcons = [
     '<path d="M9 3v2m6-2v2M9 19v2m6-2v2M3 9h2m-2 6h2m14-6h2m-2 6h2M7 7h10v10H7z"/>', // electronics chip
@@ -39,35 +48,53 @@
   <section class="relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 py-8 lg:py-12 grid lg:grid-cols-3 gap-6">
 
-      {{-- Hero (2/3) --}}
-      <div class="lg:col-span-2 relative overflow-hidden rounded-3xl bg-brand-greenDeep">
-        <div class="absolute inset-0">
-          <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1400&q=70" alt="" class="w-full h-full object-cover opacity-25">
-          <div class="absolute inset-0 bg-gradient-to-r from-brand-greenDeep via-brand-greenDeep/90 to-brand-greenDeep/40"></div>
-        </div>
-        <div class="relative px-6 py-10 sm:px-10 sm:py-14 lg:py-20">
-          <span class="eyebrow text-brand-orange text-xs font-bold">Fresh picks, delivered daily</span>
-          <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight max-w-xl">
-            {{ $s->hero_title ?? 'Everything your household needs, in one warm marketplace' }}
-          </h1>
-          <p class="mt-4 text-brand-cream/80 max-w-lg">
-            {{ $s->hero_subtitle ?? 'From weekly groceries to gadgets, fashion, home essentials, beauty and sporting goods — shop it all with same-day dispatch and a friendly return policy.' }}
-          </p>
-          <div class="mt-7 flex flex-wrap gap-3">
-            <a href="{{ route('store.shop') }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-full bg-brand-orange text-white font-semibold hover:bg-brand-orangeDark transition-colors">
-              Start shopping
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-            </a>
-            <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-full border border-white/25 text-white font-semibold hover:bg-white/10 transition-colors">
-              Today's deals
-            </a>
+      {{-- Hero (2/3) -- auto-rotating carousel; add slides via Store Settings > Hero Slides --}}
+      @php $fcHeroSlides = $heroSlides ?? []; @endphp
+      <div class="lg:col-span-2 relative overflow-hidden rounded-3xl bg-brand-greenDeep grid"
+           x-data="{ fcHero: 0, fcHeroCount: {{ count($fcHeroSlides) }} }"
+           @if(count($fcHeroSlides) > 1) x-init="setInterval(() => { fcHero = (fcHero + 1) % fcHeroCount }, 6000)" @endif>
+        @foreach($fcHeroSlides as $fcI => $fcSlide)
+          <div x-show="fcHero === {{ $fcI }}" @if(!$loop->first) x-cloak @endif
+               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+               x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+               class="col-start-1 row-start-1">
+            <div class="absolute inset-0">
+              <img src="{{ !empty($fcSlide['image_url']) ? $fcSlide['image_url'] : 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1400&q=70' }}" alt="" class="w-full h-full object-cover opacity-25">
+              <div class="absolute inset-0 bg-gradient-to-r from-brand-greenDeep via-brand-greenDeep/90 to-brand-greenDeep/40"></div>
+            </div>
+            <div class="relative px-6 py-10 sm:px-10 sm:py-14 lg:py-20">
+              <span class="eyebrow text-brand-orange text-xs font-bold">Fresh picks, delivered daily</span>
+              <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight max-w-xl">
+                {{ ($fcSlide['title'] ?? '') !== '' ? $fcSlide['title'] : 'Everything your household needs, in one warm marketplace' }}
+              </h1>
+              <p class="mt-4 text-brand-cream/80 max-w-lg">
+                {{ ($fcSlide['subtitle'] ?? '') !== '' ? $fcSlide['subtitle'] : 'From weekly groceries to gadgets, fashion, home essentials, beauty and sporting goods — shop it all with same-day dispatch and a friendly return policy.' }}
+              </p>
+              <div class="mt-7 flex flex-wrap gap-3">
+                <a href="{{ ($fcSlide['cta_link'] ?? '') !== '' ? $fcSlide['cta_link'] : route('store.shop') }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-full bg-brand-orange text-white font-semibold hover:bg-brand-orangeDark transition-colors">
+                  {{ ($fcSlide['cta_text'] ?? '') !== '' ? $fcSlide['cta_text'] : 'Start shopping' }}
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+                </a>
+                <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-6 inline-flex items-center gap-2 rounded-full border border-white/25 text-white font-semibold hover:bg-white/10 transition-colors">
+                  Today's deals
+                </a>
+              </div>
+              <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-brand-cream/80 text-xs">
+                <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Free delivery over $59</span>
+                <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> 30-day easy returns</span>
+                <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> 24/7 real-human support</span>
+              </div>
+            </div>
           </div>
-          <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-brand-cream/80 text-xs">
-            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Free delivery over $59</span>
-            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> 30-day easy returns</span>
-            <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-brand-orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> 24/7 real-human support</span>
+        @endforeach
+
+        @if(count($fcHeroSlides) > 1)
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+            @foreach($fcHeroSlides as $fcI => $fcSlide)
+              <button type="button" @click="fcHero = {{ $fcI }}" class="w-2 h-2 rounded-full transition-colors" :class="fcHero === {{ $fcI }} ? 'bg-white' : 'bg-white/40'" aria-label="Slide {{ $fcI + 1 }}"></button>
+            @endforeach
           </div>
-        </div>
+        @endif
       </div>
 
       {{-- Sidebar (1/3): Today's Categories / Quick Links --}}
@@ -138,17 +165,21 @@
     </section>
   @endif
 
-  {{-- ===== 6. TODAY'S DEALS COUNTDOWN BANNER ===== --}}
+  {{-- ===== 6. TODAY'S DEALS COUNTDOWN BANNER (customizable via Offers & Promotions) ===== --}}
+  @if($offer['enabled'] ?? true)
   <section class="max-w-7xl mx-auto px-4 py-2">
     <div class="relative overflow-hidden rounded-3xl bg-brand-orange">
       <div class="absolute inset-0">
-        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1400&q=70" class="w-full h-full object-cover opacity-20" alt="">
+        <img src="{{ !empty($offer['image_url']) ? $offer['image_url'] : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1400&q=70' }}" class="w-full h-full object-cover opacity-20" alt="">
       </div>
       <div class="relative px-6 py-8 sm:px-10 sm:py-10 flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="text-center md:text-left">
-          <span class="eyebrow text-white/80 text-xs font-bold">Limited time</span>
-          <h2 class="text-2xl sm:text-3xl font-black text-white mt-1">Today's Deals — Up to 50% Off</h2>
-          <p class="text-white/85 text-sm mt-2 max-w-md">Across electronics, fashion, home &amp; grocery. Deals refresh every day, so grab yours before the clock runs out.</p>
+          <span class="eyebrow text-white/80 text-xs font-bold">{{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'Limited time' }}</span>
+          <h2 class="text-2xl sm:text-3xl font-black text-white mt-1">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : "Today's Deals — Up to 50% Off" }}</h2>
+          <p class="text-white/85 text-sm mt-2 max-w-md">{{ ($offer['subtitle'] ?? '') !== '' ? $offer['subtitle'] : 'Across electronics, fashion, home & grocery. Deals refresh every day, so grab yours before the clock runs out.' }}</p>
+          @if(!empty($offer['discount_text']))
+            <span class="inline-flex mt-3 items-center rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white">{{ $offer['discount_text'] }}</span>
+          @endif
         </div>
         <div class="flex flex-col items-center gap-3 shrink-0">
           <div class="flex items-center gap-2">
@@ -167,11 +198,12 @@
               <div class="text-white/70 text-[10px] uppercase tracking-wide mt-1">Seconds</div>
             </div>
           </div>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-11 px-6 inline-flex items-center rounded-full bg-white text-brand-orangeDark font-bold hover:bg-brand-cream transition-colors">Shop the Deals →</a>
+          <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop', ['sort' => 'price_asc']) }}" class="h-11 px-6 inline-flex items-center rounded-full bg-white text-brand-orangeDark font-bold hover:bg-brand-cream transition-colors">{{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop the Deals →' }}</a>
         </div>
       </div>
     </div>
   </section>
+  @endif
 
   {{-- ===== 7. SHOP BY AISLE (horizontally scrollable chip strip) ===== --}}
   @if(($categories ?? collect())->count())
@@ -193,7 +225,22 @@
     </section>
   @endif
 
-  {{-- ===== 8/9/10. THREE PROMO BANNERS ===== --}}
+  {{-- ===== 8/9/10. THREE PROMO BANNERS (fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @if($bannerGridEnabled ?? true)
+  @php
+    // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+    // override each tile's fixed gradient/text color; absent -> theme default.
+    $bannerOverlayStyle = function ($b) {
+      if (!$b || empty($b->bg_color)) return null;
+      $css = !empty($b->bg_color_2)
+        ? "background:linear-gradient(to right, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+        : "background:linear-gradient(to right, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+      return $css;
+    };
+    $bannerTextStyle = function ($b) {
+      return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
+  @endphp
   <section class="max-w-7xl mx-auto px-4 py-6 space-y-4">
 
     {{-- Promo 1: Electronics --}}
@@ -204,11 +251,14 @@
       @else
         <img src="https://images.unsplash.com/photo-1550989460-0adf9ea622e2?auto=format&fit=crop&w=1400&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
       @endif
-      <div class="absolute inset-0 bg-gradient-to-r from-brand-greenDeep/90 via-brand-greenDeep/50 to-transparent"></div>
-      <div class="relative h-full flex flex-col justify-center px-8 max-w-md">
-        <span class="text-brand-orange text-xs font-bold uppercase eyebrow">Tech Deals</span>
-        <h3 class="text-white text-2xl font-black mt-1">Save big on audio, wearables &amp; smart home</h3>
-        <span class="mt-3 inline-flex w-fit items-center gap-1 text-sm font-semibold text-white underline">Shop electronics →</span>
+      <div class="absolute inset-0 bg-gradient-to-r from-brand-greenDeep/90 via-brand-greenDeep/50 to-transparent" @if($bannerOverlayStyle($topLeft)) style="{{ $bannerOverlayStyle($topLeft) }}" @endif></div>
+      <div class="relative h-full flex flex-col justify-center px-8 max-w-md" @if($bannerTextStyle($topLeft)) style="{{ $bannerTextStyle($topLeft) }}" @endif>
+        <span class="text-brand-orange text-xs font-bold uppercase eyebrow">{{ ($topLeft->badge_text ?? null) ?: 'Tech Deals' }}</span>
+        <h3 class="text-white text-2xl font-black mt-1" style="color:inherit;">{{ ($topLeft->title ?? null) ?: 'Save big on audio, wearables & smart home' }}</h3>
+        @if(!empty($topLeft->subtitle ?? null))
+          <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $topLeft->subtitle }}</p>
+        @endif
+        <span class="mt-3 inline-flex w-fit items-center gap-1 text-sm font-semibold text-white underline" style="color:inherit;">{{ ($topLeft->button_text ?? null) ?: 'Shop electronics' }} →</span>
       </div>
     </a>
 
@@ -220,11 +270,14 @@
       @else
         <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=1400&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
       @endif
-      <div class="absolute inset-0 bg-gradient-to-r from-brand-orangeDark/90 via-brand-orangeDark/50 to-transparent"></div>
-      <div class="relative h-full flex flex-col justify-center px-8 max-w-md">
-        <span class="text-white text-xs font-bold uppercase eyebrow">Fashion Edit</span>
-        <h3 class="text-white text-2xl font-black mt-1">New season styles for the whole family</h3>
-        <span class="mt-3 inline-flex w-fit items-center gap-1 text-sm font-semibold text-white underline">Shop fashion →</span>
+      <div class="absolute inset-0 bg-gradient-to-r from-brand-orangeDark/90 via-brand-orangeDark/50 to-transparent" @if($bannerOverlayStyle($topRight)) style="{{ $bannerOverlayStyle($topRight) }}" @endif></div>
+      <div class="relative h-full flex flex-col justify-center px-8 max-w-md" @if($bannerTextStyle($topRight)) style="{{ $bannerTextStyle($topRight) }}" @endif>
+        <span class="text-white text-xs font-bold uppercase eyebrow">{{ ($topRight->badge_text ?? null) ?: 'Fashion Edit' }}</span>
+        <h3 class="text-white text-2xl font-black mt-1" style="color:inherit;">{{ ($topRight->title ?? null) ?: 'New season styles for the whole family' }}</h3>
+        @if(!empty($topRight->subtitle ?? null))
+          <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $topRight->subtitle }}</p>
+        @endif
+        <span class="mt-3 inline-flex w-fit items-center gap-1 text-sm font-semibold text-white underline" style="color:inherit;">{{ ($topRight->button_text ?? null) ?: 'Shop fashion' }} →</span>
       </div>
     </a>
 
@@ -236,14 +289,18 @@
       @else
         <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
       @endif
-      <div class="absolute inset-0 bg-gradient-to-r from-brand-green/90 via-brand-green/50 to-transparent"></div>
-      <div class="relative h-full flex flex-col justify-center px-8 max-w-md">
-        <span class="text-brand-orangeLight text-xs font-bold uppercase eyebrow">Home &amp; Beauty</span>
-        <h3 class="text-white text-2xl font-black mt-1">Refresh your space and your self-care routine</h3>
-        <span class="mt-3 inline-flex w-fit items-center gap-1 text-sm font-semibold text-white underline">Shop home &amp; beauty →</span>
+      <div class="absolute inset-0 bg-gradient-to-r from-brand-green/90 via-brand-green/50 to-transparent" @if($bannerOverlayStyle($centerLeft)) style="{{ $bannerOverlayStyle($centerLeft) }}" @endif></div>
+      <div class="relative h-full flex flex-col justify-center px-8 max-w-md" @if($bannerTextStyle($centerLeft)) style="{{ $bannerTextStyle($centerLeft) }}" @endif>
+        <span class="text-brand-orangeLight text-xs font-bold uppercase eyebrow">{{ ($centerLeft->badge_text ?? null) ?: 'Home & Beauty' }}</span>
+        <h3 class="text-white text-2xl font-black mt-1" style="color:inherit;">{{ ($centerLeft->title ?? null) ?: 'Refresh your space and your self-care routine' }}</h3>
+        @if(!empty($centerLeft->subtitle ?? null))
+          <p class="text-white/85 text-sm mt-1" style="color:inherit;">{{ $centerLeft->subtitle }}</p>
+        @endif
+        <span class="mt-3 inline-flex w-fit items-center gap-1 text-sm font-semibold text-white underline" style="color:inherit;">{{ ($centerLeft->button_text ?? null) ?: 'Shop home & beauty' }} →</span>
       </div>
     </a>
   </section>
+  @endif
 
   {{-- ===== 11. TABBED CONTENT MODULE ===== --}}
   <section class="max-w-7xl mx-auto px-4 py-10" x-data="{ tab: 'a' }">
@@ -262,14 +319,14 @@
     @if($allBlockVms->count())
       <div x-show="tab === 'a'">
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          @foreach($allBlockVms->take(5) as $product)
+          @foreach($newArrivalsVms as $product)
             @include('store.themes.freshcart.partials.product-card', ['product' => $product])
           @endforeach
         </div>
       </div>
       <div x-show="tab === 'b'" x-cloak>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          @foreach($allBlockVms->slice(5, 5)->count() ? $allBlockVms->slice(5, 5) : $allBlockVms->take(5) as $product)
+          @foreach($bestSellersVms as $product)
             @include('store.themes.freshcart.partials.product-card', ['product' => $product])
           @endforeach
         </div>
@@ -345,11 +402,11 @@
     </div>
   </section>
 
-  {{-- ===== 13. THREE-COLUMN DENSE PRODUCT LISTS ===== --}}
+  {{-- ===== 13. THREE-COLUMN DENSE PRODUCT LISTS (col1: Trending role, col3: Best Sellers role) ===== --}}
   @php
-    $col1 = $allBlockVms->slice(0, 5)->values();
+    $col1 = ($roleVms['trending'] ?? collect())->count() ? $roleVms['trending']->values() : $allBlockVms->slice(0, 5)->values();
     $col2 = $allBlockVms->slice(5, 5)->count() ? $allBlockVms->slice(5, 5)->values() : $allBlockVms->slice(0, 5)->reverse()->values();
-    $col3 = $allBlockVms->filter(fn($p) => $p['is_on_sale'])->take(5)->values();
+    $col3 = $bestSellersVms->count() ? $bestSellersVms->values() : $allBlockVms->filter(fn($p) => $p['is_on_sale'])->take(5)->values();
     if ($col3->isEmpty()) { $col3 = $allBlockVms->slice(0, 5)->shuffle()->values(); }
   @endphp
   @if($allBlockVms->count())

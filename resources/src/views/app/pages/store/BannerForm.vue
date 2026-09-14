@@ -11,7 +11,62 @@
           <div class="col-md-8">
             <b-form-group :label="$t('Title')">
               <b-form-input v-model="form.title" required />
+              <small class="text-muted d-block mt-1">
+                {{ $t('Banner_Title_Storefront_Help') }}
+              </small>
             </b-form-group>
+
+            <div class="row">
+              <div class="col-md-6">
+                <b-form-group :label="$t('Badge_Text')">
+                  <b-form-input v-model="form.badge_text" placeholder="Deal of the Day" />
+                  <small class="text-muted d-block mt-1">{{ $t('Banner_Badge_Help') }}</small>
+                </b-form-group>
+              </div>
+              <div class="col-md-6">
+                <b-form-group :label="$t('Subtitle')">
+                  <b-form-input v-model="form.subtitle" placeholder="New styles added" />
+                </b-form-group>
+              </div>
+              <div class="col-md-6">
+                <b-form-group :label="$t('Button_Text')">
+                  <b-form-input v-model="form.button_text" placeholder="Shop Now" />
+                </b-form-group>
+              </div>
+              <div class="col-md-6">
+                <b-form-group :label="$t('Link')">
+                  <b-form-input v-model="form.link" placeholder="/shop" />
+                </b-form-group>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <b-form-group :label="$t('Background_Color')">
+                  <div class="d-flex align-items-center" style="gap:.5rem;">
+                    <b-form-input type="color" v-model="bgColorModel" style="max-width:64px;" />
+                    <b-button size="sm" variant="outline-secondary" @click="form.bg_color=''">{{ $t('Use_Theme_Default') }}</b-button>
+                  </div>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-form-group :label="$t('Background_Color_2')">
+                  <div class="d-flex align-items-center" style="gap:.5rem;">
+                    <b-form-input type="color" v-model="bgColor2Model" style="max-width:64px;" />
+                    <b-button size="sm" variant="outline-secondary" @click="form.bg_color_2=''">{{ $t('Use_Theme_Default') }}</b-button>
+                  </div>
+                  <small class="text-muted d-block mt-1">{{ $t('Banner_Gradient_Help') }}</small>
+                </b-form-group>
+              </div>
+              <div class="col-md-4">
+                <b-form-group :label="$t('Text_Color')">
+                  <div class="d-flex align-items-center" style="gap:.5rem;">
+                    <b-form-input type="color" v-model="textColorModel" style="max-width:64px;" />
+                    <b-button size="sm" variant="outline-secondary" @click="form.text_color=''">{{ $t('Use_Theme_Default') }}</b-button>
+                  </div>
+                </b-form-group>
+              </div>
+            </div>
 
             <b-form-group :label="$t('Position')">
               <b-form-select v-model="form.position" :options="positions" />
@@ -89,7 +144,14 @@ export default {
         title: '',
         position: 'top_left', // default
         active: true,
-        image: null
+        image: null,
+        badge_text: '',
+        subtitle: '',
+        button_text: '',
+        link: '',
+        bg_color: '',
+        bg_color_2: '',
+        text_color: '',
       },
       preview: null,
       imgW: null,
@@ -132,6 +194,21 @@ export default {
       const upRatio  = this.imgW / this.imgH
       // consider mismatch if > 5% difference
       return Math.abs(upRatio - recRatio) / recRatio > 0.05
+    },
+    // <input type="color"> can't represent "unset" -- proxy through a sane
+    // display default while keeping form.bg_color/etc genuinely empty until
+    // the merchant actually picks a color (so the theme's own default holds).
+    bgColorModel: {
+      get () { return this.form.bg_color || '#6c5ce7' },
+      set (v) { this.form.bg_color = v }
+    },
+    bgColor2Model: {
+      get () { return this.form.bg_color_2 || '#00c2ff' },
+      set (v) { this.form.bg_color_2 = v }
+    },
+    textColorModel: {
+      get () { return this.form.text_color || '#ffffff' },
+      set (v) { this.form.text_color = v }
     }
   },
   mounted () { this.init() },
@@ -144,6 +221,9 @@ export default {
         this.preview = data.image_url || (data.image ? `/${data.image}` : null)
         // Try to compute dimensions from preview
         if (this.preview) this.readImageDims(this.preview)
+      } else if (this.$route.query.position && this.positions.some(p => p.value === this.$route.query.position)) {
+        // Coming from the Banners position map's "Add" button on an empty slot.
+        this.form.position = this.$route.query.position
       }
       this.loading = false
     },

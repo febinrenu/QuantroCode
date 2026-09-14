@@ -16,46 +16,65 @@
 
 <main class="pb-24 lg:pb-0">
 
-  {{-- ===== HERO ===== --}}
-  <section class="relative overflow-hidden bg-brand-black border-b-2 border-brand-black">
-    <div class="absolute inset-0">
-      <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=70"
-           alt="" class="mc-photo w-full h-full object-cover opacity-40">
-      <div class="absolute inset-0 bg-gradient-to-r from-brand-black via-brand-black/85 to-transparent"></div>
-    </div>
-    <div class="relative max-w-7xl mx-auto px-4 py-16 lg:py-28 grid lg:grid-cols-2 gap-10 items-center">
-      <div>
-        <span class="eyebrow text-brand-red text-xs font-bold">One store. No distractions.</span>
-        <h1 class="mt-3 font-display text-4xl sm:text-5xl lg:text-6xl text-brand-white leading-[0.95] uppercase">
-          {{ $s->hero_title ?? 'Nothing but the essentials' }}
-        </h1>
-        <p class="mt-4 text-white/70 max-w-lg">
-          {{ $s->hero_subtitle ?? 'Electronics, fashion, home, beauty, grocery, sports. No clutter, no gimmicks — just the products people actually buy, at prices that make sense.' }}
-        </p>
-        <div class="mt-7 flex flex-wrap gap-3">
-          <a href="{{ route('store.shop') }}" class="h-12 px-6 inline-flex items-center gap-2 bg-brand-red text-brand-white font-bold uppercase hover:bg-brand-redDark transition-colors">
-            Shop Now
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-6 inline-flex items-center gap-2 border-2 border-white/40 text-brand-white font-bold uppercase hover:border-brand-white transition-colors">
-            Today's Deals
-          </a>
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $mcHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative overflow-hidden bg-brand-black border-b-2 border-brand-black grid"
+           x-data="{ mcHero: 0, mcHeroCount: {{ count($mcHeroSlides) }} }"
+           @if(count($mcHeroSlides) > 1) x-init="setInterval(() => { mcHero = (mcHero + 1) % mcHeroCount }, 6000)" @endif>
+    @foreach($mcHeroSlides as $mcI => $mcSlide)
+      <div x-show="mcHero === {{ $mcI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1">
+        <div class="absolute inset-0">
+          <img src="{{ !empty($mcSlide['image_url']) ? $mcSlide['image_url'] : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=70' }}"
+               alt="" class="mc-photo w-full h-full object-cover opacity-40">
+          <div class="absolute inset-0 bg-gradient-to-r from-brand-black via-brand-black/85 to-transparent"></div>
         </div>
-        <div class="mt-8 flex items-center gap-6 text-white/70 text-xs uppercase font-semibold">
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Buyer Protection</span>
-          <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Free Returns</span>
+        <div class="relative max-w-7xl mx-auto px-4 py-16 lg:py-28 grid lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <span class="eyebrow text-brand-red text-xs font-bold">One store. No distractions.</span>
+            <h1 class="mt-3 font-display text-4xl sm:text-5xl lg:text-6xl text-brand-white leading-[0.95] uppercase">
+              {{ ($mcSlide['title'] ?? '') !== '' ? $mcSlide['title'] : 'Nothing but the essentials' }}
+            </h1>
+            <p class="mt-4 text-white/70 max-w-lg">
+              {{ ($mcSlide['subtitle'] ?? '') !== '' ? $mcSlide['subtitle'] : 'Electronics, fashion, home, beauty, grocery, sports. No clutter, no gimmicks — just the products people actually buy, at prices that make sense.' }}
+            </p>
+            <div class="mt-7 flex flex-wrap gap-3">
+              <a href="{{ ($mcSlide['cta_link'] ?? '') !== '' ? $mcSlide['cta_link'] : route('store.shop') }}" class="h-12 px-6 inline-flex items-center gap-2 bg-brand-red text-brand-white font-bold uppercase hover:bg-brand-redDark transition-colors">
+                {{ ($mcSlide['cta_text'] ?? '') !== '' ? $mcSlide['cta_text'] : 'Shop Now' }}
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              </a>
+              <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-6 inline-flex items-center gap-2 border-2 border-white/40 text-brand-white font-bold uppercase hover:border-brand-white transition-colors">
+                Today's Deals
+              </a>
+            </div>
+            <div class="mt-8 flex items-center gap-6 text-white/70 text-xs uppercase font-semibold">
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Buyer Protection</span>
+              <span class="flex items-center gap-1.5"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Free Returns</span>
+            </div>
+          </div>
+          <div class="hidden lg:grid grid-cols-2 gap-3">
+            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=70" class="mc-photo h-48 w-full object-cover border-2 border-white/20" alt="">
+            <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=500&q=70" class="mc-photo h-48 w-full object-cover border-2 border-white/20" alt="">
+            <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=500&q=70" class="mc-photo h-48 w-full object-cover border-2 border-white/20" alt="">
+            <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=500&q=70" class="mc-photo h-48 w-full object-cover border-2 border-white/20" alt="">
+          </div>
         </div>
       </div>
-      <div class="hidden lg:grid grid-cols-2 gap-3">
-        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=70" class="mc-photo h-48 w-full object-cover border-2 border-white/20" alt="">
-        <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=500&q=70" class="mc-photo h-48 w-full object-cover border-2 border-white/20" alt="">
-        <img src="https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=500&q=70" class="mc-photo h-48 w-full object-cover border-2 border-white/20" alt="">
-        <img src="https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=500&q=70" class="mc-photo h-48 w-full object-cover border-2 border-white/20" alt="">
+    @endforeach
+
+    @if(count($mcHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($mcHeroSlides as $mcI => $mcSlide)
+          <button type="button" @click="mcHero = {{ $mcI }}" class="w-2 h-2 rounded-full transition-colors" :class="mcHero === {{ $mcI }} ? 'bg-white' : 'bg-white/40'" aria-label="Slide {{ $mcI + 1 }}"></button>
+        @endforeach
       </div>
-    </div>
+    @endif
   </section>
 
   {{-- ===== TOP BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['top_left'] ?? collect() as $b)
@@ -69,6 +88,7 @@
         </a>
       @endforeach
     </section>
+  @endif
   @endif
 
   {{-- ===== CATEGORY GRID ===== --}}
@@ -138,26 +158,51 @@
     @endif
   @endforeach
 
-  {{-- ===== PROMO STRIP ===== --}}
+  {{-- ===== PROMO STRIP (tile 1 fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
+  @php
+    // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+    // override this tile's fixed gradient/text color; absent -> theme default.
+    $bannerOverlayStyle = function ($b) {
+      if (!$b || empty($b->bg_color)) return null;
+      $css = !empty($b->bg_color_2)
+        ? "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+        : "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+      return $css;
+    };
+    $bannerTextStyle = function ($b) {
+      return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
+  @endphp
   <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
+    @if($bannerGridEnabled ?? true)
+      @php $centerLeft = ($byPos['center_left'] ?? collect())->first(); @endphp
+      <div class="relative overflow-hidden h-56 flex items-end p-6 border-2 border-brand-black">
+        <img src="{{ $centerLeft ? $bannerUrl($centerLeft) : 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70' }}" class="mc-photo absolute inset-0 w-full h-full object-cover" alt="{{ ($centerLeft->title ?? null) ?: 'Fashion Edit' }}">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" @if($bannerOverlayStyle($centerLeft)) style="{{ $bannerOverlayStyle($centerLeft) }}" @endif></div>
+        <div class="relative" @if($bannerTextStyle($centerLeft)) style="{{ $bannerTextStyle($centerLeft) }}" @endif>
+          <span class="text-brand-red text-xs font-bold uppercase">{{ ($centerLeft->badge_text ?? null) ?: 'Fashion Edit' }}</span>
+          <h3 class="text-brand-white font-display text-xl mt-1 uppercase" style="color:inherit;">{{ ($centerLeft->title ?? null) ?: 'New Season Styles' }}</h3>
+          @if(!empty($centerLeft->subtitle ?? null))
+            <p class="text-white/80 text-xs mt-1" style="color:inherit;">{{ $centerLeft->subtitle }}</p>
+          @endif
+          <a href="{{ $centerLeft ? ($centerLeft->link ?: route('store.shop')) : route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-brand-white underline uppercase" style="color:inherit;">{{ ($centerLeft->button_text ?? null) ?: 'Shop now' }} →</a>
+        </div>
+      </div>
+    @endif
+    @if($offer['enabled'] ?? true)
     <div class="relative overflow-hidden h-56 flex items-end p-6 border-2 border-brand-black">
-      <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70" class="mc-photo absolute inset-0 w-full h-full object-cover" alt="">
+      <img src="{{ !empty($offer['image_url']) ? $offer['image_url'] : 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70' }}" class="mc-photo absolute inset-0 w-full h-full object-cover" alt="">
       <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
       <div class="relative">
-        <span class="text-brand-red text-xs font-bold uppercase">Fashion Edit</span>
-        <h3 class="text-brand-white font-display text-xl mt-1 uppercase">New Season Styles</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-brand-white underline uppercase">Shop now →</a>
+        <span class="text-brand-red text-xs font-bold uppercase">{{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'Tech Deals' }}</span>
+        <h3 class="text-brand-white font-display text-xl mt-1 uppercase">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Up To 40% Off Audio' }}</h3>
+        @if(!empty($offer['discount_text']))
+          <span class="mt-1 inline-flex text-xs font-bold text-brand-white/80 uppercase">{{ $offer['discount_text'] }}</span>
+        @endif
+        <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-brand-white underline uppercase">{{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop now →' }}</a>
       </div>
     </div>
-    <div class="relative overflow-hidden h-56 flex items-end p-6 border-2 border-brand-black">
-      <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70" class="mc-photo absolute inset-0 w-full h-full object-cover" alt="">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-      <div class="relative">
-        <span class="text-brand-red text-xs font-bold uppercase">Tech Deals</span>
-        <h3 class="text-brand-white font-display text-xl mt-1 uppercase">Up To 40% Off Audio</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-bold text-brand-white underline uppercase">Shop now →</a>
-      </div>
-    </div>
+    @endif
   </section>
 
   {{-- ===== TESTIMONIALS ===== --}}

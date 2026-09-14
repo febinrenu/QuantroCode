@@ -16,43 +16,62 @@
 
 <main class="pb-24 lg:pb-0">
 
-  {{-- ===== HERO ===== --}}
-  <section class="relative overflow-hidden">
-    <div class="max-w-7xl mx-auto px-6 pt-14 pb-16 lg:pt-20 lg:pb-24 grid lg:grid-cols-2 gap-12 items-center">
-      <div>
-        <span class="eyebrow text-brand-gold text-xs font-semibold">The Autumn Edit</span>
-        <h1 class="mt-4 font-serif text-4xl sm:text-5xl lg:text-6xl leading-[1.05] text-brand-charcoal">
-          {{ $s->hero_title ?? 'Refined, for every room and every look' }}
-        </h1>
-        <p class="mt-6 text-brand-charcoalSoft max-w-md leading-relaxed">
-          {{ $s->hero_subtitle ?? 'A considered edit spanning electronics, fashion, home, beauty, grocery and sport — chosen with one eye for quality and one for everyday life.' }}
-        </p>
-        <div class="mt-9 flex flex-wrap items-center gap-6">
-          <a href="{{ route('store.shop') }}" class="h-12 px-8 inline-flex items-center gap-2 bg-brand-charcoal text-brand-cream text-xs eyebrow font-semibold hover:bg-brand-gold transition-colors">
-            Explore the Collection
-          </a>
-          <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="inline-flex items-center gap-2 text-xs eyebrow font-semibold text-brand-charcoal border-b border-brand-charcoal hover:text-brand-gold hover:border-brand-gold pb-1">
-            View the Edit →
-          </a>
-        </div>
-        <div class="mt-10 pt-8 border-t el-hairline flex items-center gap-8 text-brand-charcoalSoft text-xs eyebrow">
-          <span>Buyer Assurance</span>
-          <span>Effortless Returns</span>
-          <span>Considered Shipping</span>
+  {{-- ===== HERO (auto-rotating carousel; add slides via Store Settings > Hero Slides) ===== --}}
+  @php $elHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative overflow-hidden grid"
+           x-data="{ elHero: 0, elHeroCount: {{ count($elHeroSlides) }} }"
+           @if(count($elHeroSlides) > 1) x-init="setInterval(() => { elHero = (elHero + 1) % elHeroCount }, 6000)" @endif>
+    @foreach($elHeroSlides as $elI => $elSlide)
+      <div x-show="elHero === {{ $elI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1">
+        <div class="max-w-7xl mx-auto px-6 pt-14 pb-16 lg:pt-20 lg:pb-24 grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <span class="eyebrow text-brand-gold text-xs font-semibold">The Autumn Edit</span>
+            <h1 class="mt-4 font-serif text-4xl sm:text-5xl lg:text-6xl leading-[1.05] text-brand-charcoal">
+              {{ ($elSlide['title'] ?? '') !== '' ? $elSlide['title'] : 'Refined, for every room and every look' }}
+            </h1>
+            <p class="mt-6 text-brand-charcoalSoft max-w-md leading-relaxed">
+              {{ ($elSlide['subtitle'] ?? '') !== '' ? $elSlide['subtitle'] : 'A considered edit spanning electronics, fashion, home, beauty, grocery and sport — chosen with one eye for quality and one for everyday life.' }}
+            </p>
+            <div class="mt-9 flex flex-wrap items-center gap-6">
+              <a href="{{ ($elSlide['cta_link'] ?? '') !== '' ? $elSlide['cta_link'] : route('store.shop') }}" class="h-12 px-8 inline-flex items-center gap-2 bg-brand-charcoal text-brand-cream text-xs eyebrow font-semibold hover:bg-brand-gold transition-colors">
+                {{ ($elSlide['cta_text'] ?? '') !== '' ? $elSlide['cta_text'] : 'Explore the Collection' }}
+              </a>
+              <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="inline-flex items-center gap-2 text-xs eyebrow font-semibold text-brand-charcoal border-b border-brand-charcoal hover:text-brand-gold hover:border-brand-gold pb-1">
+                View the Edit →
+              </a>
+            </div>
+            <div class="mt-10 pt-8 border-t el-hairline flex items-center gap-8 text-brand-charcoalSoft text-xs eyebrow">
+              <span>Buyer Assurance</span>
+              <span>Effortless Returns</span>
+              <span>Considered Shipping</span>
+            </div>
+          </div>
+          <div class="relative">
+            <div class="aspect-[4/5] overflow-hidden">
+              <img src="{{ !empty($elSlide['image_url']) ? $elSlide['image_url'] : 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70' }}" class="w-full h-full object-cover" alt="Fashion styling">
+            </div>
+            <div class="absolute -bottom-8 -left-8 w-40 h-52 overflow-hidden border-4 border-brand-cream shadow-[0_20px_45px_-15px_rgba(42,38,34,0.35)] hidden sm:block">
+              <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=400&q=70" class="w-full h-full object-cover" alt="Home interior">
+            </div>
+          </div>
         </div>
       </div>
-      <div class="relative">
-        <div class="aspect-[4/5] overflow-hidden">
-          <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&w=900&q=70" class="w-full h-full object-cover" alt="Fashion styling">
-        </div>
-        <div class="absolute -bottom-8 -left-8 w-40 h-52 overflow-hidden border-4 border-brand-cream shadow-[0_20px_45px_-15px_rgba(42,38,34,0.35)] hidden sm:block">
-          <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=400&q=70" class="w-full h-full object-cover" alt="Home interior">
-        </div>
+    @endforeach
+
+    @if(count($elHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($elHeroSlides as $elI => $elSlide)
+          <button type="button" @click="elHero = {{ $elI }}" class="w-2 h-2 rounded-full transition-colors" :class="elHero === {{ $elI }} ? 'bg-brand-charcoal' : 'bg-brand-charcoal/30'" aria-label="Slide {{ $elI + 1 }}"></button>
+        @endforeach
       </div>
-    </div>
+    @endif
   </section>
 
   {{-- ===== TOP BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-6 py-10 grid md:grid-cols-2 gap-8 border-t el-hairline">
       @foreach($byPos['top_left'] ?? collect() as $b)
@@ -66,6 +85,7 @@
         </a>
       @endforeach
     </section>
+  @endif
   @endif
 
   {{-- ===== CATEGORY LOOK BOOK ===== --}}
@@ -143,16 +163,22 @@
     @endif
   @endforeach
 
-  {{-- ===== EDITORIAL SPREAD ===== --}}
+  {{-- ===== EDITORIAL SPREAD (customizable via Banners: position "center_left") ===== --}}
+  @php
+    $centerLeft = ($byPos['center_left'] ?? collect())->first();
+    $editorialImage = $centerLeft ? $bannerUrl($centerLeft) : 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=900&q=70';
+    $editorialLink = $centerLeft ? ($centerLeft->link ?: route('store.shop')) : route('store.shop');
+    $editorialTextStyle = ($centerLeft && !empty($centerLeft->text_color)) ? "color:{$centerLeft->text_color};" : null;
+  @endphp
   <section class="max-w-7xl mx-auto px-6 py-16 lg:py-20 border-t el-hairline grid md:grid-cols-2 gap-10 items-center">
     <div class="relative aspect-[4/5] overflow-hidden order-2 md:order-1">
-      <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=900&q=70" class="w-full h-full object-cover" alt="Beauty edit">
+      <img src="{{ $editorialImage }}" class="w-full h-full object-cover" alt="{{ ($centerLeft->title ?? null) ?: 'Beauty edit' }}">
     </div>
-    <div class="order-1 md:order-2">
-      <span class="eyebrow text-brand-gold text-xs font-semibold">Beauty Notes</span>
-      <h3 class="font-serif text-3xl lg:text-4xl mt-3 text-brand-charcoal leading-tight">Small rituals, carefully chosen</h3>
-      <p class="mt-4 text-brand-charcoalSoft leading-relaxed max-w-md">From skincare essentials to the audio pieces on your desk, every corner of the collection is chosen with the same restraint — nothing loud, everything considered.</p>
-      <a href="{{ route('store.shop') }}" class="mt-6 inline-flex items-center gap-2 text-xs eyebrow font-semibold text-brand-charcoal border-b border-brand-charcoal hover:text-brand-gold hover:border-brand-gold pb-1">Shop the Edit →</a>
+    <div class="order-1 md:order-2" @if($editorialTextStyle) style="{{ $editorialTextStyle }}" @endif>
+      <span class="eyebrow text-brand-gold text-xs font-semibold" style="color:inherit;">{{ ($centerLeft->badge_text ?? null) ?: 'Beauty Notes' }}</span>
+      <h3 class="font-serif text-3xl lg:text-4xl mt-3 text-brand-charcoal leading-tight" style="color:inherit;">{{ ($centerLeft->title ?? null) ?: 'Small rituals, carefully chosen' }}</h3>
+      <p class="mt-4 text-brand-charcoalSoft leading-relaxed max-w-md" style="color:inherit;">{{ !empty($centerLeft->subtitle ?? null) ? $centerLeft->subtitle : 'From skincare essentials to the audio pieces on your desk, every corner of the collection is chosen with the same restraint — nothing loud, everything considered.' }}</p>
+      <a href="{{ $editorialLink }}" class="mt-6 inline-flex items-center gap-2 text-xs eyebrow font-semibold text-brand-charcoal border-b border-brand-charcoal hover:text-brand-gold hover:border-brand-gold pb-1" style="color:inherit;">{{ ($centerLeft->button_text ?? null) ?: 'Shop the Edit' }} →</a>
     </div>
   </section>
 

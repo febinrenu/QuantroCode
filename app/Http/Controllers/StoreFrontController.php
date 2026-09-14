@@ -152,6 +152,11 @@ class StoreFrontController extends Controller
                 continue;
             }
 
+            if ($type === 'promo_banner' || $type === 'banner_grid') {
+                // Resolved into $offer / $bannerGridEnabled below, not $blocks.
+                continue;
+            }
+
             if ($type === 'collection') {
                 $slug = trim((string) ($item['slug'] ?? ($item['handle'] ?? '')));
                 if ($slug === '') {
@@ -243,6 +248,148 @@ class StoreFrontController extends Controller
                 ];
             }
         }
+
+        // 2b) Hero slides -- an ordered carousel of {title, subtitle, image,
+        // cta_text, cta_link}. Falls back to a single slide built from the
+        // legacy hero_title/hero_subtitle/hero_image_path fields when the
+        // merchant hasn't added any slides yet, so nothing changes visually
+        // for a store that predates this feature.
+        $heroSlides = is_array($s->hero_slides)
+            ? array_values(array_filter($s->hero_slides, fn ($slide) => is_array($slide)))
+            : [];
+
+        if (empty($heroSlides)) {
+            $heroSlides = [[
+                'title' => $s->hero_title ?? '',
+                'subtitle' => $s->hero_subtitle ?? '',
+                'cta_text' => '',
+                'cta_link' => '',
+                'image' => $s->hero_image_path ?? null,
+            ]];
+        }
+
+        foreach ($heroSlides as &$heroSlide) {
+            $heroSlide['image_url'] = ! empty($heroSlide['image']) ? global_asset($heroSlide['image']) : null;
+        }
+        unset($heroSlide);
+
+        // 3a) Role-based collections (Best Sellers, Recommended For You, New
+        // Arrivals, Trending) -- resolved independently of homepage_lineup so
+        // a theme's fixed, named section can pull from whichever Collection a
+        // merchant tagged with that role, regardless of whether that same
+        // Collection is also placed as a generic homepage block.
+        $collectionsByRole = [];
+        foreach (Collection::ROLES as $roleKey => $roleLabel) {
+            $roleCollection = Collection::where('role', $roleKey)->first();
+            if (! $roleCollection) {
+                continue;
+            }
+
+            $roleLimit = max(1, (int) ($roleCollection->limit ?? 8));
+            $roleProducts = Product::query()
+                ->where('products.is_active', 1)
+                ->where('products.hide_from_online_store', 0)
+                ->with([
+                    'variants:id,product_id,name,price,image',
+                    'images:id,product_id,image_path,is_main,sort_order',
+                ])
+                ->join('collection_product', 'collection_product.product_id', '=', 'products.id')
+                ->where('collection_product.collection_id', $roleCollection->id)
+                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
+                    $join->on('pvmin.product_id', '=', 'products.id');
+                })
+                ->addSelect(
+                    'products.*',
+                    DB::raw("$baseExpr AS base_price"),
+                    DB::raw("$afterDiscountExpr AS after_discount"),
+                    DB::raw("$finalExpr AS final_display_price")
+                )
+                ->orderBy('collection_product.sort_order')
+                ->orderBy('products.created_at', 'desc')
+                ->take($roleLimit)
+                ->get();
+
+            foreach ($roleProducts as $p) {
+                $p->display_price = (float) ($p->final_display_price ?? 0);
+
+                $taxRate = is_numeric($p->TaxNet) ? (float) $p->TaxNet : $defaultTaxRate;
+                $discVal = is_numeric($p->discount) ? (float) $p->discount : 0.0;
+                $isPercent = (string) $p->discount_method === '1';
+                $isInclusive = (string) $p->tax_method === '2';
+
+                if ($p->relationLoaded('variants') && $p->variants) {
+                    foreach ($p->variants as $v) {
+                        $price = (float) ($v->price ?? 0);
+                        if ($discVal > 0) {
+                            $price = $isPercent ? ($price - ($price * $discVal / 100)) : ($price - min($discVal, $price));
+                            if ($price < 0) {
+                                $price = 0;
+                            }
+                        }
+                        if (! $isInclusive && $taxRate > 0) {
+                            $price = $price * (1 + $taxRate / 100);
+                        }
+                        $v->display_price = round($price, 2);
+                    }
+                }
+            }
+
+            $this->attachStockToProducts($roleProducts, $s->default_warehouse_id);
+
+            if ($s->hide_out_of_stock ?? false) {
+                $roleProducts = $roleProducts->filter(fn ($p) => $this->productHasStock($p));
+            }
+
+            $collectionsByRole[$roleKey] = [
+                'collection' => $roleCollection,
+                'title' => $roleCollection->title ?: $roleLabel,
+                'products' => $roleProducts,
+            ];
+        }
+
+        // 3b) Offer/promo banner block + banner-grid enabled flag. Both
+        // default to "on" when the merchant hasn't touched the lineup yet
+        // (or is on a store predating this feature), so no live storefront
+        // changes look when this feature ships -- only an explicit
+        // enabled:false in the saved lineup turns either off.
+        $promoBannerItem = collect($lineup)->first(fn ($it) => is_array($it) && ($it['type'] ?? null) === 'promo_banner');
+        $bannerGridItem = collect($lineup)->first(fn ($it) => is_array($it) && ($it['type'] ?? null) === 'banner_grid');
+
+        $offerEnabled = $promoBannerItem
+            ? (filter_var($promoBannerItem['enabled'] ?? true, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== false)
+            : true;
+
+        if ($offerEnabled && $promoBannerItem) {
+            $now = now();
+            $startsAt = $promoBannerItem['starts_at'] ?? null;
+            $endsAt = $promoBannerItem['ends_at'] ?? null;
+            try {
+                if ($startsAt && $now->lt(\Illuminate\Support\Carbon::parse($startsAt))) {
+                    $offerEnabled = false;
+                }
+                if ($offerEnabled && $endsAt && $now->gt(\Illuminate\Support\Carbon::parse($endsAt))) {
+                    $offerEnabled = false;
+                }
+            } catch (\Throwable $e) {
+                // Unparseable date -- ignore the schedule, keep it visible.
+            }
+        }
+
+        $offer = [
+            'enabled' => $offerEnabled,
+            'badge_text' => trim((string) ($promoBannerItem['badge_text'] ?? '')),
+            'title' => trim((string) ($promoBannerItem['title'] ?? '')),
+            'subtitle' => trim((string) ($promoBannerItem['subtitle'] ?? '')),
+            'discount_text' => trim((string) ($promoBannerItem['discount_text'] ?? '')),
+            'button_text' => trim((string) ($promoBannerItem['button_text'] ?? '')),
+            'link' => trim((string) ($promoBannerItem['link'] ?? '')),
+            'image' => $promoBannerItem['image'] ?? null,
+            'image_url' => ! empty($promoBannerItem['image']) ? global_asset($promoBannerItem['image']) : null,
+        ];
+
+        $bannerGridEnabled = $bannerGridItem
+            ? (filter_var($bannerGridItem['enabled'] ?? true, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) !== false)
+            : true;
 
         // 4) Active banners
         $banners = StoreBanner::query()
@@ -351,6 +498,10 @@ class StoreFrontController extends Controller
             'categories' => $categories,
             'subcategoryImages' => $subcategoryImages ?? [],
             'banners' => $banners,
+            'offer' => $offer,
+            'bannerGridEnabled' => $bannerGridEnabled,
+            'collectionsByRole' => $collectionsByRole,
+            'heroSlides' => $heroSlides,
             'showCategoryBar' => true,
             'categorySpecificProducts' => $categorySpecificProducts,
         ];

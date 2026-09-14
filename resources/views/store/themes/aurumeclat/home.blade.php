@@ -32,7 +32,7 @@
       ->get()
       ->sortBy(fn($p) => array_search($p->code, $bestsellerCodes));
 
-  $bestsellers = $bestsellerProducts->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+  $bestsellersFallback = $bestsellerProducts->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
 
   // Specific New Arrivals as defined in the visual reference
   $newArrivalCodes = ['JWL-NCK-002', 'JWL-RNG-002', 'JWL-EAR-002', 'JWL-RNG-003', 'JWL-RNG-004'];
@@ -44,75 +44,117 @@
       ->get()
       ->sortBy(fn($p) => array_search($p->code, $newArrivalCodes));
 
-  $newArrivals = $newArrivalProducts->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+  $newArrivalsFallback = $newArrivalProducts->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices));
+
+  // Role-tagged Collections (Best Sellers / New Arrivals) -- when a merchant
+  // has assigned one, its curated products win over the hardcoded reference
+  // SKU list above.
+  $roleVms = collect($collectionsByRole ?? [])->map(function ($r) use ($currency, $hidePrices) {
+      return collect($r['products'] ?? [])->map(fn($p) => \App\Support\Storefront\StorefrontPresenter::product($p, $currency, $hidePrices))->values();
+  });
+  $bestsellers = ($roleVms['best_sellers'] ?? collect())->count() ? $roleVms['best_sellers'] : $bestsellersFallback;
+  $newArrivals = ($roleVms['new_arrivals'] ?? collect())->count() ? $roleVms['new_arrivals'] : $newArrivalsFallback;
+
+  // Banner-grid support (Banners admin): image, badge, headline, subtitle, button, colors.
+  $byPos = collect($banners ?? [])->groupBy('position');
+  $bannerUrl = fn($b) => $b->image_url ?? null;
+  $bannerOverlayStyle = function ($b) {
+    if (!$b || empty($b->bg_color)) return null;
+    $css = !empty($b->bg_color_2)
+      ? "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+      : "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+    return $css;
+  };
+  $bannerTextStyle = function ($b) {
+    return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+  };
 @endphp
 
 <main class="overflow-x-hidden">
 
-  <!-- ==================== 1. HERO SECTION ==================== -->
-  <section class="relative bg-gradient-to-b from-[#070605] via-[#100D0A] to-[#0A0908] border-b border-aurum-border/60 overflow-hidden">
-    
-    <!-- Ambient Golden Glow -->
-    <div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-aurum-gold/10 rounded-full blur-[120px] pointer-events-none"></div>
+  <!-- ==================== 1. HERO SECTION (auto-rotating carousel; add slides via Store Settings > Hero Slides) ==================== -->
+  @php $auHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative bg-gradient-to-b from-[#070605] via-[#100D0A] to-[#0A0908] border-b border-aurum-border/60 overflow-hidden grid"
+           x-data="{ auHero: 0, auHeroCount: {{ count($auHeroSlides) }} }"
+           @if(count($auHeroSlides) > 1) x-init="setInterval(() => { auHero = (auHero + 1) % auHeroCount }, 6000)" @endif>
+    @foreach($auHeroSlides as $auI => $auSlide)
+      <div x-show="auHero === {{ $auI }}" @if(!$loop->first) x-cloak @endif
+           x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="col-start-1 row-start-1">
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16 grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-      
-      <!-- Left Column: Copy & Actions -->
-      <div class="lg:col-span-6 space-y-6 sm:space-y-7 z-10">
-        
-        <div>
-          <span class="font-serif italic text-2xl sm:text-3xl lg:text-[34px] text-aurum-goldLight/90 tracking-wide block">
-            Crafted to Be
-          </span>
-          <h1 class="font-serif text-5xl sm:text-6xl lg:text-7xl xl:text-[76px] font-normal leading-[0.95] text-white tracking-tight mt-1">
-            <span class="gold-gradient-text font-serif font-medium">Treasured</span>
-          </h1>
-        </div>
+        <!-- Ambient Golden Glow -->
+        <div class="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-aurum-gold/10 rounded-full blur-[120px] pointer-events-none"></div>
 
-        <p class="text-xs sm:text-sm text-aurum-goldLight/75 font-light leading-relaxed max-w-md">
-          Timeless designs. Ethical sourcing.<br class="hidden sm:inline">
-          Heirloom quality, for a lifetime.
-        </p>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16 grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
-        <!-- CTA Buttons -->
-        <div class="flex flex-wrap items-center gap-4 pt-1">
-          <a href="{{ $aurumRoute('store.shop') }}" class="h-11 sm:h-12 px-7 sm:px-8 inline-flex items-center justify-center bg-aurum-gold hover:bg-[#E5C158] text-aurum-black text-[11px] sm:text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-[0_4px_20px_rgba(212,175,55,0.25)]">
-            SHOP FINE JEWELRY
-          </a>
-          <a href="#private-appointment-section" class="h-11 sm:h-12 px-6 sm:px-7 inline-flex items-center justify-center border border-aurum-gold/60 hover:border-aurum-gold hover:bg-aurum-gold/10 text-white text-[11px] sm:text-xs font-medium tracking-[0.18em] uppercase transition-all duration-300">
-            BOOK PRIVATE APPOINTMENT
-          </a>
-        </div>
+          <!-- Left Column: Copy & Actions -->
+          <div class="lg:col-span-6 space-y-6 sm:space-y-7 z-10">
 
-        <!-- Hero Bottom Trust Badges (Desktop) -->
-        <div class="pt-6 border-t border-aurum-border/60 flex flex-wrap items-center gap-6 text-[11px] text-aurum-goldLight/70 font-light">
-          <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-aurum-gold shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="18" height="12" rx="1"></rect><line x1="8" y1="6" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="18"></line></svg>
-            <span>18K &amp; 22K Solid Gold</span>
+            <div>
+              @if(($auSlide['title'] ?? '') === '')
+              <span class="font-serif italic text-2xl sm:text-3xl lg:text-[34px] text-aurum-goldLight/90 tracking-wide block">
+                Crafted to Be
+              </span>
+              @endif
+              <h1 class="font-serif text-5xl sm:text-6xl lg:text-7xl xl:text-[76px] font-normal leading-[0.95] text-white tracking-tight mt-1">
+                <span class="gold-gradient-text font-serif font-medium">{{ ($auSlide['title'] ?? '') !== '' ? $auSlide['title'] : 'Treasured' }}</span>
+              </h1>
+            </div>
+
+            <p class="text-xs sm:text-sm text-aurum-goldLight/75 font-light leading-relaxed max-w-md">
+              {{ ($auSlide['subtitle'] ?? '') !== '' ? $auSlide['subtitle'] : 'Timeless designs. Ethical sourcing. Heirloom quality, for a lifetime.' }}
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-wrap items-center gap-4 pt-1">
+              <a href="{{ ($auSlide['cta_link'] ?? '') !== '' ? $auSlide['cta_link'] : $aurumRoute('store.shop') }}" class="h-11 sm:h-12 px-7 sm:px-8 inline-flex items-center justify-center bg-aurum-gold hover:bg-[#E5C158] text-aurum-black text-[11px] sm:text-xs font-semibold tracking-[0.2em] uppercase transition-all duration-300 shadow-[0_4px_20px_rgba(212,175,55,0.25)]">
+                {{ ($auSlide['cta_text'] ?? '') !== '' ? $auSlide['cta_text'] : 'SHOP FINE JEWELRY' }}
+              </a>
+              <a href="#private-appointment-section" class="h-11 sm:h-12 px-6 sm:px-7 inline-flex items-center justify-center border border-aurum-gold/60 hover:border-aurum-gold hover:bg-aurum-gold/10 text-white text-[11px] sm:text-xs font-medium tracking-[0.18em] uppercase transition-all duration-300">
+                BOOK PRIVATE APPOINTMENT
+              </a>
+            </div>
+
+            <!-- Hero Bottom Trust Badges (Desktop) -->
+            <div class="pt-6 border-t border-aurum-border/60 flex flex-wrap items-center gap-6 text-[11px] text-aurum-goldLight/70 font-light">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-aurum-gold shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="18" height="12" rx="1"></rect><line x1="8" y1="6" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="18"></line></svg>
+                <span>18K &amp; 22K Solid Gold</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-aurum-gold shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="6 3 18 3 22 9 12 22 2 9 6 3"></polygon></svg>
+                <span>IGI / GIA Certified</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-aurum-gold shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                <span>Lifetime Service Promise</span>
+              </div>
+            </div>
+
           </div>
-          <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-aurum-gold shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="6 3 18 3 22 9 12 22 2 9 6 3"></polygon></svg>
-            <span>IGI / GIA Certified</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-aurum-gold shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-            <span>Lifetime Service Promise</span>
-          </div>
-        </div>
 
+          <!-- Right Column: Editorial Hero Imagery Matching Reference -->
+          <div class="lg:col-span-6 relative">
+            <div class="relative mx-auto max-w-md lg:max-w-none aspect-[3/4] overflow-hidden border border-aurum-border/70 shadow-2xl bg-[#120E0A]">
+              <img src="{{ !empty($auSlide['image_url']) ? $auSlide['image_url'] : global_asset('images/themes/aurumeclat/hero-model.jpg') }}"
+                   alt="AurumÉclat High Jewelry Haute Couture"
+                   class="w-full h-full object-cover object-top filter brightness-95">
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0A0908] via-transparent to-transparent opacity-60"></div>
+            </div>
+          </div>
+
+        </div>
       </div>
+    @endforeach
 
-      <!-- Right Column: Editorial Hero Imagery Matching Reference -->
-      <div class="lg:col-span-6 relative">
-        <div class="relative mx-auto max-w-md lg:max-w-none aspect-[3/4] overflow-hidden border border-aurum-border/70 shadow-2xl bg-[#120E0A]">
-          <img src="{{ global_asset('images/themes/aurumeclat/hero-model.jpg') }}" 
-               alt="AurumÉclat High Jewelry Haute Couture" 
-               class="w-full h-full object-cover object-top filter brightness-95">
-          <div class="absolute inset-0 bg-gradient-to-t from-[#0A0908] via-transparent to-transparent opacity-60"></div>
-        </div>
+    @if(count($auHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($auHeroSlides as $auI => $auSlide)
+          <button type="button" @click="auHero = {{ $auI }}" class="w-2 h-2 rounded-full transition-colors" :class="auHero === {{ $auI }} ? 'bg-aurum-gold' : 'bg-white/30'" aria-label="Slide {{ $auI + 1 }}"></button>
+        @endforeach
       </div>
-
-    </div>
+    @endif
   </section>
 
   <!-- ==================== 2. MOBILE CIRCULAR QUICK ACTIONS ==================== -->
@@ -397,25 +439,36 @@
   </section>
 
   <!-- ==================== 7. TWO-COLUMN EDITORIAL FEATURE ==================== -->
+  @if($bannerGridEnabled ?? true)
+  @php
+    $topLeft = ($byPos['top_left'] ?? collect())->first();
+    $topRight = ($byPos['top_right'] ?? collect())->first();
+  @endphp
   <section id="private-appointment-section" class="bg-[#090807] py-14 lg:py-20 border-b border-aurum-border">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid md:grid-cols-2 gap-6 lg:gap-8">
-        
+
         <!-- Left: Design Your Piece -->
         <div class="relative bg-[#120F0C] border border-aurum-border p-8 sm:p-10 flex flex-col justify-between min-h-[360px] overflow-hidden group">
-          <div class="absolute inset-0 opacity-25 group-hover:opacity-35 transition-opacity bg-cover bg-center" style="background-image: url('{{ global_asset('images/themes/aurumeclat/atelier-sketch.jpg') }}');"></div>
-          <div class="relative z-10 space-y-3">
-            <h3 class="font-serif text-2xl sm:text-3xl lg:text-4xl text-white font-normal leading-tight">
-              Design Your Piece
+          <div class="absolute inset-0 opacity-25 group-hover:opacity-35 transition-opacity bg-cover bg-center" style="background-image: url('{{ $topLeft ? $bannerUrl($topLeft) : global_asset('images/themes/aurumeclat/atelier-sketch.jpg') }}'); {{ $bannerOverlayStyle($topLeft) }}"></div>
+          <div class="relative z-10 space-y-3" @if($bannerTextStyle($topLeft)) style="{{ $bannerTextStyle($topLeft) }}" @endif>
+            <h3 class="font-serif text-2xl sm:text-3xl lg:text-4xl text-white font-normal leading-tight" style="color:inherit;">
+              {{ ($topLeft->title ?? null) ?: 'Design Your Piece' }}
             </h3>
-            <div class="text-xs text-aurum-goldLight/90 font-medium">Make it uniquely yours</div>
-            <p class="text-xs text-aurum-goldLight/70 font-light leading-relaxed max-w-sm">
-              From concept to creation, we craft jewelry as unique as your story.
-            </p>
+            <div class="text-xs text-aurum-goldLight/90 font-medium" style="color:inherit;">{{ ($topLeft->badge_text ?? null) ?: 'Make it uniquely yours' }}</div>
+            @if(!empty($topLeft->subtitle ?? null))
+              <p class="text-xs text-aurum-goldLight/70 font-light leading-relaxed max-w-sm" style="color:inherit;">
+                {{ $topLeft->subtitle }}
+              </p>
+            @else
+              <p class="text-xs text-aurum-goldLight/70 font-light leading-relaxed max-w-sm" style="color:inherit;">
+                From concept to creation, we craft jewelry as unique as your story.
+              </p>
+            @endif
           </div>
-          <div class="relative z-10 pt-6">
-            <a href="#custom-design-section" class="inline-flex items-center gap-2 text-xs tracking-widest text-aurum-gold font-semibold uppercase hover:underline">
-              <span>START CUSTOM DESIGN</span>
+          <div class="relative z-10 pt-6" @if($bannerTextStyle($topLeft)) style="{{ $bannerTextStyle($topLeft) }}" @endif>
+            <a href="{{ ($topLeft->link ?? null) ?: '#custom-design-section' }}" class="inline-flex items-center gap-2 text-xs tracking-widest text-aurum-gold font-semibold uppercase hover:underline" style="color:inherit;">
+              <span>{{ ($topLeft->button_text ?? null) ?: 'START CUSTOM DESIGN' }}</span>
               <span>&rarr;</span>
             </a>
           </div>
@@ -423,21 +476,25 @@
 
         <!-- Right: Book a Private Appointment -->
         <div class="relative bg-[#120F0C] border border-aurum-border p-8 sm:p-10 flex flex-col justify-between min-h-[360px] overflow-hidden group">
-          <div class="absolute inset-0 opacity-25 group-hover:opacity-35 transition-opacity bg-cover bg-center" style="background-image: url('{{ global_asset('images/themes/aurumeclat/boutique-salon.jpg') }}');"></div>
-          <div class="relative z-10 space-y-3">
-            <h3 class="font-serif text-2xl sm:text-3xl lg:text-4xl text-white font-normal leading-tight">
-              Book a Private Appointment
+          <div class="absolute inset-0 opacity-25 group-hover:opacity-35 transition-opacity bg-cover bg-center" style="background-image: url('{{ $topRight ? $bannerUrl($topRight) : global_asset('images/themes/aurumeclat/boutique-salon.jpg') }}'); {{ $bannerOverlayStyle($topRight) }}"></div>
+          <div class="relative z-10 space-y-3" @if($bannerTextStyle($topRight)) style="{{ $bannerTextStyle($topRight) }}" @endif>
+            <h3 class="font-serif text-2xl sm:text-3xl lg:text-4xl text-white font-normal leading-tight" style="color:inherit;">
+              {{ ($topRight->title ?? null) ?: 'Book a Private Appointment' }}
             </h3>
-            <div class="text-xs text-aurum-goldLight/90 font-medium">One-on-one. In-store or virtual.</div>
-            <ul class="text-xs text-aurum-goldLight/80 font-light space-y-1.5 pt-1">
-              <li class="flex items-center gap-2">✦ <span>Personalized Styling</span></li>
-              <li class="flex items-center gap-2">✦ <span>Diamond Education</span></li>
-              <li class="flex items-center gap-2">✦ <span>Custom Creations</span></li>
-            </ul>
+            <div class="text-xs text-aurum-goldLight/90 font-medium" style="color:inherit;">{{ ($topRight->badge_text ?? null) ?: 'One-on-one. In-store or virtual.' }}</div>
+            @if(!empty($topRight->subtitle ?? null))
+              <p class="text-xs text-aurum-goldLight/80 font-light leading-relaxed max-w-sm pt-1" style="color:inherit;">{{ $topRight->subtitle }}</p>
+            @else
+              <ul class="text-xs text-aurum-goldLight/80 font-light space-y-1.5 pt-1" style="color:inherit;">
+                <li class="flex items-center gap-2">✦ <span>Personalized Styling</span></li>
+                <li class="flex items-center gap-2">✦ <span>Diamond Education</span></li>
+                <li class="flex items-center gap-2">✦ <span>Custom Creations</span></li>
+              </ul>
+            @endif
           </div>
-          <div class="relative z-10 pt-6">
-            <a href="#boutique-section" class="inline-block px-7 py-3 bg-[#D4C3A3] text-aurum-black text-[11px] font-semibold tracking-widest uppercase hover:bg-aurum-gold transition-colors">
-              BOOK APPOINTMENT
+          <div class="relative z-10 pt-6" @if($bannerTextStyle($topRight)) style="{{ $bannerTextStyle($topRight) }}" @endif>
+            <a href="{{ ($topRight->link ?? null) ?: '#boutique-section' }}" class="inline-block px-7 py-3 bg-[#D4C3A3] text-aurum-black text-[11px] font-semibold tracking-widest uppercase hover:bg-aurum-gold transition-colors">
+              {{ ($topRight->button_text ?? null) ?: 'BOOK APPOINTMENT' }}
             </a>
           </div>
         </div>
@@ -445,6 +502,7 @@
       </div>
     </div>
   </section>
+  @endif
 
   <!-- ==================== 8. NEW ARRIVALS ==================== -->
   <section class="bg-[#090807] text-aurum-goldLight py-14 lg:py-20 border-b border-aurum-border">

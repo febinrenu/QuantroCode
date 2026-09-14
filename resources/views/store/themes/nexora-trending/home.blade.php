@@ -7,9 +7,27 @@
     $dealsUrl = url('online_store/shop?collection=deals' . ($previewTheme ? '&preview_theme=' . $previewTheme : ''));
     $bestsellersUrl = url('online_store/shop?collection=bestsellers' . ($previewTheme ? '&preview_theme=' . $previewTheme : ''));
 
-    // Resolve products for Best Sellers
+    // Resolve products for Best Sellers -- a merchant-tagged Best Sellers
+    // Collection wins over the theme's generic product list when present.
     $prodList = $products ?? collect();
-    $bestSellers = $prodList->take(6);
+    $roleBestSellers = collect($collectionsByRole['best_sellers']['products'] ?? []);
+    $bestSellers = $roleBestSellers->isNotEmpty() ? $roleBestSellers->take(6) : $prodList->take(6);
+
+    // Merchant-customizable promo banners (Banners admin): position-keyed
+    // lookup plus overlay/text style overrides for the promo cards below.
+    $byPos = collect($banners ?? [])->groupBy('position');
+    $bannerUrl = fn($b) => $b->image_url ?? global_asset(upload_path('banners').'/no-image.png');
+    $bannerOverlayStyle = function ($b) {
+        if (!$b || empty($b->bg_color)) return null;
+        return !empty($b->bg_color_2)
+            ? "background:linear-gradient(135deg, {$b->bg_color}, {$b->bg_color_2});"
+            : "background:{$b->bg_color};";
+    };
+    $bannerTextStyle = function ($b) {
+        return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+    };
+    $nxtPromo2 = ($byPos['top_left'] ?? collect())->first();
+    $nxtPromo3 = ($byPos['top_right'] ?? collect())->first();
 @endphp
 
 @section('content')
@@ -17,64 +35,78 @@
 <!-- Main Container with Standard Max Width -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-10 sm:space-y-12">
 
-    <!-- 1. HERO SECTION (With Original Nexora Hero Artwork & HTML Overlays) -->
-    <section class="relative rounded-3xl overflow-hidden shadow-xl min-h-[380px] sm:min-h-[460px] lg:min-h-[520px] flex items-center bg-cover bg-center"
-             style="background-image: url('{{ global_asset('images/themes/nexora/nexora-hero-original.png') }}');">
+    <!-- 1. HERO SECTION (auto-rotating carousel; add slides via Store Settings > Hero Slides) -->
+    @php $nxtHeroSlides = $heroSlides ?? []; @endphp
+    <section class="relative rounded-3xl overflow-hidden shadow-xl min-h-[380px] sm:min-h-[460px] lg:min-h-[520px] grid"
+             x-data="{ nxtHero: 0, nxtHeroCount: {{ count($nxtHeroSlides) }} }"
+             @if(count($nxtHeroSlides) > 1) x-init="setInterval(() => { nxtHero = (nxtHero + 1) % nxtHeroCount }, 6000)" @endif>
 
-        <!-- Left & Right Carousel Navigation Arrows -->
-        <button type="button"
-                class="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-md text-white items-center justify-center transition z-20"
-                aria-label="Previous Slide">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-            </svg>
-        </button>
+        @foreach($nxtHeroSlides as $nxtI => $nxtSlide)
+          <div x-show="nxtHero === {{ $nxtI }}" @if(!$loop->first) x-cloak @endif
+               x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+               x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+               class="col-start-1 row-start-1 flex items-center bg-cover bg-center"
+               style="background-image: url('{{ !empty($nxtSlide['image_url']) ? $nxtSlide['image_url'] : global_asset('images/themes/nexora/nexora-hero-original.png') }}');">
 
-        <button type="button"
-                class="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-md text-white items-center justify-center transition z-20"
-                aria-label="Next Slide">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-            </svg>
-        </button>
+            @if(count($nxtHeroSlides) > 1)
+              <!-- Left & Right Carousel Navigation Arrows -->
+              <button type="button" @click="nxtHero = (nxtHero - 1 + nxtHeroCount) % nxtHeroCount"
+                      class="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-md text-white items-center justify-center transition z-20"
+                      aria-label="Previous Slide">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                  </svg>
+              </button>
 
-        <!-- Content Overlay Container -->
-        <div class="relative z-10 w-full p-6 sm:p-10 lg:p-14">
-            <div class="max-w-xl space-y-5 sm:space-y-6 text-center sm:text-left">
+              <button type="button" @click="nxtHero = (nxtHero + 1) % nxtHeroCount"
+                      class="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-md text-white items-center justify-center transition z-20"
+                      aria-label="Next Slide">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                  </svg>
+              </button>
+            @endif
 
-                <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-white leading-[1.08] tracking-tight">
-                    Make Every<br>Day Easier
-                </h1>
+            <!-- Content Overlay Container -->
+            <div class="relative z-10 w-full p-6 sm:p-10 lg:p-14">
+                <div class="max-w-xl space-y-5 sm:space-y-6 text-center sm:text-left">
 
-                <p class="text-xs sm:text-sm lg:text-base text-white/90 font-medium leading-relaxed max-w-md mx-auto sm:mx-0">
-                    Discover trending products, exclusive deals and new arrivals – all in one place.
-                </p>
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-white leading-[1.08] tracking-tight">
+                        {{ ($nxtSlide['title'] ?? '') !== '' ? $nxtSlide['title'] : 'Make Every Day Easier' }}
+                    </h1>
 
-                <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3 sm:gap-4 pt-2">
-                    <a href="{{ $shopUrl }}"
-                       class="px-7 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold text-xs uppercase tracking-widest rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2">
-                        <span>Shop Now</span>
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                        </svg>
-                    </a>
+                    <p class="text-xs sm:text-sm lg:text-base text-white/90 font-medium leading-relaxed max-w-md mx-auto sm:mx-0">
+                        {{ ($nxtSlide['subtitle'] ?? '') !== '' ? $nxtSlide['subtitle'] : 'Discover trending products, exclusive deals and new arrivals – all in one place.' }}
+                    </p>
 
-                    <a href="{{ $bestsellersUrl }}"
-                       class="px-7 sm:px-8 py-3 sm:py-3.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white font-extrabold text-xs uppercase tracking-widest rounded-full border border-white/30 transition-all hover:scale-105">
-                        Explore More
-                    </a>
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3 sm:gap-4 pt-2">
+                        <a href="{{ ($nxtSlide['cta_link'] ?? '') !== '' ? $nxtSlide['cta_link'] : $shopUrl }}"
+                           class="px-7 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-extrabold text-xs uppercase tracking-widest rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2">
+                            <span>{{ ($nxtSlide['cta_text'] ?? '') !== '' ? $nxtSlide['cta_text'] : 'Shop Now' }}</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </a>
+
+                        <a href="{{ $bestsellersUrl }}"
+                           class="px-7 sm:px-8 py-3 sm:py-3.5 bg-white/20 hover:bg-white/30 backdrop-blur-md text-white font-extrabold text-xs uppercase tracking-widest rounded-full border border-white/30 transition-all hover:scale-105">
+                            Explore More
+                        </a>
+                    </div>
+
                 </div>
-
             </div>
-        </div>
+          </div>
+        @endforeach
 
         <!-- Carousel Pagination Dots -->
-        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-2 z-20">
-            <span class="w-6 h-2 rounded-full bg-orange-500"></span>
-            <span class="w-2 h-2 rounded-full bg-white/50"></span>
-            <span class="w-2 h-2 rounded-full bg-white/50"></span>
-            <span class="w-2 h-2 rounded-full bg-white/50"></span>
-        </div>
+        @if(count($nxtHeroSlides) > 1)
+          <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-2 z-20">
+            @foreach($nxtHeroSlides as $nxtI => $nxtSlide)
+              <button type="button" @click="nxtHero = {{ $nxtI }}" class="h-2 rounded-full transition-all" :class="nxtHero === {{ $nxtI }} ? 'w-6 bg-orange-500' : 'w-2 bg-white/50'" aria-label="Slide {{ $nxtI + 1 }}"></button>
+            @endforeach
+          </div>
+        @endif
 
     </section>
 
@@ -178,19 +210,23 @@
     <!-- 4. THREE PROMOTIONAL CARDS ROW -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        <!-- Card 1: Deal of the Day -->
+        <!-- Card 1: Deal of the Day (customizable via Offers & Promotions) -->
+        @if($offer['enabled'] ?? true)
         <div class="rounded-3xl p-6 sm:p-7 promo-deal-grad text-white relative overflow-hidden flex flex-col justify-between min-h-[220px] shadow-lg">
             <div class="relative z-10 space-y-2 max-w-[60%]">
                 <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-300">
-                    Deal of the Day
+                    {{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'Deal of the Day' }}
                 </span>
                 <h3 class="text-lg font-black leading-tight text-white">
-                    Smartwatch Series 8
+                    {{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Smartwatch Series 8' }}
                 </h3>
                 <div class="flex items-baseline gap-2 font-black text-xl text-white">
                     <span>$129.99</span>
                     <span class="text-xs text-white/60 line-through font-normal">$199.99</span>
                 </div>
+                @if(!empty($offer['discount_text']))
+                    <span class="inline-flex items-center rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold text-white">{{ $offer['discount_text'] }}</span>
+                @endif
 
                 <!-- Live Countdown Timer -->
                 <div class="flex items-center gap-1.5 pt-1 text-[10px] font-extrabold">
@@ -208,70 +244,73 @@
                 </div>
 
                 <div class="pt-2">
-                    <a href="{{ $shopUrl }}" class="inline-flex items-center gap-1 text-xs font-extrabold uppercase tracking-wider text-amber-300 hover:text-white transition">
-                        <span>Shop Now</span>
+                    <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : $shopUrl }}" class="inline-flex items-center gap-1 text-xs font-extrabold uppercase tracking-wider text-amber-300 hover:text-white transition">
+                        <span>{{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop Now' }}</span>
                         <span>→</span>
                     </a>
                 </div>
             </div>
 
             <!-- Card Background Image Overlay -->
-            <img src="{{ global_asset('images/themes/nexora/promo-deal-smartwatch.jpg') }}"
+            <img src="{{ !empty($offer['image_url']) ? $offer['image_url'] : global_asset('images/themes/nexora/promo-deal-smartwatch.jpg') }}"
                  alt="Deal of the Day"
                  class="absolute right-0 bottom-0 w-1/2 h-full object-contain pointer-events-none">
         </div>
+        @endif
 
-        <!-- Card 2: Trending Now (Sneakers) -->
-        <div class="rounded-3xl p-6 sm:p-7 promo-trending-grad text-slate-900 relative overflow-hidden flex flex-col justify-between min-h-[220px] shadow-lg border border-amber-200/50">
-            <div class="relative z-10 space-y-2 max-w-[60%]">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-700">
-                    Trending Now
+        {{-- Card 2: Trending Now (fully customizable via Banners: image, badge, headline, subtitle, button, colors) --}}
+        @if($bannerGridEnabled ?? true)
+        <div class="rounded-3xl p-6 sm:p-7 promo-trending-grad text-slate-900 relative overflow-hidden flex flex-col justify-between min-h-[220px] shadow-lg border border-amber-200/50" @if($bannerOverlayStyle($nxtPromo2)) style="{{ $bannerOverlayStyle($nxtPromo2) }}" @endif>
+            <div class="relative z-10 space-y-2 max-w-[60%]" @if($bannerTextStyle($nxtPromo2)) style="{{ $bannerTextStyle($nxtPromo2) }}" @endif>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-700" style="color:inherit;">
+                    {{ ($nxtPromo2->badge_text ?? null) ?: 'Trending Now' }}
                 </span>
-                <h3 class="text-lg font-black leading-tight text-slate-900">
-                    Sneakers Collection
+                <h3 class="text-lg font-black leading-tight text-slate-900" style="color:inherit;">
+                    {{ ($nxtPromo2->title ?? null) ?: 'Sneakers Collection' }}
                 </h3>
-                <p class="text-xs text-slate-600 font-medium">
-                    New Styles Added
+                <p class="text-xs text-slate-600 font-medium" style="color:inherit;">
+                    {{ ($nxtPromo2->subtitle ?? null) ?: 'New Styles Added' }}
                 </p>
 
                 <div class="pt-6">
-                    <a href="{{ $shopUrl }}" class="inline-block px-4 py-2 bg-slate-900 hover:bg-black text-white text-[11px] font-extrabold uppercase tracking-wider rounded-xl transition shadow-md">
-                        Shop Collection
+                    <a href="{{ $nxtPromo2 ? ($nxtPromo2->link ?: $shopUrl) : $shopUrl }}" class="inline-block px-4 py-2 bg-slate-900 hover:bg-black text-white text-[11px] font-extrabold uppercase tracking-wider rounded-xl transition shadow-md">
+                        {{ ($nxtPromo2->button_text ?? null) ?: 'Shop Collection' }}
                     </a>
                 </div>
             </div>
 
             <!-- Card Background Image Overlay -->
-            <img src="{{ global_asset('images/themes/nexora/promo-trending-sneakers.jpg') }}"
-                 alt="Trending Sneakers"
+            <img src="{{ $nxtPromo2 && $nxtPromo2->image_url ? $bannerUrl($nxtPromo2) : global_asset('images/themes/nexora/promo-trending-sneakers.jpg') }}"
+                 alt="{{ $nxtPromo2->title ?? 'Trending Sneakers' }}"
                  class="absolute right-0 bottom-0 w-1/2 h-full object-contain pointer-events-none">
         </div>
 
-        <!-- Card 3: Summer Essentials -->
-        <div class="rounded-3xl p-6 sm:p-7 promo-summer-grad text-teal-950 relative overflow-hidden flex flex-col justify-between min-h-[220px] shadow-lg border border-teal-200/50">
-            <div class="relative z-10 space-y-2 max-w-[60%]">
-                <span class="text-[10px] font-extrabold uppercase tracking-widest text-teal-800">
-                    Summer Essentials
+        {{-- Card 3: Summer Essentials (fully customizable via Banners: image, badge, headline, subtitle, button, colors) --}}
+        <div class="rounded-3xl p-6 sm:p-7 promo-summer-grad text-teal-950 relative overflow-hidden flex flex-col justify-between min-h-[220px] shadow-lg border border-teal-200/50" @if($bannerOverlayStyle($nxtPromo3)) style="{{ $bannerOverlayStyle($nxtPromo3) }}" @endif>
+            <div class="relative z-10 space-y-2 max-w-[60%]" @if($bannerTextStyle($nxtPromo3)) style="{{ $bannerTextStyle($nxtPromo3) }}" @endif>
+                <span class="text-[10px] font-extrabold uppercase tracking-widest text-teal-800" style="color:inherit;">
+                    {{ ($nxtPromo3->badge_text ?? null) ?: 'Summer Essentials' }}
                 </span>
-                <h3 class="text-lg font-black leading-tight text-teal-950">
-                    Up to 30% OFF
+                <h3 class="text-lg font-black leading-tight text-teal-950" style="color:inherit;">
+                    {{ ($nxtPromo3->title ?? null) ?: 'Up to 30% OFF' }}
                 </h3>
-                <p class="text-xs text-teal-800 font-medium">
-                    On selected items
+                <p class="text-xs text-teal-800 font-medium" style="color:inherit;">
+                    {{ ($nxtPromo3->subtitle ?? null) ?: 'On selected items' }}
                 </p>
 
                 <div class="pt-6">
-                    <a href="{{ $shopUrl }}" class="inline-block px-4 py-2 bg-teal-900 hover:bg-teal-950 text-white text-[11px] font-extrabold uppercase tracking-wider rounded-xl transition shadow-md">
-                        Shop Now
+                    <a href="{{ $nxtPromo3 ? ($nxtPromo3->link ?: $shopUrl) : $shopUrl }}" class="inline-block px-4 py-2 bg-teal-900 hover:bg-teal-950 text-white text-[11px] font-extrabold uppercase tracking-wider rounded-xl transition shadow-md">
+                        {{ ($nxtPromo3->button_text ?? null) ?: 'Shop Now' }}
                     </a>
                 </div>
             </div>
 
             <!-- Card Background Image Overlay -->
-            <img src="{{ global_asset('images/themes/nexora/promo-summer-sunglasses.jpg') }}"
-                 alt="Summer Essentials"
+            <img src="{{ $nxtPromo3 && $nxtPromo3->image_url ? $bannerUrl($nxtPromo3) : global_asset('images/themes/nexora/promo-summer-sunglasses.jpg') }}"
+                 alt="{{ $nxtPromo3->title ?? 'Summer Essentials' }}"
                  class="absolute right-0 bottom-0 w-1/2 h-full object-contain pointer-events-none">
         </div>
+        @endif
 
     </section>
 

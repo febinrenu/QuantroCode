@@ -18,19 +18,26 @@
 <main class="pb-24 lg:pb-0 relative z-10">
 
   {{-- ===== HERO ===== --}}
-  <section class="relative overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 py-16 lg:py-24 grid lg:grid-cols-2 gap-10 items-center">
+  @php $cgHeroSlides = $heroSlides ?? []; @endphp
+  <section class="relative overflow-hidden grid"
+           x-data="{ cgHero: 0, cgHeroCount: {{ count($cgHeroSlides) }} }"
+           @if(count($cgHeroSlides) > 1) x-init="setInterval(() => { cgHero = (cgHero + 1) % cgHeroCount }, 6000)" @endif>
+    @foreach($cgHeroSlides as $cgI => $cgSlide)
+    <div class="max-w-7xl mx-auto px-4 py-16 lg:py-24 grid lg:grid-cols-2 gap-10 items-center col-start-1 row-start-1"
+         x-show="cgHero === {{ $cgI }}" @if(!$loop->first) x-cloak @endif
+         x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
       <div class="glass-strong rounded-[2.5rem] shadow-glassHover p-8 lg:p-10">
         <span class="eyebrow text-brand-violetDark text-xs font-bold">Shopping, reimagined</span>
         <h1 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-black text-brand-ink leading-tight tracking-tight">
-          {{ $s->hero_title ?? 'Everything you love, in one beautifully clear place' }}
+          {{ ($cgSlide['title'] ?? '') !== '' ? $cgSlide['title'] : ($s->hero_title ?? 'Everything you love, in one beautifully clear place') }}
         </h1>
         <p class="mt-4 text-brand-ink/60 max-w-lg tracking-wide">
-          {{ $s->hero_subtitle ?? 'Electronics, fashion, home, beauty, grocery and sports — curated together, presented clearly, delivered fast.' }}
+          {{ ($cgSlide['subtitle'] ?? '') !== '' ? $cgSlide['subtitle'] : ($s->hero_subtitle ?? 'Electronics, fashion, home, beauty, grocery and sports — curated together, presented clearly, delivered fast.') }}
         </p>
         <div class="mt-7 flex flex-wrap gap-3">
-          <a href="{{ route('store.shop') }}" class="h-12 px-7 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-violet to-brand-pink text-white font-semibold tracking-wide hover:brightness-105 transition">
-            Shop the catalog
+          <a href="{{ ($cgSlide['cta_link'] ?? '') !== '' ? $cgSlide['cta_link'] : route('store.shop') }}" class="h-12 px-7 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-violet to-brand-pink text-white font-semibold tracking-wide hover:brightness-105 transition">
+            {{ ($cgSlide['cta_text'] ?? '') !== '' ? $cgSlide['cta_text'] : 'Shop the catalog' }}
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
           </a>
           <a href="{{ route('store.shop', ['sort' => 'price_asc']) }}" class="h-12 px-7 inline-flex items-center gap-2 rounded-full border border-brand-ink/15 text-brand-ink font-semibold tracking-wide hover:bg-white/50 transition">
@@ -50,9 +57,19 @@
         <div class="glass rounded-3xl overflow-hidden shadow-glass"><img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=500&q=70" class="h-48 w-full object-cover" alt=""></div>
       </div>
     </div>
+    @endforeach
+
+    @if(count($cgHeroSlides) > 1)
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        @foreach($cgHeroSlides as $cgI => $cgSlide)
+          <button type="button" @click="cgHero = {{ $cgI }}" class="w-2 h-2 rounded-full transition-colors" :class="cgHero === {{ $cgI }} ? 'bg-brand-violetDark' : 'bg-brand-ink/20'" aria-label="Slide {{ $cgI + 1 }}"></button>
+        @endforeach
+      </div>
+    @endif
   </section>
 
   {{-- ===== TOP BANNERS ===== --}}
+  @if($bannerGridEnabled ?? true)
   @if(($byPos['top_left'] ?? collect())->count() || ($byPos['top_right'] ?? collect())->count())
     <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
       @foreach($byPos['top_left'] ?? collect() as $b)
@@ -66,6 +83,7 @@
         </a>
       @endforeach
     </section>
+  @endif
   @endif
 
   {{-- ===== CATEGORY GRID ===== --}}
@@ -133,26 +151,51 @@
     @endif
   @endforeach
 
-  {{-- ===== PROMO STRIP ===== --}}
+  {{-- ===== PROMO STRIP (left tile fully customizable via Banners: image, badge, headline, subtitle, button, colors) ===== --}}
   <section class="max-w-7xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-4">
+    @if($bannerGridEnabled ?? true)
+    @php
+      $centerLeft = ($byPos['center_left'] ?? collect())->first();
+      // A banner's own bg_color/bg_color_2/text_color (set in the Banners admin)
+      // override this tile's fixed gradient/text color; absent -> theme default.
+      $bannerOverlayStyle = function ($b) {
+        if (!$b || empty($b->bg_color)) return null;
+        $css = !empty($b->bg_color_2)
+          ? "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color_2}80, transparent);"
+          : "background:linear-gradient(to top, {$b->bg_color}e6, {$b->bg_color}80, transparent);";
+        return $css;
+      };
+      $bannerTextStyle = function ($b) {
+        return ($b && !empty($b->text_color)) ? "color:{$b->text_color};" : null;
+      };
+    @endphp
     <div class="relative rounded-3xl overflow-hidden h-56">
-      <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
-      <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-      <div class="absolute bottom-4 left-4 right-4 glass-strong rounded-2xl p-4">
-        <span class="text-brand-violetDark text-xs font-bold uppercase tracking-widest">Fashion Edit</span>
-        <h3 class="text-brand-ink text-xl font-black mt-1 tracking-tight">New season styles, curated</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-brand-violetDark underline tracking-wide">Shop now →</a>
+      <img src="{{ $centerLeft ? $bannerUrl($centerLeft) : 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ $centerLeft->title ?? '' }}">
+      <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" @if($bannerOverlayStyle($centerLeft)) style="{{ $bannerOverlayStyle($centerLeft) }}" @endif></div>
+      <div class="absolute bottom-4 left-4 right-4 glass-strong rounded-2xl p-4" @if($bannerTextStyle($centerLeft)) style="{{ $bannerTextStyle($centerLeft) }}" @endif>
+        <span class="text-brand-violetDark text-xs font-bold uppercase tracking-widest" style="color:inherit;">{{ ($centerLeft->badge_text ?? null) ?: 'Fashion Edit' }}</span>
+        <h3 class="text-brand-ink text-xl font-black mt-1 tracking-tight" style="color:inherit;">{{ ($centerLeft->title ?? null) ?: 'New season styles, curated' }}</h3>
+        @if(!empty($centerLeft->subtitle ?? null))
+          <p class="text-brand-ink/70 text-xs mt-1 tracking-wide" style="color:inherit;">{{ $centerLeft->subtitle }}</p>
+        @endif
+        <a href="{{ $centerLeft ? ($centerLeft->link ?: route('store.shop')) : route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-brand-violetDark underline tracking-wide" style="color:inherit;">{{ ($centerLeft->button_text ?? null) ?: 'Shop now' }} →</a>
       </div>
     </div>
+    @endif
+    @if($offer['enabled'] ?? true)
     <div class="relative rounded-3xl overflow-hidden h-56">
-      <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70" class="absolute inset-0 w-full h-full object-cover" alt="">
+      <img src="{{ !empty($offer['image_url']) ? $offer['image_url'] : 'https://images.unsplash.com/photo-1560343090-f0409e92791a?auto=format&fit=crop&w=900&q=70' }}" class="absolute inset-0 w-full h-full object-cover" alt="">
       <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
       <div class="absolute bottom-4 left-4 right-4 glass-strong rounded-2xl p-4">
-        <span class="text-brand-violetDark text-xs font-bold uppercase tracking-widest">Tech Deals</span>
-        <h3 class="text-brand-ink text-xl font-black mt-1 tracking-tight">Up to 40% off audio &amp; wearables</h3>
-        <a href="{{ route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-brand-violetDark underline tracking-wide">Shop now →</a>
+        <span class="text-brand-violetDark text-xs font-bold uppercase tracking-widest">{{ ($offer['badge_text'] ?? '') !== '' ? $offer['badge_text'] : 'Tech Deals' }}</span>
+        <h3 class="text-brand-ink text-xl font-black mt-1 tracking-tight">{{ ($offer['title'] ?? '') !== '' ? $offer['title'] : 'Up to 40% off audio & wearables' }}</h3>
+        @if(!empty($offer['discount_text']))
+          <span class="inline-flex mt-1 items-center rounded-full bg-brand-violetDark/10 px-2 py-0.5 text-xs font-bold text-brand-violetDark">{{ $offer['discount_text'] }}</span>
+        @endif
+        <a href="{{ ($offer['link'] ?? '') !== '' ? $offer['link'] : route('store.shop') }}" class="mt-2 inline-flex text-sm font-semibold text-brand-violetDark underline tracking-wide">{{ ($offer['button_text'] ?? '') !== '' ? $offer['button_text'] : 'Shop now →' }}</a>
       </div>
     </div>
+    @endif
   </section>
 
   {{-- ===== TESTIMONIALS ===== --}}
