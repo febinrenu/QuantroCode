@@ -96,7 +96,7 @@
 
     <main id="main">
     {{-- ============ HERO ============ --}}
-    <section id="top" class="relative overflow-hidden" style="background:var(--herobg)">
+    <section id="top" class="relative overflow-hidden" style="background:var(--bg)">
         <div class="l6-hero-glow-a" aria-hidden="true"></div>
         <div class="l6-hero-glow-b" aria-hidden="true"></div>
         <div class="l6-hero-grid grid lg:grid-cols-[0.92fr_1.08fr] gap-10 lg:gap-12 max-w-[1360px] mx-auto px-5 py-11 md:py-16 items-center">
@@ -171,26 +171,27 @@
                 </div>
             </div>
 
-            <div class="flex flex-col items-center">
+            <div class="l6-hero-stage-col relative flex flex-col items-center">
                 <div class="l6-hero-slide-stage" id="l6HeroSlides">
                     @foreach($heroSlides as $i => $src)
                         <img src="{{ $src }}" alt="Quantro platform preview {{ $i + 1 }}" class="l6-hero-slide-img @if($i === 0) is-active @endif" decoding="async">
                     @endforeach
                 </div>
-                <div class="l6-hero-nav flex items-center justify-center gap-3 mt-4">
-                    <button type="button" id="l6HeroPrev" class="l6-hero-arrow" aria-label="Previous slide">
-                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="m15 6-6 6 6 6"></path></svg>
-                    </button>
-                    <div id="l6HeroDots" class="flex items-center gap-[9px]">
-                        @for($i = 0; $i < 5; $i++)
-                            <button type="button" class="l6-hero-dot @if($i === 0) is-active @endif" aria-label="Go to slide {{ $i + 1 }}"></button>
-                        @endfor
-                    </div>
-                    <button type="button" id="l6HeroNext" class="l6-hero-arrow" aria-label="Next slide">
-                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="m9 6 6 6-6 6"></path></svg>
-                    </button>
-                </div>
             </div>
+        </div>
+
+        <div class="l6-hero-nav relative flex items-center justify-center gap-3 max-w-[1360px] mx-auto px-5 pb-11 md:pb-16 -mt-2">
+            <button type="button" id="l6HeroPrev" class="l6-hero-arrow" aria-label="Previous slide">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="m15 6-6 6 6 6"></path></svg>
+            </button>
+            <div id="l6HeroDots" class="flex items-center gap-[9px]">
+                @for($i = 0; $i < 5; $i++)
+                    <button type="button" class="l6-hero-dot @if($i === 0) is-active @endif" aria-label="Go to slide {{ $i + 1 }}"></button>
+                @endfor
+            </div>
+            <button type="button" id="l6HeroNext" class="l6-hero-arrow" aria-label="Next slide">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="m9 6 6 6-6 6"></path></svg>
+            </button>
         </div>
     </section>
 

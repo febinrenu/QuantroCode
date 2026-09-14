@@ -172,21 +172,22 @@ html[dir="rtl"] .l6-price-tab { font-family: 'IBM Plex Sans Arabic', sans-serif;
 [data-theme="dark"] .l6-hero-glow-a { opacity: .35; }
 [data-theme="dark"] .l6-hero-glow-b { opacity: .3; }
 
-.l6-hero-slide-stage { position: relative; z-index: 1; width: 100%; min-height: 340px; display: flex; align-items: center; justify-content: center; }
+.l6-hero-slide-stage {
+    position: relative; z-index: 1; width: 100%; min-height: 340px;
+    display: flex; align-items: center; justify-content: center;
+}
 @media (min-width: 1024px) { .l6-hero-slide-stage { min-height: 480px; } }
+.l6-hero-slide-stage::after {
+    content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 50%, transparent 40%, var(--bg) 82%);
+}
 .l6-hero-slide-img {
     position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0;
     transition: opacity .6s ease; pointer-events: none;
-    -webkit-mask-image: radial-gradient(ellipse 70% 78% at 50% 50%, #000 52%, transparent 100%);
-    mask-image: radial-gradient(ellipse 70% 78% at 50% 50%, #000 52%, transparent 100%);
 }
 .l6-hero-slide-img.is-active { position: relative; opacity: 1; pointer-events: auto; }
 :root:not([data-theme="dark"]) .l6-hero-slide-img { mix-blend-mode: multiply; }
-[data-theme="dark"] .l6-hero-slide-img {
-    -webkit-mask-image: radial-gradient(ellipse 60% 64% at 50% 50%, #000 28%, transparent 100%);
-    mask-image: radial-gradient(ellipse 60% 64% at 50% 50%, #000 28%, transparent 100%);
-    filter: brightness(.92);
-}
+[data-theme="dark"] .l6-hero-slide-img { filter: brightness(.86) contrast(1.05); }
 .l6-hero-dot { width: 9px; height: 9px; border-radius: 20px; border: none; cursor: pointer; padding: 0; background: var(--bd2); transition: all .25s; }
 .l6-hero-dot.is-active { width: 24px; background: #2563EB; }
 .l6-hero-arrow { width: 34px; height: 34px; border: 1px solid var(--bd2); background: var(--card); border-radius: 50%; cursor: pointer; color: var(--ink2); display: flex; align-items: center; justify-content: center; transition: all .15s; box-shadow: 0 10px 24px -12px rgba(11,27,51,.3); }
