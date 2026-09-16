@@ -208,7 +208,7 @@ class LandingPageSeeder extends Seeder
                 'meta_title'       => 'Stocky — Inventory & Stock Management Platform',
                 'meta_description' => 'Manage inventory, warehouses, POS, purchases, and sales from one powerful platform. Start your free trial today.',
                 'meta_keywords'    => 'inventory management, stock management, POS, warehouse, multi-location, saas',
-                'favicon'          => 'images/super/settings/favicon.ico',
+                'favicon'          => 'images/super/landing-design/quantro/quantro-q.png',
                 'created_at'       => $now,
                 'updated_at'       => $now,
             ]);

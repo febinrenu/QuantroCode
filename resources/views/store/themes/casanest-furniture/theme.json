@@ -1,0 +1,29 @@
+{
+  "slug": "casanest-furniture",
+  "name": "CasaNest",
+  "tagline": "Live beautifully.",
+  "description": "Category-specific storefront for Home & Furniture — a warm, editorial furniture-showroom design: earthy olive-and-cream palette, lifestyle room photography, serif wordmark. Shows only home & furniture products.",
+  "category": "category-specific",
+  "categoryLabel": "Home & Furniture",
+  "themeGroup": "category-specific",
+  "restrict_category_code": "CAT-IND-HMF",
+  "version": "1.0.0",
+  "layout_persona": "Furniture Showroom",
+  "layout": "single-category-editorial",
+  "googleFontsUrl": "https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700;800&display=swap",
+  "fontPairing": { "heading": "Fraunces", "body": "Inter" },
+  "paletteSwatches": ["#3E4A32", "#F6F1E7", "#B08B5A", "#262E1E"],
+  "tokens": {
+    "color-bg-base": "#F6F1E7",
+    "color-accent-500": "#3E4A32",
+    "color-accent-600": "#B08B5A",
+    "color-accent-700": "#2B2A25",
+    "color-accent-800": "#7C7566",
+    "font-heading": "'Fraunces', serif",
+    "font-body": "'Inter', sans-serif",
+    "font-size-heading": "34px",
+    "font-size-body": "15px"
+  },
+  "customizable": ["color-accent-500", "color-accent-600", "color-accent-700", "color-accent-800", "font-heading", "font-body", "font-size-heading", "font-size-body"],
+  "pages": { "home": true, "shop": true, "product": true, "cart": true }
+}

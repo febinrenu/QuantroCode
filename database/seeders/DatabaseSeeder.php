@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             PermissionRoleSeeder::class,
             Warehouse::class,
             StoreSettingSeeder::class,
+            CategoryThemesCatalogSeeder::class,
             PosSettingsSeeder::class,
             SmsGatewaySeeder::class,
             EmailMessagesSeeder::class,
