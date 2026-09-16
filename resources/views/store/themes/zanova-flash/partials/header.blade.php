@@ -30,10 +30,6 @@
                 <a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-black transition-colors">Find a Store</a>
                 <span class="opacity-40">|</span>
                 <div class="flex items-center gap-1 cursor-pointer hover:text-black">
-                    <span>🇺🇸 EN</span>
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                </div>
-                <div class="flex items-center gap-1 cursor-pointer hover:text-black">
                     <span>USD</span>
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
@@ -79,7 +75,7 @@
                         <!-- Category Filter Dropdown -->
                         <div class="relative flex items-center bg-slate-50 border-r border-slate-200 px-3 py-2 text-xs font-bold text-slate-700">
                             <select name="category" class="bg-transparent text-xs font-bold text-slate-700 focus:outline-hidden cursor-pointer pr-4">
-                                <option value="">All Categories</option>
+                                <option value="">{{ __('messages.AllCategories') ?? 'All Categories' }}</option>
                                 <option value="electronics">Electronics</option>
                                 <option value="fashion-apparel">Fashion & Apparel</option>
                                 <option value="home-kitchen">Home & Kitchen</option>
@@ -91,7 +87,7 @@
                         <!-- Search Input -->
                         <input type="text"
                                name="q"
-                               placeholder="Search for products, brands and more..."
+                               placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                                class="flex-grow px-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-hidden font-medium">
 
                         <!-- Yellow Search Submit Button -->
@@ -107,6 +103,9 @@
 
                 <!-- Right Action Icons (Compare, Wishlist, Cart, Account) -->
                 <div class="flex items-center gap-4 sm:gap-6" x-data="miniCart()">
+                    <div class="hidden md:block">
+                        @include('store.partials.language-switcher')
+                    </div>
 
                     <!-- Compare -->
                     <a href="{{ url('/online_store/shop' . $previewParam) }}" class="hidden xl:flex items-center gap-2 group text-slate-300 hover:text-zanova-yellow transition-colors">
@@ -142,7 +141,7 @@
                                 0
                             </span>
                         </div>
-                        <span class="text-xs font-bold hidden sm:inline">Cart</span>
+                        <span class="text-xs font-bold hidden sm:inline">{{ __('messages.Cart') ?? 'Cart' }}</span>
                     </a>
 
                     <!-- Account -->
@@ -182,13 +181,9 @@
                 <!-- Center: Navigation Links -->
                 <nav class="flex items-center gap-7 text-xs font-bold">
                     <a href="{{ url('/online_store' . $previewParam) }}"
-                       class="text-zanova-yellow border-b-2 border-zanova-yellow pb-0.5 flex items-center">
-                        Home
-                    </a>
+                       class="text-zanova-yellow border-b-2 border-zanova-yellow pb-0.5 flex items-center">{{ __('messages.Home') ?? 'Home' }}</a>
                     <a href="{{ url('/online_store/shop' . $previewParam) }}"
-                       class="text-slate-200 hover:text-zanova-yellow transition-colors">
-                        Shop
-                    </a>
+                       class="text-slate-200 hover:text-zanova-yellow transition-colors">{{ __('messages.Shop') ?? 'Shop' }}</a>
                     <a href="{{ url('/online_store/shop?collection=mega-deals' . $previewAmp) }}"
                        class="text-slate-200 hover:text-zanova-yellow transition-colors flex items-center gap-1.5">
                         <span>Mega Deals</span>

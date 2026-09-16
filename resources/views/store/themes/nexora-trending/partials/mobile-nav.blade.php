@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'nexora');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $cartUrl = url('online_store/cart') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
@@ -60,7 +60,7 @@
                     @endif
                     <input type="text"
                            name="q"
-                           placeholder="Search products..."
+                           placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                            class="w-full bg-white border border-slate-300 rounded-xl pl-3.5 pr-10 py-2 text-xs focus:outline-none focus:border-nex-indigo">
                     <button type="submit" class="absolute right-2.5 top-2.5 text-slate-400 hover:text-nex-navy">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,6 +110,14 @@
                     <a href="{{ url('online_store/shop?category=Toys+%26+Games' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Toys & Games</a>
                     <a href="{{ url('online_store/shop?category=Automotive' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="block px-3 py-2 rounded-lg hover:bg-slate-100">Automotive</a>
                 </div>
+            </div>
+        </div>
+
+        <!-- Language Switcher -->
+        <div class="px-4 py-3 border-t border-slate-200">
+            <div class="text-[10px] font-extrabold uppercase tracking-widest text-slate-400 px-3 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+            <div class="px-3">
+                @include('store.partials.language-switcher', ['variant' => 'mobile'])
             </div>
         </div>
 

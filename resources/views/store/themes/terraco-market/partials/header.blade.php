@@ -54,6 +54,9 @@
       </div>
 
       <div class="ms-auto flex items-center gap-5">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         <a href="{{ route('store.contact') }}" class="hidden lg:flex flex-col items-center gap-0.5 text-tc-inkSoft hover:text-tc-green">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           <span class="text-[10px] font-medium">{{ 'Stores' }}</span>

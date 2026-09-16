@@ -62,7 +62,7 @@
                 <input type="text" 
                        name="q" 
                        value="{{ request('q') }}"
-                       placeholder="Search for products, categories..." 
+                       placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" 
                        class="w-full pl-5 pr-14 py-2.5 rounded-full border border-homely-border bg-stone-50/70 text-sm text-homely-text placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-homely-primary/20 focus:border-homely-primary transition-all">
                 <button type="submit" 
                         class="absolute right-1.5 w-9 h-9 rounded-full bg-homely-terracotta hover:bg-homely-terracottaHover text-white flex items-center justify-center transition-colors shadow-sm"
@@ -76,6 +76,9 @@
 
         <!-- Header Actions (Right) -->
         <div class="flex items-center gap-5 sm:gap-7 flex-shrink-0 text-homely-text">
+            <div class="hidden md:block">
+                @include('store.partials.language-switcher')
+            </div>
             <!-- Account -->
             <a href="#" class="hidden sm:flex flex-col items-center gap-0.5 text-xs text-stone-600 hover:text-homely-primary transition-colors">
                 <svg class="w-5 h-5 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -104,7 +107,7 @@
                     <span class="absolute -top-1.5 -right-2.5 w-4 h-4 bg-homely-terracotta text-white rounded-full text-[9px] font-bold flex items-center justify-center"
                           x-text="cart.totalCount">3</span>
                 </div>
-                <span class="text-[11px] font-medium">Cart</span>
+                <span class="text-[11px] font-medium">{{ __('messages.Cart') ?? 'Cart' }}</span>
             </a>
         </div>
     </div>

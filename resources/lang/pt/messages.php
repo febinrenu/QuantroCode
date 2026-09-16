@@ -228,4 +228,8 @@ return [
     'InviteCode' => 'Código de convite',
     'EnterInviteCode' => 'Digite o seu código de convite',
     'InviteCodeRequired' => 'É necessário um código de convite para se registrar.',
+    'Language' => 'Idioma',
+    'Categories' => 'Categorias',
+    'PriceLowToHigh' => 'Preço: Menor para Maior',
+    'PriceHighToLow' => 'Preço: Maior para Menor',
 ];

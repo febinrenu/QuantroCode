@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'nexora');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
 @endphp
@@ -75,7 +75,7 @@
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Returns & Refunds</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Shipping Info</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">FAQs</a></li>
-                    <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Contact Us</a></li>
+                    <li><a href="{{ $shopUrl }}" class="hover:text-white transition">{{ __('messages.ContactUs') ?? 'Contact Us' }}</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Size Guide</a></li>
                 </ul>
             </div>
@@ -118,7 +118,7 @@
             </div>
 
             <div>
-                © {{ date('Y') }} Nexora. All Rights Reserved.
+                © {{ date('Y') }} Nexora. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}
             </div>
 
             <!-- Floating Back to Top Button -->

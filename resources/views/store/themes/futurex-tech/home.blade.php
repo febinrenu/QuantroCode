@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
+<html lang="{{ str_replace('_','-', app()->getLocale()) }}">
 <head>
 @include('store.themes.futurex-tech._shell', ['pageTitle' => ($s->seo_meta_title ?? $s->store_name ?? 'FutureX') . ' — Tech Store'])
 </head>

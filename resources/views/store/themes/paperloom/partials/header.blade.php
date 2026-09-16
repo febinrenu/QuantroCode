@@ -1,5 +1,5 @@
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'paperloom');
+  $themePreview = request('preview_theme');
   $plRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -75,7 +75,7 @@
             <input type="text"
                    name="q"
                    value="{{ request('q') }}"
-                   placeholder="Search books, journals, art supplies and more..."
+                   placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                    class="w-full pl-4 pr-12 py-2.5 bg-white rounded-full border border-pl-border text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-pl-terracotta focus:ring-2 focus:ring-pl-terracotta/20 shadow-xs transition-all">
             <button type="submit"
                     class="absolute right-1.5 w-8 h-8 rounded-full bg-pl-terracotta hover:bg-pl-terracottaHover text-white flex items-center justify-center transition-colors shadow-xs"
@@ -90,6 +90,9 @@
 
       <!-- Right Utility Actions -->
       <div class="flex items-center gap-3 sm:gap-5 text-slate-700">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
 
         <!-- Account / Login -->
         <a href="{{ $plRoute('store.shop', ['action' => 'account']) }}" class="p-2 hover:text-pl-terracotta transition-colors flex items-center gap-1.5" title="Account">

@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-    $previewTheme = request('preview_theme', 'naturae');
+    $previewTheme = request('preview_theme');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
 @endphp
 

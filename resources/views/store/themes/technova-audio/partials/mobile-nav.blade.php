@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'technova');
+    $previewTheme = request('preview_theme');
     $themeUrl = function($path, $params = []) use ($previewTheme) {
         if ($previewTheme) {
             $params['preview_theme'] = $previewTheme;
@@ -99,6 +99,12 @@
                     <span>Shopping Cart</span>
                 </a>
             </div>
+        </div>
+
+        <!-- Language Switcher -->
+        <div class="p-4 border-t border-slate-200 bg-slate-50">
+            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+            @include('store.partials.language-switcher', ['variant' => 'mobile'])
         </div>
 
         <!-- Footer / Contact Info -->

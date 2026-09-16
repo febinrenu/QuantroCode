@@ -53,6 +53,9 @@
       </div>
 
       <div class="ms-auto flex items-center gap-6">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         <a href="{{ $elClient ? url('/online_store/account') : url('/online_store/login') }}" class="hidden sm:flex flex-col items-center gap-0.5 text-el-ink hover:text-el-gold">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
           <span class="text-[10px] font-medium">{{ __('messages.Account') ?? 'Account' }}</span>

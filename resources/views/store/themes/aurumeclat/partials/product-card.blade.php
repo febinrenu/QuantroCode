@@ -10,7 +10,7 @@
       }
   }
   $productUrl = $product['url'] ?? '#';
-  $previewThemeParam = request('preview_theme') ?: (session('preview_theme') ?? null);
+  $previewThemeParam = request('preview_theme');
   if ($previewThemeParam && !str_contains($productUrl, 'preview_theme=')) {
       $productUrl .= (str_contains($productUrl, '?') ? '&' : '?') . 'preview_theme=' . urlencode($previewThemeParam);
   }
@@ -40,9 +40,7 @@
           -{{ $product['discount_percent'] }}%
         </span>
       @elseif($product['stock_status'] === 'preorder')
-        <span class="bg-aurum-gold/90 text-aurum-black text-[9px] font-bold tracking-widest uppercase px-2 py-0.5">
-          PRE-ORDER
-        </span>
+        <span class="bg-aurum-gold/90 text-aurum-black text-[9px] font-bold tracking-widest uppercase px-2 py-0.5">{{ __('messages.PreOrder') ?? 'Pre-order' }}</span>
       @endif
     </div>
 

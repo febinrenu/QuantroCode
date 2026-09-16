@@ -1,6 +1,6 @@
 {{-- GeneralHub Mobile Navigation Drawer --}}
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'generalhub');
+  $themePreview = request('preview_theme');
   $hubRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -71,6 +71,12 @@
           <span>🧴 Daily Essentials</span> <span class="text-slate-400">&rsaquo;</span>
         </a>
       </nav>
+    </div>
+
+    <!-- Language Switcher -->
+    <div class="p-4 border-t border-slate-100">
+      <div class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+      @include('store.partials.language-switcher', ['variant' => 'mobile'])
     </div>
 
     <!-- Account Footer -->

@@ -54,8 +54,8 @@
                         onchange="this.form.submit()"
                         class="text-xs font-medium border border-homely-border rounded-lg px-3 py-2 bg-white text-homely-text focus:outline-none focus:border-homely-primary">
                     <option value="featured" {{ request('sort') == 'featured' ? 'selected' : '' }}>Featured</option>
-                    <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
-                    <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
+                    <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+                    <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
                     <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest</option>
                 </select>
             </form>

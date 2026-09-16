@@ -1,7 +1,7 @@
 @extends('store.themes.nexora-trending._shell')
 
 @php
-    $previewTheme = request('preview_theme', 'nexora');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $currentCategory = request('category', '');
     $currentSort = request('sort', 'latest');
@@ -53,8 +53,8 @@
                         onchange="this.form.submit()"
                         class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-semibold text-nex-navy focus:outline-none focus:border-nex-blue">
                     <option value="latest" {{ $currentSort === 'latest' ? 'selected' : '' }}>Latest Arrivals</option>
-                    <option value="price_low" {{ $currentSort === 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
-                    <option value="price_high" {{ $currentSort === 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
+                    <option value="price_low" {{ $currentSort === 'price_low' ? 'selected' : '' }}>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+                    <option value="price_high" {{ $currentSort === 'price_high' ? 'selected' : '' }}>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
                     <option value="name" {{ $currentSort === 'name' ? 'selected' : '' }}>Product Name</option>
                 </select>
             </form>
@@ -133,9 +133,7 @@
                     </p>
                     <div class="pt-2">
                         <a href="{{ url('online_store/shop' . ($previewTheme ? '?preview_theme=' . $previewTheme : '')) }}"
-                           class="inline-block px-6 py-2.5 bg-nex-blue text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-nex-bluedark transition">
-                            Clear Filters
-                        </a>
+                           class="inline-block px-6 py-2.5 bg-nex-blue text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-nex-bluedark transition">{{ __('messages.ClearFilters') ?? 'Clear filters' }}</a>
                     </div>
                 </div>
             @endif

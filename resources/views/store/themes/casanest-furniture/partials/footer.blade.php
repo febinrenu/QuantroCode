@@ -9,7 +9,7 @@
   <div class="max-w-7xl mx-auto px-4 py-10 grid grid-cols-2 md:grid-cols-5 gap-8">
     <div class="col-span-2">
       <span class="block font-serif font-bold text-xl text-white">{{ $s->store_name ?? 'CasaNest' }}</span>
-      <p class="text-sm text-white/60 mt-3 max-w-xs">{{ $s->footer_text ?? '2024 CasaNest. All rights reserved.' }}</p>
+      <p class="text-sm text-white/60 mt-3 max-w-xs">{{ $s->footer_text ?? ('2024 CasaNest. ' . (__('messages.AllRightsReserved') ?? 'All rights reserved.')) }}</p>
       <div class="flex items-center gap-2 mt-4">
         @forelse($cnSocial as $item)
           @php $url = is_array($item) ? ($item['url'] ?? '#') : '#'; @endphp
@@ -55,7 +55,7 @@
   </div>
 
   <div class="max-w-7xl mx-auto px-4 py-5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/50">
-    <span>&copy; {{ date('Y') }} {{ $s->store_name ?? 'CasaNest' }}. {{ __('messages.AllRightsReserved') ?? 'All Rights Reserved.' }}</span>
+    <span>&copy; {{ date('Y') }} {{ $s->store_name ?? 'CasaNest' }}. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}</span>
     <span class="flex items-center gap-4">
       <a href="#" class="hover:text-white">{{ 'Privacy Policy' }}</a>
       <a href="#" class="hover:text-white">{{ 'Terms of Service' }}</a>

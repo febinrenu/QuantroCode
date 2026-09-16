@@ -303,4 +303,5 @@ return [
     'InviteCode' => 'Código de invitación',
     'EnterInviteCode' => 'Introduce tu código de invitación',
     'InviteCodeRequired' => 'Se requiere un código de invitación para registrarse.',
+    'Language' => 'Idioma',
 ];

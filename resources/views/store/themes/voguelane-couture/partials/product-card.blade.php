@@ -1,6 +1,6 @@
 {{-- VogueLane Product Card Component --}}
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'voguelane');
+  $themePreview = request('preview_theme');
   $productUrl = $product['url'] ?? '#';
   if ($themePreview && !str_contains($productUrl, 'preview_theme=')) {
       $productUrl .= (str_contains($productUrl, '?') ? '&' : '?') . 'preview_theme=' . $themePreview;

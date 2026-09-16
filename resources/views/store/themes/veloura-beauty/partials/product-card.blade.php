@@ -33,7 +33,7 @@
   $rating = '4.9';
   $reviews = '240+';
 
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'veloura');
+  $themePreview = request('preview_theme');
   $productUrl = route('store.product.show', array_filter([
       'slugOrId' => $productId,
       'preview_theme' => ($themePreview && $themePreview !== 'monochra') ? $themePreview : null

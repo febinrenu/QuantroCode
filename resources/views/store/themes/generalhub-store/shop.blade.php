@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
+<html lang="{{ str_replace('_','-', app()->getLocale()) }}">
 <head>
 @include('store.themes.generalhub-store._shell', ['pageTitle' => 'Shop All Products — ' . ($s->store_name ?? 'GeneralHub')])
 </head>
@@ -7,7 +7,7 @@
 
 @php
   $currency = $s->currency_code ?? '$';
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'generalhub');
+  $themePreview = request('preview_theme');
   $hubRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -88,9 +88,7 @@
               <input type="number" name="min" value="{{ request('min') }}" placeholder="Min $" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-hub-blue">
               <input type="number" name="max" value="{{ request('max') }}" placeholder="Max $" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-hub-blue">
             </div>
-            <button type="submit" class="w-full py-2 bg-hub-blue hover:bg-hub-blueHover text-white text-xs font-semibold rounded-lg shadow-sm transition-colors">
-              Apply Filters
-            </button>
+            <button type="submit" class="w-full py-2 bg-hub-blue hover:bg-hub-blueHover text-white text-xs font-semibold rounded-lg shadow-sm transition-colors">{{ __('messages.ApplyFilters') ?? 'Apply Filters' }}</button>
           </div>
 
         </form>
@@ -118,8 +116,8 @@
           <label for="sort-select" class="text-xs text-slate-500 hidden sm:inline font-medium">Sort by:</label>
           <select id="sort-select" name="sort" onchange="this.form.submit()" class="text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 py-1.5 px-3 rounded-lg outline-none focus:border-hub-blue cursor-pointer">
             <option value="latest" @selected(($sort ?? 'latest') === 'latest')>Newest Arrivals</option>
-            <option value="price_asc" @selected(($sort ?? '') === 'price_asc')>Price: Low to High</option>
-            <option value="price_desc" @selected(($sort ?? '') === 'price_desc')>Price: High to Low</option>
+            <option value="price_asc" @selected(($sort ?? '') === 'price_asc')>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+            <option value="price_desc" @selected(($sort ?? '') === 'price_desc')>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
           </select>
         </form>
       </div>

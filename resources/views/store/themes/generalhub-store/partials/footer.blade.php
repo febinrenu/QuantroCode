@@ -1,6 +1,6 @@
 {{-- GeneralHub Footer Component --}}
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'generalhub');
+  $themePreview = request('preview_theme');
   $hubRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -102,7 +102,7 @@
           <li><a href="#" class="hover:text-hub-blue transition-colors">Returns &amp; Refunds</a></li>
           <li><a href="#" class="hover:text-hub-blue transition-colors">Shipping Policy</a></li>
           <li><a href="#" class="hover:text-hub-blue transition-colors">FAQs</a></li>
-          <li><a href="#contact-section" class="hover:text-hub-blue transition-colors">Contact Us</a></li>
+          <li><a href="#contact-section" class="hover:text-hub-blue transition-colors">{{ __('messages.ContactUs') ?? 'Contact Us' }}</a></li>
         </ul>
       </div>
 
@@ -208,7 +208,7 @@
     <!-- Bottom Copyright & Payment Methods -->
     <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
       <div>
-        &copy; {{ date('Y') }} GeneralHub. All rights reserved.
+        &copy; {{ date('Y') }} GeneralHub. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}
       </div>
       
       <!-- Payment Methods -->

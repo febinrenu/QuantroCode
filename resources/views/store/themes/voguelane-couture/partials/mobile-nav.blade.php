@@ -1,6 +1,6 @@
 {{-- VogueLane Mobile Navigation Drawer --}}
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'voguelane');
+  $themePreview = request('preview_theme');
   $vogRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -102,6 +102,12 @@
             <span>🏷️ Sale — Up to 40% Off</span> <span class="text-vog-sale">&rsaquo;</span>
           </a>
         </div>
+      </div>
+
+      <!-- Language Switcher -->
+      <div class="p-4 border-t border-vog-border">
+        <div class="text-[10px] text-slate-400 font-bold uppercase tracking-widest px-2 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+        @include('store.partials.language-switcher', ['variant' => 'mobile'])
       </div>
 
       <!-- Drawer Footer -->

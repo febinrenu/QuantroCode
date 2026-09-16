@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
+<html lang="{{ str_replace('_','-', app()->getLocale()) }}">
 <head>
 @include('store.themes.generalhub-store._shell', ['pageTitle' => 'Shopping Cart — ' . ($s->store_name ?? 'GeneralHub')])
 </head>
@@ -7,7 +7,7 @@
 
 @php
   $currency = $s->currency_code ?? '$';
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'generalhub');
+  $themePreview = request('preview_theme');
   $hubRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -37,9 +37,7 @@
       <h3 class="text-lg font-bold text-slate-900">Your cart is currently empty</h3>
       <p class="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto mt-1">Looks like you haven't added anything to your cart yet.</p>
       <div class="mt-6">
-        <a href="{{ $hubRoute('store.shop') }}" class="inline-block px-7 py-3 bg-hub-blue text-white text-xs sm:text-sm font-semibold rounded-xl hover:bg-hub-blueHover transition-colors shadow-sm">
-          Start Shopping
-        </a>
+        <a href="{{ $hubRoute('store.shop') }}" class="inline-block px-7 py-3 bg-hub-blue text-white text-xs sm:text-sm font-semibold rounded-xl hover:bg-hub-blueHover transition-colors shadow-sm">{{ __('messages.ContinueShopping') ?? 'Start Shopping' }}</a>
       </div>
     </div>
   </template>
@@ -100,7 +98,7 @@
 
       <div class="space-y-3 text-xs text-slate-600">
         <div class="flex items-center justify-between">
-          <span>Subtotal</span>
+          <span>{{ __('messages.Subtotal') ?? 'Subtotal' }}</span>
           <span class="font-bold text-slate-900" x-text="money(subtotal)"></span>
         </div>
         <div class="flex items-center justify-between">
@@ -108,7 +106,7 @@
           <span class="text-emerald-600 font-semibold" x-text="subtotal >= 49 ? 'FREE' : money(5.99)"></span>
         </div>
         <div class="flex items-center justify-between text-sm font-extrabold text-slate-900 border-t border-slate-100 pt-3">
-          <span>Total</span>
+          <span>{{ __('messages.Total') ?? 'Total' }}</span>
           <span class="text-lg text-hub-blue font-extrabold" x-text="money(grand + (subtotal >= 49 || subtotal === 0 ? 0 : 5.99))"></span>
         </div>
       </div>

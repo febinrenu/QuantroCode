@@ -13,7 +13,7 @@
   }
 
   $productUrl = $product['url'] ?? '#';
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? null);
+  $themePreview = request('preview_theme');
   if ($themePreview && !str_contains($productUrl, 'preview_theme=')) {
       $productUrl .= (str_contains($productUrl, '?') ? '&' : '?') . 'preview_theme=' . urlencode($themePreview);
   }

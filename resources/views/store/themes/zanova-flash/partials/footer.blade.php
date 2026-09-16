@@ -66,7 +66,7 @@
                     <li><a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">Returns & Exchanges</a></li>
                     <li><a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">Shipping Info</a></li>
                     <li><a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">FAQs</a></li>
-                    <li><a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">Contact Us</a></li>
+                    <li><a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">{{ __('messages.ContactUs') ?? 'Contact Us' }}</a></li>
                     <li><a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">Support Center</a></li>
                 </ul>
             </div>
@@ -127,7 +127,7 @@
 
         <!-- Bottom Copyright Bar -->
         <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500 text-[0.75rem]">
-            <p>© 2024 Zanova. All Rights Reserved.</p>
+            <p>© 2024 Zanova. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}</p>
 
             <div class="flex items-center gap-6">
                 <a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-slate-300 transition-colors">Privacy Policy</a>

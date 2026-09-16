@@ -79,7 +79,7 @@
                     <li><a href="#" class="hover:text-white transition-colors">Returns & Exchanges</a></li>
                     <li><a href="#" class="hover:text-white transition-colors">Shipping Information</a></li>
                     <li><a href="#" class="hover:text-white transition-colors">FAQs</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">Contact Us</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">{{ __('messages.ContactUs') ?? 'Contact Us' }}</a></li>
                 </ul>
             </div>
 
@@ -122,7 +122,7 @@
             </div>
 
             <!-- Copyright -->
-            <p>© {{ date('Y') }} Homely. All Rights Reserved.</p>
+            <p>© {{ date('Y') }} Homely. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}</p>
 
             <!-- Legal links -->
             <div class="flex items-center gap-4">

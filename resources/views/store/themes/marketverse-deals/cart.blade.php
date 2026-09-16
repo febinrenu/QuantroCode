@@ -5,7 +5,7 @@
 @section('content')
 
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'marketverse');
+  $themePreview = request('preview_theme');
   $mvRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -138,9 +138,7 @@
         <a href="{{ $mvRoute('store.shop') }}" class="text-xs font-bold text-slate-900 hover:text-mv-purple underline transition-colors">
           &larr; Continue Shopping
         </a>
-        <button type="button" @click="clear()" class="text-xs font-bold text-slate-400 hover:text-red-600 underline">
-          Clear Cart
-        </button>
+        <button type="button" @click="clear()" class="text-xs font-bold text-slate-400 hover:text-red-600 underline">{{ __('messages.ClearCart') ?? 'Clear Cart' }}</button>
       </div>
 
     </div>
@@ -153,7 +151,7 @@
 
       <div class="space-y-3 text-xs">
         <div class="flex justify-between text-slate-600">
-          <span>Subtotal</span>
+          <span>{{ __('messages.Subtotal') ?? 'Subtotal' }}</span>
           <span class="font-bold text-slate-900" x-text="money(subtotal)"></span>
         </div>
         <div class="flex justify-between text-slate-600">

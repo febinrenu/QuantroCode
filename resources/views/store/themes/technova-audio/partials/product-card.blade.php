@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'technova');
+    $previewTheme = request('preview_theme');
 
     // Normalize object vs array view-model
     $isArr = is_array($p);

@@ -228,4 +228,8 @@ return [
     'InviteCode' => 'Einladungscode',
     'EnterInviteCode' => 'Geben Sie Ihren Einladungscode ein',
     'InviteCodeRequired' => 'Zur Registrierung ist ein Einladungscode erforderlich.',
+    'Language' => 'Sprache',
+    'Categories' => 'Kategorien',
+    'PriceLowToHigh' => 'Preis: Aufsteigend',
+    'PriceHighToLow' => 'Preis: Absteigend',
 ];

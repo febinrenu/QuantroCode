@@ -1,6 +1,6 @@
 {{-- AurumÉclat Mobile Navigation Drawer --}}
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'aurumeclat');
+  $themePreview = request('preview_theme');
   $aurumRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -81,6 +81,12 @@
       <div><a href="{{ $aurumRoute('store.shop', ['q' => 'gold coin']) }}" class="block py-1 hover:text-aurum-gold">GOLD COINS</a></div>
       <div><a href="{{ $aurumRoute('store.shop') }}" class="block py-1 hover:text-aurum-gold">COLLECTIONS</a></div>
     </nav>
+
+    <!-- Language Switcher -->
+    <div class="px-5 py-4 border-t border-aurum-border/50">
+      <div class="text-[10px] font-medium tracking-[0.2em] uppercase text-aurum-goldLight/60 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+      @include('store.partials.language-switcher', ['variant' => 'mobile'])
+    </div>
 
     <!-- Bottom Actions -->
     <div class="p-5 bg-[#0A0908] border-t border-aurum-border space-y-3 text-xs">

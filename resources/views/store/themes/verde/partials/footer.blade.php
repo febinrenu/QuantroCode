@@ -60,7 +60,7 @@
                     <li><a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-emerald-300 transition-colors">Returns & Exchanges</a></li>
                     <li><a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-emerald-300 transition-colors">Shipping Info</a></li>
                     <li><a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-emerald-300 transition-colors">FAQs</a></li>
-                    <li><a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-emerald-300 transition-colors">Contact Us</a></li>
+                    <li><a href="{{ url('/online_store/contact' . $previewParam) }}" class="hover:text-emerald-300 transition-colors">{{ __('messages.ContactUs') ?? 'Contact Us' }}</a></li>
                 </ul>
             </div>
 
@@ -124,7 +124,7 @@
 
             <!-- Center Copyright -->
             <div class="text-stone-400 text-center">
-                © 2024 Verde Living. All Rights Reserved.
+                © 2024 Verde Living. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}
             </div>
 
             <!-- Right Payment Badges -->

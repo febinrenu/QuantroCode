@@ -1,6 +1,6 @@
 {{-- VogueLane Footer Component --}}
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'voguelane');
+  $themePreview = request('preview_theme');
   $vogRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -60,7 +60,7 @@
       <div class="col-span-2 space-y-3">
         <h4 class="text-xs font-bold tracking-wider text-slate-900 uppercase">Customer Care</h4>
         <ul class="space-y-2 text-xs text-slate-500">
-          <li><a href="#" class="hover:text-vog-tan transition-colors">Contact Us</a></li>
+          <li><a href="#" class="hover:text-vog-tan transition-colors">{{ __('messages.ContactUs') ?? 'Contact Us' }}</a></li>
           <li><a href="#" class="hover:text-vog-tan transition-colors">FAQs</a></li>
           <li><a href="#" class="hover:text-vog-tan transition-colors">Shipping &amp; Delivery</a></li>
           <li><a href="#" class="hover:text-vog-tan transition-colors">Returns &amp; Refunds</a></li>
@@ -118,7 +118,7 @@
           <span class="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
         </summary>
         <ul class="pt-3 pl-2 space-y-2 text-xs text-slate-500">
-          <li><a href="#" class="hover:text-vog-tan">Contact Us</a></li>
+          <li><a href="#" class="hover:text-vog-tan">{{ __('messages.ContactUs') ?? 'Contact Us' }}</a></li>
           <li><a href="#" class="hover:text-vog-tan">FAQs</a></li>
           <li><a href="#" class="hover:text-vog-tan">Shipping &amp; Returns</a></li>
           <li><a href="#" class="hover:text-vog-tan">Size Guide</a></li>
@@ -163,7 +163,7 @@
 
     <!-- BOTTOM COPYRIGHT & LEGAL -->
     <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-400">
-      <p>&copy; {{ date('Y') }} VogueLane. All rights reserved.</p>
+      <p>&copy; {{ date('Y') }} VogueLane. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}</p>
       <div class="flex items-center gap-4">
         <a href="#" class="hover:text-slate-700 transition-colors">Privacy Policy</a>
         <span>•</span>

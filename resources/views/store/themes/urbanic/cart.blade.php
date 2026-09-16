@@ -1,7 +1,7 @@
 @extends('store.themes.urbanic._shell')
 
 @php
-    $previewTheme = request('preview_theme', 'urbanic');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $checkoutUrl = url('online_store/checkout') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
@@ -50,9 +50,7 @@
             </p>
         </div>
         <a href="{{ $shopUrl }}"
-           class="inline-block px-8 py-3.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-black uppercase tracking-wider rounded-full shadow-lg transition-all hover:scale-105">
-            Start Shopping
-        </a>
+           class="inline-block px-8 py-3.5 bg-orange-500 hover:bg-orange-600 text-white text-xs font-black uppercase tracking-wider rounded-full shadow-lg transition-all hover:scale-105">{{ __('messages.ContinueShopping') ?? 'Start Shopping' }}</a>
     </div>
 
     <!-- Filled Cart Grid -->
@@ -140,7 +138,7 @@
                     </div>
 
                     <div class="border-t border-slate-200 pt-3 flex items-center justify-between text-base font-black text-urb-dark">
-                        <span>Total</span>
+                        <span>{{ __('messages.Total') ?? 'Total' }}</span>
                         <span class="text-xl text-orange-600"
                               x-text="'$' + (subtotal + (subtotal >= 75 ? 0 : 4.99) + (subtotal * 0.08)).toFixed(2)"></span>
                     </div>

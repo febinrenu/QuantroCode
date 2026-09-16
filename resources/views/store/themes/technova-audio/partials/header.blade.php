@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'technova');
+    $previewTheme = request('preview_theme');
     $currentCategory = request('category', '');
     $cartCount = count($cart ?? []);
 
@@ -70,7 +70,7 @@
                     @endif
                     <div class="relative flex-shrink-0 border-r border-slate-200">
                         <select name="category" class="appearance-none bg-transparent pl-4 pr-8 py-2.5 text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer">
-                            <option value="">All Categories</option>
+                            <option value="">{{ __('messages.AllCategories') ?? 'All Categories' }}</option>
                             <option value="Smartphones" {{ request('category') === 'Smartphones' ? 'selected' : '' }}>Smartphones</option>
                             <option value="Laptops" {{ request('category') === 'Laptops' ? 'selected' : '' }}>Laptops</option>
                             <option value="Tablets" {{ request('category') === 'Tablets' ? 'selected' : '' }}>Tablets</option>
@@ -84,7 +84,7 @@
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </div>
                     </div>
-                    <input type="text" name="q" value="{{ request('q', '') }}" placeholder="Search 15,000+ tech products, brands, models..." class="w-full bg-transparent px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none" />
+                    <input type="text" name="q" value="{{ request('q', '') }}" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" class="w-full bg-transparent px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none" />
                     <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-r-xl transition flex items-center justify-center font-medium" aria-label="Search">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -95,6 +95,9 @@
 
             <!-- Action Icons (Account, Wishlist, Cart) -->
             <div class="flex items-center space-x-4 sm:space-x-6">
+                <div class="hidden md:block">
+                    @include('store.partials.language-switcher')
+                </div>
                 <!-- Account -->
                 <a href="{{ $themeUrl('online_store/shop', ['collection' => 'account']) }}" class="flex items-center gap-2 text-slate-700 hover:text-blue-600 transition group">
                     <div class="w-9 h-9 rounded-full bg-slate-100 group-hover:bg-blue-50 flex items-center justify-center text-slate-600 group-hover:text-blue-600 transition">
@@ -128,7 +131,7 @@
                         </span>
                     </div>
                     <div class="hidden sm:block text-left">
-                        <span class="block text-[10px] text-blue-500 font-medium leading-none">Cart</span>
+                        <span class="block text-[10px] text-blue-500 font-medium leading-none">{{ __('messages.Cart') ?? 'Cart' }}</span>
                         <span class="block text-xs font-bold text-blue-900 leading-tight">View Bag</span>
                     </div>
                 </a>
@@ -146,7 +149,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" />
                         </svg>
-                        <span>Browse Categories</span>
+                        <span>{{ __('messages.Categories') ?? 'Browse Categories' }}</span>
                         <svg class="w-3.5 h-3.5 ml-1 transition transform" :class="catMenuOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                     </button>
 
@@ -178,9 +181,7 @@
 
                 <!-- Primary Nav Links -->
                 <nav class="flex items-center space-x-1 pl-4">
-                    <a href="{{ $themeUrl('online_store') }}" class="px-3 py-2 text-xs font-bold uppercase tracking-wider {{ request()->routeIs('store.index') && !request('category') && !request('collection') ? 'text-blue-600' : 'text-slate-700 hover:text-blue-600' }} transition">
-                        Home
-                    </a>
+                    <a href="{{ $themeUrl('online_store') }}" class="px-3 py-2 text-xs font-bold uppercase tracking-wider {{ request()->routeIs('store.index') && !request('category') && !request('collection') ? 'text-blue-600' : 'text-slate-700 hover:text-blue-600' }} transition">{{ __('messages.Home') ?? 'Home' }}</a>
                     <a href="{{ $themeUrl('online_store/shop', ['category' => 'Smartphones']) }}" class="px-3 py-2 text-xs font-bold uppercase tracking-wider {{ request('category') === 'Smartphones' ? 'text-blue-600' : 'text-slate-700 hover:text-blue-600' }} transition">
                         Smartphones
                     </a>
@@ -201,11 +202,9 @@
                     </a>
                     <a href="{{ $themeUrl('online_store/shop', ['collection' => 'deals']) }}" class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-red-600 hover:text-red-700 transition flex items-center gap-1">
                         <span>🔥</span>
-                        <span>Deals</span>
+                        <span>{{ __('messages.Deals') ?? 'Deals' }}</span>
                     </a>
-                    <a href="{{ $themeUrl('online_store/shop', ['collection' => 'support']) }}" class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-blue-600 transition">
-                        Support
-                    </a>
+                    <a href="{{ $themeUrl('online_store/shop', ['collection' => 'support']) }}" class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-700 hover:text-blue-600 transition">{{ __('messages.Support') ?? 'Support' }}</a>
                 </nav>
             </div>
 

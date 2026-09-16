@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'urbanic');
+    $previewTheme = request('preview_theme');
     $productUrl = url('online_store/product/' . $product->id) . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
 
     // Resolve price

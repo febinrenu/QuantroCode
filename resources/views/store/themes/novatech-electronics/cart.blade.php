@@ -19,7 +19,7 @@
             </div>
             <h2 class="text-xl font-bold text-slate-900">Your cart is currently empty</h2>
             <p class="text-xs text-slate-500">Explore our wide selection of tech, smartphones, laptops and accessories to find your gear.</p>
-            <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md">
+            <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" class="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md">
                 <span>Start Shopping</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
             </a>
@@ -67,9 +67,9 @@
             </div>
 
             <div class="flex items-center justify-between pt-2">
-                <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center space-x-1.5">
+                <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors flex items-center space-x-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                    <span>Continue Shopping</span>
+                    <span>{{ __('messages.ContinueShopping') ?? 'Continue Shopping' }}</span>
                 </a>
                 <button @click="CartLS.clear()" class="text-xs font-semibold text-rose-500 hover:text-rose-700 transition-colors">
                     Clear Entire Cart
@@ -112,7 +112,7 @@
                 </div>
 
                 <!-- Checkout Button -->
-                <a href="{{ url('/online_store/checkout?preview_theme=novatech') }}" class="w-full block py-3.5 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs uppercase tracking-wider text-center transition-all shadow-lg shadow-indigo-500/25">
+                <a href="{{ url('/online_store/checkout' . (request('preview_theme') ? '?preview_theme=' . request('preview_theme') : '')) }}" class="w-full block py-3.5 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs uppercase tracking-wider text-center transition-all shadow-lg shadow-indigo-500/25">
                     Proceed to Checkout
                 </a>
 

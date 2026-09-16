@@ -62,8 +62,8 @@
                         onchange="this.form.submit()"
                         class="bg-white border border-slate-300 text-xs font-bold text-slate-800 rounded-xl px-3.5 py-2 pr-8 focus:outline-hidden focus:border-zanova-yellow cursor-pointer shadow-xs">
                     <option value="featured" {{ $currentSort === 'featured' ? 'selected' : '' }}>Featured</option>
-                    <option value="price_asc" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-                    <option value="price_desc" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                    <option value="price_asc" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+                    <option value="price_desc" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
                     <option value="newest" {{ $currentSort === 'newest' ? 'selected' : '' }}>Newest Arrivals</option>
                 </select>
             </form>

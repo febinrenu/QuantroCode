@@ -1,5 +1,5 @@
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'paperloom');
+  $themePreview = request('preview_theme');
   $plRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -100,7 +100,7 @@
     <!-- Bottom Bar -->
     <div class="pt-8 border-t border-white/20 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-amber-100/70">
       <div>
-        © 2026 PaperLoom Bookstore & Stationery Co. All rights reserved.
+        © 2026 PaperLoom Bookstore & Stationery Co. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}
       </div>
       <div class="flex items-center gap-6">
         <a href="{{ $shopUrl }}" class="hover:text-white transition-colors">Privacy Policy</a>

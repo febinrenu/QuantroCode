@@ -1,7 +1,7 @@
 {{-- AurumÉclat Luxury Header --}}
 @php
   $currency = $s->currency_code ?? '$';
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'aurumeclat');
+  $themePreview = request('preview_theme');
   $aurumRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -86,6 +86,9 @@
 
     <!-- Right: Utility Actions (Search, Wishlist, Account, Cart) -->
     <div class="flex items-center gap-3 sm:gap-5 text-aurum-goldLight">
+      <div class="hidden md:block">
+        @include('store.partials.language-switcher')
+      </div>
       
       <!-- Search Toggle -->
       <button type="button" id="search-modal-btn" class="p-1 hover:text-aurum-gold transition-colors" aria-label="Search">

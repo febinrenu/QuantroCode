@@ -44,7 +44,7 @@
 
 @section('content')
 @php
-    $previewTheme = request('preview_theme', 'technova');
+    $previewTheme = request('preview_theme');
     $themeUrl = function($path, $params = []) use ($previewTheme) {
         if ($previewTheme) {
             $params['preview_theme'] = $previewTheme;

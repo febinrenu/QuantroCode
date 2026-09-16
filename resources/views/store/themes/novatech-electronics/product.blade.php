@@ -1,7 +1,7 @@
 @extends('store.themes.novatech-electronics._shell')
 
 @php
-    $previewParam = '?preview_theme=novatech';
+    $previewParam = request('preview_theme') ? '?preview_theme=' . request('preview_theme') : '';
     $prod = $p ?? ($product ?? null);
 
     $id = is_array($prod) ? ($prod['id'] ?? null) : ($prod->id ?? null);
@@ -42,9 +42,9 @@
 
     <!-- Breadcrumbs -->
     <nav class="flex items-center space-x-2 text-xs font-semibold text-slate-500">
-        <a href="{{ route('store.index', ['preview_theme' => 'novatech']) }}" class="hover:text-indigo-600 transition-colors">Home</a>
+        <a href="{{ route('store.index', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-600 transition-colors">Home</a>
         <span>/</span>
-        <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="hover:text-indigo-600 transition-colors">Shop</a>
+        <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-600 transition-colors">Shop</a>
         <span>/</span>
         <span class="text-slate-900 font-bold truncate max-w-xs">{{ $name }}</span>
     </nav>
@@ -148,7 +148,7 @@
                 </div>
 
                 <!-- Buy Now / Fast Checkout -->
-                <a href="{{ url('/online_store/cart?preview_theme=novatech') }}"
+                <a href="{{ url('/online_store/cart' . $previewParam) }}"
                    @click="CartLS.add({ id: {{ $id }}, name: '{{ addslashes($name) }}', price: {{ $price }}, image: '{{ $image ?: 'nvt-wireless-earbuds.jpg' }}', code: '{{ $code }}' }, qty)"
                    class="w-full block py-3 px-6 rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs uppercase tracking-wider text-center transition-colors shadow-md">
                     Buy It Now

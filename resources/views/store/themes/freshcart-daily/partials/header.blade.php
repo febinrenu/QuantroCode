@@ -43,7 +43,7 @@
           <svg class="w-9 h-9 text-fc-green shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2c-4 3-7 6-7 10a7 7 0 0 0 14 0c0-4-3-7-7-10Z"/><path d="M12 8v8"/></svg>
           <span class="leading-tight">
             <span class="block font-heading font-extrabold text-xl tracking-tight">
-              <span class="text-fc-green">Fresh</span><span class="text-fc-orange">Cart</span>
+              <span class="text-fc-green">Fresh</span><span class="text-fc-orange">{{ __('messages.Cart') ?? 'Cart' }}</span>
             </span>
             <span class="block text-[10px] font-semibold text-fc-inkSoft -mt-0.5">{{ 'Market' }}</span>
           </span>
@@ -53,7 +53,7 @@
       <div class="hidden md:flex flex-1 max-w-xl relative" x-data="searchBox('{{ route('store.search.suggestions') }}')" @click.outside="results = []">
         <form action="{{ route('store.shop') }}" method="GET" class="w-full flex items-stretch border-2 border-fc-green rounded-full overflow-hidden bg-white">
           <input type="text" name="q" class="flex-1 h-11 px-4 text-sm focus:outline-none bg-transparent"
-                 placeholder="{{ 'Search for fruits, vegetables, dairy and more...' }}" autocomplete="off" value="{{ request('q') }}" x-model="q" @input.debounce.250ms="fetch">
+                 placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" autocomplete="off" value="{{ request('q') }}" x-model="q" @input.debounce.250ms="fetch">
           <button type="submit" class="w-12 h-11 inline-flex items-center justify-center bg-fc-green text-white hover:bg-fc-greenDeep">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
           </button>
@@ -72,6 +72,9 @@
       </div>
 
       <div class="ms-auto flex items-center gap-5">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         <button type="button" class="hidden sm:flex flex-col items-center gap-0.5 text-fc-inkSoft hover:text-fc-green">
           <span class="text-[10px] font-semibold flex items-center gap-1">
             {{ 'Deliver to' }} {{ $s->store_zip_code ?? '560001' }}
@@ -137,7 +140,7 @@
   <div id="fc-mobile-menu" class="hidden md:hidden border-t border-fc-green/10 bg-white max-h-[70vh] overflow-y-auto">
     <div class="px-4 py-3">
       <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
-        <input type="text" name="q" class="w-full h-11 px-4 rounded-full border-2 border-fc-green bg-white text-sm" placeholder="{{ 'Search groceries, products...' }}">
+        <input type="text" name="q" class="w-full h-11 px-4 rounded-full border-2 border-fc-green bg-white text-sm" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}">
       </form>
       <div class="text-xs font-bold uppercase tracking-widest text-fc-inkSoft mt-4 mb-2">{{ 'Language' }}</div>
       @include('store.partials.language-switcher', ['variant' => 'mobile'])

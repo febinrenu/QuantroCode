@@ -73,7 +73,7 @@
                 <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
                     <a href="{{ url('/online_store/shop' . $previewParam) }}" 
                        class="hover:text-verde-primary transition-colors py-2 flex items-center gap-1">
-                        <span>Shop</span>
+                        <span>{{ __('messages.Shop') ?? 'Shop' }}</span>
                         <svg class="w-3.5 h-3.5 text-stone-400 group-hover:text-verde-primary transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
@@ -154,6 +154,9 @@
 
             <!-- Right: Action Icons (Search, Account, Wishlist, Cart) -->
             <div class="flex items-center gap-3 sm:gap-4" x-data="miniCart()">
+                <div class="hidden md:block">
+                    @include('store.partials.language-switcher')
+                </div>
                 <!-- Search Trigger -->
                 <button type="button" 
                         class="p-2 text-stone-700 hover:text-verde-primary hover:bg-verde-sand rounded-full transition-colors"
@@ -214,7 +217,7 @@
                 <div class="relative flex items-center">
                     <input type="text" 
                            name="q" 
-                           placeholder="Search natural home, skincare, bath & body..." 
+                           placeholder="{{ __('messages.SearchProducts') ?? 'Search natural home, skincare, bath & body...' }}" 
                            class="w-full bg-white text-stone-900 placeholder-stone-400 pl-11 pr-24 py-3 rounded-full border border-verde-border focus:outline-hidden focus:border-verde-primary focus:ring-2 focus:ring-verde-primary/10 text-sm shadow-xs transition-all">
                     <div class="absolute left-4 text-stone-400 pointer-events-none">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,7 +226,7 @@
                     </div>
                     <button type="submit" 
                             class="absolute right-1.5 px-4 py-2 bg-verde-btn hover:bg-verde-btnHover text-white text-xs font-semibold rounded-full transition-colors">
-                        Search
+                        {{ __('messages.Search') ?? 'Search' }}
                     </button>
                 </div>
             </form>

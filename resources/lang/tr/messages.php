@@ -228,4 +228,8 @@ return [
     'InviteCode' => 'Davet Kodu',
     'EnterInviteCode' => 'Davet kodunuzu girin',
     'InviteCodeRequired' => 'Kayıt olmak için bir davet kodu gereklidir.',
+    'Language' => 'Dil',
+    'Categories' => 'Kategoriler',
+    'PriceLowToHigh' => 'Fiyat: Düşükten Yükseğe',
+    'PriceHighToLow' => 'Fiyat: Yüksekten Düşüğe',
 ];

@@ -16,9 +16,9 @@
     @if($product['is_on_sale'])
       <span class="absolute top-2.5 left-2.5 bg-el-black text-white text-[10px] font-bold eyebrow px-2 py-1">-{{ $product['discount_percent'] }}%</span>
     @elseif($product['stock_status'] === 'preorder')
-      <span class="absolute top-2.5 left-2.5 bg-el-gold text-white text-[10px] font-bold eyebrow px-2 py-1">Pre-order</span>
+      <span class="absolute top-2.5 left-2.5 bg-el-gold text-white text-[10px] font-bold eyebrow px-2 py-1">{{ __('messages.PreOrder') ?? 'Pre-order' }}</span>
     @elseif($product['stock_status'] === 'out_of_stock')
-      <span class="absolute top-2.5 left-2.5 bg-el-ink/80 text-white text-[10px] font-bold eyebrow px-2 py-1">Out of stock</span>
+      <span class="absolute top-2.5 left-2.5 bg-el-ink/80 text-white text-[10px] font-bold eyebrow px-2 py-1">{{ __('messages.OutOfStock') ?? 'Out of stock' }}</span>
     @endif
 
     @if(!$product['hide_prices'] && count($product['variants']) === 0)

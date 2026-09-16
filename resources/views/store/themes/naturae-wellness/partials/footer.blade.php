@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'naturae');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
 @endphp
@@ -56,7 +56,7 @@
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Track Your Order</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Sustainability Pledge</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">FAQ & Help Center</a></li>
-                    <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Contact Us</a></li>
+                    <li><a href="{{ $shopUrl }}" class="hover:text-white transition">{{ __('messages.ContactUs') ?? 'Contact Us' }}</a></li>
                 </ul>
             </div>
 
@@ -83,7 +83,7 @@
         <!-- Bottom Copyright & Badges -->
         <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-naturae-bg/50">
             <div>
-                &copy; {{ date('Y') }} Naturae Organic Wellness Inc. All rights reserved.
+                &copy; {{ date('Y') }} Naturae Organic Wellness Inc. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}
             </div>
             <div class="flex items-center gap-4 text-xs">
                 <span>Privacy Policy</span>

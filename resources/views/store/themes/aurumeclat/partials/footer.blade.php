@@ -193,7 +193,7 @@
     <!-- BOTTOM COPYRIGHT & LEGAL BAR -->
     <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] text-aurum-goldLight/40 font-light gap-4">
       <div>
-        &copy; 2026 Aurum&Eacute;clat Fine Jewelry. All Rights Reserved.
+        &copy; 2026 Aurum&Eacute;clat Fine Jewelry. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}
       </div>
       <div class="flex items-center gap-6">
         <a href="#" class="hover:text-aurum-gold transition-colors">Privacy Policy</a>

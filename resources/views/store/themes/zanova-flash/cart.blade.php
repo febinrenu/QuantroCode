@@ -136,7 +136,7 @@
 
                 <!-- Total -->
                 <div class="pt-4 border-t border-slate-100 flex items-baseline justify-between">
-                    <span class="text-sm font-extrabold text-slate-900">Total</span>
+                    <span class="text-sm font-extrabold text-slate-900">{{ __('messages.Total') ?? 'Total' }}</span>
                     <span class="text-2xl font-black text-slate-900" x-text="'$' + (subtotal + (freeShippingRemaining == 0 ? 0 : 5.99)).toFixed(2)"></span>
                 </div>
 

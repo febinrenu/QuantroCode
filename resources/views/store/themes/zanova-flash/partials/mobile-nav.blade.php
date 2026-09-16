@@ -62,7 +62,7 @@
                     @endif
                     <input type="text"
                            name="q"
-                           placeholder="Search products, brands..."
+                           placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                            class="w-full bg-slate-900 text-white placeholder-slate-400 pl-9 pr-4 py-2.5 rounded-xl border border-slate-700 text-xs focus:outline-hidden focus:border-zanova-yellow shadow-inner">
                     <div class="absolute left-3 top-2.5 text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,7 +93,7 @@
                 </a>
 
                 <div class="pt-3 pb-1 px-3 text-[0.65rem] font-black uppercase tracking-wider text-slate-400">
-                    Categories
+                    {{ __('messages.Categories') ?? 'Categories' }}
                 </div>
                 <a href="{{ url('/online_store/shop?category=electronics' . $previewAmp) }}"
                    class="px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
@@ -119,6 +119,14 @@
                    class="px-3 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
                     Contact Us
                 </a>
+            </div>
+
+            <!-- Language Switcher -->
+            <div class="pt-4 pb-2 border-t border-slate-800">
+                <div class="text-[0.65rem] font-black uppercase tracking-wider text-slate-400 mb-2 px-3">{{ __('messages.Language') ?? 'Language' }}</div>
+                <div class="px-3">
+                    @include('store.partials.language-switcher', ['variant' => 'mobile'])
+                </div>
             </div>
 
             <!-- Bottom Utilities -->

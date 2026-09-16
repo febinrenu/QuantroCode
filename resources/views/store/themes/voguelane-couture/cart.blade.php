@@ -5,7 +5,7 @@
 @section('content')
 
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'voguelane');
+  $themePreview = request('preview_theme');
   $vogRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -154,7 +154,7 @@
 
       <div class="space-y-3 text-xs">
         <div class="flex justify-between text-slate-600">
-          <span>Subtotal</span>
+          <span>{{ __('messages.Subtotal') ?? 'Subtotal' }}</span>
           <span class="font-semibold text-slate-900" x-text="money(subtotal)"></span>
         </div>
         <div class="flex justify-between text-slate-600">

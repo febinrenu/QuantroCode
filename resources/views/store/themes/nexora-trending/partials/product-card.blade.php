@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'nexora');
+    $previewTheme = request('preview_theme');
     $currencySym = $s->currency_code ?? '$';
 
     $prodId = $product->id ?? ($product['id'] ?? 0);

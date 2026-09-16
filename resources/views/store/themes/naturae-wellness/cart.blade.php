@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-    $previewTheme = request('preview_theme', 'naturae');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $checkoutUrl = url('/online_store/checkout' . ($previewTheme ? '?preview_theme=' . $previewTheme : ''));
@@ -124,14 +124,12 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
-                    <span>Continue Shopping</span>
+                    <span>{{ __('messages.ContinueShopping') ?? 'Continue Shopping' }}</span>
                 </a>
 
                 <button type="button"
                         @click="clear()"
-                        class="text-xs text-naturae-muted hover:text-rose-600 transition">
-                    Clear Bag
-                </button>
+                        class="text-xs text-naturae-muted hover:text-rose-600 transition">{{ __('messages.ClearCart') ?? 'Clear Bag' }}</button>
             </div>
 
         </div>
@@ -145,7 +143,7 @@
 
                 <div class="space-y-2 text-xs text-naturae-text/80">
                     <div class="flex justify-between">
-                        <span>Subtotal</span>
+                        <span>{{ __('messages.Subtotal') ?? 'Subtotal' }}</span>
                         <span class="font-semibold text-naturae-forest" x-text="money(subtotal)">$0.00</span>
                     </div>
                     <div class="flex justify-between">

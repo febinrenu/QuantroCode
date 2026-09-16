@@ -7,7 +7,7 @@
 @php
   use App\Models\Category;
 
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'paperloom');
+  $themePreview = request('preview_theme');
   $plRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -67,8 +67,8 @@
                   onchange="this.form.submit()"
                   class="text-xs bg-white border border-pl-border rounded-xl px-3 py-2 text-slate-900 font-semibold focus:outline-none focus:border-pl-terracotta shadow-xs">
             <option value="latest" {{ $selectedSort === 'latest' ? 'selected' : '' }}>Sort: Newest</option>
-            <option value="price_asc" {{ $selectedSort === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-            <option value="price_desc" {{ $selectedSort === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+            <option value="price_asc" {{ $selectedSort === 'price_asc' ? 'selected' : '' }}>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+            <option value="price_desc" {{ $selectedSort === 'price_desc' ? 'selected' : '' }}>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
           </select>
         </form>
       </div>

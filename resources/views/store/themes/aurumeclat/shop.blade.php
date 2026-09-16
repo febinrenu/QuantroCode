@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
+<html lang="{{ str_replace('_','-', app()->getLocale()) }}">
 <head>
 @include('store.themes.aurumeclat._shell', ['pageTitle' => 'High Jewelry Collections — ' . ($s->store_name ?? 'AurumÉclat')])
 </head>
 <body class="bg-[#0E0D0B] text-aurum-goldLight antialiased selection:bg-aurum-gold selection:text-aurum-black">
 
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'aurumeclat');
+  $themePreview = request('preview_theme');
   $aurumRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -53,8 +53,8 @@
           <label for="sort-select" class="text-xs text-aurum-goldLight/70 font-light uppercase tracking-wider hidden sm:inline">Sort by:</label>
           <select id="sort-select" name="sort" onchange="this.form.submit()" class="h-10 px-3 bg-[#151310] border border-aurum-border text-xs text-white rounded-none focus:outline-none focus:border-aurum-gold">
             <option value="latest" @selected(($sort ?? 'latest') === 'latest')>Newest Arrivals</option>
-            <option value="price_asc" @selected(($sort ?? '') === 'price_asc')>Price: Low to High</option>
-            <option value="price_desc" @selected(($sort ?? '') === 'price_desc')>Price: High to Low</option>
+            <option value="price_asc" @selected(($sort ?? '') === 'price_asc')>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+            <option value="price_desc" @selected(($sort ?? '') === 'price_desc')>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
           </select>
         </form>
       </div>
@@ -129,9 +129,7 @@
               <input type="number" name="min" value="{{ request('min') }}" placeholder="Min $" class="w-full bg-[#1A1713] border border-aurum-border text-xs text-white px-2.5 py-1.5 rounded-none focus:outline-none focus:border-aurum-gold">
               <input type="number" name="max" value="{{ request('max') }}" placeholder="Max $" class="w-full bg-[#1A1713] border border-aurum-border text-xs text-white px-2.5 py-1.5 rounded-none focus:outline-none focus:border-aurum-gold">
             </div>
-            <button type="submit" class="w-full mt-2 py-2 bg-aurum-gold text-aurum-black font-semibold text-xs tracking-wider uppercase hover:bg-aurum-goldLight transition-colors">
-              APPLY FILTERS
-            </button>
+            <button type="submit" class="w-full mt-2 py-2 bg-aurum-gold text-aurum-black font-semibold text-xs tracking-wider uppercase hover:bg-aurum-goldLight transition-colors">{{ __('messages.ApplyFilters') ?? 'Apply Filters' }}</button>
           </div>
 
         </form>

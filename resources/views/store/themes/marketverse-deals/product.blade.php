@@ -3,7 +3,7 @@
 @php
   use App\Models\Product;
 
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'marketverse');
+  $themePreview = request('preview_theme');
   $mvRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;

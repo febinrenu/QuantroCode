@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-    $previewTheme = request('preview_theme', 'naturae');
+    $previewTheme = request('preview_theme');
     $currentCat = request('category', '');
     $currentSort = request('sort', 'featured');
     $currentQ = request('q', '');
@@ -134,8 +134,8 @@
                             onchange="this.form.submit()"
                             class="bg-naturae-bg border border-naturae-border rounded-lg text-xs py-1.5 pl-2.5 pr-7 text-naturae-text focus:outline-none focus:border-naturae-forest">
                         <option value="featured" {{ $currentSort === 'featured' ? 'selected' : '' }}>Featured</option>
-                        <option value="price_asc" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-                        <option value="price_desc" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                        <option value="price_asc" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+                        <option value="price_desc" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
                         <option value="name_asc" {{ $currentSort === 'name_asc' ? 'selected' : '' }}>Name: A-Z</option>
                     </select>
                 </form>

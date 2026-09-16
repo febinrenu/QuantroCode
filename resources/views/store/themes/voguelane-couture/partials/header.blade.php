@@ -1,6 +1,6 @@
 {{-- VogueLane Header Partial --}}
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'voguelane');
+  $themePreview = request('preview_theme');
   $vogRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -68,7 +68,7 @@
           <input type="text" 
                  name="q" 
                  value="{{ request('q') }}"
-                 placeholder="Search for products, brands and more..." 
+                 placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" 
                  class="w-full h-10 pl-4 pr-10 text-xs sm:text-sm bg-vog-ivory border border-vog-border rounded-full focus:outline-none focus:border-slate-900 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400">
           <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 transition-colors" aria-label="Submit search">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -80,6 +80,9 @@
 
       <!-- Right Utility Actions -->
       <div class="flex items-center gap-3 sm:gap-6 shrink-0">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         
         <!-- Account -->
         @if(Auth::guard('store')->check())
@@ -99,7 +102,7 @@
             </svg>
             <div class="text-left leading-tight hidden lg:block">
               <span class="block text-[10px] text-slate-400 uppercase font-medium">Account</span>
-              <span class="font-semibold text-slate-900">Sign In</span>
+              <span class="font-semibold text-slate-900">{{ __('messages.SignIn') ?? 'Sign In' }}</span>
             </div>
           </a>
         @endif
@@ -126,7 +129,7 @@
           </div>
           <div class="text-left leading-tight hidden sm:block">
             <span class="block text-[10px] text-slate-400 uppercase font-medium">Bag</span>
-            <span class="font-semibold text-slate-900">Cart</span>
+            <span class="font-semibold text-slate-900">{{ __('messages.Cart') ?? 'Cart' }}</span>
           </div>
         </a>
 

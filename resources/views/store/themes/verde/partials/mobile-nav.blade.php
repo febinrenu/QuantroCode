@@ -120,6 +120,14 @@
                 </a>
             </div>
 
+            <!-- Language Switcher -->
+            <div class="pt-4 pb-2 border-t border-verde-borderLight">
+                <div class="text-[0.65rem] font-bold text-verde-muted uppercase tracking-wider mb-2 px-3">{{ __('messages.Language') ?? 'Language' }}</div>
+                <div class="px-3">
+                    @include('store.partials.language-switcher', ['variant' => 'mobile'])
+                </div>
+            </div>
+
             <!-- Bottom Utilities -->
             <div class="mt-auto pt-6 border-t border-verde-borderLight space-y-2">
                 <a href="{{ url('/online_store/account' . $previewParam) }}" 

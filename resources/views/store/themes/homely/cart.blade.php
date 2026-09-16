@@ -132,7 +132,7 @@
                     <span class="font-bold text-stone-400">Calculated at checkout</span>
                 </div>
                 <div class="flex justify-between pt-3 text-sm font-bold text-homely-text">
-                    <span>Total</span>
+                    <span>{{ __('messages.Total') ?? 'Total' }}</span>
                     <span class="text-base font-extrabold text-homely-primary" 
                           x-text="'$' + (cart.subtotal + (cart.subtotal >= 69 || cart.subtotal === 0 ? 0 : 6.50)).toFixed(2)"></span>
                 </div>

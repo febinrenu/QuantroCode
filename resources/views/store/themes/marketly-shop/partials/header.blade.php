@@ -62,6 +62,9 @@
       </div>
 
       <div class="ms-auto flex items-center gap-5">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         <a href="{{ route('store.shop') }}" class="hidden lg:flex flex-col items-center gap-0.5 text-mkt-ink hover:text-mkt-purple">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3v10a2 2 0 0 0 2 2h9 M6 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z M17 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z M3 3h2l1 5 M8 8h9l2-4H6"/></svg>
           <span class="text-[10px] font-medium">{{ 'Compare' }}</span>

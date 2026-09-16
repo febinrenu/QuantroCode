@@ -1,7 +1,7 @@
 @extends('store.themes.urbanic._shell')
 
 @php
-    $previewTheme = request('preview_theme', 'urbanic');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $currentCategory = request('category', '');
@@ -62,8 +62,8 @@
                         onchange="this.form.submit()"
                         class="bg-white border border-slate-200 text-xs font-bold text-slate-800 rounded-xl px-3 py-2 focus:outline-none focus:border-orange-500 shadow-xs">
                     <option value="" {{ $currentSort == '' ? 'selected' : '' }}>Featured</option>
-                    <option value="price_asc" {{ $currentSort == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-                    <option value="price_desc" {{ $currentSort == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                    <option value="price_asc" {{ $currentSort == 'price_asc' ? 'selected' : '' }}>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+                    <option value="price_desc" {{ $currentSort == 'price_desc' ? 'selected' : '' }}>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
                 </select>
             </form>
         </div>
@@ -148,9 +148,7 @@
                         <div class="text-4xl mb-3">👗</div>
                         <h3 class="text-base font-bold text-slate-800">No fashion products found</h3>
                         <p class="text-xs text-slate-500 mt-1">Try selecting another category or clearing your filters.</p>
-                        <a href="{{ $shopUrl }}" class="inline-block mt-4 px-6 py-2.5 bg-orange-500 text-white text-xs font-black uppercase rounded-full shadow-md">
-                            Clear Filters
-                        </a>
+                        <a href="{{ $shopUrl }}" class="inline-block mt-4 px-6 py-2.5 bg-orange-500 text-white text-xs font-black uppercase rounded-full shadow-md">{{ __('messages.ClearFilters') ?? 'Clear filters' }}</a>
                     </div>
                 @endforelse
             </div>

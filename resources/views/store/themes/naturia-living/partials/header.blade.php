@@ -39,7 +39,7 @@
       <div class="hidden md:flex flex-1 max-w-xl relative" x-data="searchBox('{{ route('store.search.suggestions') }}')" @click.outside="results = []">
         <form action="{{ route('store.shop') }}" method="GET" class="w-full flex items-stretch border border-nt-green/25 rounded-full overflow-hidden bg-white">
           <input type="text" name="q" class="flex-1 h-11 px-4 text-sm focus:outline-none bg-transparent"
-                 placeholder="{{ 'Search natural products...' }}" autocomplete="off" value="{{ request('q') }}" x-model="q" @input.debounce.250ms="fetch">
+                 placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" autocomplete="off" value="{{ request('q') }}" x-model="q" @input.debounce.250ms="fetch">
           <button type="submit" class="w-12 h-11 inline-flex items-center justify-center bg-nt-green text-white hover:bg-nt-greenDeep rounded-full m-0.5">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" d="m21 21-4.35-4.35"/></svg>
           </button>
@@ -58,6 +58,9 @@
       </div>
 
       <div class="ms-auto flex items-center gap-5">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         <a href="{{ $ntClient ? url('/online_store/account') : url('/online_store/login') }}" class="hidden sm:flex flex-col items-center gap-0.5 text-nt-inkSoft hover:text-nt-green">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
           <span class="text-[10px] font-medium">{{ __('messages.Account') ?? 'Account' }}</span>
@@ -127,7 +130,7 @@
   <div id="nt-mobile-menu" class="hidden md:hidden border-t border-nt-green/10 bg-white max-h-[70vh] overflow-y-auto">
     <div class="px-4 py-3">
       <form action="{{ route('store.shop') }}" method="GET" class="relative mb-3">
-        <input type="text" name="q" class="w-full h-11 px-4 rounded-full border border-nt-green/20 bg-nt-cream text-sm" placeholder="{{ 'Search natural products…' }}">
+        <input type="text" name="q" class="w-full h-11 px-4 rounded-full border border-nt-green/20 bg-nt-cream text-sm" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}">
       </form>
       <div class="text-xs font-bold uppercase tracking-widest text-nt-inkSoft mt-4 mb-2">{{ 'Language' }}</div>
       @include('store.partials.language-switcher', ['variant' => 'mobile'])

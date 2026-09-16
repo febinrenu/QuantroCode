@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-    $previewTheme = request('preview_theme', 'technova');
+    $previewTheme = request('preview_theme');
     $themeUrl = function($path, $params = []) use ($previewTheme) {
         if ($previewTheme) {
             $params['preview_theme'] = $previewTheme;
@@ -157,7 +157,7 @@
                         <!-- Calculations Breakdown -->
                         <div class="space-y-3 text-xs border-t border-slate-100 pt-4">
                             <div class="flex justify-between text-slate-600">
-                                <span>Subtotal</span>
+                                <span>{{ __('messages.Subtotal') ?? 'Subtotal' }}</span>
                                 <span class="font-bold text-slate-900">${{ number_format($subtotal, 2) }}</span>
                             </div>
                             <div class="flex justify-between text-slate-600">

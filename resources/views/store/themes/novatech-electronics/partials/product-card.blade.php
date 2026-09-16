@@ -1,6 +1,6 @@
 @php
-    $previewParam = '?preview_theme=novatech';
-    $productImage = $product->image ?? '';
+    $previewParam = request('preview_theme') ? '?preview_theme=' . request('preview_theme') : '';
+    $productImage = is_array($product) ? ($product['image'] ?? '') : ($product->image ?? '');
     if (empty($productImage)) {
         $imageUrl = '/images/themes/novatech/nvt-wireless-earbuds.jpg';
     } elseif (str_starts_with($productImage, 'http') || str_starts_with($productImage, '/')) {
@@ -9,16 +9,17 @@
         $imageUrl = '/images/themes/novatech/' . $productImage;
     }
 
-    $id = $product->id ?? null;
-    $code = $product->code ?? '';
+    $id = is_array($product) ? ($product['id'] ?? null) : ($product->id ?? null);
+    $code = is_array($product) ? ($product['code'] ?? '') : ($product->code ?? '');
+    $name = is_array($product) ? ($product['name'] ?? '') : ($product->name ?? '');
     $productKey = !empty($code) ? $code : $id;
 
-    $price = $product->final_display_price ?? $product->price ?? 0;
-    $basePrice = $product->base_price ?? $product->price ?? 0;
+    $price = is_array($product) ? ($product['final_display_price'] ?? $product['price'] ?? 0) : ($product->final_display_price ?? $product->price ?? 0);
+    $basePrice = is_array($product) ? ($product['base_price'] ?? $product['price'] ?? 0) : ($product->base_price ?? $product->price ?? 0);
     $hasDiscount = $basePrice > $price;
 
     $rating = 5.0;
-    $reviewsCount = 100 + (abs(crc32($product->name ?? 'novatech')) % 350);
+    $reviewsCount = 100 + (abs(crc32($name ?: 'novatech')) % 350);
 @endphp
 
 <div class="group relative bg-white rounded-2xl border border-slate-200 hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 p-4 flex flex-col justify-between h-full">
@@ -41,10 +42,10 @@
     <!-- Product Image -->
     <a href="{{ url('/online_store/product/' . $productKey . $previewParam) }}" class="relative block w-full h-44 mb-3 rounded-xl overflow-hidden bg-slate-50/50 p-2 flex items-center justify-center">
         <img src="{{ $imageUrl }}"
-             alt="{{ $product->name }}"
+             alt="{{ $name }}"
              loading="lazy"
              class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-             onerror="this.onerror=null; this.src='/images/products/{{ $product->image ?? '' }}';">
+             onerror="this.onerror=null; this.src='/images/products/{{ $productImage }}';">
     </a>
 
     <!-- Product Details -->
@@ -52,7 +53,7 @@
         <div>
             <a href="{{ url('/online_store/product/' . $productKey . $previewParam) }}" class="block">
                 <h3 class="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
-                    {{ $product->name }}
+                    {{ $name }}
                 </h3>
             </a>
 
@@ -83,7 +84,7 @@
 
         <!-- Add to Cart CTA -->
         <button type="button"
-                @click="CartLS.add({ id: {{ $product->id }}, name: '{{ addslashes($product->name) }}', price: {{ $price }}, image: '{{ $product->image ?? 'nvt-wireless-earbuds.jpg' }}', code: '{{ $product->code ?? '' }}' })"
+                @click="CartLS.add({ id: {{ $id }}, name: '{{ addslashes($name) }}', price: {{ $price }}, image: '{{ $productImage ?: 'nvt-wireless-earbuds.jpg' }}', code: '{{ $code }}' })"
                 class="mt-4 w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold transition-all flex items-center justify-center space-x-2 shadow-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />

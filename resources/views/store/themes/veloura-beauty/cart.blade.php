@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'veloura');
+  $themePreview = request('preview_theme');
   $velRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;

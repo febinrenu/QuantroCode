@@ -71,7 +71,7 @@
   </div>
 
   <div class="max-w-7xl mx-auto px-4 py-5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/40">
-    <span>&copy; {{ date('Y') }} {{ $s->store_name ?? 'Urbana' }}. {{ __('messages.AllRightsReserved') ?? 'All Rights Reserved.' }}</span>
+    <span>&copy; {{ date('Y') }} {{ $s->store_name ?? 'Urbana' }}. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}</span>
     <span class="flex items-center gap-4">
       <a href="#" class="hover:text-white">{{ 'Privacy Policy' }}</a>
       <a href="#" class="hover:text-white">{{ 'Terms & Conditions' }}</a>

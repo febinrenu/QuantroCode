@@ -5,7 +5,7 @@
 @section('content')
 
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'voguelane');
+  $themePreview = request('preview_theme');
   $vogRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -71,7 +71,7 @@
         <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center justify-between">
           <span>Categories</span>
           @if($currentCat)
-            <a href="{{ $vogRoute('store.shop') }}" class="text-[10px] text-vog-tan hover:underline lowercase font-normal">Clear</a>
+            <a href="{{ $vogRoute('store.shop') }}" class="text-[10px] text-vog-tan hover:underline lowercase font-normal">{{ __('messages.Clear') ?? 'Clear' }}</a>
           @endif
         </h3>
         <ul class="space-y-2 text-xs font-medium">
@@ -186,8 +186,8 @@
                   onchange="window.location.href=this.value" 
                   class="text-xs font-semibold bg-white border border-vog-border rounded-lg px-3 py-1.5 outline-none focus:border-slate-900 text-slate-800">
             <option value="{{ $vogRoute('store.shop', array_merge(request()->query(), ['sort' => 'latest'])) }}" {{ $currentSort === 'latest' ? 'selected' : '' }}>Newest</option>
-            <option value="{{ $vogRoute('store.shop', array_merge(request()->query(), ['sort' => 'price_asc'])) }}" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-            <option value="{{ $vogRoute('store.shop', array_merge(request()->query(), ['sort' => 'price_desc'])) }}" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+            <option value="{{ $vogRoute('store.shop', array_merge(request()->query(), ['sort' => 'price_asc'])) }}" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+            <option value="{{ $vogRoute('store.shop', array_merge(request()->query(), ['sort' => 'price_desc'])) }}" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
           </select>
         </div>
       </div>

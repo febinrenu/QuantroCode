@@ -1,5 +1,5 @@
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'marketverse');
+  $themePreview = request('preview_theme');
   $mvRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -104,7 +104,7 @@
         <div class="w-6 h-6 rounded-md bg-mv-purple text-white flex items-center justify-center font-black text-xs">
           MV
         </div>
-        <span>&copy; {{ date('Y') }} MarketVerse Inc. All rights reserved. One Trusted Multi-Vendor Marketplace.</span>
+        <span>&copy; {{ date('Y') }} MarketVerse Inc. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }} One Trusted Multi-Vendor Marketplace.</span>
       </div>
 
       <!-- Payment Badges -->

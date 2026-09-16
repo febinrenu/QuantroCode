@@ -303,4 +303,5 @@ return [
     'InviteCode' => 'رمز الدعوة',
     'EnterInviteCode' => 'أدخل رمز الدعوة',
     'InviteCodeRequired' => 'رمز الدعوة مطلوب للتسجيل.',
+    'Language' => 'اللغة',
 ];

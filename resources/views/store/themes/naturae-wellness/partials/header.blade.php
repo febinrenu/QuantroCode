@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'naturae');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $cartUrl = url('online_store/cart') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
@@ -81,6 +81,9 @@
 
             <!-- Right Utility Actions -->
             <div class="flex items-center space-x-4 sm:space-x-5 text-naturae-forest">
+                <div class="hidden md:block">
+                    @include('store.partials.language-switcher')
+                </div>
 
                 <!-- Search Toggle -->
                 <div x-data="{ searchOpen: false }" class="relative">
@@ -105,7 +108,7 @@
                             @endif
                             <input type="text"
                                    name="q"
-                                   placeholder="Search organic botanicals..."
+                                   placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                                    class="w-full bg-naturae-bg/80 border border-naturae-border rounded-lg pl-3.5 pr-9 py-2 text-xs text-naturae-text focus:outline-none focus:border-naturae-forest focus:bg-white transition"
                                    autofocus>
                             <button type="submit" class="absolute right-2.5 top-2.5 text-naturae-muted hover:text-naturae-forest">
