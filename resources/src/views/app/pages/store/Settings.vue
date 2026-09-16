@@ -227,6 +227,7 @@
                     <div class="theme-gallery-industry text-muted text-truncate" :title="t.tagline || t.description || t.layout_persona">
                       {{ t.tagline || t.description || t.layout_persona }}
                     </div>
+                    <div v-if="t.categoryLabel" class="theme-gallery-category">{{ t.categoryLabel }}</div>
                   </div>
                 </div>
               </div>
@@ -677,13 +678,13 @@ export default {
     categorySpecificThemes () {
       var arr = Array.isArray(this.themes) ? this.themes : []
       return arr.filter(function (t) {
-        return t.theme_type === 'category-specific' || t.category === 'Category-Specific Themes'
+        return t.themeGroup === 'category-specific' || t.theme_type === 'category-specific' || t.category === 'Category-Specific Themes'
       })
     },
     generalThemes () {
       var arr = Array.isArray(this.themes) ? this.themes : []
       return arr.filter(function (t) {
-        return t.theme_type === 'general' || (t.theme_type !== 'category-specific' && t.category !== 'Category-Specific Themes')
+        return !(t.themeGroup === 'category-specific' || t.theme_type === 'category-specific' || t.category === 'Category-Specific Themes')
       })
     }
   },
@@ -1131,6 +1132,11 @@ export default {
 .theme-gallery-meta { padding: .5rem .6rem; }
 .theme-gallery-name { font-size: .8rem; font-weight: 600; line-height: 1.2; }
 .theme-gallery-industry { font-size: .7rem; }
+.theme-gallery-category {
+  font-size: .65rem; font-weight: 600; margin-top: .2rem;
+  display: inline-block; padding: .1rem .45rem; border-radius: 999px;
+  background: #f1eefe; color: #6c5ce7;
+}
 .theme-gallery-swatches {
   position: absolute; bottom: 6px; left: 6px;
   display: flex; gap: 4px;
