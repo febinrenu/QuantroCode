@@ -20,7 +20,6 @@ class ExtendTenantBillingPaymentsTable extends Migration
 
             $table->foreign('plan_id')->references('id')->on('plans')->onUpdate('cascade')->onDelete('set null');
             $table->index(['status', 'paid_at']);
-            $table->index();
         });
     }
 

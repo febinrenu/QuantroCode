@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -9,14 +9,18 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasColumn('service_jobs', 'scheduled_date')) {
-            DB::statement('ALTER TABLE service_jobs MODIFY scheduled_date DATETIME NULL');
+            Schema::table('service_jobs', function (Blueprint $table) {
+                $table->dateTime('scheduled_date')->nullable()->change();
+            });
         }
     }
 
     public function down(): void
     {
         if (Schema::hasColumn('service_jobs', 'scheduled_date')) {
-            DB::statement('ALTER TABLE service_jobs MODIFY scheduled_date DATE NULL');
+            Schema::table('service_jobs', function (Blueprint $table) {
+                $table->date('scheduled_date')->nullable()->change();
+            });
         }
     }
 };

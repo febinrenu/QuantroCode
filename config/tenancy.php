@@ -23,7 +23,6 @@ return [
         : array_values(array_unique(array_filter([
             parse_url(env('APP_URL', ''), PHP_URL_HOST),
             '127.0.0.1',
-            'localhost',
         ]))),
 
     'bootstrappers' => [

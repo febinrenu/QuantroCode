@@ -515,15 +515,17 @@ class SeedIndustryCatalog extends Command
      */
     private function bundledSeedPhoto(string $slug, string $dir): ?string
     {
-        $source = resource_path("seed-assets/industry-catalog/{$slug}.jpg");
-        if (! is_file($source)) {
-            return null;
+        foreach (['jpg', 'png'] as $ext) {
+            $source = resource_path("seed-assets/industry-catalog/{$slug}.{$ext}");
+            if (is_file($source)) {
+                $filename = $slug . '-' . Str::random(6) . '.' . $ext;
+                copy($source, $dir . '/' . $filename);
+
+                return $filename;
+            }
         }
 
-        $filename = $slug . '-' . Str::random(6) . '.jpg';
-        copy($source, $dir . '/' . $filename);
-
-        return $filename;
+        return null;
     }
 
     private function downloadUnsplashPhoto(string $accessKey, string $query, string $dir, string $slug): ?string
@@ -861,6 +863,25 @@ class SeedIndustryCatalog extends Command
                 ['Turmeric Golden Latte Mix', 'turmeric powder spice', 16.99, 'Organic turmeric, ginger and black pepper blend for a warming latte.'],
                 ['Reusable Beeswax Food Wraps', 'beeswax food wrap kitchen', 18.99, 'Set of three beeswax wraps, a natural alternative to plastic cling film.'],
                 ['Collagen Peptides Powder', 'collagen powder supplement jar', 29.99, 'Unflavored hydrolyzed collagen peptides that mix into any drink or meal.'],
+            ]],
+            // HomeLuxe (Home & Furniture) -- same locked category as CasaNest,
+            // just a different curated set of furniture pieces.
+            ['code' => 'CAT-IND-HMF', 'category' => 'Home & Furniture', 'products' => [
+                ['Modern Sectional Sofa', 'modern sectional sofa living room', 1299.00, 'L-shaped sectional sofa with plush cushions and a durable woven upholstery.'],
+                ['Walnut Coffee Table', 'walnut coffee table wood', 449.00, 'Mid-century walnut coffee table with tapered legs and a live-edge top.'],
+                ['Rattan Accent Chair', 'rattan accent chair furniture', 389.00, 'Handwoven rattan accent chair with a cushioned seat and curved frame.'],
+                ['Woven Pendant Light', 'woven pendant light fixture', 179.00, 'Natural-fiber woven pendant shade that casts warm, dappled light.'],
+                ['Beige Area Rug', 'beige area rug living room', 259.00, 'Hand-tufted wool-blend area rug in a soft neutral beige, 5x8 ft.'],
+                ['Oak Storage Sideboard', 'oak sideboard furniture', 799.00, 'Solid-oak sideboard with soft-close doors and adjustable shelving.'],
+            ]],
+            // TrailPeak (Outdoor & Adventure Gear, new category)
+            ['code' => 'CAT-IND-OUT', 'category' => 'Outdoor & Adventure Gear', 'products' => [
+                ['Trail Backpack 65L', 'hiking backpack outdoor', 189.00, 'Top-loading 65L backpack with a ventilated back panel and rain cover.'],
+                ['Waterproof Hiking Boots', 'hiking boots outdoor', 149.00, 'Waterproof leather hiking boots with an aggressive lug sole for grip.'],
+                ['GPS Adventure Watch', 'gps outdoor watch', 299.00, 'Rugged GPS watch with route tracking, altimeter, and a multi-day battery.'],
+                ['3-Person Camping Tent', 'camping tent outdoor', 219.00, 'Freestanding 3-person tent with a waterproof rainfly and quick-pitch poles.'],
+                ['Insulated Steel Water Bottle', 'insulated water bottle outdoor', 44.99, 'Double-wall insulated steel bottle that keeps drinks cold for 24 hours on the trail.'],
+                ['Rechargeable LED Headlamp', 'led headlamp camping', 59.95, 'Rechargeable headlamp with adjustable beam for night hikes and campsite chores.'],
             ]],
         ];
     }

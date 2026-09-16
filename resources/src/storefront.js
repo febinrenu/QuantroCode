@@ -80,7 +80,13 @@ window.fmtMoney = fmtMoney;
  * -------------------------------------------------------------------------- */
 (function initCart() {
   if (window.CartLS) return;
-  const KEY = 'shop.cart.v1';
+  // Preview themes (?preview_theme=... / ?theme=...) get their own isolated
+  // cart so adding a product while previewing one theme doesn't leak into
+  // another theme's cart. Normal (non-preview) browsing is unaffected — it
+  // keeps the original shared key so real customer carts are untouched.
+  const __previewTheme = new URLSearchParams(window.location.search).get('preview_theme')
+    || new URLSearchParams(window.location.search).get('theme');
+  const KEY = __previewTheme ? `shop.cart.v1.preview.${__previewTheme}` : 'shop.cart.v1';
 
   function load() {
     try {

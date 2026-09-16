@@ -224,6 +224,7 @@
                   </div>
                   <div class="theme-gallery-meta">
                     <div class="theme-gallery-name">{{ t.name }}</div>
+                    <div class="theme-gallery-category" v-if="themeCategoryLabel(t)">{{ themeCategoryLabel(t) }}</div>
                     <div class="theme-gallery-industry text-muted text-truncate" :title="t.tagline || t.description || t.layout_persona">
                       {{ t.tagline || t.description || t.layout_persona }}
                     </div>
@@ -262,6 +263,7 @@
                   </div>
                   <div class="theme-gallery-meta">
                     <div class="theme-gallery-name">{{ t.name }}</div>
+                    <div class="theme-gallery-category" v-if="themeCategoryLabel(t)">{{ themeCategoryLabel(t) }}</div>
                     <div class="theme-gallery-industry text-muted text-truncate" :title="t.tagline || t.description || t.layout_persona">
                       {{ t.tagline || t.description || t.layout_persona }}
                     </div>
@@ -731,6 +733,13 @@ export default {
       this.form.theme = t.slug
       this.form.theme_tokens = {}
     },
+    themeCategoryLabel(t){
+      if (t.industry) return t.industry
+      if (t.category && t.category !== 'Category-Specific Themes') {
+        return t.category.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+      }
+      return ''
+    },
     themeThumbStyle(t){
       const colors = (t.paletteSwatches && t.paletteSwatches.length) ? t.paletteSwatches : ['#3B82F6', '#22D3EE']
       const stops = colors.map((c, i) => `${c} ${Math.round((i / colors.length) * 100)}%, ${c} ${Math.round(((i + 1) / colors.length) * 100)}%`).join(', ')
@@ -1106,6 +1115,14 @@ export default {
 .fade-enter, .fade-leave-to { opacity:0; transform: translateY(-4px); }
 
 /* Storefront theme gallery */
+.theme-gallery-section-title {
+  margin: 0 0 .65rem;
+  padding-bottom: .45rem;
+  border-bottom: 1px solid #e9ecef;
+  font-size: .82rem;
+  font-weight: 700;
+  color: #495057;
+}
 .theme-gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -1131,6 +1148,7 @@ export default {
 }
 .theme-gallery-meta { padding: .5rem .6rem; }
 .theme-gallery-name { font-size: .8rem; font-weight: 600; line-height: 1.2; }
+.theme-gallery-category { font-size: .68rem; font-weight: 600; color: #6f42c1; line-height: 1.3; margin-top: 1px; }
 .theme-gallery-industry { font-size: .7rem; }
 .theme-gallery-category {
   font-size: .65rem; font-weight: 600; margin-top: .2rem;
