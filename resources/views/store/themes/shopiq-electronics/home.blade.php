@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
 <head>
-@include('store.themes.shopiq-electronics._shell', ['pageTitle' => ($s->seo_meta_title ?? $s->store_name ?? 'ShopIQ') . ' — New Season New Style'])
+@include('store.themes.shopiq-electronics._shell', ['pageTitle' => ($s->seo_meta_title ?? $s->store_name ?? 'ShopIQ') . ' — Next-Gen Tech, Smarter Living'])
 </head>
 <body class="bg-iq-cream text-iq-navy antialiased">
 
@@ -71,7 +71,7 @@
       </button>
       <div class="relative ml-8 md:ml-12 max-w-[440px] text-white">
         <span class="eyebrow text-iq-gold text-xs font-bold">Super Sale</span>
-        <h1 class="font-display text-[38px] md:text-[46px] leading-[1.08] mt-1">New Season<br>New Style</h1>
+        <h1 class="font-display text-[38px] md:text-[46px] leading-[1.08] mt-1">Next-Gen Tech<br>Smarter Living</h1>
         <p class="mt-3 text-sm text-white/85">Up to 50% OFF on top picks!</p>
         <a href="{{ route('store.shop') }}" class="inline-block mt-6 bg-iq-gold text-iq-navy px-7 py-3.5 rounded-full text-xs font-bold hover:brightness-95 transition">SHOP NOW</a>
       </div>
