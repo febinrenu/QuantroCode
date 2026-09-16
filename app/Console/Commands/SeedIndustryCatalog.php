@@ -63,15 +63,34 @@ class SeedIndustryCatalog extends Command
             ]);
         }
 
-        // catalogDefinition() must stay first and untouched, in its existing
-        // order -- product codes are assigned sequentially, so anything
-        // seeded before today (PR-IND-001..042) has to keep landing on the
-        // same code. New products only ever get appended via
-        // moreProductsDefinition(), never inserted into catalogDefinition().
+        // Product/category identity is resolved by NAME, not by the
+        // PR-IND-XXX / CAT-IND-XXX code below -- codes are only ever
+        // assigned to brand-new rows. This is what makes re-running this
+        // command safe even after the catalog arrays are reordered or
+        // have new entries inserted ahead of existing ones (as happened
+        // when this file was restructured to add the newer
+        // categorySpecificThemeProductsDefinition() catalog): a product or
+        // category that already exists is recognized by its name and
+        // reused as-is, regardless of what position/code it would compute
+        // to today, so nothing gets re-inserted as a duplicate.
         $seq = 1;
         foreach (array_merge($this->catalogDefinition(), $this->moreProductsDefinition(), $this->categorySpecificThemeProductsDefinition()) as $industry) {
-            $categoryId = DB::table('categories')->where('code', $industry['code'])->value('id');
-            if (! $categoryId) {
+            $existingCategory = DB::table('categories')->where('name', $industry['category'])->first(['id', 'code']);
+            if ($existingCategory) {
+                $categoryId = $existingCategory->id;
+                if ($existingCategory->code !== $industry['code']) {
+                    // Reconcile a category seeded under an older code (e.g.
+                    // CAT-IND-HOM before this catalog was restructured to
+                    // CAT-IND-HMF) so it matches what the current theme.json
+                    // `restrict_category_code` values and this file now
+                    // expect -- the category's identity (its name and id,
+                    // and every product already filed under it) is untouched.
+                    DB::table('categories')->where('id', $categoryId)->update([
+                        'code' => $industry['code'],
+                        'updated_at' => $now,
+                    ]);
+                }
+            } else {
                 $categoryId = DB::table('categories')->insertGetId([
                     'code' => $industry['code'],
                     'name' => $industry['category'],
@@ -83,24 +102,42 @@ class SeedIndustryCatalog extends Command
             $this->info($industry['category']);
 
             foreach ($industry['products'] as [$name, $query, $price, $description]) {
-                $code = self::CODE_PREFIX . str_pad((string) $seq, 3, '0', STR_PAD_LEFT);
-                $seq++;
+                $existing = DB::table('products')->where('name', $name)->first(['id', 'code']);
 
                 $only = $this->onlyTokens();
-                if ($only && ! in_array($code, $only, true) && ! in_array(mb_strtolower($name), $only, true)) {
-                    continue;
+                if ($only) {
+                    $matchesOnly = ($existing && in_array($existing->code, $only, true))
+                        || in_array(mb_strtolower($name), $only, true);
+                    if (! $matchesOnly) {
+                        continue;
+                    }
                 }
 
-                $existingId = DB::table('products')->where('code', $code)->value('id');
-                if ($existingId && ! $this->option('force') && ! $only) {
+                if ($existing && ! $this->option('force') && ! $only) {
                     // Already seeded (photo included) on a previous run -- just
                     // backfill the description if this command's product list
                     // has since gained one, without spending another API call.
-                    DB::table('products')->where('id', $existingId)->update([
+                    DB::table('products')->where('id', $existing->id)->update([
                         'note' => $description,
                         'updated_at' => $now,
                     ]);
                     continue;
+                }
+
+                if ($existing) {
+                    // Refreshing (--force or --only) a product that already
+                    // exists: keep its real code, whatever that is.
+                    $code = $existing->code;
+                } else {
+                    // Brand-new product: assign the next code that isn't
+                    // already taken by an unrelated row, rather than
+                    // trusting $seq's position alone -- a stale row seeded
+                    // under an older version of this file's catalog order
+                    // may already occupy that exact code.
+                    do {
+                        $code = self::CODE_PREFIX . str_pad((string) $seq, 3, '0', STR_PAD_LEFT);
+                        $seq++;
+                    } while (DB::table('products')->where('code', $code)->exists());
                 }
 
                 $slug = Str::slug($name);
