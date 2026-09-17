@@ -76,7 +76,7 @@
           <div class="space-y-3">
             <div class="text-[11px] font-semibold tracking-widest text-aurum-gold uppercase">SEARCH</div>
             <div class="relative">
-              <input type="text" name="q" value="{{ $q ?? '' }}" placeholder="Ring, Diamond, Gold..." class="w-full bg-[#1A1713] border border-aurum-border text-xs text-white placeholder-aurum-goldLight/40 px-3 py-2 rounded-none focus:outline-none focus:border-aurum-gold">
+              <input type="text" name="q" value="{{ $q ?? '' }}" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" class="w-full bg-[#1A1713] border border-aurum-border text-xs text-white placeholder-aurum-goldLight/40 px-3 py-2 rounded-none focus:outline-none focus:border-aurum-gold">
             </div>
           </div>
 
@@ -126,8 +126,8 @@
           <div class="pt-6 border-t border-aurum-border/60 space-y-3">
             <div class="text-[11px] font-semibold tracking-widest text-aurum-gold uppercase">PRICE RANGE</div>
             <div class="grid grid-cols-2 gap-2">
-              <input type="number" name="min" value="{{ request('min') }}" placeholder="Min $" class="w-full bg-[#1A1713] border border-aurum-border text-xs text-white px-2.5 py-1.5 rounded-none focus:outline-none focus:border-aurum-gold">
-              <input type="number" name="max" value="{{ request('max') }}" placeholder="Max $" class="w-full bg-[#1A1713] border border-aurum-border text-xs text-white px-2.5 py-1.5 rounded-none focus:outline-none focus:border-aurum-gold">
+              <input type="number" name="min" value="{{ request('min') }}" placeholder="{{ __('messages.MinPrice') ?? 'Min price' }}" class="w-full bg-[#1A1713] border border-aurum-border text-xs text-white px-2.5 py-1.5 rounded-none focus:outline-none focus:border-aurum-gold">
+              <input type="number" name="max" value="{{ request('max') }}" placeholder="{{ __('messages.MaxPrice') ?? 'Max price' }}" class="w-full bg-[#1A1713] border border-aurum-border text-xs text-white px-2.5 py-1.5 rounded-none focus:outline-none focus:border-aurum-gold">
             </div>
             <button type="submit" class="w-full mt-2 py-2 bg-aurum-gold text-aurum-black font-semibold text-xs tracking-wider uppercase hover:bg-aurum-goldLight transition-colors">{{ __('messages.ApplyFilters') ?? 'Apply Filters' }}</button>
           </div>

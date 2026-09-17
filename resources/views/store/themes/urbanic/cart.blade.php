@@ -113,12 +113,12 @@
 
         </div>
 
-        <!-- Right 1 Col: Order Summary Box -->
+        <!-- Right 1 Col: {{ __('messages.OrderSummary') ?? 'Order Summary' }} Box -->
         <div class="lg:col-span-1">
             <div class="bg-slate-50 rounded-3xl p-6 border border-slate-200/80 space-y-6 sticky top-24 shadow-xs">
 
                 <h2 class="text-base font-black text-urb-dark uppercase tracking-tight border-b border-slate-200 pb-3">
-                    Order Summary
+                    {{ __('messages.OrderSummary') ?? 'Order Summary' }}
                 </h2>
 
                 <div class="space-y-3 text-xs font-medium text-slate-600">
@@ -147,7 +147,7 @@
                 <!-- Checkout CTA -->
                 <a href="{{ $checkoutUrl }}"
                    class="block w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl hover:shadow-2xl text-center transition-all hover:scale-105">
-                    Proceed To Checkout
+                    {{ __('messages.ProceedToCheckout') ?? 'Proceed To Checkout' }}
                 </a>
 
                 <!-- Guarantee Badges -->

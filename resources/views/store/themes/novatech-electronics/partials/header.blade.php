@@ -113,7 +113,7 @@
                         </svg>
                         <span class="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">3</span>
                     </div>
-                    <span class="text-[11px] font-semibold mt-1 hidden sm:inline">Wishlist</span>
+                    <span class="text-[11px] font-semibold mt-1 hidden sm:inline">{{ __('messages.Wishlist') ?? 'Wishlist' }}</span>
                 </a>
 
                 <!-- Cart -->

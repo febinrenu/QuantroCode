@@ -72,7 +72,7 @@
           @endif
           <input type="search"
                  name="q"
-                 placeholder="Search beauty..."
+                 placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                  class="w-full bg-vel-blush border border-vel-border rounded-xl pl-10 pr-4 py-2 text-xs text-vel-charcoal placeholder-vel-muted focus:outline-none focus:border-vel-rose">
           <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-vel-muted">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -111,8 +111,8 @@
 
       <!-- User & Services Section -->
       <div class="mt-auto px-6 pt-4 border-t border-vel-border space-y-2 text-xs font-medium text-vel-muted">
-        <a href="{{ $accountUrl }}" class="block px-3 py-2 text-vel-charcoal hover:text-vel-rose">Account / Sign In</a>
-        <a href="{{ $cartUrl }}" class="block px-3 py-2 text-vel-charcoal hover:text-vel-rose">Shopping Bag</a>
+        <a href="{{ $accountUrl }}" class="block px-3 py-2 text-vel-charcoal hover:text-vel-rose">{{ __('messages.Account') ?? 'Account' }} / {{ __('messages.SignIn') ?? 'Sign In' }}</a>
+        <a href="{{ $cartUrl }}" class="block px-3 py-2 text-vel-charcoal hover:text-vel-rose">{{ __('messages.Cart') }}</a>
         <a href="#veloura-club" class="block px-3 py-2 text-vel-rose font-bold">Join Veloura Club</a>
       </div>
 
@@ -150,7 +150,7 @@
               class="absolute -top-1 -right-2 min-w-[14px] h-[14px] px-0.5 bg-vel-rose text-white text-[8px] font-bold rounded-full flex items-center justify-center">
         </span>
       </div>
-      <span>Bag</span>
+      <span>{{ __('messages.Cart') ?? 'Cart' }}</span>
     </a>
   </div>
 </div>

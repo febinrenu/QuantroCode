@@ -84,7 +84,7 @@
                 <svg class="w-5 h-5 text-stone-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
-                <span class="text-[11px] font-medium">Account</span>
+                <span class="text-[11px] font-medium">{{ __('messages.Account') ?? 'Account' }}</span>
             </a>
 
             <!-- Wishlist -->
@@ -95,7 +95,7 @@
                     </svg>
                     <span class="absolute -top-1.5 -right-2 w-4 h-4 bg-homely-terracotta text-white rounded-full text-[9px] font-bold flex items-center justify-center">2</span>
                 </div>
-                <span class="text-[11px] font-medium">Wishlist</span>
+                <span class="text-[11px] font-medium">{{ __('messages.Wishlist') ?? 'Wishlist' }}</span>
             </a>
 
             <!-- Cart Bag -->
@@ -149,7 +149,7 @@
             </a>
             <a href="{{ url('/online_store/shop?collection=sale' . $previewAmp) }}" 
                class="py-3 border-b-2 border-transparent text-homely-terracotta hover:text-homely-terracottaHover font-semibold transition-colors">
-                Sale
+                {{ __('messages.Deals') ?? 'Sale' }}
             </a>
         </div>
     </nav>

@@ -25,9 +25,9 @@
 <div class="bg-vog-ivory border-b border-vog-border py-4">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <nav class="flex items-center gap-2 text-xs text-slate-400 font-medium uppercase tracking-wider">
-      <a href="{{ $vogRoute('store.index') }}" class="hover:text-slate-900 transition-colors">Home</a>
+      <a href="{{ $vogRoute('store.index') }}" class="hover:text-slate-900 transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
       <span>&rsaquo;</span>
-      <a href="{{ $vogRoute('store.shop') }}" class="hover:text-slate-900 transition-colors">Shop</a>
+      <a href="{{ $vogRoute('store.shop') }}" class="hover:text-slate-900 transition-colors">{{ __('messages.Shop') ?? 'Shop' }}</a>
       @if(!empty($vm['category_name']))
         <span>&rsaquo;</span>
         <a href="{{ $vogRoute('store.shop', ['category' => $vm['category_name']]) }}" class="hover:text-slate-900 transition-colors">{{ $vm['category_name'] }}</a>
@@ -224,11 +224,11 @@
         <div>
           <span class="text-xs font-bold uppercase tracking-widest text-vog-tan">Complete The Look</span>
           <h2 class="font-serif-luxury text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
-            You May Also Like
+            {{ __('messages.YouMayAlsoLike') ?? 'You May Also Like' }}
           </h2>
         </div>
         <a href="{{ $vogRoute('store.shop') }}" class="text-xs sm:text-sm font-semibold text-slate-900 hover:text-vog-tan underline transition-colors">
-          View All
+          {{ __('messages.ViewAll') ?? 'View All' }}
         </a>
       </div>
 

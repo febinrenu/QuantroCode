@@ -48,9 +48,9 @@
 
     <!-- Breadcrumbs -->
     <nav class="flex items-center gap-2 text-xs font-semibold text-slate-400">
-        <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-zanova-navy">Home</a>
+        <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-zanova-navy">{{ __('messages.Home') ?? 'Home' }}</a>
         <span>/</span>
-        <a href="{{ url('/online_store/shop' . $previewParam) }}" class="hover:text-zanova-navy">Shop</a>
+        <a href="{{ url('/online_store/shop' . $previewParam) }}" class="hover:text-zanova-navy">{{ __('messages.Shop') ?? 'Shop' }}</a>
         <span>/</span>
         <a href="{{ url('/online_store/shop?category=' . Str::slug($catName) . $previewAmp) }}" class="hover:text-zanova-navy">{{ $catName }}</a>
         <span>/</span>
@@ -130,7 +130,7 @@
             <!-- Quantity & Actions -->
             <div class="space-y-4 pt-2">
                 <div class="flex items-center gap-4">
-                    <span class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Quantity:</span>
+                    <span class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">{{ __('messages.Qty') ?? 'Quantity' }}:</span>
                     <div class="flex items-center border border-slate-300 rounded-xl bg-white overflow-hidden shadow-xs">
                         <button type="button"
                                 @click="if (quantity > 1) quantity--"
@@ -161,7 +161,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
-                        <span>Add to Cart</span>
+                        <span>{{ __('messages.AddToCart') ?? 'Add to Cart' }}</span>
                     </button>
 
                     <!-- Buy Now Button -->
@@ -208,7 +208,7 @@
                     @click="activeTab = 'description'"
                     :class="activeTab === 'description' ? 'border-b-2 border-zanova-navy text-zanova-navy pb-3' : 'text-slate-400 hover:text-slate-700 pb-3'"
                     class="transition-colors">
-                Product Description
+                {{ __('messages.Description') ?? 'Product Description' }}
             </button>
             <button type="button"
                     @click="activeTab = 'specs'"
@@ -241,7 +241,7 @@
                 <span class="font-mono text-slate-900">{{ $code }}</span>
             </div>
             <div class="grid grid-cols-2 max-w-md py-1 border-b border-slate-100">
-                <span class="font-bold text-slate-400">Category</span>
+                <span class="font-bold text-slate-400">{{ __('messages.Category') ?? 'Category' }}</span>
                 <span class="font-semibold text-slate-900">{{ $catName }}</span>
             </div>
             <div class="grid grid-cols-2 max-w-md py-1">

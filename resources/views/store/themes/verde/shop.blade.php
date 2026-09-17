@@ -20,9 +20,9 @@
     <div class="border-b border-verde-borderLight pb-6">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-2 text-xs text-stone-500 mb-3">
-            <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-verde-primary transition-colors">Home</a>
+            <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-verde-primary transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
             <span>/</span>
-            <a href="{{ url('/online_store/shop' . $previewParam) }}" class="hover:text-verde-primary transition-colors">Shop</a>
+            <a href="{{ url('/online_store/shop' . $previewParam) }}" class="hover:text-verde-primary transition-colors">{{ __('messages.Shop') ?? 'Shop' }}</a>
             @if($currentCategory)
                 <span>/</span>
                 <span class="text-verde-primary font-semibold capitalize">{{ str_replace('-', ' ', $currentCategory) }}</span>

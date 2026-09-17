@@ -54,7 +54,7 @@
 
   <!-- Breadcrumbs -->
   <nav class="flex items-center gap-2 text-xs text-slate-500 font-medium mb-8">
-    <a href="{{ $mvRoute('store.index') }}" class="hover:text-mv-purple transition-colors">Home</a>
+    <a href="{{ $mvRoute('store.index') }}" class="hover:text-mv-purple transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
     <span>/</span>
     <a href="{{ $mvRoute('store.shop', ['category' => $categoryName]) }}" class="hover:text-mv-purple transition-colors">{{ $categoryName }}</a>
     <span>/</span>
@@ -165,7 +165,7 @@
                   data-stock="100"
                   data-added-label="Added to Cart!">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-            <span>Add to Cart</span>
+            <span>{{ __('messages.AddToCart') ?? 'Add to Cart' }}</span>
           </button>
 
           <!-- Buy Now -->

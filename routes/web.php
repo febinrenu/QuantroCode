@@ -51,7 +51,7 @@ if ($installed === true) {
         Route::prefix('online_store')->group(function () {
 
             Route::get('/lang/{locale}', function ($locale) {
-                $supported = ['en', 'fr', 'es', 'ar'];
+                $supported = array_map('basename', glob(resource_path('lang/*')));
 
                 // Use provided locale if supported, otherwise fallback to 'en'
                 $chosen = in_array($locale, $supported, true) ? $locale : 'en';

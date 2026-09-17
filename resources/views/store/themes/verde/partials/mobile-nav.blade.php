@@ -65,7 +65,7 @@
                     @endif
                     <input type="text" 
                            name="q" 
-                           placeholder="Search natural home & living..." 
+                           placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                            class="w-full bg-white text-stone-800 placeholder-stone-400 pl-9 pr-4 py-2.5 rounded-xl border border-verde-border text-xs focus:outline-hidden focus:border-verde-primary shadow-xs">
                     <div class="absolute left-3 top-2.5 text-stone-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,11 +80,11 @@
                 <a href="{{ url('/online_store/shop?collection=new-arrivals' . $previewAmp) }}" 
                    class="px-3 py-2 rounded-lg text-sm font-semibold text-verde-dark hover:bg-white transition-colors flex items-center justify-between">
                     <span>🌿 New In</span>
-                    <span class="text-xs text-verde-muted">Latest</span>
+                    <span class="text-xs text-verde-muted">{{ __('messages.Latest') ?? 'Latest' }}</span>
                 </a>
                 <a href="{{ url('/online_store/shop' . $previewParam) }}" 
                    class="px-3 py-2 rounded-lg text-sm font-medium text-stone-700 hover:bg-white hover:text-verde-primary transition-colors">
-                    Shop All Products
+                    {{ __('messages.AllProducts') ?? 'Shop All Products' }}
                 </a>
                 <a href="{{ url('/online_store/shop?category=home-decor' . $previewAmp) }}" 
                    class="px-3 py-2 rounded-lg text-sm font-medium text-stone-700 hover:bg-white hover:text-verde-primary transition-colors">
@@ -135,7 +135,7 @@
                     <svg class="w-4 h-4 text-verde-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
-                    <span>My Account</span>
+                    <span>{{ __('messages.MyAccount') ?? 'My Account' }}</span>
                 </a>
                 <a href="{{ url('/online_store/cart' . $previewParam) }}" 
                    class="flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-bold bg-verde-btn text-white hover:bg-verde-btnHover shadow-xs">
@@ -143,9 +143,9 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
-                        <span>View Shopping Bag</span>
+                        <span>{{ __('messages.Cart') ?? 'View Shopping Bag' }}</span>
                     </div>
-                    <span class="bg-white/20 px-2 py-0.5 rounded-full text-[0.65rem]">Checkout</span>
+                    <span class="bg-white/20 px-2 py-0.5 rounded-full text-[0.65rem]">{{ __('messages.Checkout') ?? 'Checkout' }}</span>
                 </a>
             </div>
         </div>

@@ -19,7 +19,7 @@
         <div class="text-center py-20 bg-white border border-nt-green/15 rounded-xl">
           <svg class="w-14 h-14 mx-auto text-nt-green/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
           <p class="mt-4 text-nt-inkSoft">{{ __('messages.YourCartIsEmpty') ?? 'Your cart is empty.' }}</p>
-          <a href="{{ route('store.shop') }}" class="mt-4 inline-flex h-11 px-6 bg-nt-green text-white font-bold text-xs rounded-full items-center">{{ 'Start Shopping' }}</a>
+          <a href="{{ route('store.shop') }}" class="mt-4 inline-flex h-11 px-6 bg-nt-green text-white font-bold text-xs rounded-full items-center">{{ __('messages.ContinueShopping') ?? 'Start Shopping' }}</a>
         </div>
       </template>
 
@@ -50,7 +50,7 @@
         <div class="flex gap-2 mt-5">
           <button type="button" class="h-11 px-5 border border-nt-green/25 rounded-full text-xs eyebrow font-bold text-nt-inkSoft" @click="clear">{{ __('messages.ClearCart') ?? 'Clear Cart' }}</button>
           <button type="button" class="flex-1 h-11 bg-nt-green text-white font-bold text-xs rounded-full" @click="checkout('{{ route('checkout') }}')">
-            {{ 'Proceed to Checkout' }} &rarr;
+            {{ __('messages.ProceedToCheckout') ?? 'Proceed to Checkout' }} &rarr;
           </button>
         </div>
       </div>

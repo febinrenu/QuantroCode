@@ -27,7 +27,7 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="space-y-2">
       <nav class="flex items-center gap-2 text-xs text-slate-400 font-medium uppercase tracking-wider">
-        <a href="{{ $vogRoute('store.index') }}" class="hover:text-slate-900 transition-colors">Home</a>
+        <a href="{{ $vogRoute('store.index') }}" class="hover:text-slate-900 transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
         <span>&rsaquo;</span>
         <span class="text-slate-900 font-semibold">
           @if($currentCat)
@@ -69,7 +69,7 @@
       <!-- Category Filter -->
       <div class="border border-vog-border rounded-2xl p-5 bg-vog-ivory space-y-4">
         <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center justify-between">
-          <span>Categories</span>
+          <span>{{ __('messages.Categories') ?? 'Categories' }}</span>
           @if($currentCat)
             <a href="{{ $vogRoute('store.shop') }}" class="text-[10px] text-vog-tan hover:underline lowercase font-normal">{{ __('messages.Clear') ?? 'Clear' }}</a>
           @endif
@@ -154,17 +154,17 @@
           <input type="number" 
                  name="min_price" 
                  value="{{ request('min_price') }}" 
-                 placeholder="Min $" 
+                 placeholder="{{ __('messages.MinPrice') ?? 'Min price' }}"
                  class="w-full text-xs p-2.5 bg-white border border-vog-border rounded-lg outline-none focus:border-slate-900">
           <input type="number" 
                  name="max_price" 
                  value="{{ request('max_price') }}" 
-                 placeholder="Max $" 
+                 placeholder="{{ __('messages.MaxPrice') ?? 'Max price' }}"
                  class="w-full text-xs p-2.5 bg-white border border-vog-border rounded-lg outline-none focus:border-slate-900">
         </div>
 
         <button type="submit" class="w-full py-2.5 bg-vog-black hover:bg-neutral-800 text-white text-xs font-semibold rounded-lg transition-colors">
-          Apply Filter
+          {{ __('messages.ApplyFilters') ?? 'Apply Filter' }}
         </button>
       </form>
 

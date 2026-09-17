@@ -20,9 +20,9 @@
   <!-- Breadcrumbs & Heading -->
   <div class="mb-8 space-y-2">
     <nav class="flex items-center gap-2 text-xs text-vel-muted font-medium">
-      <a href="{{ $velRoute('store.index') }}" class="hover:text-vel-rose transition-colors">Home</a>
+      <a href="{{ $velRoute('store.index') }}" class="hover:text-vel-rose transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
       <span>/</span>
-      <span class="text-vel-charcoal font-bold">Shopping Bag</span>
+      <span class="text-vel-charcoal font-bold">{{ __('messages.Cart') ?? 'Shopping Bag' }}</span>
     </nav>
 
     <div class="flex items-baseline justify-between border-b border-vel-border pb-5">
@@ -101,7 +101,7 @@
         <!-- Bag Action Links -->
         <div class="pt-6 border-t border-vel-border flex items-center justify-between text-xs">
           <a href="{{ $shopUrl }}" class="font-bold text-vel-rose hover:underline flex items-center gap-1">
-            &larr; Continue Shopping
+            &larr; {{ __('messages.ContinueShopping') ?? 'Continue Shopping' }}
           </a>
           <button type="button"
                   @click="clear()"
@@ -112,11 +112,11 @@
 
       </div>
 
-      <!-- Order Summary Card -->
+      <!-- {{ __('messages.OrderSummary') ?? 'Order Summary' }} Card -->
       <div class="lg:col-span-4 bg-white rounded-3xl border border-vel-border p-6 sm:p-8 shadow-sm space-y-6 sticky top-28">
 
         <h2 class="font-serif-luxury text-xl font-bold text-vel-charcoal border-b border-vel-border pb-4">
-          Order Summary
+          {{ __('messages.OrderSummary') ?? 'Order Summary' }}
         </h2>
 
         <div class="space-y-3 text-xs text-vel-muted">
@@ -133,7 +133,7 @@
             <span class="text-vel-rose font-bold">Included</span>
           </div>
           <div class="pt-3 border-t border-vel-border flex items-center justify-between text-sm font-bold text-vel-charcoal">
-            <span>Estimated Total</span>
+            <span>{{ __('messages.EstimatedTotal') ?? 'Estimated Total' }}</span>
             <span class="text-xl font-serif-luxury text-vel-roseDeep" x-text="formatPrice(total)">$0.00</span>
           </div>
         </div>
@@ -141,7 +141,7 @@
         <div class="space-y-3 pt-2">
           <a href="{{ $checkoutUrl }}"
              class="block w-full py-4 bg-vel-charcoal hover:bg-vel-espresso text-white font-bold text-xs rounded-full shadow-lg active:scale-95 transition-all uppercase tracking-widest text-center">
-            Proceed to Checkout &rarr;
+            {{ __('messages.ProceedToCheckout') ?? 'Proceed to Checkout' }} &rarr;
           </a>
 
           <p class="text-[11px] text-center text-vel-muted font-light">

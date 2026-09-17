@@ -35,7 +35,7 @@
 
   <!-- Breadcrumbs -->
   <nav class="flex items-center gap-2 text-xs text-slate-500 font-medium">
-    <a href="{{ $plRoute('store.index') }}" class="hover:text-pl-terracotta transition-colors">Home</a>
+    <a href="{{ $plRoute('store.index') }}" class="hover:text-pl-terracotta transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
     <span>/</span>
     <a href="{{ $shopUrl }}" class="hover:text-pl-terracotta transition-colors">Books & Stationery</a>
     <span>/</span>

@@ -127,7 +127,7 @@
                                 0
                             </span>
                         </div>
-                        <span class="text-xs font-bold hidden sm:inline">Wishlist</span>
+                        <span class="text-xs font-bold hidden sm:inline">{{ __('messages.Wishlist') ?? 'Wishlist' }}</span>
                     </a>
 
                     <!-- Cart / Bag with dynamic count -->
@@ -149,7 +149,7 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                         </svg>
-                        <span class="text-xs font-bold hidden sm:inline">Account</span>
+                        <span class="text-xs font-bold hidden sm:inline">{{ __('messages.Account') ?? 'Account' }}</span>
                     </a>
 
                 </div>

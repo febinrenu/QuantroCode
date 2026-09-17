@@ -39,7 +39,7 @@
   
   <!-- Breadcrumb -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-xs text-aurum-goldLight/60 font-light flex items-center gap-2 border-b border-aurum-border/40">
-    <a href="{{ $aurumRoute('store.index') }}" class="hover:text-aurum-gold">Home</a> /
+    <a href="{{ $aurumRoute('store.index') }}" class="hover:text-aurum-gold">{{ __('messages.Home') ?? 'Home' }}</a> /
     <a href="{{ $aurumRoute('store.shop') }}" class="hover:text-aurum-gold">Fine Jewelry</a> /
     @if($product['category_name'])
       <a href="{{ $aurumRoute('store.shop', ['category' => $p->category_id ?? '']) }}" class="hover:text-aurum-gold">{{ $product['category_name'] }}</a> /

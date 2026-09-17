@@ -55,7 +55,7 @@
         @endif
       </div>
     @else
-      <a href="{{ url('/online_store/login') }}" class="text-xs font-semibold text-el-gold underline mt-1">{{ 'Sign in for price' }}</a>
+      <a href="{{ url('/online_store/login') }}" class="text-xs font-semibold text-el-gold underline mt-1">{{ __('messages.LoginToSeePrice') ?? 'Sign in to see price' }}</a>
     @endif
 
     <div class="flex items-center gap-1 mt-1.5">

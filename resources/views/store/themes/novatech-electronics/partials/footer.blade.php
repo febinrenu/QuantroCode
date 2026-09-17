@@ -51,12 +51,12 @@
 
             <!-- 2. SHOP Links -->
             <div class="space-y-4">
-                <h4 class="text-xs font-bold uppercase tracking-widest text-white">SHOP</h4>
+                <h4 class="text-xs font-bold uppercase tracking-widest text-white">{{ __('messages.Shop') ?? 'SHOP' }}</h4>
                 <ul class="space-y-2.5 text-xs text-slate-400">
                     <li><a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-400 transition-colors">All Categories</a></li>
                     <li><a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme'), 'filter' => 'new-arrivals'])) }}" class="hover:text-indigo-400 transition-colors">New Arrivals</a></li>
                     <li><a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme'), 'filter' => 'best-sellers'])) }}" class="hover:text-indigo-400 transition-colors">Best Sellers</a></li>
-                    <li><a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme'), 'filter' => 'deals'])) }}" class="hover:text-indigo-400 transition-colors">Deals</a></li>
+                    <li><a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme'), 'filter' => 'deals'])) }}" class="hover:text-indigo-400 transition-colors">{{ __('messages.Deals') ?? 'Deals' }}</a></li>
                     <li><a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-400 transition-colors">Brands</a></li>
                     <li><a href="#" class="hover:text-indigo-400 transition-colors">Gift Cards</a></li>
                 </ul>

@@ -32,7 +32,7 @@
       </div>
     </div>
     <div>
-      <h6 class="text-xs font-bold eyebrow text-white/40 mb-3">{{ 'Shop' }}</h6>
+      <h6 class="text-xs font-bold eyebrow text-white/40 mb-3">{{ __('messages.Shop') ?? 'Shop' }}</h6>
       <ul class="space-y-2 text-sm">
         <li><a href="{{ route('store.shop') }}" class="hover:text-white">{{ 'All Categories' }}</a></li>
         <li><a href="{{ route('store.shop', ['sort' => 'latest']) }}" class="hover:text-white">{{ 'New Arrivals' }}</a></li>
@@ -49,7 +49,7 @@
         <li><a href="{{ route('store.contact') }}" class="hover:text-white">{{ 'Returns & Exchanges' }}</a></li>
         <li><a href="{{ route('store.contact') }}" class="hover:text-white">{{ 'Shipping Info' }}</a></li>
         <li><a href="{{ route('store.contact') }}" class="hover:text-white">{{ 'FAQs' }}</a></li>
-        <li><a href="{{ route('store.contact') }}" class="hover:text-white">{{ 'Contact Us' }}</a></li>
+        <li><a href="{{ route('store.contact') }}" class="hover:text-white">{{ __('messages.ContactUs') ?? 'Contact Us' }}</a></li>
         <li><a href="#" class="hover:text-white">{{ 'Privacy Policy' }}</a></li>
       </ul>
     </div>

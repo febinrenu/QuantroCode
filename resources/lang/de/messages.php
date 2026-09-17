@@ -232,4 +232,11 @@ return [
     'Categories' => 'Kategorien',
     'PriceLowToHigh' => 'Preis: Aufsteigend',
     'PriceHighToLow' => 'Preis: Absteigend',
+    'Description' => 'Beschreibung',
+    'YouMayAlsoLike' => 'Das könnte Ihnen auch gefallen',
+    'Wishlist' => 'Wunschliste',
+    'AddToWishlist' => 'Zur Wunschliste hinzufügen',
+    'ProceedToCheckout' => 'Zur Kasse gehen',
+    'SecureCheckout' => 'Sichere Kasse',
+    'EstimatedTotal' => 'Geschätzte Gesamtsumme',
 ];

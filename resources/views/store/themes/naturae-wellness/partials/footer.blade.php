@@ -36,7 +36,7 @@
 
             <!-- Col 3: Shop -->
             <div>
-                <h4 class="font-serif text-sm font-semibold text-white uppercase tracking-wider mb-4">Shop</h4>
+                <h4 class="font-serif text-sm font-semibold text-white uppercase tracking-wider mb-4">{{ __('messages.Shop') ?? 'Shop' }}</h4>
                 <ul class="space-y-2.5 text-xs text-naturae-bg/70">
                     <li><a href="{{ url('online_store/shop?category=Skincare' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">Skincare</a></li>
                     <li><a href="{{ url('online_store/shop?category=Hair+Care' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">Hair Care</a></li>

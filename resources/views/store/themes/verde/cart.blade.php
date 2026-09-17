@@ -100,7 +100,7 @@
             <div class="pt-2">
                 <a href="{{ url('/online_store/shop' . $previewParam) }}" 
                    class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-verde-btn hover:text-verde-dark transition-colors">
-                    <span>← Continue Mindful Shopping</span>
+                    <span>← {{ __('messages.ContinueShopping') ?? 'Continue Shopping' }}</span>
                 </a>
             </div>
         </div>
@@ -108,7 +108,7 @@
         <!-- Right: Order Summary -->
         <div class="lg:col-span-4 space-y-6">
             <div class="bg-white rounded-2xl p-6 border border-verde-borderLight shadow-sm space-y-4">
-                <h3 class="font-serif text-lg font-medium text-verde-dark border-b border-verde-borderLight pb-3">Order Summary</h3>
+                <h3 class="font-serif text-lg font-medium text-verde-dark border-b border-verde-borderLight pb-3">{{ __('messages.OrderSummary') ?? 'Order Summary' }}</h3>
                 
                 <div class="space-y-2.5 text-xs text-stone-600">
                     <div class="flex justify-between">
@@ -126,7 +126,7 @@
                 </div>
 
                 <div class="border-t border-verde-borderLight pt-3 flex justify-between items-baseline">
-                    <span class="text-sm font-bold text-verde-dark">Estimated Total</span>
+                    <span class="text-sm font-bold text-verde-dark">{{ __('messages.EstimatedTotal') ?? 'Estimated Total' }}</span>
                     <span class="text-xl font-extrabold text-verde-dark" 
                           x-text="'$' + (subtotal + (freeShippingRemaining == 0 ? 0 : 4.99)).toFixed(2)">
                         $0.00
@@ -136,7 +136,7 @@
                 <!-- Checkout CTA -->
                 <a href="{{ url('/online_store/checkout' . $previewParam) }}" 
                    class="w-full py-4 bg-verde-btn hover:bg-verde-btnHover text-white font-bold text-xs uppercase tracking-[0.18em] rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 text-center">
-                    <span>Proceed to Secure Checkout</span>
+                    <span>{{ __('messages.ProceedToCheckout') ?? 'Proceed to Secure Checkout' }}</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                     </svg>

@@ -101,7 +101,7 @@
             </a>
             <a href="{{ url('/online_store/shop?collection=sale' . $previewAmp) }}" 
                class="block px-3 py-2.5 rounded-md hover:bg-amber-50 text-homely-terracotta font-semibold">
-                Sale
+                {{ __('messages.Deals') ?? 'Sale' }}
             </a>
         </div>
 

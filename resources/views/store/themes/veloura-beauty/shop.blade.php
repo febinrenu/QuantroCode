@@ -34,7 +34,7 @@
   <!-- Breadcrumbs & Heading -->
   <div class="mb-8 space-y-3">
     <nav class="flex items-center gap-2 text-xs text-vel-muted font-medium">
-      <a href="{{ $homeUrl }}" class="hover:text-vel-rose transition-colors">Home</a>
+      <a href="{{ $homeUrl }}" class="hover:text-vel-rose transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
       <span>/</span>
       <span class="text-vel-charcoal font-bold">
         {{ $selectedCat ? $selectedCat : ($selectedCollection ? ucwords(str_replace(['-', '_'], ' ', $selectedCollection)) : ($q ? 'Search: "' . $q . '"' : 'Beauty Catalog')) }}

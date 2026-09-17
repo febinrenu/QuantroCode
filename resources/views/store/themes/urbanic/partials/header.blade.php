@@ -108,7 +108,7 @@
                     <svg class="w-5 h-5 text-slate-600 group-hover:text-orange-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <span class="text-[10px] font-bold mt-1 text-slate-600 group-hover:text-orange-500">Sign In / Register</span>
+                    <span class="text-[10px] font-bold mt-1 text-slate-600 group-hover:text-orange-500">{{ __('messages.SignIn') ?? 'Sign In' }} / {{ __('messages.Register') ?? 'Register' }}</span>
                 </a>
 
                 <!-- Wishlist -->
@@ -119,7 +119,7 @@
                         </svg>
                         <span class="absolute -top-1.5 -right-2.5 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center">2</span>
                     </div>
-                    <span class="text-[10px] font-bold mt-1 text-slate-600 group-hover:text-orange-500">Wishlist</span>
+                    <span class="text-[10px] font-bold mt-1 text-slate-600 group-hover:text-orange-500">{{ __('messages.Wishlist') ?? 'Wishlist' }}</span>
                 </a>
 
                 <!-- Cart / Bag with Live Alpine Badge -->
@@ -215,7 +215,7 @@
                 <!-- SALE Badge -->
                 <a href="{{ $saleUrl }}" class="flex items-center gap-1 px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-[11px] rounded-full transition shadow-xs">
                     <span>⭐</span>
-                    <span>SALE</span>
+                    <span>{{ strtoupper(__('messages.Deals') ?? 'SALE') }}</span>
                 </a>
 
             </nav>

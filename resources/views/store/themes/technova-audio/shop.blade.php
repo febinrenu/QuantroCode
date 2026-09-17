@@ -28,9 +28,9 @@
         <!-- Breadcrumbs & Heading -->
         <div class="mb-6">
             <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
-                <a href="{{ $themeUrl('online_store') }}" class="hover:text-blue-600 transition">Home</a>
+                <a href="{{ $themeUrl('online_store') }}" class="hover:text-blue-600 transition">{{ __('messages.Home') ?? 'Home' }}</a>
                 <span>/</span>
-                <a href="{{ $themeUrl('online_store/shop') }}" class="hover:text-blue-600 transition">Shop</a>
+                <a href="{{ $themeUrl('online_store/shop') }}" class="hover:text-blue-600 transition">{{ __('messages.Shop') ?? 'Shop' }}</a>
                 @if($currentCategory)
                     <span>/</span>
                     <span class="text-slate-700 font-semibold">{{ $currentCategory }}</span>

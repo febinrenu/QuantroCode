@@ -64,13 +64,13 @@
       </ul>
     </div>
     <div>
-      <h6 class="text-xs font-bold eyebrow text-white/40 mb-3">{{ 'My Account' }}</h6>
+      <h6 class="text-xs font-bold eyebrow text-white/40 mb-3">{{ __('messages.MyAccount') ?? 'My Account' }}</h6>
       <ul class="space-y-2 text-sm">
-        <li><a href="{{ url('/online_store/account') }}" class="hover:text-white">{{ 'My Orders' }}</a></li>
-        <li><a href="{{ url('/online_store/account/wishlist') }}" class="hover:text-white">{{ 'Wishlist' }}</a></li>
-        <li><a href="{{ url('/online_store/account') }}" class="hover:text-white">{{ 'Account Details' }}</a></li>
+        <li><a href="{{ url('/online_store/account') }}" class="hover:text-white">{{ __('messages.MyOrders') ?? 'My Orders' }}</a></li>
+        <li><a href="{{ url('/online_store/account/wishlist') }}" class="hover:text-white">{{ __('messages.Wishlist') ?? 'Wishlist' }}</a></li>
+        <li><a href="{{ url('/online_store/account') }}" class="hover:text-white">{{ __('messages.AccountDetails') ?? 'Account Details' }}</a></li>
         <li><a href="{{ url('/online_store/account') }}" class="hover:text-white">{{ 'Addresses' }}</a></li>
-        <li><a href="{{ url('/online_store/login') }}" class="hover:text-white">{{ 'Logout' }}</a></li>
+        <li><a href="{{ url('/online_store/login') }}" class="hover:text-white">{{ __('messages.Logout') ?? 'Logout' }}</a></li>
       </ul>
     </div>
   </div>

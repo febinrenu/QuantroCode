@@ -26,7 +26,7 @@
   <!-- Breadcrumbs & Heading -->
   <div class="mb-8 space-y-2">
     <nav class="flex items-center gap-2 text-xs text-slate-500 font-medium">
-      <a href="{{ $plRoute('store.index') }}" class="hover:text-pl-terracotta transition-colors">Home</a>
+      <a href="{{ $plRoute('store.index') }}" class="hover:text-pl-terracotta transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
       <span>/</span>
       <span class="text-slate-900 font-semibold">
         {{ $selectedCat ? $selectedCat : ($q ? 'Search: "' . $q . '"' : 'Catalog') }}

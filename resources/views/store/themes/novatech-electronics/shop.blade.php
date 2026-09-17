@@ -10,9 +10,9 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
             <nav class="flex items-center space-x-2 text-xs font-semibold text-slate-500 mb-2">
-                <a href="{{ route('store.index', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-600 transition-colors">Home</a>
+                <a href="{{ route('store.index', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-600 transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
                 <span>/</span>
-                <span class="text-slate-900 font-bold">Shop</span>
+                <span class="text-slate-900 font-bold">{{ __('messages.Shop') ?? 'Shop' }}</span>
                 @if(request('category'))
                     <span>/</span>
                     <span class="text-indigo-600 font-bold capitalize">{{ str_replace('-', ' ', request('category')) }}</span>
@@ -45,14 +45,14 @@
             <!-- Categories Filter Widget -->
             <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center justify-between">
-                    <span>Categories</span>
+                    <span>{{ __('messages.Categories') ?? 'Categories' }}</span>
                     <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </h3>
                 <ul class="space-y-1.5 text-xs">
                     <li>
                         <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}"
                            class="flex items-center justify-between px-3 py-2 rounded-xl font-bold transition-colors {{ !request('category') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-700 hover:bg-slate-50' }}">
-                            <span>All Products</span>
+                            <span>{{ __('messages.AllProducts') ?? 'All Products' }}</span>
                         </a>
                     </li>
                     @php

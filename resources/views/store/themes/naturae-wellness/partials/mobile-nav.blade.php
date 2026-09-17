@@ -62,7 +62,7 @@
                     @endif
                     <input type="text"
                            name="q"
-                           placeholder="Search organic catalog..."
+                           placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                            class="w-full bg-white border border-naturae-border rounded-lg pl-3 pr-8 py-2 text-xs text-naturae-text focus:outline-none focus:border-naturae-forest">
                     <button type="submit" class="absolute right-2.5 top-2.5 text-naturae-muted hover:text-naturae-forest">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -232,4 +232,11 @@ return [
     'Categories' => 'Kategoriler',
     'PriceLowToHigh' => 'Fiyat: Düşükten Yükseğe',
     'PriceHighToLow' => 'Fiyat: Yüksekten Düşüğe',
+    'Description' => 'Açıklama',
+    'YouMayAlsoLike' => 'Bunları da Beğenebilirsiniz',
+    'Wishlist' => 'İstek Listesi',
+    'AddToWishlist' => 'İstek Listesine Ekle',
+    'ProceedToCheckout' => 'Ödemeye Geç',
+    'SecureCheckout' => 'Güvenli Ödeme',
+    'EstimatedTotal' => 'Tahmini Toplam',
 ];

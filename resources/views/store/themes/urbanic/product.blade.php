@@ -42,7 +42,7 @@
 
     <!-- Breadcrumb -->
     <nav class="flex items-center space-x-2 text-xs text-slate-500 font-medium">
-        <a href="{{ $storeUrl }}" class="hover:text-orange-600 transition">Home</a>
+        <a href="{{ $storeUrl }}" class="hover:text-orange-600 transition">{{ __('messages.Home') ?? 'Home' }}</a>
         <span>/</span>
         <a href="{{ $shopUrl }}" class="hover:text-orange-600 transition">Fashion</a>
         @if($catName)

@@ -18,9 +18,9 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
             <nav class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1">
-                <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-zanova-navy">Home</a>
+                <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-zanova-navy">{{ __('messages.Home') ?? 'Home' }}</a>
                 <span>/</span>
-                <span class="text-slate-700">Shop Catalog</span>
+                <span class="text-slate-700">{{ __('messages.Shop') ?? 'Shop Catalog' }}</span>
                 @if($currentCat)
                     <span>/</span>
                     <span class="text-zanova-purple font-bold capitalize">{{ str_replace('-', ' ', $currentCat) }}</span>

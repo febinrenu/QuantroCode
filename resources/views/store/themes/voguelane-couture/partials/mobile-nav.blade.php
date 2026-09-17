@@ -63,7 +63,7 @@
             <input type="text" 
                    name="q" 
                    value="{{ request('q') }}"
-                   placeholder="Search fashion..." 
+                   placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                    class="w-full text-xs bg-white border border-vog-border rounded-lg pl-3.5 pr-8 py-2.5 outline-none focus:border-slate-900 text-slate-800">
             <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
@@ -114,11 +114,11 @@
       <div class="p-4 bg-vog-ivory border-t border-vog-border text-xs space-y-2.5">
         @if(Auth::guard('store')->check())
           <a href="{{ $vogRoute('account') }}" class="block w-full text-center py-2.5 bg-vog-black text-white font-semibold rounded-lg hover:bg-neutral-800 transition-colors">
-            My Account
+            {{ __('messages.MyAccount') ?? 'My Account' }}
           </a>
         @else
           <a href="{{ $vogRoute('store.login.show') }}" class="block w-full text-center py-2.5 bg-vog-black text-white font-semibold rounded-lg hover:bg-neutral-800 transition-colors">
-            Sign In / Register
+            {{ __('messages.SignIn') ?? 'Sign In' }} / {{ __('messages.Register') ?? 'Register' }}
           </a>
         @endif
         <div class="text-center text-[11px] text-slate-500 pt-1">

@@ -145,8 +145,8 @@
             <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
           </div>
           <div class="hidden sm:block text-[11px] text-left leading-tight">
-            <span class="text-slate-400 block">Account</span>
-            <span class="font-bold text-slate-800">Hello, Sign In</span>
+            <span class="text-slate-400 block">{{ __('messages.Account') ?? 'Account' }}</span>
+            <span class="font-bold text-slate-800">{{ __('messages.SignIn') ?? 'Sign In' }}</span>
           </div>
         </a>
 

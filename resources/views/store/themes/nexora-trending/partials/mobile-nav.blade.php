@@ -82,7 +82,7 @@
                     <span>◇ Deals</span>
                 </a>
                 <a href="{{ $shopUrl }}" class="block px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">
-                    All Categories
+                    {{ __('messages.AllCategories') }}
                 </a>
                 <a href="{{ $shopUrl }}" class="block px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">
                     Brands
@@ -91,7 +91,7 @@
                     Collections
                 </a>
                 <a href="{{ $cartUrl }}" class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-100 transition">
-                    <span>Shopping Cart</span>
+                    <span>{{ __('messages.Cart') }}</span>
                     <span class="cart-count bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">0</span>
                 </a>
             </div>

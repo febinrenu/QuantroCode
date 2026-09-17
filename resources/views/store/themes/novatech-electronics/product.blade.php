@@ -42,9 +42,9 @@
 
     <!-- Breadcrumbs -->
     <nav class="flex items-center space-x-2 text-xs font-semibold text-slate-500">
-        <a href="{{ route('store.index', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-600 transition-colors">Home</a>
+        <a href="{{ route('store.index', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-600 transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
         <span>/</span>
-        <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-600 transition-colors">Shop</a>
+        <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-600 transition-colors">{{ __('messages.Shop') ?? 'Shop' }}</a>
         <span>/</span>
         <span class="text-slate-900 font-bold truncate max-w-xs">{{ $name }}</span>
     </nav>
@@ -143,7 +143,7 @@
                             @click="CartLS.add({ id: {{ $id }}, name: '{{ addslashes($name) }}', price: {{ $price }}, image: '{{ $image ?: 'nvt-wireless-earbuds.jpg' }}', code: '{{ $code }}' }, qty)"
                             class="flex-1 py-3 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center space-x-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                        <span>Add to Cart</span>
+                        <span>{{ __('messages.AddToCart') ?? 'Add to Cart' }}</span>
                     </button>
                 </div>
 
@@ -177,7 +177,7 @@
     <!-- Related Products -->
     @if(isset($related) && count($related) > 0)
         <section class="space-y-6 pt-6">
-            <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight">You May Also Like</h2>
+            <h2 class="text-xl font-black text-slate-900 uppercase tracking-tight">{{ __('messages.YouMayAlsoLike') ?? 'You May Also Like' }}</h2>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
                 @foreach($related as $relProduct)
                     @include('store.themes.novatech-electronics.partials.product-card', ['product' => $relProduct])

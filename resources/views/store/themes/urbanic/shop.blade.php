@@ -16,9 +16,9 @@
     <!-- Breadcrumb & Title Header -->
     <div class="space-y-2 border-b border-slate-200 pb-5">
         <nav class="flex items-center space-x-2 text-xs text-slate-500 font-medium">
-            <a href="{{ $storeUrl }}" class="hover:text-orange-600 transition">Home</a>
+            <a href="{{ $storeUrl }}" class="hover:text-orange-600 transition">{{ __('messages.Home') ?? 'Home' }}</a>
             <span>/</span>
-            <a href="{{ $shopUrl }}" class="hover:text-orange-600 transition">Shop</a>
+            <a href="{{ $shopUrl }}" class="hover:text-orange-600 transition">{{ __('messages.Shop') ?? 'Shop' }}</a>
             @if($currentCategory)
                 <span>/</span>
                 <span class="text-urb-dark font-bold">{{ $currentCategory }}</span>

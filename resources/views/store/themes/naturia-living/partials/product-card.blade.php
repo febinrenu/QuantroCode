@@ -66,7 +66,7 @@
           </button>
         @endif
       @else
-        <a href="{{ url('/online_store/login') }}" class="text-xs font-semibold text-nt-green underline">{{ 'Sign in for price' }}</a>
+        <a href="{{ url('/online_store/login') }}" class="text-xs font-semibold text-nt-green underline">{{ __('messages.LoginToSeePrice') ?? 'Sign in to see price' }}</a>
       @endif
       <div class="js-add-status text-[11px] text-nt-inkSoft min-h-[1rem] mt-1"></div>
     </div>

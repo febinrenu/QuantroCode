@@ -39,7 +39,7 @@
   <!-- Breadcrumbs & Heading -->
   <div class="mb-6 space-y-2">
     <nav class="flex items-center gap-2 text-xs text-slate-500 font-medium">
-      <a href="{{ $mvRoute('store.index') }}" class="hover:text-mv-purple transition-colors">Home</a>
+      <a href="{{ $mvRoute('store.index') }}" class="hover:text-mv-purple transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
       <span>/</span>
       <span class="text-slate-900 font-bold">
         {{ $selectedCat ? $selectedCat : (request('brand') ? 'Brand: ' . request('brand') : ($q ? 'Search: "' . $q . '"' : 'Marketplace Catalog')) }}

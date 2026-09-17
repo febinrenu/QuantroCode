@@ -33,7 +33,7 @@
         @if($themePreview)
           <input type="hidden" name="preview_theme" value="{{ $themePreview }}">
         @endif
-        <input type="text" name="q" placeholder="Search fine jewelry..." class="w-full bg-[#161411] border border-aurum-border text-xs text-white placeholder-aurum-goldLight/40 px-3 py-2.5 rounded-none focus:outline-none focus:border-aurum-gold">
+        <input type="text" name="q" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" class="w-full bg-[#161411] border border-aurum-border text-xs text-white placeholder-aurum-goldLight/40 px-3 py-2.5 rounded-none focus:outline-none focus:border-aurum-gold">
         <button type="submit" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-aurum-goldLight/60 hover:text-aurum-gold">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         </button>
@@ -94,7 +94,7 @@
         BOOK APPOINTMENT
       </a>
       <div class="pt-2 flex items-center justify-between text-[11px] text-aurum-goldLight/70">
-        <a href="{{ $aurumRoute('store.login.show') }}" class="hover:text-aurum-gold">Account / Sign In</a>
+        <a href="{{ $aurumRoute('store.login.show') }}" class="hover:text-aurum-gold">{{ __('messages.Account') ?? 'Account' }} / {{ __('messages.SignIn') ?? 'Sign In' }}</a>
         <a href="#boutique-section" class="hover:text-aurum-gold">Find Boutique</a>
       </div>
     </div>

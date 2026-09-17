@@ -41,14 +41,14 @@
 
             <!-- Col 2: Shop -->
             <div>
-                <h4 class="font-bold text-xs uppercase tracking-[0.14em] text-white mb-4">Shop</h4>
+                <h4 class="font-bold text-xs uppercase tracking-[0.14em] text-white mb-4">{{ __('messages.Shop') ?? 'Shop' }}</h4>
                 <ul class="space-y-2.5 text-xs text-stone-300">
                     <li><a href="{{ url('/online_store/shop' . $previewParam) }}" class="hover:text-emerald-300 transition-colors">All Products</a></li>
                     <li><a href="{{ url('/online_store/shop?collection=new-arrivals' . $previewAmp) }}" class="hover:text-emerald-300 transition-colors">New Arrivals</a></li>
                     <li><a href="{{ url('/online_store/shop?collection=best-sellers' . $previewAmp) }}" class="hover:text-emerald-300 transition-colors">Best Sellers</a></li>
                     <li><a href="{{ url('/online_store/shop?category=home-decor' . $previewAmp) }}" class="hover:text-emerald-300 transition-colors">Collections</a></li>
                     <li><a href="{{ url('/online_store/shop?category=gifts-sets' . $previewAmp) }}" class="hover:text-emerald-300 transition-colors">Gift Cards</a></li>
-                    <li><a href="{{ url('/online_store/shop?collection=sale' . $previewAmp) }}" class="hover:text-emerald-300 transition-colors">Sale</a></li>
+                    <li><a href="{{ url('/online_store/shop?collection=sale' . $previewAmp) }}" class="hover:text-emerald-300 transition-colors">{{ __('messages.Deals') ?? 'Sale' }}</a></li>
                 </ul>
             </div>
 

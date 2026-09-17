@@ -80,7 +80,7 @@
         <!-- Order Summary (Col span 1) -->
         <div class="space-y-6">
             <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
-                <h2 class="text-base font-black text-slate-900 uppercase tracking-wider">Order Summary</h2>
+                <h2 class="text-base font-black text-slate-900 uppercase tracking-wider">{{ __('messages.OrderSummary') ?? 'Order Summary' }}</h2>
 
                 <div class="space-y-3 text-xs divide-y divide-slate-100">
                     <div class="flex items-center justify-between pt-2">
@@ -96,7 +96,7 @@
                         <span class="font-bold text-rose-600" x-text="'-$' + parseFloat(discount).toFixed(2)"></span>
                     </div>
                     <div class="flex items-center justify-between pt-4 text-sm font-black">
-                        <span class="text-slate-900 uppercase">Estimated Total</span>
+                        <span class="text-slate-900 uppercase">{{ __('messages.EstimatedTotal') ?? 'Estimated Total' }}</span>
                         <span class="text-xl text-indigo-600" x-text="'$' + (total >= 75 ? total - discount : total + 9.99 - discount).toFixed(2)"></span>
                     </div>
                 </div>
@@ -113,7 +113,7 @@
 
                 <!-- Checkout Button -->
                 <a href="{{ url('/online_store/checkout' . (request('preview_theme') ? '?preview_theme=' . request('preview_theme') : '')) }}" class="w-full block py-3.5 px-6 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs uppercase tracking-wider text-center transition-all shadow-lg shadow-indigo-500/25">
-                    Proceed to Checkout
+                    {{ __('messages.ProceedToCheckout') ?? 'Proceed to Checkout' }}
                 </a>
 
                 <!-- Security Assurance -->

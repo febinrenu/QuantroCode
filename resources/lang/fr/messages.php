@@ -304,4 +304,9 @@ return [
     'EnterInviteCode' => 'Saisissez votre code d’invitation',
     'InviteCodeRequired' => 'Un code d’invitation est requis pour s’inscrire.',
     'Language' => 'Langue',
+    'Wishlist' => 'Liste d’envies',
+    'AddToWishlist' => 'Ajouter à la liste d’envies',
+    'ProceedToCheckout' => 'Passer à la caisse',
+    'SecureCheckout' => 'Paiement sécurisé',
+    'EstimatedTotal' => 'Total estimé',
 ];

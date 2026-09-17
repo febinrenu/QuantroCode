@@ -14,7 +14,7 @@
     <!-- Title & Free Shipping Bar -->
     <div class="space-y-4">
         <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            <span>Shopping Cart</span>
+            <span>{{ __('messages.Cart') }}</span>
             <span class="text-xs font-bold text-slate-500 bg-slate-200 px-2.5 py-1 rounded-full" x-text="count + ' items'"></span>
         </h1>
 
@@ -103,7 +103,7 @@
 
             <!-- Order Summary Card (1 Col) -->
             <div class="bg-white rounded-2xl p-6 border border-zanova-border shadow-xs space-y-6">
-                <h2 class="text-base font-extrabold text-slate-900">Order Summary</h2>
+                <h2 class="text-base font-extrabold text-slate-900">{{ __('messages.OrderSummary') ?? 'Order Summary' }}</h2>
 
                 <div class="space-y-3 text-xs text-slate-600">
                     <div class="flex items-center justify-between">
@@ -144,13 +144,13 @@
                 <div class="space-y-3">
                     <a href="{{ url('/online_store/checkout' . $previewParam) }}"
                        class="w-full py-3.5 bg-zanova-yellow hover:bg-zanova-yellowHover text-zanova-navy font-black text-xs uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
-                        <span>Proceed to Checkout</span>
+                        <span>{{ __('messages.ProceedToCheckout') ?? 'Proceed to Checkout' }}</span>
                         <span>→</span>
                     </a>
 
                     <a href="{{ url('/online_store/shop' . $previewParam) }}"
                        class="w-full py-2.5 text-center text-xs font-bold text-slate-500 hover:text-zanova-navy block transition-colors">
-                        ← Continue Shopping
+                        ← {{ __('messages.ContinueShopping') ?? 'Continue Shopping' }}
                     </a>
                 </div>
 

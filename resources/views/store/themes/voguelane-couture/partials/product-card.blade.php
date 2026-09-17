@@ -51,8 +51,8 @@
     <!-- Wishlist Button -->
     <button type="button" 
             class="absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-xs text-slate-700 hover:text-red-500 hover:bg-white shadow-xs flex items-center justify-center transition-all opacity-90 group-hover:opacity-100" 
-            title="Add to Wishlist"
-            aria-label="Add to Wishlist">
+            title="{{ __('messages.AddToWishlist') ?? 'Add to Wishlist' }}"
+            aria-label="{{ __('messages.AddToWishlist') ?? 'Add to Wishlist' }}">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
         <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
       </svg>

@@ -91,28 +91,28 @@
       </div>
       
       <!-- Search Toggle -->
-      <button type="button" id="search-modal-btn" class="p-1 hover:text-aurum-gold transition-colors" aria-label="Search">
+      <button type="button" id="search-modal-btn" class="p-1 hover:text-aurum-gold transition-colors" aria-label="{{ __('messages.Search') ?? 'Search' }}">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       </button>
 
       <!-- Wishlist -->
-      <a href="{{ $aurumRoute('store.shop', ['collection' => 'bestselling']) }}" class="hidden sm:inline-block p-1 hover:text-aurum-gold transition-colors" aria-label="Wishlist">
+      <a href="{{ $aurumRoute('store.shop', ['collection' => 'bestselling']) }}" class="hidden sm:inline-block p-1 hover:text-aurum-gold transition-colors" aria-label="{{ __('messages.Wishlist') ?? 'Wishlist' }}">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
       </a>
 
       <!-- Account -->
       @if(Auth::guard('store')->check())
-        <a href="{{ $aurumRoute('account') }}" class="p-1 hover:text-aurum-gold transition-colors" aria-label="My Account">
+        <a href="{{ $aurumRoute('account') }}" class="p-1 hover:text-aurum-gold transition-colors" aria-label="{{ __('messages.MyAccount') ?? 'My Account' }}">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </a>
       @else
-        <a href="{{ $aurumRoute('store.login.show') }}" class="p-1 hover:text-aurum-gold transition-colors" aria-label="Sign In">
+        <a href="{{ $aurumRoute('store.login.show') }}" class="p-1 hover:text-aurum-gold transition-colors" aria-label="{{ __('messages.SignIn') ?? 'Sign In' }}">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
         </a>
       @endif
 
       <!-- Bag / Cart -->
-      <a href="{{ $aurumRoute('store.cart') }}" class="relative p-1 text-aurum-goldLight hover:text-aurum-gold transition-colors" aria-label="Shopping Bag">
+      <a href="{{ $aurumRoute('store.cart') }}" class="relative p-1 text-aurum-goldLight hover:text-aurum-gold transition-colors" aria-label="{{ __('messages.Cart') ?? 'Cart' }}">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
           <line x1="3" y1="6" x2="21" y2="6"></line>

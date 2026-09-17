@@ -289,15 +289,15 @@
                 <!-- Drawer Footer Checkout -->
                 <div class="p-6 border-t border-slate-100 bg-slate-50 space-y-4" x-data="{ total: 0 }" x-init="total = CartLS.total(); window.addEventListener('cart-updated', () => { total = CartLS.total(); })" x-show="CartLS.get().length > 0">
                     <div class="flex items-center justify-between text-sm">
-                        <span class="font-medium text-slate-600">Subtotal</span>
+                        <span class="font-medium text-slate-600">{{ __('messages.Subtotal') ?? 'Subtotal' }}</span>
                         <span class="font-extrabold text-slate-900 text-lg" x-text="'$' + parseFloat(total).toFixed(2)"></span>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <a href="{{ url('/online_store/cart' . (request('preview_theme') ? '?preview_theme=' . request('preview_theme') : '')) }}" class="w-full py-3 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold text-center transition-all">
-                            View Cart
+                            {{ __('messages.Cart') ?? 'View Cart' }}
                         </a>
                         <a href="{{ url('/online_store/checkout' . (request('preview_theme') ? '?preview_theme=' . request('preview_theme') : '')) }}" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-bold text-center transition-all shadow-md shadow-indigo-500/20">
-                            Checkout
+                            {{ __('messages.Checkout') ?? 'Checkout' }}
                         </a>
                     </div>
                 </div>

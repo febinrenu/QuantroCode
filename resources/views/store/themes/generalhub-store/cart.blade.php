@@ -24,7 +24,7 @@
 
   <!-- Header -->
   <div class="mb-8">
-    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Shopping Bag</h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{{ __('messages.Cart') }}</h1>
     <p class="text-xs sm:text-sm text-slate-500 mt-1">Review your selected items before proceeding to secure checkout.</p>
   </div>
 
@@ -90,10 +90,10 @@
 
     </div>
 
-    <!-- Right: Order Summary (4 cols) -->
+    <!-- Right: {{ __('messages.OrderSummary') ?? 'Order Summary' }} (4 cols) -->
     <div class="lg:col-span-4 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 sticky top-24">
       <h3 class="text-base font-bold text-slate-900 border-b border-slate-100 pb-4">
-        Order Summary
+        {{ __('messages.OrderSummary') ?? 'Order Summary' }}
       </h3>
 
       <div class="space-y-3 text-xs text-slate-600">
@@ -115,7 +115,7 @@
       <button type="button" 
               class="w-full h-12 bg-hub-blue hover:bg-hub-blueHover text-white text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer"
               @click="checkout('{{ $checkoutUrl }}')">
-        <span>Proceed to Checkout</span>
+        <span>{{ __('messages.ProceedToCheckout') ?? 'Proceed to Checkout' }}</span>
         <span>&rarr;</span>
       </button>
 

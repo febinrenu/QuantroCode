@@ -27,9 +27,9 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Breadcrumbs -->
         <div class="flex items-center gap-2 text-xs text-slate-400 mb-6">
-            <a href="{{ $themeUrl('online_store') }}" class="hover:text-blue-600 transition">Home</a>
+            <a href="{{ $themeUrl('online_store') }}" class="hover:text-blue-600 transition">{{ __('messages.Home') ?? 'Home' }}</a>
             <span>/</span>
-            <span class="text-slate-700 font-semibold">Shopping Cart</span>
+            <span class="text-slate-700 font-semibold">{{ __('messages.Cart') ?? 'Shopping Cart' }}</span>
         </div>
 
         <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight font-heading mb-8">
@@ -136,11 +136,11 @@
                     </div>
                 </div>
 
-                <!-- Right: Order Summary -->
+                <!-- Right: {{ __('messages.OrderSummary') ?? 'Order Summary' }} -->
                 <div class="lg:col-span-4 space-y-6">
                     <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-tech-sm space-y-6">
                         <h3 class="font-extrabold text-slate-900 text-lg tracking-tight font-heading border-b border-slate-100 pb-3">
-                            Order Summary
+                            {{ __('messages.OrderSummary') ?? 'Order Summary' }}
                         </h3>
 
                         <!-- Promo Code Input -->
@@ -180,7 +180,7 @@
 
                         <!-- Total -->
                         <div class="border-t border-slate-200 pt-4 flex justify-between items-baseline">
-                            <span class="text-sm font-extrabold text-slate-900 font-heading">Estimated Total</span>
+                            <span class="text-sm font-extrabold text-slate-900 font-heading">{{ __('messages.EstimatedTotal') ?? 'Estimated Total' }}</span>
                             <div class="text-right">
                                 <span class="text-2xl font-extrabold text-slate-900 font-heading">
                                     ${{ number_format($subtotal + ($isFreeShipping ? 0 : 9.99) + ($subtotal * 0.08), 2) }}
@@ -191,7 +191,7 @@
 
                         <!-- Checkout CTA -->
                         <a href="{{ $themeUrl('checkout') }}" class="block w-full py-4 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition shadow-lg shadow-blue-600/20 text-center">
-                            Proceed to Secure Checkout
+                            {{ __('messages.ProceedToCheckout') ?? 'Proceed to Secure Checkout' }}
                         </a>
 
                         <!-- Security Guarantees -->

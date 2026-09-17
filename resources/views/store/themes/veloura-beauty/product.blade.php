@@ -60,7 +60,7 @@
 
   <!-- Breadcrumbs -->
   <nav class="flex items-center gap-2 text-xs text-vel-muted font-medium mb-8">
-    <a href="{{ $velRoute('store.index') }}" class="hover:text-vel-rose transition-colors">Home</a>
+    <a href="{{ $velRoute('store.index') }}" class="hover:text-vel-rose transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
     <span>/</span>
     <a href="{{ $velRoute('store.shop', ['category' => $categoryName]) }}" class="hover:text-vel-rose transition-colors">{{ $categoryName }}</a>
     <span>/</span>
@@ -128,7 +128,7 @@
         <div class="pt-4 border-t border-vel-border space-y-4">
 
           <div class="flex items-center gap-4">
-            <span class="text-xs font-bold text-vel-charcoal">Quantity:</span>
+            <span class="text-xs font-bold text-vel-charcoal">{{ __('messages.Qty') ?? 'Quantity' }}:</span>
             <div class="flex items-center border border-vel-border rounded-xl bg-vel-blush">
               <button type="button"
                       @click="qty = Math.max(1, qty - 1)"

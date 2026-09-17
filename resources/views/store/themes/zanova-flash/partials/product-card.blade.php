@@ -69,7 +69,7 @@
         <!-- Wishlist Button (Top Right) -->
         <button type="button"
                 class="absolute top-2.5 right-2.5 z-10 w-7 h-7 rounded-full bg-white/90 backdrop-blur-xs flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-white transition-all shadow-xs"
-                aria-label="Add to wishlist">
+                aria-label="{{ __('messages.AddToWishlist') ?? 'Add to wishlist' }}">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
             </svg>
@@ -132,7 +132,7 @@
                 <svg class="w-3.5 h-3.5 text-zanova-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                 </svg>
-                <span>Add to Cart</span>
+                <span>{{ __('messages.AddToCart') ?? 'Add to Cart' }}</span>
             </button>
         </div>
     </div>

@@ -83,11 +83,11 @@
     <div class="p-4 bg-slate-50 border-t border-slate-200 text-xs">
       @if(Auth::guard('store')->check())
         <a href="{{ $hubRoute('account') }}" class="block w-full text-center py-2.5 bg-hub-blue text-white font-semibold rounded-lg hover:bg-hub-blueHover transition-colors">
-          My Account
+          {{ __('messages.MyAccount') ?? 'My Account' }}
         </a>
       @else
         <a href="{{ $hubRoute('store.login.show') }}" class="block w-full text-center py-2.5 bg-hub-blue text-white font-semibold rounded-lg hover:bg-hub-blueHover transition-colors">
-          Sign In / Register
+          {{ __('messages.SignIn') ?? 'Sign In' }} / {{ __('messages.Register') ?? 'Register' }}
         </a>
       @endif
     </div>

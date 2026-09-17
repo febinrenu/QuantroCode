@@ -106,7 +106,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
           </div>
           <div class="text-left leading-tight hidden md:block">
-            <div class="text-[10px] text-slate-500 font-normal">Account</div>
+            <div class="text-[10px] text-slate-500 font-normal">{{ __('messages.Account') ?? 'Account' }}</div>
             <div class="text-xs font-semibold text-slate-800">{{ __('messages.SignIn') ?? 'Sign In' }}</div>
           </div>
         </a>
@@ -120,7 +120,7 @@
           </svg>
           <span class="absolute -top-1.5 -right-2 bg-rose-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">0</span>
         </div>
-        <span class="text-xs font-semibold text-slate-800 hidden md:inline ml-1">Wishlist</span>
+        <span class="text-xs font-semibold text-slate-800 hidden md:inline ml-1">{{ __('messages.Wishlist') ?? 'Wishlist' }}</span>
       </a>
 
       <!-- Shopping Cart -->

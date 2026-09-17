@@ -84,7 +84,7 @@
 
       <!-- Column 2: Shop (2 cols) -->
       <div class="col-span-2 space-y-3">
-        <h4 class="text-xs font-bold tracking-wider text-slate-900 uppercase">Shop</h4>
+        <h4 class="text-xs font-bold tracking-wider text-slate-900 uppercase">{{ __('messages.Shop') ?? 'Shop' }}</h4>
         <ul class="space-y-2 text-xs text-slate-500">
           <li><a href="{{ $hubRoute('store.shop') }}" class="hover:text-hub-blue transition-colors">All Categories</a></li>
           <li><a href="{{ $hubRoute('store.shop', ['collection' => 'featured']) }}" class="hover:text-hub-blue transition-colors">Featured Products</a></li>
@@ -144,7 +144,7 @@
       
       <details class="group py-3">
         <summary class="flex items-center justify-between text-xs font-bold text-slate-900 uppercase cursor-pointer list-none">
-          <span>Shop</span>
+          <span>{{ __('messages.Shop') ?? 'Shop' }}</span>
           <span class="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
         </summary>
         <ul class="pt-3 pl-2 space-y-2 text-xs text-slate-500">
@@ -182,12 +182,12 @@
 
       <details class="group py-3">
         <summary class="flex items-center justify-between text-xs font-bold text-slate-900 uppercase cursor-pointer list-none">
-          <span>Account</span>
+          <span>{{ __('messages.Account') ?? 'Account' }}</span>
           <span class="text-slate-400 group-open:rotate-180 transition-transform">▼</span>
         </summary>
         <ul class="pt-3 pl-2 space-y-2 text-xs text-slate-500">
-          <li><a href="{{ $hubRoute('account') }}" class="hover:text-hub-blue">My Account</a></li>
-          <li><a href="{{ $hubRoute('store.login.show') }}" class="hover:text-hub-blue">Sign In / Register</a></li>
+          <li><a href="{{ $hubRoute('account') }}" class="hover:text-hub-blue">{{ __('messages.MyAccount') ?? 'My Account' }}</a></li>
+          <li><a href="{{ $hubRoute('store.login.show') }}" class="hover:text-hub-blue">{{ __('messages.SignIn') ?? 'Sign In' }} / {{ __('messages.Register') ?? 'Register' }}</a></li>
         </ul>
       </details>
 

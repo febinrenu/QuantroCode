@@ -48,8 +48,8 @@
           <div class="mb-5">
             <div class="text-xs font-bold eyebrow text-mkt-inkSoft mb-2">{{ 'Price Range' }}</div>
             <div class="flex items-center gap-2">
-              <input type="number" name="min" value="{{ $min }}" placeholder="Min" class="w-1/2 h-9 px-3 border border-mkt-ink/15 bg-mkt-cream text-sm rounded-md">
-              <input type="number" name="max" value="{{ $max }}" placeholder="Max" class="w-1/2 h-9 px-3 border border-mkt-ink/15 bg-mkt-cream text-sm rounded-md">
+              <input type="number" name="min" value="{{ $min }}" placeholder="{{ __('messages.MinPrice') ?? 'Min' }}" class="w-1/2 h-9 px-3 border border-mkt-ink/15 bg-mkt-cream text-sm rounded-md">
+              <input type="number" name="max" value="{{ $max }}" placeholder="{{ __('messages.MaxPrice') ?? 'Max' }}" class="w-1/2 h-9 px-3 border border-mkt-ink/15 bg-mkt-cream text-sm rounded-md">
             </div>
           </div>
           <button class="w-full h-10 bg-mkt-purple text-white text-xs font-bold rounded-md hover:bg-mkt-purpleDeep">{{ __('messages.ApplyFilters') ?? 'Apply Filters' }}</button>

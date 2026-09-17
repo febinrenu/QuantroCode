@@ -79,7 +79,7 @@
             <span class="text-aurum-gold font-medium">COMPLIMENTARY</span>
           </div>
           <div class="flex justify-between text-sm sm:text-base font-serif font-semibold text-white border-t border-aurum-border/60 pt-4">
-            <span>Estimated Total</span>
+            <span>{{ __('messages.EstimatedTotal') ?? 'Estimated Total' }}</span>
             <span class="text-aurum-gold text-xl" x-text="subtotalFormatted()"></span>
           </div>
 
@@ -88,7 +88,7 @@
               CLEAR BAG
             </button>
             <a href="{{ $aurumRoute('store.checkout') }}" class="flex-1 py-3 bg-aurum-gold hover:bg-[#E5C158] text-aurum-black text-xs font-semibold tracking-[0.2em] uppercase text-center transition-colors shadow">
-              PROCEED TO SECURE CHECKOUT
+              {{ __('messages.ProceedToCheckout') ?? 'PROCEED TO SECURE CHECKOUT' }}
             </a>
           </div>
         </div>

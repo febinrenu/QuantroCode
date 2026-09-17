@@ -61,13 +61,13 @@
 
             <!-- 2. Shop Links -->
             <div>
-                <h4 class="text-xs font-bold text-white tracking-wider uppercase mb-4">SHOP</h4>
+                <h4 class="text-xs font-bold text-white tracking-wider uppercase mb-4">{{ __('messages.Shop') ?? 'SHOP' }}</h4>
                 <ul class="space-y-2.5 text-xs text-stone-400">
                     <li><a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-white transition-colors">All Products</a></li>
                     <li><a href="{{ url('/online_store/shop?collection=new-arrivals' . $previewAmp) }}" class="hover:text-white transition-colors">New Arrivals</a></li>
                     <li><a href="{{ url('/online_store/shop?collection=best-sellers' . $previewAmp) }}" class="hover:text-white transition-colors">Best Sellers</a></li>
                     <li><a href="{{ url('/online_store/shop?category=decor' . $previewAmp) }}" class="hover:text-white transition-colors">Gift Cards</a></li>
-                    <li><a href="{{ url('/online_store/shop?collection=sale' . $previewAmp) }}" class="text-homely-terracotta hover:underline">Sale</a></li>
+                    <li><a href="{{ url('/online_store/shop?collection=sale' . $previewAmp) }}" class="text-homely-terracotta hover:underline">{{ __('messages.Deals') ?? 'Sale' }}</a></li>
                 </ul>
             </div>
 

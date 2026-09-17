@@ -60,13 +60,13 @@
             <!-- Col 3: SHOP -->
             <div class="space-y-3.5">
                 <h4 class="text-xs font-black uppercase tracking-wider text-white">
-                    Shop
+                    {{ __('messages.Shop') ?? 'Shop' }}
                 </h4>
                 <ul class="space-y-2 text-xs text-slate-400 font-medium">
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">All Categories</a></li>
                     <li><a href="{{ $newArrivalsUrl }}" class="hover:text-white transition">New Arrivals</a></li>
                     <li><a href="{{ $bestsellersUrl }}" class="hover:text-white transition">Best Sellers</a></li>
-                    <li><a href="{{ $saleUrl }}" class="hover:text-white transition">Sale</a></li>
+                    <li><a href="{{ $saleUrl }}" class="hover:text-white transition">{{ __('messages.Deals') ?? 'Sale' }}</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Gift Cards</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Brands</a></li>
                 </ul>

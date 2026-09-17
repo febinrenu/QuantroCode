@@ -304,4 +304,9 @@ return [
     'EnterInviteCode' => 'أدخل رمز الدعوة',
     'InviteCodeRequired' => 'رمز الدعوة مطلوب للتسجيل.',
     'Language' => 'اللغة',
+    'Wishlist' => 'قائمة الرغبات',
+    'AddToWishlist' => 'إضافة إلى قائمة الرغبات',
+    'ProceedToCheckout' => 'المتابعة إلى الدفع',
+    'SecureCheckout' => 'الدفع الآمن',
+    'EstimatedTotal' => 'الإجمالي المقدر',
 ];

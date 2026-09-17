@@ -70,7 +70,7 @@
           @endif
         </div>
       @else
-        <a href="{{ url('/online_store/login') }}" class="block mt-4 text-fx-purple font-semibold underline">{{ 'Sign in to see pricing' }}</a>
+        <a href="{{ url('/online_store/login') }}" class="block mt-4 text-fx-purple font-semibold underline">{{ __('messages.LoginToSeePrice') ?? 'Sign in to see price' }}</a>
       @endif
 
       @if(count($product['variants']))

@@ -45,7 +45,7 @@
     </div>
 
     <!-- Top Right Wishlist Heart -->
-    <button type="button" class="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/70 hover:text-aurum-gold hover:border-aurum-gold/50 transition-colors z-10" aria-label="Add to Wishlist">
+    <button type="button" class="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/70 hover:text-aurum-gold hover:border-aurum-gold/50 transition-colors z-10" aria-label="{{ __('messages.AddToWishlist') ?? 'Add to Wishlist' }}">
       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
     </button>
   </div>

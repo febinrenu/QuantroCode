@@ -130,7 +130,7 @@
                 </a>
 
                 <!-- Wishlist with Badge (3) -->
-                <a href="{{ $shopUrl }}" class="flex flex-col items-center group relative text-center" title="Wishlist">
+                <a href="{{ $shopUrl }}" class="flex flex-col items-center group relative text-center" title="{{ __('messages.Wishlist') ?? 'Wishlist' }}">
                     <div class="relative text-nex-navy group-hover:text-nex-blue transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -139,7 +139,7 @@
                             3
                         </span>
                     </div>
-                    <span class="hidden sm:block text-[11px] font-bold text-slate-700 group-hover:text-nex-blue transition mt-0.5">Wishlist</span>
+                    <span class="hidden sm:block text-[11px] font-bold text-slate-700 group-hover:text-nex-blue transition mt-0.5">{{ __('messages.Wishlist') ?? 'Wishlist' }}</span>
                 </a>
 
                 <!-- Cart / Shopping Bag with reactive CartLS count -->

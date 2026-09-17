@@ -136,7 +136,7 @@
                     <svg class="w-4 h-4 text-zanova-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
-                    <span>My Account</span>
+                    <span>{{ __('messages.MyAccount') ?? 'My Account' }}</span>
                 </a>
                 <a href="{{ url('/online_store/cart' . $previewParam) }}"
                    class="flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-black bg-zanova-yellow text-zanova-navy hover:bg-zanova-yellowHover shadow-md">
@@ -144,9 +144,9 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
-                        <span>View Shopping Cart</span>
+                        <span>{{ __('messages.Cart') ?? 'View Shopping Cart' }}</span>
                     </div>
-                    <span class="bg-zanova-navy text-white px-2 py-0.5 rounded-md text-[0.65rem] font-bold">Checkout</span>
+                    <span class="bg-zanova-navy text-white px-2 py-0.5 rounded-md text-[0.65rem] font-bold">{{ __('messages.Checkout') ?? 'Checkout' }}</span>
                 </a>
             </div>
         </div>

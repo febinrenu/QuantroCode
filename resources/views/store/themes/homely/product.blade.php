@@ -40,9 +40,9 @@
     
     <!-- Breadcrumbs -->
     <nav class="flex items-center gap-2 text-xs text-stone-500">
-        <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-homely-primary transition-colors">Home</a>
+        <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-homely-primary transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
         <span>/</span>
-        <a href="{{ url('/online_store/shop' . $previewParam) }}" class="hover:text-homely-primary transition-colors">Shop</a>
+        <a href="{{ url('/online_store/shop' . $previewParam) }}" class="hover:text-homely-primary transition-colors">{{ __('messages.Shop') ?? 'Shop' }}</a>
         <span>/</span>
         <span class="text-homely-text font-semibold">{{ $name }}</span>
     </nav>
@@ -154,7 +154,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
-                        <span>ADD TO CART</span>
+                        <span>{{ __('messages.AddToCart') ?? 'ADD TO CART' }}</span>
                     </button>
                 </div>
             </div>

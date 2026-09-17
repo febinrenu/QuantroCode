@@ -41,7 +41,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav class="flex text-xs text-slate-400">
             <ol class="inline-flex items-center space-x-2">
-                <li><a href="{{ $storeUrl }}" class="hover:text-nex-blue transition">Home</a></li>
+                <li><a href="{{ $storeUrl }}" class="hover:text-nex-blue transition">{{ __('messages.Home') ?? 'Home' }}</a></li>
                 <li><span>/</span></li>
                 <li><a href="{{ $shopUrl }}" class="hover:text-nex-blue transition">Catalog</a></li>
                 @if($catName)

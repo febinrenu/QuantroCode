@@ -24,7 +24,9 @@ class CentralLanguagesSeeder extends Seeder
         foreach ($languages as $lang) {
             CentralLanguage::updateOrCreate(
                 ['locale' => $lang['locale']],
-                array_merge($lang, ['is_active' => true])
+                array_merge($lang, [
+                    'is_active' => in_array($lang['locale'], ['en', 'ar', 'fr', 'es', 'de', 'pt', 'tr'], true),
+                ])
             );
         }
     }

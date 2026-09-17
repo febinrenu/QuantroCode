@@ -12,9 +12,9 @@
     <!-- Breadcrumbs & Header -->
     <div class="border-b border-homely-borderLight pb-6">
         <nav class="flex items-center gap-2 text-xs text-stone-500 mb-3">
-            <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-homely-primary transition-colors">Home</a>
+            <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-homely-primary transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
             <span>/</span>
-            <span class="text-homely-text font-semibold">Shop</span>
+            <span class="text-homely-text font-semibold">{{ __('messages.Shop') ?? 'Shop' }}</span>
             @if(request('category'))
                 <span>/</span>
                 <span class="text-homely-primary font-bold uppercase">{{ str_replace('-', ' ', request('category')) }}</span>

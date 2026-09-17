@@ -26,7 +26,7 @@
       </div>
     </div>
     <div>
-      <h6 class="text-xs font-bold eyebrow text-white/50 mb-3">{{ 'Shop' }}</h6>
+      <h6 class="text-xs font-bold eyebrow text-white/50 mb-3">{{ __('messages.Shop') ?? 'Shop' }}</h6>
       <ul class="space-y-2 text-sm">
         <li><a href="{{ route('store.shop', ['sort' => 'latest']) }}" class="hover:text-white">{{ 'New Arrivals' }}</a></li>
         <li><a href="{{ route('store.shop') }}" class="hover:text-white">{{ 'Living Room' }}</a></li>

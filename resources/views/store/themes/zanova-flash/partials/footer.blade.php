@@ -47,7 +47,7 @@
 
             <!-- Col 2: Shop -->
             <div class="space-y-3">
-                <h4 class="font-extrabold text-xs uppercase tracking-wider text-white">Shop</h4>
+                <h4 class="font-extrabold text-xs uppercase tracking-wider text-white">{{ __('messages.Shop') ?? 'Shop' }}</h4>
                 <ul class="space-y-2 text-slate-400">
                     <li><a href="{{ url('/online_store/shop' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">All Categories</a></li>
                     <li><a href="{{ url('/online_store/shop?collection=new-arrivals' . $previewAmp) }}" class="hover:text-zanova-yellow transition-colors">New Arrivals</a></li>
@@ -85,13 +85,13 @@
 
             <!-- Col 5: My Account -->
             <div class="space-y-3">
-                <h4 class="font-extrabold text-xs uppercase tracking-wider text-white">My Account</h4>
+                <h4 class="font-extrabold text-xs uppercase tracking-wider text-white">{{ __('messages.MyAccount') ?? 'My Account' }}</h4>
                 <ul class="space-y-2 text-slate-400">
-                    <li><a href="{{ url('/online_store/account/orders' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">My Orders</a></li>
-                    <li><a href="{{ url('/online_store/shop?collection=wishlist' . $previewAmp) }}" class="hover:text-zanova-yellow transition-colors">Wishlist</a></li>
+                    <li><a href="{{ url('/online_store/account/orders' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">{{ __('messages.MyOrders') ?? 'My Orders' }}</a></li>
+                    <li><a href="{{ url('/online_store/shop?collection=wishlist' . $previewAmp) }}" class="hover:text-zanova-yellow transition-colors">{{ __('messages.Wishlist') ?? 'Wishlist' }}</a></li>
                     <li><a href="{{ url('/online_store/account' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">Addresses</a></li>
-                    <li><a href="{{ url('/online_store/account' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">Account Details</a></li>
-                    <li><a href="{{ url('/online_store/account' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">Logout</a></li>
+                    <li><a href="{{ url('/online_store/account' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">{{ __('messages.AccountDetails') ?? 'Account Details' }}</a></li>
+                    <li><a href="{{ url('/online_store/account' . $previewParam) }}" class="hover:text-zanova-yellow transition-colors">{{ __('messages.Logout') ?? 'Logout' }}</a></li>
                 </ul>
             </div>
 

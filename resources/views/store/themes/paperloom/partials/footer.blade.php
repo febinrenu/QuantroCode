@@ -49,7 +49,7 @@
           <li><a href="{{ $plRoute('store.shop', ['category' => 'Academic']) }}" class="hover:text-amber-200 transition-colors">Academic</a></li>
           <li><a href="{{ $plRoute('store.shop', ['category' => 'Kids']) }}" class="hover:text-amber-200 transition-colors">Kids</a></li>
           <li><a href="{{ $plRoute('store.shop', ['category' => 'Gifts']) }}" class="hover:text-amber-200 transition-colors">Gifts</a></li>
-          <li><a href="{{ $plRoute('store.shop', ['collection' => 'sale']) }}" class="hover:text-amber-200 transition-colors text-amber-300 font-semibold">Sale</a></li>
+          <li><a href="{{ $plRoute('store.shop', ['collection' => 'sale']) }}" class="hover:text-amber-200 transition-colors text-amber-300 font-semibold">{{ __('messages.Deals') ?? 'Sale' }}</a></li>
         </ul>
       </div>
 

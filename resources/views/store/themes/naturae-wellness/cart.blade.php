@@ -134,11 +134,11 @@
 
         </div>
 
-        <!-- Right: Order Summary (4 cols) -->
+        <!-- Right: {{ __('messages.OrderSummary') ?? 'Order Summary' }} (4 cols) -->
         <div class="lg:col-span-4 space-y-6">
             <div class="bg-white p-6 rounded-3xl border border-naturae-border shadow-sm space-y-4">
                 <h2 class="font-serif text-lg font-bold text-naturae-forest uppercase tracking-wider pb-3 border-b border-naturae-border">
-                    Order Summary
+                    {{ __('messages.OrderSummary') ?? 'Order Summary' }}
                 </h2>
 
                 <div class="space-y-2 text-xs text-naturae-text/80">
@@ -159,7 +159,7 @@
                 </div>
 
                 <div class="pt-3 border-t border-naturae-border flex justify-between items-baseline font-serif">
-                    <span class="text-base font-bold text-naturae-forest">Estimated Total</span>
+                    <span class="text-base font-bold text-naturae-forest">{{ __('messages.EstimatedTotal') ?? 'Estimated Total' }}</span>
                     <span class="text-2xl font-bold text-naturae-forest" x-text="money(subtotal + (subtotal >= 99 || subtotal === 0 ? 0 : 6.50))">
                         $0.00
                     </span>
@@ -169,7 +169,7 @@
                 <button type="button"
                         @click="checkout('{{ $checkoutUrl }}')"
                         class="w-full bg-naturae-forest hover:bg-naturae-green text-white py-3.5 px-6 rounded-xl font-semibold uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition">
-                    <span>Proceed to Checkout</span>
+                    <span>{{ __('messages.ProceedToCheckout') ?? 'Proceed to Checkout' }}</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>

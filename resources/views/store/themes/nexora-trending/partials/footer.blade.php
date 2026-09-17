@@ -53,13 +53,13 @@
             <!-- Column 2: SHOP -->
             <div>
                 <h4 class="font-extrabold text-xs uppercase tracking-widest text-white mb-4">
-                    SHOP
+                    {{ __('messages.Shop') ?? 'SHOP' }}
                 </h4>
                 <ul class="space-y-2.5 text-slate-400 text-xs">
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">All Categories</a></li>
                     <li><a href="{{ url('online_store/shop?collection=bestsellers' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">Best Sellers</a></li>
                     <li><a href="{{ url('online_store/shop?collection=new-arrivals' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">New Arrivals</a></li>
-                    <li><a href="{{ url('online_store/shop?collection=deals' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">Deals</a></li>
+                    <li><a href="{{ url('online_store/shop?collection=deals' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">{{ __('messages.Deals') ?? 'Deals' }}</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Brands</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Gift Cards</a></li>
                 </ul>
