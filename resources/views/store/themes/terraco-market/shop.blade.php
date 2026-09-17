@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
+<html lang="{{ str_replace('_','-', app()->getLocale()) }}">
 <head>
 @include('store.themes.terraco-market._shell', ['pageTitle' => 'Shop — ' . ($s->store_name ?? 'Terra & Co.')])
 </head>
@@ -47,8 +47,8 @@
           <div class="mb-5">
             <div class="text-xs font-bold eyebrow text-tc-inkSoft mb-2">{{ 'Price Range' }}</div>
             <div class="flex items-center gap-2">
-              <input type="number" name="min" value="{{ $min }}" placeholder="Min" class="w-1/2 h-9 px-3 border border-tc-green/20 bg-tc-cream text-sm">
-              <input type="number" name="max" value="{{ $max }}" placeholder="Max" class="w-1/2 h-9 px-3 border border-tc-green/20 bg-tc-cream text-sm">
+              <input type="number" name="min" value="{{ $min }}" placeholder="{{ __('messages.MinPrice') ?? 'Min' }}" class="w-1/2 h-9 px-3 border border-tc-green/20 bg-tc-cream text-sm">
+              <input type="number" name="max" value="{{ $max }}" placeholder="{{ __('messages.MaxPrice') ?? 'Max' }}" class="w-1/2 h-9 px-3 border border-tc-green/20 bg-tc-cream text-sm">
             </div>
           </div>
           <button class="w-full h-10 bg-tc-green text-white text-xs font-bold eyebrow hover:bg-tc-greenDeep">{{ __('messages.ApplyFilters') ?? 'Apply Filters' }}</button>

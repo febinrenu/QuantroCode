@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'urbanic');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $cartUrl = url('online_store/cart') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
@@ -101,6 +101,12 @@
                 </a>
             </div>
 
+        </div>
+
+        <!-- Language Switcher -->
+        <div class="p-5 border-t border-slate-100 bg-white">
+            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+            @include('store.partials.language-switcher', ['variant' => 'mobile'])
         </div>
 
         <!-- Footer in Drawer -->

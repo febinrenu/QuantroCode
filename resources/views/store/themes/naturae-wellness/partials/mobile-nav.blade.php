@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'naturae');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
 @endphp
@@ -62,7 +62,7 @@
                     @endif
                     <input type="text"
                            name="q"
-                           placeholder="Search organic catalog..."
+                           placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                            class="w-full bg-white border border-naturae-border rounded-lg pl-3 pr-8 py-2 text-xs text-naturae-text focus:outline-none focus:border-naturae-forest">
                     <button type="submit" class="absolute right-2.5 top-2.5 text-naturae-muted hover:text-naturae-forest">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -84,9 +84,7 @@
                     Best Sellers
                 </a>
 
-                <div class="pt-3 pb-1 px-3 text-[11px] font-semibold text-naturae-muted uppercase tracking-widest">
-                    Categories
-                </div>
+                <div class="pt-3 pb-1 px-3 text-[11px] font-semibold text-naturae-muted uppercase tracking-widest">{{ __('messages.Categories') ?? 'Categories' }}</div>
 
                 <a href="{{ url('online_store/shop?category=Skincare' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="block px-3 py-2 rounded-lg text-xs hover:bg-naturae-sand transition">
                     Skincare
@@ -113,6 +111,12 @@
                     Accessories
                 </a>
             </nav>
+        </div>
+
+        <!-- Language Switcher -->
+        <div class="p-4 border-t border-naturae-border">
+            <div class="text-[11px] font-bold tracking-wider text-naturae-muted uppercase mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+            @include('store.partials.language-switcher', ['variant' => 'mobile'])
         </div>
 
         <!-- Bottom Actions -->

@@ -1,7 +1,7 @@
 @extends('store.themes.paperloom._shell')
 
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'paperloom');
+  $themePreview = request('preview_theme');
   $plRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -35,7 +35,7 @@
 
   <!-- Breadcrumbs -->
   <nav class="flex items-center gap-2 text-xs text-slate-500 font-medium">
-    <a href="{{ $plRoute('store.index') }}" class="hover:text-pl-terracotta transition-colors">Home</a>
+    <a href="{{ $plRoute('store.index') }}" class="hover:text-pl-terracotta transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
     <span>/</span>
     <a href="{{ $shopUrl }}" class="hover:text-pl-terracotta transition-colors">Books & Stationery</a>
     <span>/</span>

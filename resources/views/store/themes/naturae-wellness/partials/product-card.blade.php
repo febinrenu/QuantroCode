@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'naturae');
+    $previewTheme = request('preview_theme');
     $productUrl = url('online_store/product/' . $product->id) . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
 
     // Image resolution

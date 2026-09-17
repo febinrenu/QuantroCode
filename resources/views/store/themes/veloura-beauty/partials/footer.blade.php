@@ -1,5 +1,5 @@
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'veloura');
+  $themePreview = request('preview_theme');
   $velRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -123,7 +123,7 @@
 
     <!-- Bottom Legal Row -->
     <div class="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-      <p>&copy; {{ date('Y') }} Veloura Beauty Maison. All rights reserved.</p>
+      <p>&copy; {{ date('Y') }} Veloura Beauty Maison. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}</p>
       <div class="flex items-center gap-6">
         <a href="{{ $shopUrl }}" class="hover:text-white transition-colors">Privacy Policy</a>
         <a href="{{ $shopUrl }}" class="hover:text-white transition-colors">Terms of Service</a>

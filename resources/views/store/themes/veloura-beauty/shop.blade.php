@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'veloura');
+  $themePreview = request('preview_theme');
   $velRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -34,7 +34,7 @@
   <!-- Breadcrumbs & Heading -->
   <div class="mb-8 space-y-3">
     <nav class="flex items-center gap-2 text-xs text-vel-muted font-medium">
-      <a href="{{ $homeUrl }}" class="hover:text-vel-rose transition-colors">Home</a>
+      <a href="{{ $homeUrl }}" class="hover:text-vel-rose transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
       <span>/</span>
       <span class="text-vel-charcoal font-bold">
         {{ $selectedCat ? $selectedCat : ($selectedCollection ? ucwords(str_replace(['-', '_'], ' ', $selectedCollection)) : ($q ? 'Search: "' . $q . '"' : 'Beauty Catalog')) }}
@@ -75,8 +75,8 @@
                   onchange="this.form.submit()"
                   class="text-xs bg-white border border-vel-border rounded-xl px-3 py-2 text-vel-charcoal font-bold focus:outline-none focus:border-vel-rose shadow-xs">
             <option value="latest" {{ $selectedSort === 'latest' ? 'selected' : '' }}>Sort: Newest</option>
-            <option value="price_asc" {{ $selectedSort === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-            <option value="price_desc" {{ $selectedSort === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+            <option value="price_asc" {{ $selectedSort === 'price_asc' ? 'selected' : '' }}>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+            <option value="price_desc" {{ $selectedSort === 'price_desc' ? 'selected' : '' }}>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
           </select>
         </form>
       </div>

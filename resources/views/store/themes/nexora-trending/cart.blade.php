@@ -4,7 +4,7 @@
 
 @section('content')
 @php
-    $previewTheme = request('preview_theme', 'nexora');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $checkoutUrl = url('/online_store/checkout' . ($previewTheme ? '?preview_theme=' . $previewTheme : ''));
@@ -128,28 +128,26 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
-                    <span>Continue Shopping</span>
+                    <span>{{ __('messages.ContinueShopping') ?? 'Continue Shopping' }}</span>
                 </a>
 
                 <button type="button"
                         @click="clear()"
-                        class="text-xs font-semibold text-slate-400 hover:text-rose-600 transition">
-                    Clear Cart
-                </button>
+                        class="text-xs font-semibold text-slate-400 hover:text-rose-600 transition">{{ __('messages.ClearCart') ?? 'Clear Cart' }}</button>
             </div>
 
         </div>
 
-        <!-- Right: Order Summary Sidebar (4 cols) -->
+        <!-- Right: {{ __('messages.OrderSummary') ?? 'Order Summary' }} Sidebar (4 cols) -->
         <div class="lg:col-span-4 space-y-6">
             <div class="bg-white p-6 sm:p-7 rounded-3xl border border-slate-200 shadow-xs space-y-5">
                 <h2 class="text-base font-black text-nex-navy uppercase tracking-wider pb-3 border-b border-slate-100">
-                    Order Summary
+                    {{ __('messages.OrderSummary') ?? 'Order Summary' }}
                 </h2>
 
                 <div class="space-y-2.5 text-xs text-slate-600">
                     <div class="flex justify-between">
-                        <span>Subtotal</span>
+                        <span>{{ __('messages.Subtotal') ?? 'Subtotal' }}</span>
                         <span class="font-bold text-nex-navy" x-text="money(subtotal)">$0.00</span>
                     </div>
                     <div class="flex justify-between">
@@ -165,7 +163,7 @@
                 </div>
 
                 <div class="pt-3 border-t border-slate-100 flex justify-between items-baseline">
-                    <span class="text-sm font-black text-nex-navy">Estimated Total</span>
+                    <span class="text-sm font-black text-nex-navy">{{ __('messages.EstimatedTotal') ?? 'Estimated Total' }}</span>
                     <span class="text-2xl font-black text-nex-navy" x-text="money(subtotal + (subtotal >= 99 || subtotal === 0 ? 0 : 4.99))">
                         $0.00
                     </span>
@@ -175,7 +173,7 @@
                 <button type="button"
                         @click="checkout('{{ $checkoutUrl }}')"
                         class="w-full bg-nex-blue hover:bg-nex-bluedark text-white py-3.5 px-6 rounded-2xl font-extrabold uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition">
-                    <span>Proceed to Checkout</span>
+                    <span>{{ __('messages.ProceedToCheckout') ?? 'Proceed to Checkout' }}</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>

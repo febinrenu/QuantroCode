@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'nexora');
+    $previewTheme = request('preview_theme');
     $currencySym = $s->currency_code ?? '$';
 
     $prodId = $product->id ?? ($product['id'] ?? 0);
@@ -42,8 +42,8 @@
         </span>
         <button type="button"
                 class="w-7 h-7 rounded-full bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-500 flex items-center justify-center transition"
-                title="Save to wishlist"
-                aria-label="Wishlist">
+                title="{{ __('messages.AddToWishlist') ?? 'Add to Wishlist' }}"
+                aria-label="{{ __('messages.Wishlist') ?? 'Wishlist' }}">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
@@ -103,7 +103,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
-                <span>Add to Cart</span>
+                <span>{{ __('messages.AddToCart') ?? 'Add to Cart' }}</span>
             </button>
         </div>
 

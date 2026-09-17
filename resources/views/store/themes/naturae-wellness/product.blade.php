@@ -1,7 +1,7 @@
 @extends('store.themes.naturae-wellness._shell')
 
 @php
-    $previewTheme = request('preview_theme', 'naturae');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
 
@@ -43,7 +43,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav class="flex text-xs text-naturae-muted" aria-label="Breadcrumb">
             <ol class="inline-flex items-center space-x-2">
-                <li><a href="{{ $storeUrl }}" class="hover:text-naturae-forest transition">Home</a></li>
+                <li><a href="{{ $storeUrl }}" class="hover:text-naturae-forest transition">{{ __('messages.Home') ?? 'Home' }}</a></li>
                 <li><span>/</span></li>
                 <li><a href="{{ $shopUrl }}" class="hover:text-naturae-forest transition">Catalog</a></li>
                 @if($catName)

@@ -3,9 +3,9 @@
   @if($product['is_on_sale'])
     <span class="absolute top-2 left-2 z-10 bg-nt-green text-white text-[10px] font-bold px-2 py-1 rounded-full">-{{ $product['discount_percent'] }}%</span>
   @elseif($product['stock_status'] === 'preorder')
-    <span class="absolute top-2 left-2 z-10 bg-nt-tan text-white text-[10px] font-bold px-2 py-1 rounded-full">Pre-order</span>
+    <span class="absolute top-2 left-2 z-10 bg-nt-tan text-white text-[10px] font-bold px-2 py-1 rounded-full">{{ __('messages.PreOrder') ?? 'Pre-order' }}</span>
   @elseif($product['stock_status'] === 'out_of_stock')
-    <span class="absolute top-2 left-2 z-10 bg-nt-ink/80 text-white text-[10px] font-bold px-2 py-1 rounded-full">Out of stock</span>
+    <span class="absolute top-2 left-2 z-10 bg-nt-ink/80 text-white text-[10px] font-bold px-2 py-1 rounded-full">{{ __('messages.OutOfStock') ?? 'Out of stock' }}</span>
   @endif
 
   <button type="button" class="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-white/90 shadow-card inline-flex items-center justify-center text-nt-inkSoft hover:text-nt-green">
@@ -66,7 +66,7 @@
           </button>
         @endif
       @else
-        <a href="{{ url('/online_store/login') }}" class="text-xs font-semibold text-nt-green underline">{{ 'Sign in for price' }}</a>
+        <a href="{{ url('/online_store/login') }}" class="text-xs font-semibold text-nt-green underline">{{ __('messages.LoginToSeePrice') ?? 'Sign in to see price' }}</a>
       @endif
       <div class="js-add-status text-[11px] text-nt-inkSoft min-h-[1rem] mt-1"></div>
     </div>

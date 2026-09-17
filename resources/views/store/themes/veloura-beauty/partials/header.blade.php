@@ -1,5 +1,5 @@
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'veloura');
+  $themePreview = request('preview_theme');
   $velRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -58,7 +58,7 @@
           <input type="search"
                  name="q"
                  value="{{ request('q') }}"
-                 placeholder="Search fragrances, skincare, makeup..."
+                 placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                  class="w-full bg-vel-blush/80 border border-vel-border rounded-full pl-11 pr-5 py-2.5 text-xs text-vel-charcoal placeholder-vel-muted focus:outline-none focus:border-vel-rose focus:bg-white focus:ring-1 focus:ring-vel-rose transition-all">
           <span class="absolute left-4 top-1/2 -translate-y-1/2 text-vel-muted pointer-events-none">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -68,19 +68,22 @@
 
       <!-- Header Action Icons -->
       <div class="flex items-center gap-4 sm:gap-6 text-vel-charcoal">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
 
         <!-- Account -->
         <a href="{{ $accountUrl }}"
            class="hidden sm:flex items-center gap-1.5 text-xs font-semibold hover:text-vel-rose transition-colors"
-           title="Account">
+           title="{{ __('messages.Account') ?? 'Account' }}">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-          <span class="hidden lg:inline">Sign In</span>
+          <span class="hidden lg:inline">{{ __('messages.SignIn') ?? 'Sign In' }}</span>
         </a>
 
         <!-- Wishlist -->
         <a href="{{ $shopUrl }}"
            class="hidden sm:flex items-center gap-1.5 text-xs font-semibold hover:text-vel-rose transition-colors"
-           title="Wishlist">
+           title="{{ __('messages.Wishlist') ?? 'Wishlist' }}">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
         </a>
 

@@ -18,9 +18,9 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
             <nav class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1">
-                <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-zanova-navy">Home</a>
+                <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-zanova-navy">{{ __('messages.Home') ?? 'Home' }}</a>
                 <span>/</span>
-                <span class="text-slate-700">Shop Catalog</span>
+                <span class="text-slate-700">{{ __('messages.Shop') ?? 'Shop Catalog' }}</span>
                 @if($currentCat)
                     <span>/</span>
                     <span class="text-zanova-purple font-bold capitalize">{{ str_replace('-', ' ', $currentCat) }}</span>
@@ -62,8 +62,8 @@
                         onchange="this.form.submit()"
                         class="bg-white border border-slate-300 text-xs font-bold text-slate-800 rounded-xl px-3.5 py-2 pr-8 focus:outline-hidden focus:border-zanova-yellow cursor-pointer shadow-xs">
                     <option value="featured" {{ $currentSort === 'featured' ? 'selected' : '' }}>Featured</option>
-                    <option value="price_asc" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-                    <option value="price_desc" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                    <option value="price_asc" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+                    <option value="price_desc" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
                     <option value="newest" {{ $currentSort === 'newest' ? 'selected' : '' }}>Newest Arrivals</option>
                 </select>
             </form>

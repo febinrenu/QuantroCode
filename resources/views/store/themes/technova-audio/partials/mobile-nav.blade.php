@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'technova');
+    $previewTheme = request('preview_theme');
     $themeUrl = function($path, $params = []) use ($previewTheme) {
         if ($previewTheme) {
             $params['preview_theme'] = $previewTheme;
@@ -57,7 +57,7 @@
                 @if($previewTheme)
                     <input type="hidden" name="preview_theme" value="{{ $previewTheme }}">
                 @endif
-                <input type="text" name="q" placeholder="Search electronics..." class="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-blue-600" />
+                <input type="text" name="q" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" class="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-blue-600" />
                 <svg class="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
             </form>
         </div>
@@ -96,9 +96,15 @@
                 </a>
                 <a href="{{ $themeUrl('online_store/cart') }}" class="flex items-center px-3 py-2 rounded-lg text-sm font-semibold text-blue-600 hover:bg-blue-50 transition">
                     <span class="mr-3">🛒</span>
-                    <span>Shopping Cart</span>
+                    <span>{{ __('messages.Cart') }}</span>
                 </a>
             </div>
+        </div>
+
+        <!-- Language Switcher -->
+        <div class="p-4 border-t border-slate-200 bg-slate-50">
+            <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+            @include('store.partials.language-switcher', ['variant' => 'mobile'])
         </div>
 
         <!-- Footer / Contact Info -->

@@ -40,9 +40,9 @@
 
     <!-- Breadcrumb Nav -->
     <nav class="flex items-center gap-2 text-xs text-stone-500">
-        <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-verde-primary transition-colors">Home</a>
+        <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-verde-primary transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
         <span>/</span>
-        <a href="{{ url('/online_store/shop' . $previewParam) }}" class="hover:text-verde-primary transition-colors">Shop</a>
+        <a href="{{ url('/online_store/shop' . $previewParam) }}" class="hover:text-verde-primary transition-colors">{{ __('messages.Shop') ?? 'Shop' }}</a>
         <span>/</span>
         <a href="{{ url('/online_store/shop?category=' . $categorySlug . $previewAmp) }}" class="hover:text-verde-primary transition-colors">{{ $categoryName }}</a>
         <span>/</span>

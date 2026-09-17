@@ -61,13 +61,13 @@
 
             <!-- 2. Shop Links -->
             <div>
-                <h4 class="text-xs font-bold text-white tracking-wider uppercase mb-4">SHOP</h4>
+                <h4 class="text-xs font-bold text-white tracking-wider uppercase mb-4">{{ __('messages.Shop') ?? 'SHOP' }}</h4>
                 <ul class="space-y-2.5 text-xs text-stone-400">
                     <li><a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-white transition-colors">All Products</a></li>
                     <li><a href="{{ url('/online_store/shop?collection=new-arrivals' . $previewAmp) }}" class="hover:text-white transition-colors">New Arrivals</a></li>
                     <li><a href="{{ url('/online_store/shop?collection=best-sellers' . $previewAmp) }}" class="hover:text-white transition-colors">Best Sellers</a></li>
                     <li><a href="{{ url('/online_store/shop?category=decor' . $previewAmp) }}" class="hover:text-white transition-colors">Gift Cards</a></li>
-                    <li><a href="{{ url('/online_store/shop?collection=sale' . $previewAmp) }}" class="text-homely-terracotta hover:underline">Sale</a></li>
+                    <li><a href="{{ url('/online_store/shop?collection=sale' . $previewAmp) }}" class="text-homely-terracotta hover:underline">{{ __('messages.Deals') ?? 'Sale' }}</a></li>
                 </ul>
             </div>
 
@@ -79,7 +79,7 @@
                     <li><a href="#" class="hover:text-white transition-colors">Returns & Exchanges</a></li>
                     <li><a href="#" class="hover:text-white transition-colors">Shipping Information</a></li>
                     <li><a href="#" class="hover:text-white transition-colors">FAQs</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors">Contact Us</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">{{ __('messages.ContactUs') ?? 'Contact Us' }}</a></li>
                 </ul>
             </div>
 
@@ -122,7 +122,7 @@
             </div>
 
             <!-- Copyright -->
-            <p>© {{ date('Y') }} Homely. All Rights Reserved.</p>
+            <p>© {{ date('Y') }} Homely. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}</p>
 
             <!-- Legal links -->
             <div class="flex items-center gap-4">

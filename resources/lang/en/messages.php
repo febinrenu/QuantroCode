@@ -321,4 +321,10 @@ return [
     'Theme_Marketplace' => 'Marketplace / Mega-Store',
     'Default_Store_Theme' => 'Default Store Theme',
     'Real_Estate_Theme' => 'Real Estate Theme',
+    'Language' => 'Language',
+    'Wishlist' => 'Wishlist',
+    'AddToWishlist' => 'Add to Wishlist',
+    'ProceedToCheckout' => 'Proceed to Checkout',
+    'SecureCheckout' => 'Secure Checkout',
+    'EstimatedTotal' => 'Estimated Total',
 ];

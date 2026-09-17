@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
+<html lang="{{ str_replace('_','-', app()->getLocale()) }}">
 <head>
 @include('store.themes.aurumeclat._shell', ['pageTitle' => ($s->seo_meta_title ?? $s->store_name ?? 'AurumÉclat') . ' — Fine Jewelry | Crafted to Be Treasured'])
 </head>
 <body class="bg-[#090807] text-aurum-goldLight antialiased selection:bg-aurum-gold selection:text-aurum-black">
 
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'aurumeclat');
+  $themePreview = request('preview_theme');
   $aurumRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;

@@ -1,6 +1,6 @@
 {{-- AurumÉclat Mobile Navigation Drawer --}}
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'aurumeclat');
+  $themePreview = request('preview_theme');
   $aurumRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -33,7 +33,7 @@
         @if($themePreview)
           <input type="hidden" name="preview_theme" value="{{ $themePreview }}">
         @endif
-        <input type="text" name="q" placeholder="Search fine jewelry..." class="w-full bg-[#161411] border border-aurum-border text-xs text-white placeholder-aurum-goldLight/40 px-3 py-2.5 rounded-none focus:outline-none focus:border-aurum-gold">
+        <input type="text" name="q" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" class="w-full bg-[#161411] border border-aurum-border text-xs text-white placeholder-aurum-goldLight/40 px-3 py-2.5 rounded-none focus:outline-none focus:border-aurum-gold">
         <button type="submit" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-aurum-goldLight/60 hover:text-aurum-gold">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         </button>
@@ -82,13 +82,19 @@
       <div><a href="{{ $aurumRoute('store.shop') }}" class="block py-1 hover:text-aurum-gold">COLLECTIONS</a></div>
     </nav>
 
+    <!-- Language Switcher -->
+    <div class="px-5 py-4 border-t border-aurum-border/50">
+      <div class="text-[10px] font-medium tracking-[0.2em] uppercase text-aurum-goldLight/60 mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+      @include('store.partials.language-switcher', ['variant' => 'mobile'])
+    </div>
+
     <!-- Bottom Actions -->
     <div class="p-5 bg-[#0A0908] border-t border-aurum-border space-y-3 text-xs">
       <a href="#private-appointment-section" class="block w-full text-center py-2.5 bg-aurum-gold text-aurum-black font-semibold tracking-wider text-[11px] uppercase">
         BOOK APPOINTMENT
       </a>
       <div class="pt-2 flex items-center justify-between text-[11px] text-aurum-goldLight/70">
-        <a href="{{ $aurumRoute('store.login.show') }}" class="hover:text-aurum-gold">Account / Sign In</a>
+        <a href="{{ $aurumRoute('store.login.show') }}" class="hover:text-aurum-gold">{{ __('messages.Account') ?? 'Account' }} / {{ __('messages.SignIn') ?? 'Sign In' }}</a>
         <a href="#boutique-section" class="hover:text-aurum-gold">Find Boutique</a>
       </div>
     </div>

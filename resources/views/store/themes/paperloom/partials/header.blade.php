@@ -1,5 +1,5 @@
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'paperloom');
+  $themePreview = request('preview_theme');
   $plRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -75,7 +75,7 @@
             <input type="text"
                    name="q"
                    value="{{ request('q') }}"
-                   placeholder="Search books, journals, art supplies and more..."
+                   placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                    class="w-full pl-4 pr-12 py-2.5 bg-white rounded-full border border-pl-border text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-pl-terracotta focus:ring-2 focus:ring-pl-terracotta/20 shadow-xs transition-all">
             <button type="submit"
                     class="absolute right-1.5 w-8 h-8 rounded-full bg-pl-terracotta hover:bg-pl-terracottaHover text-white flex items-center justify-center transition-colors shadow-xs"
@@ -90,16 +90,19 @@
 
       <!-- Right Utility Actions -->
       <div class="flex items-center gap-3 sm:gap-5 text-slate-700">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
 
         <!-- Account / Login -->
-        <a href="{{ $plRoute('store.shop', ['action' => 'account']) }}" class="p-2 hover:text-pl-terracotta transition-colors flex items-center gap-1.5" title="Account">
+        <a href="{{ $plRoute('store.shop', ['action' => 'account']) }}" class="p-2 hover:text-pl-terracotta transition-colors flex items-center gap-1.5" title="{{ __('messages.Account') ?? 'Account' }}">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
         </a>
 
         <!-- Wishlist -->
-        <a href="{{ $plRoute('store.shop', ['action' => 'wishlist']) }}" class="p-2 hover:text-pl-terracotta transition-colors relative" title="Wishlist">
+        <a href="{{ $plRoute('store.shop', ['action' => 'wishlist']) }}" class="p-2 hover:text-pl-terracotta transition-colors relative" title="{{ __('messages.Wishlist') ?? 'Wishlist' }}">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           </svg>
@@ -173,7 +176,7 @@
           <a href="{{ $plRoute('store.shop', ['category' => 'Gifts']) }}" class="hover:text-pl-terracotta transition-colors">Gifts</a>
           <a href="{{ $plRoute('store.shop', ['collection' => 'new-arrivals']) }}" class="hover:text-pl-terracotta transition-colors">New Arrivals</a>
           <a href="{{ $plRoute('store.shop', ['collection' => 'bestselling']) }}" class="hover:text-pl-terracotta transition-colors">Best Sellers</a>
-          <a href="{{ $plRoute('store.shop', ['collection' => 'sale']) }}" class="text-pl-terracotta font-bold hover:underline transition-all">Sale</a>
+          <a href="{{ $plRoute('store.shop', ['collection' => 'sale']) }}" class="text-pl-terracotta font-bold hover:underline transition-all">{{ __('messages.Deals') ?? 'Sale' }}</a>
         </div>
 
         <!-- Quick Tagline -->

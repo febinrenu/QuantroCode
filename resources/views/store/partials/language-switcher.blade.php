@@ -35,10 +35,18 @@
   // table isn't reachable for any reason (e.g. central DB not migrated yet).
   try {
     $lsLanguages = \App\Models\Central\CentralLanguage::active();
+    if ($lsLanguages->isEmpty()) {
+      $supportedCodes = ['en', 'ar', 'fr', 'es', 'de', 'pt', 'tr'];
+      $lsLanguages = collect(array_map(
+        fn ($code, $i) => (object) ['locale' => $code, 'name' => $lsLabels[$code] ?? strtoupper($code), 'sort_order' => $i],
+        $supportedCodes, array_keys($supportedCodes)
+      ));
+    }
   } catch (\Throwable $e) {
+    $supportedCodes = ['en', 'ar', 'fr', 'es', 'de', 'pt', 'tr'];
     $lsLanguages = collect(array_map(
       fn ($code, $i) => (object) ['locale' => $code, 'name' => $lsLabels[$code] ?? strtoupper($code), 'sort_order' => $i],
-      array_keys($lsLabels), array_keys($lsLabels)
+      $supportedCodes, array_keys($supportedCodes)
     ));
   }
 @endphp

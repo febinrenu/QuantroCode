@@ -16,9 +16,9 @@
     @if($product['is_on_sale'])
       <span class="absolute top-2 left-2 bg-tc-gold text-white text-[10px] font-bold eyebrow px-2 py-1">-{{ $product['discount_percent'] }}%</span>
     @elseif($product['stock_status'] === 'preorder')
-      <span class="absolute top-2 left-2 bg-tc-green text-white text-[10px] font-bold eyebrow px-2 py-1">Pre-order</span>
+      <span class="absolute top-2 left-2 bg-tc-green text-white text-[10px] font-bold eyebrow px-2 py-1">{{ __('messages.PreOrder') ?? 'Pre-order' }}</span>
     @elseif($product['stock_status'] === 'out_of_stock')
-      <span class="absolute top-2 left-2 bg-tc-ink/80 text-white text-[10px] font-bold eyebrow px-2 py-1">Out of stock</span>
+      <span class="absolute top-2 left-2 bg-tc-ink/80 text-white text-[10px] font-bold eyebrow px-2 py-1">{{ __('messages.OutOfStock') ?? 'Out of stock' }}</span>
     @endif
   </a>
 
@@ -67,7 +67,7 @@
           </button>
         @endif
       @else
-        <a href="{{ url('/online_store/login') }}" class="text-xs font-semibold text-tc-green underline">{{ 'Sign in for price' }}</a>
+        <a href="{{ url('/online_store/login') }}" class="text-xs font-semibold text-tc-green underline">{{ __('messages.LoginToSeePrice') ?? 'Sign in to see price' }}</a>
       @endif
       <div class="js-add-status text-[11px] text-tc-inkSoft min-h-[1rem] mt-1"></div>
     </div>

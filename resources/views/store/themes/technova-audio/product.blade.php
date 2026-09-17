@@ -44,7 +44,7 @@
 
 @section('content')
 @php
-    $previewTheme = request('preview_theme', 'technova');
+    $previewTheme = request('preview_theme');
     $themeUrl = function($path, $params = []) use ($previewTheme) {
         if ($previewTheme) {
             $params['preview_theme'] = $previewTheme;
@@ -58,9 +58,9 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Breadcrumbs -->
         <div class="flex items-center gap-2 text-xs text-slate-400 mb-8">
-            <a href="{{ $themeUrl('online_store') }}" class="hover:text-blue-600 transition">Home</a>
+            <a href="{{ $themeUrl('online_store') }}" class="hover:text-blue-600 transition">{{ __('messages.Home') ?? 'Home' }}</a>
             <span>/</span>
-            <a href="{{ $themeUrl('online_store/shop') }}" class="hover:text-blue-600 transition">Shop</a>
+            <a href="{{ $themeUrl('online_store/shop') }}" class="hover:text-blue-600 transition">{{ __('messages.Shop') ?? 'Shop' }}</a>
             <span>/</span>
             <a href="{{ $themeUrl('online_store/shop', ['category' => $catName]) }}" class="hover:text-blue-600 transition">{{ $catName }}</a>
             <span>/</span>
@@ -191,7 +191,7 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                                 </svg>
-                                <span>Add to Cart</span>
+                                <span>{{ __('messages.AddToCart') ?? 'Add to Cart' }}</span>
                             </button>
 
                             <!-- View Bag / Checkout -->
@@ -199,7 +199,7 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                 </svg>
-                                <span>View Bag</span>
+                                <span>{{ __('messages.Cart') ?? 'View Bag' }}</span>
                             </a>
                         </div>
                     </div>
@@ -232,7 +232,7 @@
                 <div x-show="activeTab === 'specs'" class="max-w-2xl text-xs">
                     <div class="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
                         <div class="grid grid-cols-2 p-3 bg-slate-50">
-                            <span class="font-bold text-slate-700">Category</span>
+                            <span class="font-bold text-slate-700">{{ __('messages.Category') ?? 'Category' }}</span>
                             <span class="text-slate-600">{{ $catName }}</span>
                         </div>
                         <div class="grid grid-cols-2 p-3 bg-white">

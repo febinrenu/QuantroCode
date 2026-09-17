@@ -1,5 +1,5 @@
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'paperloom');
+  $themePreview = request('preview_theme');
   $plRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -67,7 +67,7 @@
         <div class="relative">
           <input type="text"
                  name="q"
-                 placeholder="Search catalog..."
+                 placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                  class="w-full pl-3 pr-9 py-2 bg-[#FAF8F5] border border-pl-border rounded-lg text-xs text-slate-900 focus:outline-none focus:border-pl-terracotta">
           <button type="submit" class="absolute right-2.5 top-2 text-slate-400 hover:text-pl-terracotta">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -81,7 +81,7 @@
 
       <!-- Primary Links -->
       <div class="space-y-1 text-xs font-semibold text-slate-800 flex flex-col">
-        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">Categories</span>
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-1">{{ __('messages.Categories') ?? 'Categories' }}</span>
         <a href="{{ $plRoute('store.shop', ['category' => 'Books']) }}" class="px-3 py-2 rounded-lg hover:bg-white hover:text-pl-terracotta transition-colors">Books</a>
         <a href="{{ $plRoute('store.shop', ['category' => 'Fiction']) }}" class="px-3 py-2 rounded-lg hover:bg-white hover:text-pl-terracotta transition-colors">Fiction</a>
         <a href="{{ $plRoute('store.shop', ['category' => 'Non-Fiction']) }}" class="px-3 py-2 rounded-lg hover:bg-white hover:text-pl-terracotta transition-colors">Non-Fiction</a>
@@ -115,10 +115,10 @@
     </div>
 
     <!-- Drawer Footer -->
-    <div class="p-4 border-t border-pl-border bg-white text-xs text-slate-600 space-y-2">
-      <div class="flex items-center justify-between">
-        <span>Language / Currency</span>
-        <span class="font-semibold text-slate-900">EN | USD</span>
+    <div class="p-4 border-t border-pl-border bg-white text-xs text-slate-600 space-y-3">
+      <div>
+        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+        @include('store.partials.language-switcher', ['variant' => 'mobile'])
       </div>
       <div class="pt-2 text-center text-[10px] text-slate-400">
         © 2026 PaperLoom Bookstore.

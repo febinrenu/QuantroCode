@@ -1,6 +1,6 @@
 {{-- VogueLane Header Partial --}}
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'voguelane');
+  $themePreview = request('preview_theme');
   $vogRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -68,7 +68,7 @@
           <input type="text" 
                  name="q" 
                  value="{{ request('q') }}"
-                 placeholder="Search for products, brands and more..." 
+                 placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" 
                  class="w-full h-10 pl-4 pr-10 text-xs sm:text-sm bg-vog-ivory border border-vog-border rounded-full focus:outline-none focus:border-slate-900 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400">
           <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-900 transition-colors" aria-label="Submit search">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -80,6 +80,9 @@
 
       <!-- Right Utility Actions -->
       <div class="flex items-center gap-3 sm:gap-6 shrink-0">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         
         <!-- Account -->
         @if(Auth::guard('store')->check())
@@ -98,20 +101,20 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
             </svg>
             <div class="text-left leading-tight hidden lg:block">
-              <span class="block text-[10px] text-slate-400 uppercase font-medium">Account</span>
-              <span class="font-semibold text-slate-900">Sign In</span>
+              <span class="block text-[10px] text-slate-400 uppercase font-medium">{{ __('messages.Account') ?? 'Account' }}</span>
+              <span class="font-semibold text-slate-900">{{ __('messages.SignIn') ?? 'Sign In' }}</span>
             </div>
           </a>
         @endif
 
         <!-- Wishlist -->
-        <a href="{{ $vogRoute('store.shop', ['collection' => 'featured']) }}" class="flex items-center gap-1.5 text-xs text-slate-800 hover:text-vog-tan transition-colors" title="Wishlist">
+        <a href="{{ $vogRoute('store.shop', ['collection' => 'featured']) }}" class="flex items-center gap-1.5 text-xs text-slate-800 hover:text-vog-tan transition-colors" title="{{ __('messages.Wishlist') ?? 'Wishlist' }}">
           <div class="relative">
             <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
               <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
             </svg>
           </div>
-          <span class="hidden lg:inline text-xs font-semibold text-slate-900">Wishlist</span>
+          <span class="hidden lg:inline text-xs font-semibold text-slate-900">{{ __('messages.Wishlist') ?? 'Wishlist' }}</span>
         </a>
 
         <!-- Cart Bag -->
@@ -126,7 +129,7 @@
           </div>
           <div class="text-left leading-tight hidden sm:block">
             <span class="block text-[10px] text-slate-400 uppercase font-medium">Bag</span>
-            <span class="font-semibold text-slate-900">Cart</span>
+            <span class="font-semibold text-slate-900">{{ __('messages.Cart') ?? 'Cart' }}</span>
           </div>
         </a>
 

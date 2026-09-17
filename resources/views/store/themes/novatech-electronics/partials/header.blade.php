@@ -7,21 +7,14 @@
                     <span class="text-amber-300">🔥</span>
                     <strong>TECH WEEK SALE:</strong> Up to 30% OFF on selected items!
                 </span>
-                <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-white text-indigo-900 font-bold text-[11px] hover:bg-indigo-50 transition-colors shadow-sm">
+                <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-white text-indigo-900 font-bold text-[11px] hover:bg-indigo-50 transition-colors shadow-sm">
                     Shop Deals
                 </a>
             </div>
             <div class="flex items-center space-x-6 text-slate-200 text-[11px]">
-                <a href="#" class="hover:text-white transition-colors">Support</a>
+                <a href="#" class="hover:text-white transition-colors">{{ __('messages.Support') ?? 'Support' }}</a>
                 <span class="text-indigo-300/40">|</span>
                 <a href="#" class="hover:text-white transition-colors">Store Locator</a>
-                <span class="text-indigo-300/40">|</span>
-                <div class="flex items-center space-x-1 cursor-pointer hover:text-white transition-colors">
-                    <span>Eng</span>
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </div>
             </div>
         </div>
     </div>
@@ -37,7 +30,7 @@
             </button>
 
             <!-- Brand Logo -->
-            <a href="{{ route('store.index', ['preview_theme' => 'novatech']) }}" class="flex items-center space-x-3 flex-shrink-0 group">
+            <a href="{{ route('store.index', array_filter(['preview_theme' => request('preview_theme')])) }}" class="flex items-center space-x-3 flex-shrink-0 group">
                 <!-- Geometric Stylized Gradient N Logo -->
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-400 p-0.5 shadow-md shadow-indigo-500/20 flex items-center justify-center">
                     <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center p-1.5">
@@ -63,7 +56,9 @@
             <!-- Search Bar with Category Dropdown -->
             <div class="hidden md:flex flex-1 max-w-2xl relative">
                 <form action="{{ route('store.shop') }}" method="GET" class="w-full flex items-center rounded-full border-2 border-slate-200 hover:border-indigo-400 focus-within:border-indigo-600 transition-all bg-white p-1 shadow-sm">
-                    <input type="hidden" name="preview_theme" value="novatech">
+                    @if(request('preview_theme'))
+                        <input type="hidden" name="preview_theme" value="{{ request('preview_theme') }}">
+                    @endif
 
                     <!-- Category Selector Dropdown -->
                     <div class="relative flex-shrink-0" x-data="{ open: false }">
@@ -86,7 +81,7 @@
                     </div>
 
                     <!-- Search Input -->
-                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Search for products, brands..." class="flex-1 px-4 py-2 text-xs text-slate-900 placeholder-slate-400 bg-transparent border-none focus:outline-none">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" class="flex-1 px-4 py-2 text-xs text-slate-900 placeholder-slate-400 bg-transparent border-none focus:outline-none">
 
                     <!-- Search Submit Button -->
                     <button type="submit" class="w-9 h-9 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center flex-shrink-0 transition-colors shadow-sm" aria-label="Search">
@@ -99,6 +94,9 @@
 
             <!-- Header Actions: Compare, Wishlist, Cart -->
             <div class="flex items-center space-x-5 sm:space-x-7">
+                <div class="hidden md:block">
+                    @include('store.partials.language-switcher')
+                </div>
                 <!-- Compare -->
                 <a href="#" class="hidden sm:flex flex-col items-center text-slate-700 hover:text-indigo-600 transition-colors group">
                     <svg class="w-6 h-6 text-slate-700 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -115,7 +113,7 @@
                         </svg>
                         <span class="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center">3</span>
                     </div>
-                    <span class="text-[11px] font-semibold mt-1 hidden sm:inline">Wishlist</span>
+                    <span class="text-[11px] font-semibold mt-1 hidden sm:inline">{{ __('messages.Wishlist') ?? 'Wishlist' }}</span>
                 </a>
 
                 <!-- Cart -->
@@ -126,7 +124,7 @@
                         </svg>
                         <span class="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center" x-text="cartCount > 0 ? cartCount : 2"></span>
                     </div>
-                    <span class="text-[11px] font-semibold mt-1 hidden sm:inline">Cart</span>
+                    <span class="text-[11px] font-semibold mt-1 hidden sm:inline">{{ __('messages.Cart') ?? 'Cart' }}</span>
                 </button>
             </div>
         </div>
@@ -138,11 +136,11 @@
             <div class="flex items-center justify-between h-12">
                 <!-- Left: Browse Categories Button -->
                 <div class="relative" x-data="{ catOpen: false }">
-                    <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="flex items-center space-x-2.5 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-t-lg font-bold text-xs uppercase tracking-wider transition-colors shadow-sm">
+                    <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" class="flex items-center space-x-2.5 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-t-lg font-bold text-xs uppercase tracking-wider transition-colors shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
-                        <span>Browse Categories</span>
+                        <span>{{ __('messages.Categories') ?? 'Browse Categories' }}</span>
                         <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
@@ -151,18 +149,18 @@
 
                 <!-- Navigation Links -->
                 <nav class="hidden lg:flex items-center space-x-8 text-xs font-bold tracking-wider text-slate-800 uppercase">
-                    <a href="{{ route('store.index', ['preview_theme' => 'novatech']) }}" class="text-indigo-600 hover:text-indigo-700 transition-colors py-3 border-b-2 border-indigo-600">HOME</a>
-                    <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="hover:text-indigo-600 transition-colors py-3">SHOP</a>
-                    <a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'new-arrivals']) }}" class="hover:text-indigo-600 transition-colors py-3">NEW ARRIVALS</a>
-                    <a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'best-sellers']) }}" class="hover:text-indigo-600 transition-colors py-3">BEST SELLERS</a>
-                    <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="hover:text-indigo-600 transition-colors py-3">BRANDS</a>
+                    <a href="{{ route('store.index', array_filter(['preview_theme' => request('preview_theme')])) }}" class="text-indigo-600 hover:text-indigo-700 transition-colors py-3 border-b-2 border-indigo-600">{{ __('messages.Home') ?? 'Home' }}</a>
+                    <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-600 transition-colors py-3">{{ __('messages.Shop') ?? 'Shop' }}</a>
+                    <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme'), 'filter' => 'new-arrivals'])) }}" class="hover:text-indigo-600 transition-colors py-3">NEW ARRIVALS</a>
+                    <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme'), 'filter' => 'best-sellers'])) }}" class="hover:text-indigo-600 transition-colors py-3">BEST SELLERS</a>
+                    <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-600 transition-colors py-3">BRANDS</a>
                     <a href="#" class="hover:text-indigo-600 transition-colors py-3">BLOG</a>
                 </nav>
 
                 <!-- Right: Today's Deals Pill Button -->
-                <a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'deals']) }}" class="hidden sm:inline-flex items-center space-x-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-purple-500/20">
+                <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme'), 'filter' => 'deals'])) }}" class="hidden sm:inline-flex items-center space-x-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-purple-500/20">
                     <span class="text-amber-300">⚡</span>
-                    <span>TODAY'S DEALS</span>
+                    <span>{{ strtoupper(__('messages.Deals') ?? 'TODAY\'S DEALS') }}</span>
                 </a>
             </div>
         </div>

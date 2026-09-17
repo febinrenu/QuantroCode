@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'technova');
+    $previewTheme = request('preview_theme');
     $themeUrl = function($path, $params = []) use ($previewTheme) {
         if ($previewTheme) {
             $params['preview_theme'] = $previewTheme;
@@ -106,7 +106,7 @@
         <!-- Bottom Bar -->
         <div class="mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
             <div class="text-slate-500">
-                &copy; {{ date('Y') }} TechNova Electronics Inc. All rights reserved. Built for performance and innovation.
+                &copy; {{ date('Y') }} TechNova Electronics Inc. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }} Built for performance and innovation.
             </div>
             <div class="flex flex-wrap items-center gap-4 text-slate-400">
                 <a href="{{ $themeUrl('online_store/shop', ['collection' => 'privacy']) }}" class="hover:text-white transition">Privacy Policy</a>

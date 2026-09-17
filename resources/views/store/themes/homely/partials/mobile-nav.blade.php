@@ -55,7 +55,7 @@
                 @endif
                 <input type="text" 
                        name="q" 
-                       placeholder="Search products..." 
+                       placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}" 
                        class="w-full pl-4 pr-10 py-2 text-sm rounded-lg border border-homely-border bg-stone-50 focus:outline-none focus:border-homely-primary">
                 <button type="submit" class="absolute right-2.5 top-2.5 text-homely-terracotta">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,8 +101,14 @@
             </a>
             <a href="{{ url('/online_store/shop?collection=sale' . $previewAmp) }}" 
                class="block px-3 py-2.5 rounded-md hover:bg-amber-50 text-homely-terracotta font-semibold">
-                Sale
+                {{ __('messages.Deals') ?? 'Sale' }}
             </a>
+        </div>
+
+        <!-- Language Switcher -->
+        <div class="p-4 border-t border-homely-border bg-white">
+            <div class="text-[11px] font-bold tracking-wider text-stone-400 uppercase mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+            @include('store.partials.language-switcher', ['variant' => 'mobile'])
         </div>
 
         <!-- Drawer Footer -->

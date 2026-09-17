@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'urbanic');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $cartUrl = url('online_store/cart') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
@@ -84,7 +84,7 @@
                     <input type="text"
                            name="q"
                            value="{{ request('q') }}"
-                           placeholder="Search for products, brands and more..."
+                           placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                            class="w-full bg-slate-100/90 hover:bg-slate-100 focus:bg-white text-xs sm:text-sm text-urb-dark placeholder-slate-400 rounded-full pl-5 pr-14 py-2.5 sm:py-3 border border-slate-200 focus:border-orange-500 focus:outline-none transition shadow-xs">
 
                     <button type="submit"
@@ -99,13 +99,16 @@
 
             <!-- Right Actions: Sign In, Wishlist, Cart -->
             <div class="flex items-center space-x-4 sm:space-x-6 shrink-0">
+                <div class="hidden md:block">
+                    @include('store.partials.language-switcher')
+                </div>
 
                 <!-- Sign In / Register -->
                 <a href="{{ $shopUrl }}" class="hidden md:flex flex-col items-center group text-slate-700 hover:text-orange-500 transition">
                     <svg class="w-5 h-5 text-slate-600 group-hover:text-orange-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <span class="text-[10px] font-bold mt-1 text-slate-600 group-hover:text-orange-500">Sign In / Register</span>
+                    <span class="text-[10px] font-bold mt-1 text-slate-600 group-hover:text-orange-500">{{ __('messages.SignIn') ?? 'Sign In' }} / {{ __('messages.Register') ?? 'Register' }}</span>
                 </a>
 
                 <!-- Wishlist -->
@@ -116,7 +119,7 @@
                         </svg>
                         <span class="absolute -top-1.5 -right-2.5 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center">2</span>
                     </div>
-                    <span class="text-[10px] font-bold mt-1 text-slate-600 group-hover:text-orange-500">Wishlist</span>
+                    <span class="text-[10px] font-bold mt-1 text-slate-600 group-hover:text-orange-500">{{ __('messages.Wishlist') ?? 'Wishlist' }}</span>
                 </a>
 
                 <!-- Cart / Bag with Live Alpine Badge -->
@@ -128,7 +131,7 @@
                         <span class="absolute -top-1.5 -right-2.5 w-4 h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center"
                               x-text="cartCount"></span>
                     </div>
-                    <span class="text-[10px] font-bold mt-1 text-slate-600 group-hover:text-orange-500">Cart</span>
+                    <span class="text-[10px] font-bold mt-1 text-slate-600 group-hover:text-orange-500">{{ __('messages.Cart') ?? 'Cart' }}</span>
                 </a>
 
             </div>
@@ -144,7 +147,7 @@
                 <input type="text"
                        name="q"
                        value="{{ request('q') }}"
-                       placeholder="Search products..."
+                       placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                        class="w-full bg-slate-100 text-xs text-urb-dark placeholder-slate-400 rounded-full pl-4 pr-10 py-2 border border-slate-200 focus:outline-none">
                 <button type="submit"
                         class="absolute right-1 w-7 h-7 rounded-full bg-orange-500 text-white flex items-center justify-center">
@@ -212,7 +215,7 @@
                 <!-- SALE Badge -->
                 <a href="{{ $saleUrl }}" class="flex items-center gap-1 px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white font-extrabold text-[11px] rounded-full transition shadow-xs">
                     <span>⭐</span>
-                    <span>SALE</span>
+                    <span>{{ strtoupper(__('messages.Deals') ?? 'SALE') }}</span>
                 </a>
 
             </nav>

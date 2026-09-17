@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
+<html lang="{{ str_replace('_','-', app()->getLocale()) }}">
 <head>
 @include('store.themes.generalhub-store._shell', ['pageTitle' => 'Shop All Products — ' . ($s->store_name ?? 'GeneralHub')])
 </head>
@@ -7,7 +7,7 @@
 
 @php
   $currency = $s->currency_code ?? '$';
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'generalhub');
+  $themePreview = request('preview_theme');
   $hubRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -30,9 +30,9 @@
   <div class="bg-white border-b border-slate-200 py-4">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
       <div class="flex items-center gap-2 text-xs text-slate-500">
-        <a href="{{ $hubRoute('store.index') }}" class="hover:text-hub-blue">Home</a>
+        <a href="{{ $hubRoute('store.index') }}" class="hover:text-hub-blue">{{ __('messages.Home') ?? 'Home' }}</a>
         <span>/</span>
-        <span class="text-slate-900 font-medium">Shop</span>
+        <span class="text-slate-900 font-medium">{{ __('messages.Shop') ?? 'Shop' }}</span>
         @if($q)
           <span>/</span>
           <span class="text-hub-blue font-medium">&ldquo;{{ $q }}&rdquo;</span>
@@ -58,20 +58,20 @@
 
           <!-- Search Field -->
           <div class="space-y-2">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900">Search</h4>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900">{{ __('messages.Search') ?? 'Search' }}</h4>
             <input type="text" 
                    name="q" 
                    value="{{ $q ?? '' }}" 
-                   placeholder="Keywords..." 
+                   placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                    class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-hub-blue">
           </div>
 
           <!-- Categories List -->
           <div class="pt-5 border-t border-slate-100 space-y-2.5">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900">Categories</h4>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900">{{ __('messages.Categories') ?? 'Categories' }}</h4>
             <div class="space-y-1 text-xs text-slate-600">
               <a href="{{ $hubRoute('store.shop') }}" class="flex items-center justify-between p-1.5 rounded-md hover:bg-slate-50 hover:text-hub-blue {{ !$cat && !$q ? 'text-hub-blue font-bold bg-blue-50/50' : '' }}">
-                <span>All Categories</span>
+                <span>{{ __('messages.AllCategories') ?? 'All Categories' }}</span>
               </a>
               @foreach($categories ?? [] as $c)
                 <a href="{{ $hubRoute('store.shop', ['category' => $c->id]) }}" class="flex items-center justify-between p-1.5 rounded-md hover:bg-slate-50 hover:text-hub-blue {{ ($cat == $c->id) ? 'text-hub-blue font-bold bg-blue-50/50' : '' }}">
@@ -85,12 +85,10 @@
           <div class="pt-5 border-t border-slate-100 space-y-3">
             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900">Price Range</h4>
             <div class="grid grid-cols-2 gap-2">
-              <input type="number" name="min" value="{{ request('min') }}" placeholder="Min $" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-hub-blue">
-              <input type="number" name="max" value="{{ request('max') }}" placeholder="Max $" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-hub-blue">
+              <input type="number" name="min" value="{{ request('min') }}" placeholder="{{ __('messages.MinPrice') ?? 'Min price' }}" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-hub-blue">
+              <input type="number" name="max" value="{{ request('max') }}" placeholder="{{ __('messages.MaxPrice') ?? 'Max price' }}" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 outline-none focus:border-hub-blue">
             </div>
-            <button type="submit" class="w-full py-2 bg-hub-blue hover:bg-hub-blueHover text-white text-xs font-semibold rounded-lg shadow-sm transition-colors">
-              Apply Filters
-            </button>
+            <button type="submit" class="w-full py-2 bg-hub-blue hover:bg-hub-blueHover text-white text-xs font-semibold rounded-lg shadow-sm transition-colors">{{ __('messages.ApplyFilters') ?? 'Apply Filters' }}</button>
           </div>
 
         </form>
@@ -118,8 +116,8 @@
           <label for="sort-select" class="text-xs text-slate-500 hidden sm:inline font-medium">Sort by:</label>
           <select id="sort-select" name="sort" onchange="this.form.submit()" class="text-xs font-semibold bg-slate-50 border border-slate-200 text-slate-700 py-1.5 px-3 rounded-lg outline-none focus:border-hub-blue cursor-pointer">
             <option value="latest" @selected(($sort ?? 'latest') === 'latest')>Newest Arrivals</option>
-            <option value="price_asc" @selected(($sort ?? '') === 'price_asc')>Price: Low to High</option>
-            <option value="price_desc" @selected(($sort ?? '') === 'price_desc')>Price: High to Low</option>
+            <option value="price_asc" @selected(($sort ?? '') === 'price_asc')>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+            <option value="price_desc" @selected(($sort ?? '') === 'price_desc')>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
           </select>
         </form>
       </div>

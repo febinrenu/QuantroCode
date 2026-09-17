@@ -16,9 +16,9 @@
     @if($product['is_on_sale'])
       <span class="absolute top-2.5 left-2.5 bg-lj-pink text-white text-[10px] font-bold px-2 py-1 rounded-full">-{{ $product['discount_percent'] }}%</span>
     @elseif($product['stock_status'] === 'preorder')
-      <span class="absolute top-2.5 left-2.5 bg-lj-purple text-white text-[10px] font-bold px-2 py-1 rounded-full">Pre-order</span>
+      <span class="absolute top-2.5 left-2.5 bg-lj-purple text-white text-[10px] font-bold px-2 py-1 rounded-full">{{ __('messages.PreOrder') ?? 'Pre-order' }}</span>
     @elseif($product['stock_status'] === 'out_of_stock')
-      <span class="absolute top-2.5 left-2.5 bg-lj-ink/80 text-white text-[10px] font-bold px-2 py-1 rounded-full">Out of stock</span>
+      <span class="absolute top-2.5 left-2.5 bg-lj-ink/80 text-white text-[10px] font-bold px-2 py-1 rounded-full">{{ __('messages.OutOfStock') ?? 'Out of stock' }}</span>
     @endif
   </a>
 
@@ -35,7 +35,7 @@
         @endif
       </div>
     @else
-      <a href="{{ url('/online_store/login') }}" class="text-xs font-semibold text-lj-purple underline mt-1">{{ 'Sign in for price' }}</a>
+      <a href="{{ url('/online_store/login') }}" class="text-xs font-semibold text-lj-purple underline mt-1">{{ __('messages.LoginToSeePrice') ?? 'Sign in to see price' }}</a>
     @endif
 
     <div class="flex items-center gap-1 mt-1.5">

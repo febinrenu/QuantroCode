@@ -54,6 +54,9 @@
       </div>
 
       <div class="ms-auto flex items-center gap-5">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         <a href="{{ route('store.contact') }}" class="hidden lg:flex flex-col items-center gap-0.5 text-tc-inkSoft hover:text-tc-green">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           <span class="text-[10px] font-medium">{{ 'Stores' }}</span>
@@ -65,7 +68,7 @@
         <a href="{{ url('/online_store/account/wishlist') }}" class="hidden sm:flex flex-col items-center gap-0.5 text-tc-inkSoft hover:text-tc-green relative">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
           <span class="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-tc-gold text-[9px] font-bold text-white inline-flex items-center justify-center">0</span>
-          <span class="text-[10px] font-medium">{{ 'Wishlist' }}</span>
+          <span class="text-[10px] font-medium">{{ __('messages.Wishlist') ?? 'Wishlist' }}</span>
         </a>
         <a href="{{ route('store.cart') }}" class="flex flex-col items-center gap-0.5 text-tc-inkSoft hover:text-tc-green relative">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>

@@ -6,7 +6,7 @@
     $currentCollection = request('collection', '');
     $currentSort = request('sort', 'latest');
     $searchQuery = request('q', '');
-    $previewTheme = request('preview_theme', 'technova');
+    $previewTheme = request('preview_theme');
 
     $themeUrl = function($path, $params = []) use ($previewTheme) {
         if ($previewTheme) {
@@ -28,9 +28,9 @@
         <!-- Breadcrumbs & Heading -->
         <div class="mb-6">
             <div class="flex items-center gap-2 text-xs text-slate-400 mb-2">
-                <a href="{{ $themeUrl('online_store') }}" class="hover:text-blue-600 transition">Home</a>
+                <a href="{{ $themeUrl('online_store') }}" class="hover:text-blue-600 transition">{{ __('messages.Home') ?? 'Home' }}</a>
                 <span>/</span>
-                <a href="{{ $themeUrl('online_store/shop') }}" class="hover:text-blue-600 transition">Shop</a>
+                <a href="{{ $themeUrl('online_store/shop') }}" class="hover:text-blue-600 transition">{{ __('messages.Shop') ?? 'Shop' }}</a>
                 @if($currentCategory)
                     <span>/</span>
                     <span class="text-slate-700 font-semibold">{{ $currentCategory }}</span>
@@ -71,8 +71,8 @@
                     <label for="sort" class="font-bold text-slate-700">Sort By:</label>
                     <select name="sort" id="sort" onchange="this.form.submit()" class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-600 cursor-pointer shadow-sm">
                         <option value="latest" {{ $currentSort === 'latest' ? 'selected' : '' }}>Latest Arrivals</option>
-                        <option value="price_asc" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-                        <option value="price_desc" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                        <option value="price_asc" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+                        <option value="price_desc" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
                         <option value="name_asc" {{ $currentSort === 'name_asc' ? 'selected' : '' }}>Product Name A-Z</option>
                     </select>
                 </form>
@@ -87,9 +87,7 @@
                 @if($currentCategory || $currentBrand || $currentCollection || $searchQuery)
                     <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-center justify-between">
                         <span class="text-xs font-bold text-blue-900">Filters Active</span>
-                        <a href="{{ $themeUrl('online_store/shop') }}" class="text-xs font-bold text-blue-600 hover:text-blue-800 underline">
-                            Clear All
-                        </a>
+                        <a href="{{ $themeUrl('online_store/shop') }}" class="text-xs font-bold text-blue-600 hover:text-blue-800 underline">{{ __('messages.ClearFilters') ?? 'Clear all' }}</a>
                     </div>
                 @endif
 

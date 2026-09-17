@@ -69,6 +69,9 @@
             </div>
           </form>
         </div>
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
         <a href="{{ $cnClient ? url('/online_store/account') : url('/online_store/login') }}" class="hidden sm:flex text-cn-inkSoft hover:text-cn-olive">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
         </a>

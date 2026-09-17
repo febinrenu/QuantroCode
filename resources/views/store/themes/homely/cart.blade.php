@@ -112,10 +112,10 @@
             </template>
         </div>
 
-        <!-- Order Summary (4 cols) -->
+        <!-- {{ __('messages.OrderSummary') ?? 'Order Summary' }} (4 cols) -->
         <div class="lg:col-span-4 bg-white rounded-3xl p-6 sm:p-7 border border-homely-borderLight shadow-xs space-y-6">
             <h3 class="font-serif text-xl font-bold text-homely-primary">
-                Order Summary
+                {{ __('messages.OrderSummary') ?? 'Order Summary' }}
             </h3>
 
             <div class="space-y-3 text-xs text-stone-600 divide-y divide-stone-100">
@@ -132,7 +132,7 @@
                     <span class="font-bold text-stone-400">Calculated at checkout</span>
                 </div>
                 <div class="flex justify-between pt-3 text-sm font-bold text-homely-text">
-                    <span>Total</span>
+                    <span>{{ __('messages.Total') ?? 'Total' }}</span>
                     <span class="text-base font-extrabold text-homely-primary" 
                           x-text="'$' + (cart.subtotal + (cart.subtotal >= 69 || cart.subtotal === 0 ? 0 : 6.50)).toFixed(2)"></span>
                 </div>
@@ -143,7 +143,7 @@
                     :disabled="cart.items.length === 0"
                     @click="showToast('Proceeding to secure checkout...')"
                     class="w-full py-3.5 px-6 rounded-full bg-homely-primary hover:bg-homely-primaryDark disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold uppercase tracking-wider transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                <span>PROCEED TO CHECKOUT</span>
+                <span>{{ __('messages.ProceedToCheckout') ?? 'PROCEED TO CHECKOUT' }}</span>
                 <span>&rarr;</span>
             </button>
 

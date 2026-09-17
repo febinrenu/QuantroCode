@@ -32,7 +32,7 @@
       </div>
     </div>
     <div>
-      <h6 class="text-xs font-bold eyebrow text-white/40 mb-3">{{ 'Shop' }}</h6>
+      <h6 class="text-xs font-bold eyebrow text-white/40 mb-3">{{ __('messages.Shop') ?? 'Shop' }}</h6>
       <ul class="space-y-2 text-sm">
         <li><a href="{{ route('store.shop') }}" class="hover:text-white">{{ 'All Categories' }}</a></li>
         <li><a href="{{ route('store.shop', ['sort' => 'latest']) }}" class="hover:text-white">{{ 'New Arrivals' }}</a></li>
@@ -49,7 +49,7 @@
         <li><a href="{{ route('store.contact') }}" class="hover:text-white">{{ 'Returns & Exchanges' }}</a></li>
         <li><a href="{{ route('store.contact') }}" class="hover:text-white">{{ 'Shipping Info' }}</a></li>
         <li><a href="{{ route('store.contact') }}" class="hover:text-white">{{ 'FAQs' }}</a></li>
-        <li><a href="{{ route('store.contact') }}" class="hover:text-white">{{ 'Contact Us' }}</a></li>
+        <li><a href="{{ route('store.contact') }}" class="hover:text-white">{{ __('messages.ContactUs') ?? 'Contact Us' }}</a></li>
         <li><a href="#" class="hover:text-white">{{ 'Privacy Policy' }}</a></li>
       </ul>
     </div>
@@ -74,7 +74,7 @@
   </div>
 
   <div class="max-w-7xl mx-auto px-4 py-5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/40">
-    <span>&copy; {{ date('Y') }} {{ $s->store_name ?? 'FutureX' }} {{ 'Tech Store' }}. {{ __('messages.AllRightsReserved') ?? 'All Rights Reserved.' }}</span>
+    <span>&copy; {{ date('Y') }} {{ $s->store_name ?? 'FutureX' }} {{ 'Tech Store' }}. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}</span>
     <span class="flex items-center gap-4">
       <a href="#" class="hover:text-white">{{ 'Terms & Conditions' }}</a>
       <a href="#" class="hover:text-white">{{ 'Privacy Policy' }}</a>

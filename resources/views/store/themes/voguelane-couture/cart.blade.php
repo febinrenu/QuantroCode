@@ -5,7 +5,7 @@
 @section('content')
 
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'voguelane');
+  $themePreview = request('preview_theme');
   $vogRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -137,7 +137,7 @@
       <!-- Actions -->
       <div class="flex items-center justify-between pt-2">
         <a href="{{ $vogRoute('store.shop') }}" class="text-xs font-semibold text-slate-900 hover:text-vog-tan underline transition-colors">
-          &larr; Continue Shopping
+          &larr; {{ __('messages.ContinueShopping') ?? 'Continue Shopping' }}
         </a>
         <button type="button" @click="clear()" class="text-xs text-slate-400 hover:text-red-600 underline">
           Clear Bag
@@ -149,12 +149,12 @@
     <!-- Order Summary (4 cols on desktop) -->
     <div class="lg:col-span-4 bg-vog-ivory rounded-2xl p-6 sm:p-7 border border-vog-border space-y-6 lg:sticky lg:top-28">
       <h2 class="font-serif-luxury text-xl font-bold text-slate-900 tracking-tight">
-        Order Summary
+        {{ __('messages.OrderSummary') ?? 'Order Summary' }}
       </h2>
 
       <div class="space-y-3 text-xs">
         <div class="flex justify-between text-slate-600">
-          <span>Subtotal</span>
+          <span>{{ __('messages.Subtotal') ?? 'Subtotal' }}</span>
           <span class="font-semibold text-slate-900" x-text="money(subtotal)"></span>
         </div>
         <div class="flex justify-between text-slate-600">
@@ -166,7 +166,7 @@
           <span class="font-semibold text-slate-900">Calculated at checkout</span>
         </div>
         <div class="border-t border-vog-border pt-3 flex justify-between text-sm font-bold text-slate-900">
-          <span>Estimated Total</span>
+          <span>{{ __('messages.EstimatedTotal') ?? 'Estimated Total' }}</span>
           <span x-text="money(subtotal >= 80 ? subtotal : (subtotal + 9.99))"></span>
         </div>
       </div>
@@ -175,7 +175,7 @@
       <button type="button" 
               @click="checkout('{{ $checkoutUrl }}')"
               class="w-full py-3.5 bg-vog-black hover:bg-neutral-800 text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl shadow-md active:scale-95 transition-all flex items-center justify-center gap-2">
-        <span>Proceed to Checkout</span>
+        <span>{{ __('messages.ProceedToCheckout') ?? 'Proceed to Checkout' }}</span>
         <span>&rarr;</span>
       </button>
 

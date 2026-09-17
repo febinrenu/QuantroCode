@@ -12,9 +12,9 @@
     <!-- Breadcrumbs & Header -->
     <div class="border-b border-homely-borderLight pb-6">
         <nav class="flex items-center gap-2 text-xs text-stone-500 mb-3">
-            <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-homely-primary transition-colors">Home</a>
+            <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-homely-primary transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
             <span>/</span>
-            <span class="text-homely-text font-semibold">Shop</span>
+            <span class="text-homely-text font-semibold">{{ __('messages.Shop') ?? 'Shop' }}</span>
             @if(request('category'))
                 <span>/</span>
                 <span class="text-homely-primary font-bold uppercase">{{ str_replace('-', ' ', request('category')) }}</span>
@@ -54,8 +54,8 @@
                         onchange="this.form.submit()"
                         class="text-xs font-medium border border-homely-border rounded-lg px-3 py-2 bg-white text-homely-text focus:outline-none focus:border-homely-primary">
                     <option value="featured" {{ request('sort') == 'featured' ? 'selected' : '' }}>Featured</option>
-                    <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
-                    <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
+                    <option value="price_low" {{ request('sort') == 'price_low' ? 'selected' : '' }}>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+                    <option value="price_high" {{ request('sort') == 'price_high' ? 'selected' : '' }}>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
                     <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest</option>
                 </select>
             </form>

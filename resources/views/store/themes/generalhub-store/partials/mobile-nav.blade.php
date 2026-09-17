@@ -1,6 +1,6 @@
 {{-- GeneralHub Mobile Navigation Drawer --}}
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'generalhub');
+  $themePreview = request('preview_theme');
   $hubRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -73,15 +73,21 @@
       </nav>
     </div>
 
+    <!-- Language Switcher -->
+    <div class="p-4 border-t border-slate-100">
+      <div class="text-[11px] font-bold tracking-wider text-slate-400 uppercase mb-2">{{ __('messages.Language') ?? 'Language' }}</div>
+      @include('store.partials.language-switcher', ['variant' => 'mobile'])
+    </div>
+
     <!-- Account Footer -->
     <div class="p-4 bg-slate-50 border-t border-slate-200 text-xs">
       @if(Auth::guard('store')->check())
         <a href="{{ $hubRoute('account') }}" class="block w-full text-center py-2.5 bg-hub-blue text-white font-semibold rounded-lg hover:bg-hub-blueHover transition-colors">
-          My Account
+          {{ __('messages.MyAccount') ?? 'My Account' }}
         </a>
       @else
         <a href="{{ $hubRoute('store.login.show') }}" class="block w-full text-center py-2.5 bg-hub-blue text-white font-semibold rounded-lg hover:bg-hub-blueHover transition-colors">
-          Sign In / Register
+          {{ __('messages.SignIn') ?? 'Sign In' }} / {{ __('messages.Register') ?? 'Register' }}
         </a>
       @endif
     </div>

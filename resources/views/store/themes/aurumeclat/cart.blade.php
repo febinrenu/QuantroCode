@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
+<html lang="{{ str_replace('_','-', app()->getLocale()) }}">
 <head>
 @include('store.themes.aurumeclat._shell', ['pageTitle' => 'Your Shopping Bag — ' . ($s->store_name ?? 'AurumÉclat')])
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -7,7 +7,7 @@
 <body class="bg-[#0E0D0B] text-aurum-goldLight antialiased selection:bg-aurum-gold selection:text-aurum-black">
 
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'aurumeclat');
+  $themePreview = request('preview_theme');
   $aurumRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -79,7 +79,7 @@
             <span class="text-aurum-gold font-medium">COMPLIMENTARY</span>
           </div>
           <div class="flex justify-between text-sm sm:text-base font-serif font-semibold text-white border-t border-aurum-border/60 pt-4">
-            <span>Estimated Total</span>
+            <span>{{ __('messages.EstimatedTotal') ?? 'Estimated Total' }}</span>
             <span class="text-aurum-gold text-xl" x-text="subtotalFormatted()"></span>
           </div>
 
@@ -88,7 +88,7 @@
               CLEAR BAG
             </button>
             <a href="{{ $aurumRoute('store.checkout') }}" class="flex-1 py-3 bg-aurum-gold hover:bg-[#E5C158] text-aurum-black text-xs font-semibold tracking-[0.2em] uppercase text-center transition-colors shadow">
-              PROCEED TO SECURE CHECKOUT
+              {{ __('messages.ProceedToCheckout') ?? 'PROCEED TO SECURE CHECKOUT' }}
             </a>
           </div>
         </div>

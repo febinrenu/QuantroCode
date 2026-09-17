@@ -255,7 +255,7 @@
                             </div>
                             <h3 class="text-base font-bold text-slate-900 mb-1">Your cart is empty</h3>
                             <p class="text-xs text-slate-500 mb-6">Discover our latest electronics and tech gear.</p>
-                            <a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" @click="miniCartOpen = false" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md">
+                            <a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" @click="miniCartOpen = false" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-md">
                                 Start Shopping
                             </a>
                         </div>
@@ -289,15 +289,15 @@
                 <!-- Drawer Footer Checkout -->
                 <div class="p-6 border-t border-slate-100 bg-slate-50 space-y-4" x-data="{ total: 0 }" x-init="total = CartLS.total(); window.addEventListener('cart-updated', () => { total = CartLS.total(); })" x-show="CartLS.get().length > 0">
                     <div class="flex items-center justify-between text-sm">
-                        <span class="font-medium text-slate-600">Subtotal</span>
+                        <span class="font-medium text-slate-600">{{ __('messages.Subtotal') ?? 'Subtotal' }}</span>
                         <span class="font-extrabold text-slate-900 text-lg" x-text="'$' + parseFloat(total).toFixed(2)"></span>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
-                        <a href="{{ url('/online_store/cart?preview_theme=novatech') }}" class="w-full py-3 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold text-center transition-all">
-                            View Cart
+                        <a href="{{ url('/online_store/cart' . (request('preview_theme') ? '?preview_theme=' . request('preview_theme') : '')) }}" class="w-full py-3 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold text-center transition-all">
+                            {{ __('messages.Cart') ?? 'View Cart' }}
                         </a>
-                        <a href="{{ url('/online_store/checkout?preview_theme=novatech') }}" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-bold text-center transition-all shadow-md shadow-indigo-500/20">
-                            Checkout
+                        <a href="{{ url('/online_store/checkout' . (request('preview_theme') ? '?preview_theme=' . request('preview_theme') : '')) }}" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-bold text-center transition-all shadow-md shadow-indigo-500/20">
+                            {{ __('messages.Checkout') ?? 'Checkout' }}
                         </a>
                     </div>
                 </div>

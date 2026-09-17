@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'urbanic');
+    $previewTheme = request('preview_theme');
     $productUrl = url('online_store/product/' . $product->id) . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
 
     // Resolve price
@@ -35,7 +35,7 @@
         <!-- Wishlist Button -->
         <button type="button"
                 class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-slate-400 hover:text-rose-500 shadow-xs flex items-center justify-center transition-all duration-200 hover:scale-110"
-                aria-label="Add to Wishlist">
+                aria-label="{{ __('messages.AddToWishlist') ?? 'Add to Wishlist' }}">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>

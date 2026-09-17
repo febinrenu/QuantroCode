@@ -20,9 +20,9 @@
     <div class="border-b border-verde-borderLight pb-6">
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-2 text-xs text-stone-500 mb-3">
-            <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-verde-primary transition-colors">Home</a>
+            <a href="{{ url('/online_store' . $previewParam) }}" class="hover:text-verde-primary transition-colors">{{ __('messages.Home') ?? 'Home' }}</a>
             <span>/</span>
-            <a href="{{ url('/online_store/shop' . $previewParam) }}" class="hover:text-verde-primary transition-colors">Shop</a>
+            <a href="{{ url('/online_store/shop' . $previewParam) }}" class="hover:text-verde-primary transition-colors">{{ __('messages.Shop') ?? 'Shop' }}</a>
             @if($currentCategory)
                 <span>/</span>
                 <span class="text-verde-primary font-semibold capitalize">{{ str_replace('-', ' ', $currentCategory) }}</span>
@@ -71,8 +71,8 @@
                         onchange="this.form.submit()"
                         class="bg-white border border-verde-border text-xs rounded-xl px-3 py-2 text-stone-800 focus:outline-hidden focus:border-verde-primary shadow-xs">
                     <option value="newest" {{ $currentSort === 'newest' ? 'selected' : '' }}>Newest Arrivals</option>
-                    <option value="price_asc" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-                    <option value="price_desc" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                    <option value="price_asc" {{ $currentSort === 'price_asc' ? 'selected' : '' }}>{{ __('messages.PriceLowToHigh') ?? 'Price: Low to High' }}</option>
+                    <option value="price_desc" {{ $currentSort === 'price_desc' ? 'selected' : '' }}>{{ __('messages.PriceHighToLow') ?? 'Price: High to Low' }}</option>
                     <option value="name_asc" {{ $currentSort === 'name_asc' ? 'selected' : '' }}>Name: A-Z</option>
                 </select>
             </form>

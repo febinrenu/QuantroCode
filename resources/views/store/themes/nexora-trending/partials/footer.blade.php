@@ -1,5 +1,5 @@
 @php
-    $previewTheme = request('preview_theme', 'nexora');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
 @endphp
@@ -53,13 +53,13 @@
             <!-- Column 2: SHOP -->
             <div>
                 <h4 class="font-extrabold text-xs uppercase tracking-widest text-white mb-4">
-                    SHOP
+                    {{ __('messages.Shop') ?? 'SHOP' }}
                 </h4>
                 <ul class="space-y-2.5 text-slate-400 text-xs">
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">All Categories</a></li>
                     <li><a href="{{ url('online_store/shop?collection=bestsellers' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">Best Sellers</a></li>
                     <li><a href="{{ url('online_store/shop?collection=new-arrivals' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">New Arrivals</a></li>
-                    <li><a href="{{ url('online_store/shop?collection=deals' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">Deals</a></li>
+                    <li><a href="{{ url('online_store/shop?collection=deals' . ($previewTheme ? '&preview_theme=' . $previewTheme : '')) }}" class="hover:text-white transition">{{ __('messages.Deals') ?? 'Deals' }}</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Brands</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Gift Cards</a></li>
                 </ul>
@@ -75,7 +75,7 @@
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Returns & Refunds</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Shipping Info</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">FAQs</a></li>
-                    <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Contact Us</a></li>
+                    <li><a href="{{ $shopUrl }}" class="hover:text-white transition">{{ __('messages.ContactUs') ?? 'Contact Us' }}</a></li>
                     <li><a href="{{ $shopUrl }}" class="hover:text-white transition">Size Guide</a></li>
                 </ul>
             </div>
@@ -118,7 +118,7 @@
             </div>
 
             <div>
-                © {{ date('Y') }} Nexora. All Rights Reserved.
+                © {{ date('Y') }} Nexora. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}
             </div>
 
             <!-- Floating Back to Top Button -->

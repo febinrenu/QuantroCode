@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}" dir="{{ in_array(app()->getLocale(), ['ar','he','fa','ur']) ? 'rtl' : 'ltr' }}">
+<html lang="{{ str_replace('_','-', app()->getLocale()) }}">
 <head>
 @include('store.themes.aurumeclat._shell', ['pageTitle' => $product['name'] . ' — ' . ($s->store_name ?? 'AurumÉclat')])
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -7,7 +7,7 @@
 <body class="bg-[#090807] text-aurum-goldLight antialiased selection:bg-aurum-gold selection:text-aurum-black">
 
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'aurumeclat');
+  $themePreview = request('preview_theme');
   $aurumRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -39,7 +39,7 @@
   
   <!-- Breadcrumb -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-xs text-aurum-goldLight/60 font-light flex items-center gap-2 border-b border-aurum-border/40">
-    <a href="{{ $aurumRoute('store.index') }}" class="hover:text-aurum-gold">Home</a> /
+    <a href="{{ $aurumRoute('store.index') }}" class="hover:text-aurum-gold">{{ __('messages.Home') ?? 'Home' }}</a> /
     <a href="{{ $aurumRoute('store.shop') }}" class="hover:text-aurum-gold">Fine Jewelry</a> /
     @if($product['category_name'])
       <a href="{{ $aurumRoute('store.shop', ['category' => $p->category_id ?? '']) }}" class="hover:text-aurum-gold">{{ $product['category_name'] }}</a> /

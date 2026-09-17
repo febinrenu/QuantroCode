@@ -70,7 +70,7 @@
   </div>
 
   <div class="max-w-7xl mx-auto px-4 py-5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/50">
-    <span>&copy; {{ date('Y') }} {{ $s->store_name ?? 'LittleJoy' }}. {{ __('messages.AllRightsReserved') ?? 'All Rights Reserved.' }}</span>
+    <span>&copy; {{ date('Y') }} {{ $s->store_name ?? 'LittleJoy' }}. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}</span>
     <span class="flex items-center gap-1.5">
       <svg class="w-4 h-4 text-lj-pink" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.35-9.3-8.1C1 10.3 1.8 6.9 4.7 5.6 7 4.6 9.4 5.4 12 8c2.6-2.6 5-3.4 7.3-2.4 2.9 1.3 3.7 4.7 2 7.3C18.7 16.65 12 21 12 21Z"/></svg>
       {{ 'Designed with love for little ones and their families' }}

@@ -35,10 +35,10 @@ class SetLocale
         try {
             $locales = CentralLanguage::where('is_active', true)->pluck('locale')->toArray();
 
-            return ! empty($locales) ? $locales : ['en', 'fr', 'ar', 'es', 'hi', 'bn', 'tr', 'de', 'pt'];
+            return ! empty($locales) ? $locales : ['en', 'ar', 'fr', 'es', 'de', 'pt', 'tr'];
         } catch (\Throwable $e) {
             // Table may not exist yet (pre-migration)
-            return ['en', 'fr', 'ar', 'es', 'hi', 'bn', 'tr', 'de', 'pt'];
+            return ['en', 'ar', 'fr', 'es', 'de', 'pt', 'tr'];
         }
     }
 

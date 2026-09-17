@@ -3,7 +3,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-8 pb-14 border-b border-slate-800">
             <!-- 1. Brand Info (Col span 2) -->
             <div class="lg:col-span-2 space-y-5">
-                <a href="{{ route('store.index', ['preview_theme' => 'novatech']) }}" class="flex items-center space-x-3 group">
+                <a href="{{ route('store.index', array_filter(['preview_theme' => request('preview_theme')])) }}" class="flex items-center space-x-3 group">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 via-blue-600 to-cyan-400 p-0.5 flex items-center justify-center">
                         <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center p-1.5">
                             <svg class="w-full h-full" viewBox="0 0 28 28" fill="none">
@@ -51,13 +51,13 @@
 
             <!-- 2. SHOP Links -->
             <div class="space-y-4">
-                <h4 class="text-xs font-bold uppercase tracking-widest text-white">SHOP</h4>
+                <h4 class="text-xs font-bold uppercase tracking-widest text-white">{{ __('messages.Shop') ?? 'SHOP' }}</h4>
                 <ul class="space-y-2.5 text-xs text-slate-400">
-                    <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="hover:text-indigo-400 transition-colors">All Categories</a></li>
-                    <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'new-arrivals']) }}" class="hover:text-indigo-400 transition-colors">New Arrivals</a></li>
-                    <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'best-sellers']) }}" class="hover:text-indigo-400 transition-colors">Best Sellers</a></li>
-                    <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech', 'filter' => 'deals']) }}" class="hover:text-indigo-400 transition-colors">Deals</a></li>
-                    <li><a href="{{ route('store.shop', ['preview_theme' => 'novatech']) }}" class="hover:text-indigo-400 transition-colors">Brands</a></li>
+                    <li><a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-400 transition-colors">All Categories</a></li>
+                    <li><a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme'), 'filter' => 'new-arrivals'])) }}" class="hover:text-indigo-400 transition-colors">New Arrivals</a></li>
+                    <li><a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme'), 'filter' => 'best-sellers'])) }}" class="hover:text-indigo-400 transition-colors">Best Sellers</a></li>
+                    <li><a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme'), 'filter' => 'deals'])) }}" class="hover:text-indigo-400 transition-colors">{{ __('messages.Deals') ?? 'Deals' }}</a></li>
+                    <li><a href="{{ route('store.shop', array_filter(['preview_theme' => request('preview_theme')])) }}" class="hover:text-indigo-400 transition-colors">Brands</a></li>
                     <li><a href="#" class="hover:text-indigo-400 transition-colors">Gift Cards</a></li>
                 </ul>
             </div>
@@ -70,7 +70,7 @@
                     <li><a href="#" class="hover:text-indigo-400 transition-colors">Returns & Exchanges</a></li>
                     <li><a href="#" class="hover:text-indigo-400 transition-colors">Shipping Info</a></li>
                     <li><a href="#" class="hover:text-indigo-400 transition-colors">FAQs</a></li>
-                    <li><a href="#" class="hover:text-indigo-400 transition-colors">Contact Us</a></li>
+                    <li><a href="#" class="hover:text-indigo-400 transition-colors">{{ __('messages.ContactUs') ?? 'Contact Us' }}</a></li>
                 </ul>
             </div>
 
@@ -103,7 +103,7 @@
 
         <!-- Bottom Copyright -->
         <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-            <p>© 2024 Novatech. All Rights Reserved.</p>
+            <p>© 2024 Novatech. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}</p>
             <div class="flex items-center space-x-6">
                 <a href="#" class="hover:text-slate-300 transition-colors">Privacy Policy</a>
                 <span>|</span>

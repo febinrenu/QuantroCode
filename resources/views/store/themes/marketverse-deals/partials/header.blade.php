@@ -1,5 +1,5 @@
 @php
-  $themePreview = request('preview_theme') ?: (session('preview_theme') ?? 'marketverse');
+  $themePreview = request('preview_theme');
   $mvRoute = function(string $name, array $parameters = []) use ($themePreview) {
       if ($themePreview && !isset($parameters['preview_theme'])) {
           $parameters['preview_theme'] = $themePreview;
@@ -47,16 +47,12 @@
         </a>
         <a href="{{ $shopUrl }}" class="flex items-center gap-1.5 hover:text-white transition-colors">
           <svg class="w-3.5 h-3.5 text-mv-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-          <span>Customer Support</span>
+          <span>{{ __('messages.Support') ?? 'Customer Support' }}</span>
         </a>
       </div>
 
       <!-- Right Preferences -->
       <div class="flex items-center gap-4">
-        <div class="flex items-center gap-1 cursor-pointer hover:text-white">
-          <span>🇺🇸 English</span>
-        </div>
-        <span>|</span>
         <div class="flex items-center gap-1 cursor-pointer hover:text-white">
           <span>USD ($)</span>
         </div>
@@ -98,7 +94,7 @@
           <!-- Departments Dropdown -->
           <div class="relative pl-3 pr-2 py-1.5 border-r border-slate-200 shrink-0">
             <select name="category" class="text-xs bg-transparent font-medium text-slate-700 focus:outline-none cursor-pointer">
-              <option value="">All Departments</option>
+              <option value="">{{ __('messages.AllCategories') ?? 'All Departments' }}</option>
               <option value="Fashion">Fashion</option>
               <option value="Electronics">Electronics</option>
               <option value="Home & Living">Home & Living</option>
@@ -115,7 +111,7 @@
           <input type="text"
                  name="q"
                  value="{{ request('q') }}"
-                 placeholder="Search for products, brands and stores..."
+                 placeholder="{{ __('messages.SearchProducts') ?? 'Search products…' }}"
                  class="w-full bg-transparent px-4 py-2 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none">
 
           <!-- Search Submit Button (Orange) -->
@@ -128,6 +124,9 @@
 
       <!-- Right Utility Actions -->
       <div class="flex items-center gap-3 sm:gap-5 shrink-0">
+        <div class="hidden md:block">
+          @include('store.partials.language-switcher')
+        </div>
 
         <!-- Delivery Location -->
         <div class="hidden xl:flex items-center gap-2 text-left pl-2">
@@ -146,8 +145,8 @@
             <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
           </div>
           <div class="hidden sm:block text-[11px] text-left leading-tight">
-            <span class="text-slate-400 block">Account</span>
-            <span class="font-bold text-slate-800">Hello, Sign In</span>
+            <span class="text-slate-400 block">{{ __('messages.Account') ?? 'Account' }}</span>
+            <span class="font-bold text-slate-800">{{ __('messages.SignIn') ?? 'Sign In' }}</span>
           </div>
         </a>
 
@@ -166,7 +165,7 @@
               <span class="absolute -top-2 -right-2 bg-mv-orange text-white text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center"
                     x-text="itemsCount()">0</span>
             </div>
-            <span class="text-xs font-bold hidden sm:inline">Cart</span>
+            <span class="text-xs font-bold hidden sm:inline">{{ __('messages.Cart') ?? 'Cart' }}</span>
           </a>
         </div>
 
@@ -186,7 +185,7 @@
                   @click="deptOpen = !deptOpen"
                   class="flex items-center gap-2.5 px-4 py-3 bg-[#3C1BA8] hover:bg-[#341696] font-bold text-xs uppercase tracking-wider transition-colors shrink-0">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
-            <span>All Departments</span>
+            <span>{{ __('messages.Categories') ?? 'All Departments' }}</span>
             <svg class="w-3.5 h-3.5 transition-transform" :class="deptOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
           </button>
 
@@ -218,7 +217,7 @@
           <a href="{{ $mvRoute('store.shop', ['collection' => 'top-deals']) }}"
              class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-mv-gold text-slate-900 font-extrabold hover:bg-amber-400 transition-colors whitespace-nowrap shadow-xs">
             <span>🔥</span>
-            <span>Top Deals</span>
+            <span>{{ __('messages.Deals') ?? 'Top Deals' }}</span>
           </a>
         </div>
 

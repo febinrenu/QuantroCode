@@ -1,7 +1,7 @@
 @extends('store.themes.urbanic._shell')
 
 @php
-    $previewTheme = request('preview_theme', 'urbanic');
+    $previewTheme = request('preview_theme');
     $storeUrl = url('online_store') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $shopUrl = url('online_store/shop') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
     $cartUrl = url('online_store/cart') . ($previewTheme ? '?preview_theme=' . $previewTheme : '');
@@ -42,7 +42,7 @@
 
     <!-- Breadcrumb -->
     <nav class="flex items-center space-x-2 text-xs text-slate-500 font-medium">
-        <a href="{{ $storeUrl }}" class="hover:text-orange-600 transition">Home</a>
+        <a href="{{ $storeUrl }}" class="hover:text-orange-600 transition">{{ __('messages.Home') ?? 'Home' }}</a>
         <span>/</span>
         <a href="{{ $shopUrl }}" class="hover:text-orange-600 transition">Fashion</a>
         @if($catName)

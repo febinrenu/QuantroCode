@@ -64,13 +64,13 @@
       </ul>
     </div>
     <div>
-      <h6 class="text-xs font-bold eyebrow text-white/40 mb-3">{{ 'My Account' }}</h6>
+      <h6 class="text-xs font-bold eyebrow text-white/40 mb-3">{{ __('messages.MyAccount') ?? 'My Account' }}</h6>
       <ul class="space-y-2 text-sm">
-        <li><a href="{{ url('/online_store/account') }}" class="hover:text-white">{{ 'My Orders' }}</a></li>
-        <li><a href="{{ url('/online_store/account/wishlist') }}" class="hover:text-white">{{ 'Wishlist' }}</a></li>
-        <li><a href="{{ url('/online_store/account') }}" class="hover:text-white">{{ 'Account Details' }}</a></li>
+        <li><a href="{{ url('/online_store/account') }}" class="hover:text-white">{{ __('messages.MyOrders') ?? 'My Orders' }}</a></li>
+        <li><a href="{{ url('/online_store/account/wishlist') }}" class="hover:text-white">{{ __('messages.Wishlist') ?? 'Wishlist' }}</a></li>
+        <li><a href="{{ url('/online_store/account') }}" class="hover:text-white">{{ __('messages.AccountDetails') ?? 'Account Details' }}</a></li>
         <li><a href="{{ url('/online_store/account') }}" class="hover:text-white">{{ 'Addresses' }}</a></li>
-        <li><a href="{{ url('/online_store/login') }}" class="hover:text-white">{{ 'Logout' }}</a></li>
+        <li><a href="{{ url('/online_store/login') }}" class="hover:text-white">{{ __('messages.Logout') ?? 'Logout' }}</a></li>
       </ul>
     </div>
   </div>
@@ -85,7 +85,7 @@
   </div>
 
   <div class="max-w-7xl mx-auto px-4 py-5 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/40">
-    <span>&copy; {{ date('Y') }} {{ $s->store_name ?? 'Marketly' }}. {{ __('messages.AllRightsReserved') ?? 'All Rights Reserved.' }}</span>
+    <span>&copy; {{ date('Y') }} {{ $s->store_name ?? 'Marketly' }}. {{ __('messages.AllRightsReserved') ?? 'All rights reserved.' }}</span>
     <span class="flex items-center gap-4">
       <a href="#" class="hover:text-white">{{ 'Privacy Policy' }}</a>
       <a href="#" class="hover:text-white">{{ 'Terms & Conditions' }}</a>
