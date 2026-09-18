@@ -94,9 +94,9 @@ class StorefrontPresenter
             $categoryName = $p->categories->first()->name;
         }
 
-        $preview = request('preview_theme') ?: (session('preview_theme') ?? null);
+        $preview = request('preview_theme');
         $productUrlParams = ['slugOrId' => $slug];
-        if ($preview && $preview !== 'monochra') {
+        if ($preview && ! in_array($preview, ['none', 'reset', 'default', 'clear'], true)) {
             $productUrlParams['preview_theme'] = $preview;
         }
 

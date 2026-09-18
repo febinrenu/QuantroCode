@@ -17,7 +17,43 @@ use Illuminate\Http\Request;
 class StoreFrontController extends Controller
 {
     /**
-     * Resolve the active theme, honoring query preview and persisting in session.
+     * Authoritative product code prefixes for the 14 Category-Specific Themes.
+     */
+    public const CATEGORY_THEME_PREFIXES = [
+        'aurumeclat'           => 'JWL-',
+        'aurumeclat-jewelry'   => 'JWL-',
+        'generalhub'           => 'GEN-',
+        'generalhub-store'     => 'GEN-',
+        'generalhub-mega'      => 'GEN-',
+        'homely'               => 'HOM-',
+        'marketverse'          => 'MKT-',
+        'marketverse-deals'    => 'MKT-',
+        'naturae'              => 'NAT-',
+        'naturae-wellness'     => 'NAT-',
+        'nexora'               => 'NEX-',
+        'nexora-trending'      => 'NEX-',
+        'novatech'             => 'NVT-',
+        'novatech-electronics' => 'NVT-',
+        'novatech-tech'        => 'NVT-',
+        'paperloom'            => 'PPL-',
+        'technova'             => 'TNV-',
+        'technova-audio'       => 'TNV-',
+        'technova-electronics' => 'TNV-',
+        'urbanic'              => 'URB-',
+        'veloura'              => 'VEL-',
+        'veloura-beauty'       => 'VEL-',
+        'verde'                => 'VRD-',
+        'verde-living'         => 'VRD-',
+        'voguelane'            => 'VOG-',
+        'voguelane-couture'    => 'VOG-',
+        'voguelane-fashion'    => 'VOG-',
+        'zanova'               => 'ZNV-',
+        'zanova-flash'         => 'ZNV-',
+        'zanova-marketplace'   => 'ZNV-',
+    ];
+
+    /**
+     * Resolve the active theme, honoring explicit query preview and prioritizing persisted DB theme.
      */
     protected function resolveActiveTheme(Request $request, ?StoreSetting $s = null): string
     {
@@ -34,29 +70,14 @@ class StoreFrontController extends Controller
             }
             $normalized = StorefrontThemeRegistry::normalizeSlug((string) $preview);
             if (StorefrontThemeRegistry::find($normalized)) {
-                if (session()) {
-                    session(['preview_theme' => $normalized]);
-                }
                 return $normalized;
             }
         }
 
-        // When visiting the storefront homepage directly without a preview parameter,
-        // always serve the saved database theme and clear any stale preview session.
-        if (! $request->has('preview_theme')) {
-            if ($request->path() === 'online_store' || $request->path() === '' || $request->path() === '/') {
-                if (session()) {
-                    session()->forget('preview_theme');
-                }
-                return $defaultTheme;
-            }
-
-            if (session() && session()->has('preview_theme')) {
-                $saved = (string) session('preview_theme');
-                if (StorefrontThemeRegistry::find($saved)) {
-                    return $saved;
-                }
-            }
+        // When visiting the storefront normally without an explicit preview_theme query parameter,
+        // always prioritize the persisted database theme and clear any stale preview session.
+        if (session()) {
+            session()->forget('preview_theme');
         }
 
         return $defaultTheme;
@@ -355,38 +376,13 @@ class StoreFrontController extends Controller
             'categorySpecificProducts' => $categorySpecificProducts,
         ];
 
-        if ($activeTheme === 'veloura-beauty') {
-            $velCatIds = $categories->pluck('id')->all();
-            $products = Product::query()
+        $themePrefix = self::CATEGORY_THEME_PREFIXES[$activeTheme] ?? null;
+        if ($themePrefix !== null) {
+            $themedProductsQuery = Product::query()
+                ->where('products.deleted_at', '=', null)
                 ->where('products.is_active', 1)
                 ->where('products.hide_from_online_store', 0)
-                ->where(function ($q) use ($velCatIds) {
-                    $q->whereIn('products.category_id', $velCatIds)
-                      ->orWhere('products.code', 'like', 'VEL-%');
-                })
-                ->with(['variants', 'images', 'category'])
-                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
-                    $join->on('pvmin.product_id', '=', 'products.id');
-                })
-                ->addSelect(
-                    'products.*',
-                    DB::raw("$baseExpr AS base_price"),
-                    DB::raw("$afterDiscountExpr AS after_discount"),
-                    DB::raw("$finalExpr AS final_display_price")
-                )
-                ->orderBy('products.created_at', 'desc')
-                ->take(12)
-                ->get();
-            $viewData['products'] = $products;
-        } elseif ($activeTheme === 'technova-audio') {
-            $tnvCatIds = $categories->pluck('id')->all();
-            $products = Product::query()
-                ->where('products.is_active', 1)
-                ->where('products.hide_from_online_store', 0)
-                ->where(function ($q) use ($tnvCatIds) {
-                    $q->whereIn('products.category_id', $tnvCatIds)
-                      ->orWhere('products.code', 'like', 'TNV-%');
-                })
+                ->where('products.code', 'like', $themePrefix . '%')
                 ->with(['variants', 'images', 'category', 'brand'])
                 ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
                     $join->on('pvmin.product_id', '=', 'products.id');
@@ -396,180 +392,20 @@ class StoreFrontController extends Controller
                     DB::raw("$baseExpr AS base_price"),
                     DB::raw("$afterDiscountExpr AS after_discount"),
                     DB::raw("$finalExpr AS final_display_price")
-                )
-                ->orderBy('products.created_at', 'desc')
-                ->take(16)
-                ->get();
+                );
+
+            if ($activeTheme === 'novatech-electronics' || $activeTheme === 'novatech' || $activeTheme === 'novatech-tech') {
+                $themedProductsQuery->orderByRaw("CASE WHEN products.code IN ('NVT-EAR-001', 'NVT-WAT-002', 'NVT-LAP-003', 'NVT-PHN-004', 'NVT-CAM-005', 'NVT-SPK-006', 'NVT-GAM-007', 'NVT-HED-008', 'NVT-BAN-009', 'NVT-LAP-010', 'NVT-PHN-011', 'NVT-CAM-012', 'NVT-MOU-013', 'NVT-ACC-014', 'NVT-ACC-015', 'NVT-SMH-016') THEN FIELD(products.code, 'NVT-EAR-001', 'NVT-WAT-002', 'NVT-LAP-003', 'NVT-PHN-004', 'NVT-CAM-005', 'NVT-SPK-006', 'NVT-GAM-007', 'NVT-HED-008', 'NVT-BAN-009', 'NVT-LAP-010', 'NVT-PHN-011', 'NVT-CAM-012', 'NVT-MOU-013', 'NVT-ACC-014', 'NVT-ACC-015', 'NVT-SMH-016') ELSE 99 END");
+            } elseif ($activeTheme === 'zanova-flash' || $activeTheme === 'zanova' || $activeTheme === 'zanova-marketplace') {
+                $themedProductsQuery->orderByRaw("CASE WHEN products.code IN ('ZNV-EAR-001', 'ZNV-WAT-002', 'ZNV-CAM-003', 'ZNV-SPK-004', 'ZNV-BAK-005', 'ZNV-MIX-006', 'ZNV-LAP-007', 'ZNV-HED-008', 'ZNV-MOU-009', 'ZNV-FRY-010', 'ZNV-YOG-011', 'ZNV-SRM-012') THEN FIELD(products.code, 'ZNV-EAR-001', 'ZNV-WAT-002', 'ZNV-CAM-003', 'ZNV-SPK-004', 'ZNV-BAK-005', 'ZNV-MIX-006', 'ZNV-LAP-007', 'ZNV-HED-008', 'ZNV-MOU-009', 'ZNV-FRY-010', 'ZNV-YOG-011', 'ZNV-SRM-012') ELSE 99 END");
+            } else {
+                $themedProductsQuery->orderBy('products.is_featured', 'desc')
+                                    ->orderBy('products.created_at', 'desc');
+            }
+
+            $products = $themedProductsQuery->take(24)->get();
             $viewData['products'] = $products;
-        } elseif ($activeTheme === 'naturae-wellness') {
-            $natCatIds = $categories->pluck('id')->all();
-            $products = Product::query()
-                ->where('products.is_active', 1)
-                ->where('products.hide_from_online_store', 0)
-                ->where(function ($q) use ($natCatIds) {
-                    $q->whereIn('products.category_id', $natCatIds)
-                      ->orWhere('products.code', 'like', 'NAT-%');
-                })
-                ->with(['variants', 'images', 'category', 'brand'])
-                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
-                    $join->on('pvmin.product_id', '=', 'products.id');
-                })
-                ->addSelect(
-                    'products.*',
-                    DB::raw("$baseExpr AS base_price"),
-                    DB::raw("$afterDiscountExpr AS after_discount"),
-                    DB::raw("$finalExpr AS final_display_price")
-                )
-                ->orderBy('products.created_at', 'desc')
-                ->take(16)
-                ->get();
-            $viewData['products'] = $products;
-        } elseif ($activeTheme === 'nexora-trending') {
-            $nexCatIds = $categories->pluck('id')->all();
-            $products = Product::query()
-                ->where('products.is_active', 1)
-                ->where('products.hide_from_online_store', 0)
-                ->where(function ($q) use ($nexCatIds) {
-                    $q->whereIn('products.category_id', $nexCatIds)
-                      ->orWhere('products.code', 'like', 'NEX-%');
-                })
-                ->with(['variants', 'images', 'category', 'brand'])
-                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
-                    $join->on('pvmin.product_id', '=', 'products.id');
-                })
-                ->addSelect(
-                    'products.*',
-                    DB::raw("$baseExpr AS base_price"),
-                    DB::raw("$afterDiscountExpr AS after_discount"),
-                    DB::raw("$finalExpr AS final_display_price")
-                )
-                ->orderByRaw("CASE WHEN products.code LIKE 'NEX-%' THEN 0 ELSE 1 END")
-                ->orderBy('products.is_featured', 'desc')
-                ->orderBy('products.created_at', 'desc')
-                ->take(18)
-                ->get();
-            $viewData['products'] = $products;
-        } elseif ($activeTheme === 'urbanic') {
-            $urbCatIds = $categories->pluck('id')->all();
-            $products = Product::query()
-                ->where('products.is_active', 1)
-                ->where('products.hide_from_online_store', 0)
-                ->where(function ($q) use ($urbCatIds) {
-                    $q->whereIn('products.category_id', $urbCatIds)
-                      ->orWhere('products.code', 'like', 'URB-%');
-                })
-                ->with(['variants', 'images', 'category', 'brand'])
-                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
-                    $join->on('pvmin.product_id', '=', 'products.id');
-                })
-                ->addSelect(
-                    'products.*',
-                    DB::raw("$baseExpr AS base_price"),
-                    DB::raw("$afterDiscountExpr AS after_discount"),
-                    DB::raw("$finalExpr AS final_display_price")
-                )
-                ->orderByRaw("CASE WHEN products.code LIKE 'URB-%' THEN 0 ELSE 1 END")
-                ->orderBy('products.is_featured', 'desc')
-                ->orderBy('products.created_at', 'desc')
-                ->take(18)
-                ->get();
-            $viewData['products'] = $products;
-        } elseif ($activeTheme === 'homely') {
-            $homCatIds = $categories->pluck('id')->all();
-            $products = Product::query()
-                ->where('products.is_active', 1)
-                ->where('products.hide_from_online_store', 0)
-                ->where(function ($q) use ($homCatIds) {
-                    $q->whereIn('products.category_id', $homCatIds)
-                      ->orWhere('products.code', 'like', 'HOM-%');
-                })
-                ->with(['variants', 'images', 'category', 'brand'])
-                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
-                    $join->on('pvmin.product_id', '=', 'products.id');
-                })
-                ->addSelect(
-                    'products.*',
-                    DB::raw("$baseExpr AS base_price"),
-                    DB::raw("$afterDiscountExpr AS after_discount"),
-                    DB::raw("$finalExpr AS final_display_price")
-                )
-                ->orderByRaw("CASE WHEN products.code LIKE 'HOM-%' THEN 0 ELSE 1 END")
-                ->orderBy('products.is_featured', 'desc')
-                ->orderBy('products.created_at', 'desc')
-                ->take(18)
-                ->get();
-            $viewData['products'] = $products;
-        } elseif ($activeTheme === 'verde') {
-            $vrdCatIds = $categories->pluck('id')->all();
-            $products = Product::query()
-                ->where('products.is_active', 1)
-                ->where('products.hide_from_online_store', 0)
-                ->where(function ($q) use ($vrdCatIds) {
-                    $q->whereIn('products.category_id', $vrdCatIds)
-                      ->orWhere('products.code', 'like', 'VRD-%');
-                })
-                ->with(['variants', 'images', 'category', 'brand'])
-                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
-                    $join->on('pvmin.product_id', '=', 'products.id');
-                })
-                ->addSelect(
-                    'products.*',
-                    DB::raw("$baseExpr AS base_price"),
-                    DB::raw("$afterDiscountExpr AS after_discount"),
-                    DB::raw("$finalExpr AS final_display_price")
-                )
-                ->orderByRaw("CASE WHEN products.code LIKE 'VRD-%' THEN 0 ELSE 1 END")
-                ->orderBy('products.is_featured', 'desc')
-                ->orderBy('products.created_at', 'desc')
-                ->take(18)
-                ->get();
-            $viewData['products'] = $products;
-        } elseif ($activeTheme === 'zanova-flash') {
-            $znvCatIds = $categories->pluck('id')->all();
-            $products = Product::query()
-                ->where('products.is_active', 1)
-                ->where('products.hide_from_online_store', 0)
-                ->where(function ($q) use ($znvCatIds) {
-                    $q->whereIn('products.category_id', $znvCatIds)
-                      ->orWhere('products.code', 'like', 'ZNV-%');
-                })
-                ->with(['variants', 'images', 'category', 'brand'])
-                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
-                    $join->on('pvmin.product_id', '=', 'products.id');
-                })
-                ->addSelect(
-                    'products.*',
-                    DB::raw("$baseExpr AS base_price"),
-                    DB::raw("$afterDiscountExpr AS after_discount"),
-                    DB::raw("$finalExpr AS final_display_price")
-                )
-                ->orderByRaw("CASE WHEN products.code IN ('ZNV-EAR-001', 'ZNV-WAT-002', 'ZNV-CAM-003', 'ZNV-SPK-004', 'ZNV-BAK-005', 'ZNV-MIX-006', 'ZNV-LAP-007', 'ZNV-HED-008', 'ZNV-MOU-009', 'ZNV-FRY-010', 'ZNV-YOG-011', 'ZNV-SRM-012') THEN FIELD(products.code, 'ZNV-EAR-001', 'ZNV-WAT-002', 'ZNV-CAM-003', 'ZNV-SPK-004', 'ZNV-BAK-005', 'ZNV-MIX-006', 'ZNV-LAP-007', 'ZNV-HED-008', 'ZNV-MOU-009', 'ZNV-FRY-010', 'ZNV-YOG-011', 'ZNV-SRM-012') ELSE 99 END")
-                ->take(18)
-                ->get();
-            $viewData['products'] = $products;
-        } elseif ($activeTheme === 'novatech-electronics') {
-            $nvtCatIds = $categories->pluck('id')->all();
-            $products = Product::query()
-                ->where('products.is_active', 1)
-                ->where('products.hide_from_online_store', 0)
-                ->where(function ($q) use ($nvtCatIds) {
-                    $q->whereIn('products.category_id', $nvtCatIds)
-                      ->orWhere('products.code', 'like', 'NVT-%');
-                })
-                ->with(['variants', 'images', 'category', 'brand'])
-                ->leftJoinSub($minVariantSub, 'pvmin', function ($join) {
-                    $join->on('pvmin.product_id', '=', 'products.id');
-                })
-                ->addSelect(
-                    'products.*',
-                    DB::raw("$baseExpr AS base_price"),
-                    DB::raw("$afterDiscountExpr AS after_discount"),
-                    DB::raw("$finalExpr AS final_display_price")
-                )
-                ->orderByRaw("CASE WHEN products.code IN ('NVT-EAR-001', 'NVT-WAT-002', 'NVT-LAP-003', 'NVT-PHN-004', 'NVT-CAM-005', 'NVT-SPK-006', 'NVT-GAM-007', 'NVT-HED-008', 'NVT-BAN-009', 'NVT-LAP-010', 'NVT-PHN-011', 'NVT-CAM-012', 'NVT-MOU-013', 'NVT-ACC-014', 'NVT-ACC-015', 'NVT-SMH-016') THEN FIELD(products.code, 'NVT-EAR-001', 'NVT-WAT-002', 'NVT-LAP-003', 'NVT-PHN-004', 'NVT-CAM-005', 'NVT-SPK-006', 'NVT-GAM-007', 'NVT-HED-008', 'NVT-BAN-009', 'NVT-LAP-010', 'NVT-PHN-011', 'NVT-CAM-012', 'NVT-MOU-013', 'NVT-ACC-014', 'NVT-ACC-015', 'NVT-SMH-016') ELSE 99 END")
-                ->take(18)
-                ->get();
-            $viewData['products'] = $products;
+            $viewData['categorySpecificProducts'] = $products;
         }
 
         $view = StorefrontThemeRegistry::viewFor($activeTheme, 'home') ?? 'store.index';
@@ -636,90 +472,9 @@ class StoreFrontController extends Controller
 
         $categories = $this->getThemedCategories($activeTheme);
 
-        if ($activeTheme === 'generalhub-store') {
-            $hubCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($hubCatIds) {
-                $q->whereIn('products.category_id', $hubCatIds)
-                  ->orWhere('products.code', 'like', 'GEN-%');
-            });
-        } elseif ($activeTheme === 'aurumeclat') {
-            $jwlCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($jwlCatIds) {
-                $q->whereIn('products.category_id', $jwlCatIds)
-                  ->orWhere('products.code', 'like', 'JWL-%');
-            });
-        } elseif ($activeTheme === 'voguelane-couture') {
-            $vogCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($vogCatIds) {
-                $q->whereIn('products.category_id', $vogCatIds)
-                  ->orWhere('products.code', 'like', 'VOG-%');
-            });
-        } elseif ($activeTheme === 'paperloom') {
-            $pplCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($pplCatIds) {
-                $q->whereIn('products.category_id', $pplCatIds)
-                  ->orWhere('products.code', 'like', 'PPL-%');
-            });
-        } elseif ($activeTheme === 'marketverse-deals') {
-            $mktCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($mktCatIds) {
-                $q->whereIn('products.category_id', $mktCatIds)
-                  ->orWhere('products.code', 'like', 'MKT-%');
-            });
-        } elseif ($activeTheme === 'veloura-beauty') {
-            $velCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($velCatIds) {
-                $q->whereIn('products.category_id', $velCatIds)
-                  ->orWhere('products.code', 'like', 'VEL-%');
-            });
-        } elseif ($activeTheme === 'technova-audio') {
-            $tnvCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($tnvCatIds) {
-                $q->whereIn('products.category_id', $tnvCatIds)
-                  ->orWhere('products.code', 'like', 'TNV-%');
-            });
-        } elseif ($activeTheme === 'naturae-wellness') {
-            $natCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($natCatIds) {
-                $q->whereIn('products.category_id', $natCatIds)
-                  ->orWhere('products.code', 'like', 'NAT-%');
-            });
-        } elseif ($activeTheme === 'nexora-trending') {
-            $nexCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($nexCatIds) {
-                $q->whereIn('products.category_id', $nexCatIds)
-                  ->orWhere('products.code', 'like', 'NEX-%');
-            });
-        } elseif ($activeTheme === 'urbanic') {
-            $urbCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($urbCatIds) {
-                $q->whereIn('products.category_id', $urbCatIds)
-                  ->orWhere('products.code', 'like', 'URB-%');
-            });
-        } elseif ($activeTheme === 'homely') {
-            $homCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($homCatIds) {
-                $q->whereIn('products.category_id', $homCatIds)
-                  ->orWhere('products.code', 'like', 'HOM-%');
-            });
-        } elseif ($activeTheme === 'verde') {
-            $vrdCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($vrdCatIds) {
-                $q->whereIn('products.category_id', $vrdCatIds)
-                  ->orWhere('products.code', 'like', 'VRD-%');
-            });
-        } elseif ($activeTheme === 'zanova-flash') {
-            $znvCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($znvCatIds) {
-                $q->whereIn('products.category_id', $znvCatIds)
-                  ->orWhere('products.code', 'like', 'ZNV-%');
-            });
-        } elseif ($activeTheme === 'novatech-electronics') {
-            $nvtCatIds = $categories->pluck('id')->all();
-            $productsQuery->where(function ($q) use ($nvtCatIds) {
-                $q->whereIn('products.category_id', $nvtCatIds)
-                  ->orWhere('products.code', 'like', 'NVT-%');
-            });
+        $themePrefix = self::CATEGORY_THEME_PREFIXES[$activeTheme] ?? null;
+        if ($themePrefix !== null) {
+            $productsQuery->where('products.code', 'like', $themePrefix . '%');
         }
 
         $products = $productsQuery
@@ -738,158 +493,7 @@ class StoreFrontController extends Controller
                 });
             })
             // Category (legacy column OR category_product pivot OR name/slug match)
-            ->when($cat, function ($qb) use ($cat, $activeTheme) {
-                if ($activeTheme === 'marketverse') {
-                    if (strcasecmp($cat, 'Fashion') === 0 || strcasecmp($cat, "Women's Fashion") === 0 || strcasecmp($cat, "Men's Fashion") === 0) {
-                        $fashCatIds = Category::whereIn('name', ['Fashion', "Women's Fashion", "Men's Fashion"])->pluck('id')->all();
-                        $qb->whereIn('products.category_id', $fashCatIds);
-                        return;
-                    } elseif (strcasecmp($cat, 'Home') === 0 || strcasecmp($cat, 'Home & Living') === 0) {
-                        $homeCatIds = Category::whereIn('name', ['Home & Living', 'Home'])->pluck('id')->all();
-                        $qb->whereIn('products.category_id', $homeCatIds);
-                        return;
-                    } elseif (strcasecmp($cat, 'Beauty') === 0 || strcasecmp($cat, 'Beauty & Personal Care') === 0) {
-                        $beautyCatIds = Category::whereIn('name', ['Beauty & Personal Care', 'Beauty'])->pluck('id')->all();
-                        $qb->whereIn('products.category_id', $beautyCatIds);
-                        return;
-                    } elseif (strcasecmp($cat, 'Grocery') === 0 || strcasecmp($cat, 'Grocery & Essentials') === 0) {
-                        $grocCatIds = Category::whereIn('name', ['Grocery & Essentials', 'Grocery'])->pluck('id')->all();
-                        $qb->whereIn('products.category_id', $grocCatIds);
-                        return;
-                    } elseif (strcasecmp($cat, 'Toys') === 0 || strcasecmp($cat, 'Toys & Games') === 0) {
-                        $toyCatIds = Category::whereIn('name', ['Toys & Games', 'Toys'])->pluck('id')->all();
-                        $qb->whereIn('products.category_id', $toyCatIds);
-                        return;
-                    } elseif (strcasecmp($cat, 'Sports') === 0 || strcasecmp($cat, 'Sports & Outdoors') === 0) {
-                        $sportCatIds = Category::whereIn('name', ['Sports & Outdoors', 'Sports'])->pluck('id')->all();
-                        $qb->whereIn('products.category_id', $sportCatIds);
-                        return;
-                    } elseif (strcasecmp($cat, 'Automotive') === 0) {
-                        $autoCatIds = Category::whereIn('name', ['Automotive'])->pluck('id')->all();
-                        $qb->whereIn('products.category_id', $autoCatIds);
-                        return;
-                    } elseif (strcasecmp($cat, 'Books') === 0 || strcasecmp($cat, 'Books & Stationery') === 0) {
-                        $bookCatIds = Category::whereIn('name', ['Books & Stationery', 'Books'])->pluck('id')->all();
-                        $qb->whereIn('products.category_id', $bookCatIds);
-                        return;
-                    } elseif (strcasecmp($cat, 'Pet Supplies') === 0 || strcasecmp($cat, 'Pets') === 0) {
-                        $petCatIds = Category::whereIn('name', ['Pet Supplies', 'Pets'])->pluck('id')->all();
-                        $qb->whereIn('products.category_id', $petCatIds);
-                        return;
-                    }
-                }
-
-                if ($activeTheme === 'paperloom') {
-                    if (strcasecmp($cat, 'Books') === 0) {
-                        $bookCatIds = Category::whereIn('name', ['Books', 'Fiction', 'Non-Fiction', 'Children', 'Academic'])->pluck('id')->all();
-                        $qb->whereIn('products.category_id', $bookCatIds);
-                        return;
-                    } elseif (strcasecmp($cat, 'Stationery') === 0) {
-                        $statCatIds = Category::whereIn('name', ['Stationery', 'Notebooks', 'Journals', 'Desk Accessories', 'Art Supplies'])->pluck('id')->all();
-                        $qb->whereIn('products.category_id', $statCatIds);
-                        return;
-                    } elseif (strcasecmp($cat, 'Kids') === 0) {
-                        $kidCatIds = Category::whereIn('name', ['Children'])->pluck('id')->all();
-                        $qb->whereIn('products.category_id', $kidCatIds);
-                        return;
-                    }
-                }
-
-                if ($activeTheme === 'zanova') {
-                    $catSlugMap = [
-                        'electronics'          => 3,
-                        'fashion-apparel'      => 77,
-                        'fashion'              => 77,
-                        'apparel'              => 77,
-                        'home-kitchen'         => 78,
-                        'home'                 => 78,
-                        'kitchen'              => 78,
-                        'beauty-personal-care' => 28,
-                        'beauty'               => 28,
-                        'personal-care'        => 28,
-                        'toys-games'           => 11,
-                        'toys'                 => 11,
-                        'games'                => 11,
-                        'sports-outdoors'      => 30,
-                        'sports'               => 30,
-                        'outdoors'             => 30,
-                        'automotive'           => 31,
-                        'auto'                 => 31,
-                        'books-stationery'     => 32,
-                        'books'                => 32,
-                        'stationery'           => 32,
-                        'pet-supplies'         => 33,
-                        'pets'                 => 33,
-                        'pet'                  => 33,
-                        'groceries-essentials' => 79,
-                        'groceries'            => 79,
-                        'grocery'              => 79,
-                        'health-wellness'      => 80,
-                        'health'               => 80,
-                        'wellness'             => 80,
-                        'gift-ideas'           => 81,
-                        'gifts'                => 81,
-                        'gift'                 => 81,
-                    ];
-                    $normCat = strtolower(trim((string)$cat));
-                    $slugCat = str_replace([' & ', ' '], '-', $normCat);
-                    if (isset($catSlugMap[$normCat])) {
-                        $qb->where('products.category_id', $catSlugMap[$normCat]);
-                        return;
-                    } elseif (isset($catSlugMap[$slugCat])) {
-                        $qb->where('products.category_id', $catSlugMap[$slugCat]);
-                        return;
-                    } elseif (is_numeric($cat)) {
-                        $cid = (int) $cat;
-                        $qb->where('products.category_id', $cid);
-                        return;
-                    }
-                }
-
-                if ($activeTheme === 'novatech') {
-                    $catSlugMap = [
-                        'laptops'             => 43,
-                        'laptop'              => 43,
-                        'computers-laptops'   => 43,
-                        'computers'           => 43,
-                        'smartphones'         => 42,
-                        'smartphone'          => 42,
-                        'mobiles-tablets'     => 42,
-                        'mobiles'             => 42,
-                        'phones'              => 42,
-                        'wearables'           => 82,
-                        'wearable'            => 82,
-                        'smart-watch'         => 82,
-                        'smartwatch'          => 82,
-                        'audio'               => 45,
-                        'audio-headphones'    => 45,
-                        'headphones'          => 45,
-                        'gaming'              => 46,
-                        'accessories'         => 9,
-                        'cameras'             => 47,
-                        'camera'              => 47,
-                        'camera-photo'        => 47,
-                        'smart-home'          => 48,
-                        'smarthome'           => 48,
-                        'software'            => 83,
-                        'home-appliances'     => 84,
-                        'electronics'         => 3,
-                    ];
-                    $normCat = strtolower(trim((string)$cat));
-                    $slugCat = str_replace([' & ', ' '], '-', $normCat);
-                    if (isset($catSlugMap[$normCat])) {
-                        $qb->where('products.category_id', $catSlugMap[$normCat]);
-                        return;
-                    } elseif (isset($catSlugMap[$slugCat])) {
-                        $qb->where('products.category_id', $catSlugMap[$slugCat]);
-                        return;
-                    } elseif (is_numeric($cat)) {
-                        $cid = (int) $cat;
-                        $qb->where('products.category_id', $cid);
-                        return;
-                    }
-                }
-
+            ->when($cat, function ($qb) use ($cat) {
                 if (is_numeric($cat)) {
                     $cid = (int) $cat;
                     $qb->where(function ($q) use ($cid) {
@@ -904,14 +508,26 @@ class StoreFrontController extends Controller
                         }
                     });
                 } else {
-                    $matchedCat = Category::where('name', $cat)
-                        ->orWhere('code', $cat)
-                        ->first()
-                        ?: Category::where('name', 'like', "%{$cat}%")
-                            ->orWhere('code', 'like', "%{$cat}%")
-                            ->first();
-                    if ($matchedCat) {
-                        $qb->where('products.category_id', $matchedCat->id);
+                    $norm = trim((string) $cat);
+                    $matchedCatIds = Category::where('name', $norm)
+                        ->orWhere('code', $norm)
+                        ->orWhere('name', 'like', "%{$norm}%")
+                        ->orWhere('code', 'like', "%{$norm}%")
+                        ->pluck('id')
+                        ->all();
+
+                    if (!empty($matchedCatIds)) {
+                        $qb->where(function ($q) use ($matchedCatIds) {
+                            $q->whereIn('products.category_id', $matchedCatIds);
+                            if (Schema::hasTable('category_product')) {
+                                $q->orWhereExists(function ($sub) use ($matchedCatIds) {
+                                    $sub->select(DB::raw(1))
+                                        ->from('category_product')
+                                        ->whereColumn('category_product.product_id', 'products.id')
+                                        ->whereIn('category_product.category_id', $matchedCatIds);
+                                });
+                            }
+                        });
                     }
                 }
             })
@@ -1322,7 +938,7 @@ class StoreFrontController extends Controller
             return Category::with('subcategories')->where('code', $restrictedCode)->get();
         }
 
-        if ($activeTheme === 'generalhub') {
+        if ($activeTheme === 'generalhub' || $activeTheme === 'generalhub-store' || $activeTheme === 'generalhub-mega') {
             return Category::with('subcategories')
                 ->whereIn('name', [
                     'Electronics',
@@ -1338,7 +954,7 @@ class StoreFrontController extends Controller
                 ->get();
         }
 
-        if ($activeTheme === 'aurumeclat') {
+        if ($activeTheme === 'aurumeclat' || $activeTheme === 'aurumeclat-jewelry') {
             return Category::with('subcategories')
                 ->where(function ($q) {
                     $q->whereIn('name', ['Fine Jewelry', 'Jewelry'])
@@ -1348,7 +964,7 @@ class StoreFrontController extends Controller
                 ->get();
         }
 
-        if ($activeTheme === 'voguelane-couture') {
+        if ($activeTheme === 'voguelane-couture' || $activeTheme === 'voguelane' || $activeTheme === 'voguelane-fashion') {
             return Category::with('subcategories')
                 ->whereIn('name', [
                     'Women',
@@ -1382,7 +998,7 @@ class StoreFrontController extends Controller
                 ->get();
         }
 
-        if ($activeTheme === 'marketverse-deals') {
+        if ($activeTheme === 'marketverse-deals' || $activeTheme === 'marketverse') {
             return Category::with('subcategories')
                 ->whereIn('name', [
                     'Fashion',
@@ -1400,7 +1016,7 @@ class StoreFrontController extends Controller
                 ->get();
         }
 
-        if ($activeTheme === 'veloura-beauty') {
+        if ($activeTheme === 'veloura-beauty' || $activeTheme === 'veloura') {
             return Category::with('subcategories')
                 ->whereIn('name', [
                     'Fragrance',
@@ -1416,7 +1032,7 @@ class StoreFrontController extends Controller
                 ->get();
         }
 
-        if ($activeTheme === 'technova-audio') {
+        if ($activeTheme === 'technova-audio' || $activeTheme === 'technova' || $activeTheme === 'technova-electronics') {
             return Category::with('subcategories')
                 ->whereIn('name', [
                     'Smartphones',
@@ -1432,7 +1048,7 @@ class StoreFrontController extends Controller
                 ->get();
         }
 
-        if ($activeTheme === 'naturae-wellness') {
+        if ($activeTheme === 'naturae-wellness' || $activeTheme === 'naturae') {
             return Category::with('subcategories')
                 ->whereIn('name', [
                     'Skincare',
@@ -1448,7 +1064,7 @@ class StoreFrontController extends Controller
                 ->get();
         }
 
-        if ($activeTheme === 'nexora-trending') {
+        if ($activeTheme === 'nexora-trending' || $activeTheme === 'nexora') {
             return Category::with('subcategories')
                 ->whereIn('name', [
                     'Electronics',
@@ -1509,7 +1125,7 @@ class StoreFrontController extends Controller
                 ->get();
         }
 
-        if ($activeTheme === 'verde') {
+        if ($activeTheme === 'verde' || $activeTheme === 'verde-living') {
             return Category::with('subcategories')
                 ->whereIn('name', [
                     'Home & Decor',
@@ -1527,7 +1143,7 @@ class StoreFrontController extends Controller
                 ->get();
         }
 
-        if ($activeTheme === 'zanova-flash') {
+        if ($activeTheme === 'zanova-flash' || $activeTheme === 'zanova' || $activeTheme === 'zanova-marketplace') {
             return Category::with('subcategories')
                 ->whereIn('name', [
                     'Electronics',
@@ -1547,7 +1163,7 @@ class StoreFrontController extends Controller
                 ->get();
         }
 
-        if ($activeTheme === 'novatech-electronics') {
+        if ($activeTheme === 'novatech-electronics' || $activeTheme === 'novatech' || $activeTheme === 'novatech-tech') {
             return Category::with('subcategories')
                 ->whereIn('name', [
                     'Laptops',
